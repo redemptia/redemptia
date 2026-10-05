@@ -71,7 +71,7 @@
 		"@types/pg": "^8.23.1",
 		"auth": "1.7.4",
 		"drizzle-kit": "^0.31.10",
-		"stripe": "^22.6.1",
+		"stripe": "^23.0.0",
 		"typescript": "^7.0.2",
 		"vitest": "^4.1.11"
 	}
