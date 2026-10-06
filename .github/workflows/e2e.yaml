@@ -52,7 +52,7 @@ concurrency:
 jobs:
   e2e:
     name: E2E Integration Tests
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
 
     env:
@@ -267,7 +267,7 @@ jobs:
   # whitelabel deployments run.
   scheduling-policy:
     name: Scheduling Policy Verification
-    runs-on: blacksmith-2vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
 
     services:
