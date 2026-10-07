@@ -53,3 +53,26 @@ export const MAX_PROMPTS = 100;
  * read path — keep both sides on this constant.
  */
 export const WEB_QUERIES_UNAVAILABLE = "unavailable";
+
+/**
+ * Queue options for a process-prompt job, wherever it's scheduled from, and the
+ * process-prompt queue's own policy. Web and worker both send with these, so a
+ * job's expiry doesn't depend on which process enqueued it.
+ *
+ * The expiry has to outlast the whole fan-out. A cycle submits every one of its
+ * runs at once and each is bounded by the provider's own task ceiling, so the
+ * job runs for about as long as its slowest run — which, behind a provider
+ * queue deep enough to matter, is that ceiling. If pg-boss expires the job it
+ * cannot cancel the running promises, and a retry would pay for the fan-out a
+ * second time.
+ *
+ * `retryLimit: 0` for the same reason from the other side. By the time this job
+ * can fail it has already submitted paid requests, and a queue-level retry
+ * re-submits the whole fan-out including the runs that succeeded. Recovery goes
+ * through the handler's own backoff reschedule instead, or through
+ * schedule-maintenance for a job that died before reaching it.
+ */
+export const PROMPT_JOB_OPTIONS = {
+	retryLimit: 0,
+	expireInSeconds: 90 * 60,
+} as const;

@@ -1,4 +1,4 @@
-import { getDefaultDelayHours } from "@workspace/lib/constants";
+import { getDefaultDelayHours, PROMPT_JOB_OPTIONS } from "@workspace/lib/constants";
 import { db } from "@workspace/lib/db/db";
 import { brands, prompts } from "@workspace/lib/db/schema";
 import { eq } from "drizzle-orm";
@@ -66,11 +66,7 @@ export async function createPromptJobScheduler(promptId: string, options: Schedu
 				{
 					singletonKey: `prompt-${promptId}`,
 					singletonSeconds: 60 * 60, // 1 hour - prevent duplicate jobs
-					// Never retry: see PROMPT_JOB_OPTIONS in apps/worker/src/jobs/process-prompt.ts:46-60.
-					retryLimit: 0,
-					retryDelay: 60,
-					retryBackoff: true,
-					expireInSeconds: 60 * 15, // 15 minute timeout
+					...PROMPT_JOB_OPTIONS,
 				},
 			);
 		} else {
@@ -82,11 +78,7 @@ export async function createPromptJobScheduler(promptId: string, options: Schedu
 					singletonKey: `prompt-${promptId}`,
 					singletonSeconds: startAfterSeconds, // Prevent duplicates for the cadence period
 					startAfter: startAfterSeconds,
-					// Never retry: see PROMPT_JOB_OPTIONS in apps/worker/src/jobs/process-prompt.ts:46-60.
-					retryLimit: 0,
-					retryDelay: 60,
-					retryBackoff: true,
-					expireInSeconds: 60 * 15,
+					...PROMPT_JOB_OPTIONS,
 				},
 			);
 		}
@@ -135,17 +127,7 @@ export async function sendImmediatePromptJob(promptId: string): Promise<boolean>
 		const boss = await getBoss();
 		const cadenceHours = await getPromptCadenceHours(promptId);
 
-		await boss.send(
-			"process-prompt",
-			{ promptId, cadenceHours },
-			{
-				// Never retry: see PROMPT_JOB_OPTIONS in apps/worker/src/jobs/process-prompt.ts:46-60.
-				retryLimit: 0,
-				retryDelay: 60,
-				retryBackoff: true,
-				expireInSeconds: 60 * 15,
-			},
-		);
+		await boss.send("process-prompt", { promptId, cadenceHours }, PROMPT_JOB_OPTIONS);
 
 		console.log(`Sent immediate job for prompt ${promptId}`);
 		return true;

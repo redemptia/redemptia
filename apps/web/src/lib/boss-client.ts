@@ -1,3 +1,4 @@
+import { PROMPT_JOB_OPTIONS } from "@workspace/lib/constants";
 import { PgBoss } from "pg-boss";
 
 let bossInstance: PgBoss | null = null;
@@ -33,16 +34,10 @@ export async function getBoss(): Promise<PgBoss> {
 
 		// Create queues if they don't exist (required in pg-boss v12)
 		// createQueue is idempotent - safe to call multiple times
-		await boss.createQueue("process-prompt", {
-			// Never retry: see PROMPT_JOB_OPTIONS in apps/worker/src/jobs/process-prompt.ts:46-60.
-			retryLimit: 0,
-			retryDelay: 60,
-			retryBackoff: true,
-			expireInSeconds: 60 * 15,
-		});
+		await boss.createQueue("process-prompt", PROMPT_JOB_OPTIONS);
 		// createQueue is INSERT ... ON CONFLICT DO NOTHING, so it can't change a queue
-		// that already exists; this brings older databases' policy down to zero retries.
-		await boss.updateQueue("process-prompt", { retryLimit: 0 });
+		// that already exists; this converges older databases on the current policy.
+		await boss.updateQueue("process-prompt", PROMPT_JOB_OPTIONS);
 		await boss.createQueue("generate-report", {
 			retryLimit: 3,
 			retryDelay: 60,

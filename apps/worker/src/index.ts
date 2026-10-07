@@ -2,6 +2,7 @@ import * as Sentry from "@sentry/node";
 import { assertRequiredEnv } from "@workspace/config/env";
 import { parseScrapeTargets } from "@workspace/config/scrape-targets";
 import { getDeploymentFeatures } from "@workspace/deployment";
+import { PROMPT_JOB_OPTIONS } from "@workspace/lib/constants";
 import { getProvider, validateScrapeTargets } from "@workspace/lib/providers";
 import { startCredentialRefresh } from "@workspace/lib/secrets";
 import { getBoss } from "./boss";
@@ -42,16 +43,10 @@ async function main() {
 	console.log("pg-boss started");
 
 	// Create queues if they don't exist (required in pg-boss v12)
-	await boss.createQueue("process-prompt", {
-		// Never retry: see PROMPT_JOB_OPTIONS in ./jobs/process-prompt.ts:46-60.
-		retryLimit: 0,
-		retryDelay: 60,
-		retryBackoff: true,
-		expireInSeconds: 60 * 15, // 15 minute timeout
-	});
+	await boss.createQueue("process-prompt", PROMPT_JOB_OPTIONS);
 	// createQueue is INSERT ... ON CONFLICT DO NOTHING, so it can't change a queue
-	// that already exists; this brings older databases' policy down to zero retries.
-	await boss.updateQueue("process-prompt", { retryLimit: 0 });
+	// that already exists; this converges older databases on the current policy.
+	await boss.updateQueue("process-prompt", PROMPT_JOB_OPTIONS);
 	if (getDeploymentFeatures().reportGeneration) {
 		await boss.createQueue("generate-report", {
 			retryLimit: 3,
