@@ -100,6 +100,10 @@ async function claimSlug<T>(write: () => Promise<T>, constraint: string, takenMe
 
 // Bound here rather than at each write: a constraint name that doesn't match the
 // index is a mapping that silently never fires.
+/** True for a write that would give a brand two competitors with the same name. */
+export const isCompetitorNameTaken = (error: unknown): boolean =>
+	isUniqueViolation(error, "competitors_brand_id_name_unique");
+
 export const claimOrgSlug = <T>(write: () => Promise<T>, takenMessage: string): Promise<T> =>
 	claimSlug(write, "organization_slug_unique", takenMessage);
 

@@ -9,10 +9,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { dedupeAliases, dedupeDomains } from "@workspace/lib/citations/domain-categories";
 import { competitors } from "@workspace/lib/db/schema";
+import { isCompetitorNameTaken } from "@workspace/lib/db/unique-names";
 import { assertCompetitorCap, withQuotaLock } from "@workspace/lib/entitlements";
 import { z } from "zod";
 import { clampedPaging } from "@/lib/api/analytics-range";
-import { createApiHandler, withMethodGuard } from "@/lib/api/handler";
+import { ApiError, createApiHandler, withMethodGuard } from "@/lib/api/handler";
 import { brandScopeCondition, requireBrandInScope } from "@/lib/api/scope";
 import { listCompetitors } from "@/server/competitors-core";
 
@@ -54,6 +55,11 @@ export const Route = createFileRoute("/api/v1/competitors/")({
 				body: createCompetitorBody,
 				status: 201,
 				scopes: ["write"],
+				mapError: (err) => {
+					if (isCompetitorNameTaken(err)) {
+						return new ApiError(409, "Conflict", "This brand already has a competitor with that name.");
+					}
+				},
 				handle: async ({ body, auth }) => {
 					const { brandId, name, domains, aliases } = body;
 

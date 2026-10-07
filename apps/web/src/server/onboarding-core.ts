@@ -206,15 +206,21 @@ async function insertCompetitors(args: {
 		where: eq(competitors.brandId, args.brandId),
 	});
 	const existingDomains = new Set(existing.flatMap((c) => c.domains));
+	// A brand can't hold two competitors with one name, so a suggestion that repeats
+	// a name is skipped the same way one that repeats a domain is.
+	const takenNames = new Set(existing.map((c) => c.name));
 
 	const toInsert: Array<{ brandId: string; name: string; domains: string[]; aliases: string[] }> = [];
 	for (const c of args.source) {
 		const cleaned = dedupeDomains(c.domains).filter((d) => d !== args.websiteHost);
 		if (cleaned.length === 0) continue;
 		if (cleaned.some((d) => existingDomains.has(d))) continue;
+		const name = c.name.trim();
+		if (takenNames.has(name)) continue;
+		takenNames.add(name);
 		toInsert.push({
 			brandId: args.brandId,
-			name: c.name.trim(),
+			name,
 			domains: cleaned,
 			aliases: dedupeAliases(c.aliases),
 		});

@@ -176,6 +176,13 @@
       "when": 1791348657045,
       "tag": "0100_usage_events_org_type_created_idx",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1791362161998,
+      "tag": "0101_competitors_brand_id_name_unique",
+      "breakpoints": true
     }
   ]
 }
