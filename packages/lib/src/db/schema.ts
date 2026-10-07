@@ -183,6 +183,35 @@ export const citations = pgTable(
 	}),
 ).enableRLS();
 
+/**
+ * The answer text of a run, extracted once when the run is saved, so later
+ * readers (enrichment classifiers) get it without re-reading raw_output.
+ *
+ * content_hash and answer_length live here rather than on any per-subject
+ * analysis: they describe the answer itself, not a (run × subject) judgement.
+ * On a run scored for a brand and five competitors they would otherwise be
+ * stored six times, and recomputed on every classifier version bump.
+ *
+ * A run always gets a row. text is null when extraction produced no answer (an
+ * empty result or one of EXTRACTION_SENTINELS), so a reader can tell "no
+ * answer" from "not extracted yet" and never scores an error message as a
+ * model's answer. extractor_version records which extraction logic produced the
+ * row, so a later change to it can find and re-extract older rows.
+ */
+export const runTexts = pgTable("run_texts", {
+	// Cascades because prompt_runs are hard-deleted directly (prompt deletion,
+	// seeding and test cleanup all DELETE them), and a restricting FK would make
+	// every one of those fail once a run has its text row.
+	promptRunId: uuid("prompt_run_id")
+		.primaryKey()
+		.references(() => promptRuns.id, { onDelete: "cascade" }),
+	text: text("text"),
+	contentHash: text("content_hash"),
+	answerLength: integer("answer_length"),
+	extractorVersion: integer("extractor_version").notNull(),
+	createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}).enableRLS();
+
 export const reports = pgTable(
 	"reports",
 	{
