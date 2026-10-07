@@ -34,11 +34,15 @@ export async function getBoss(): Promise<PgBoss> {
 		// Create queues if they don't exist (required in pg-boss v12)
 		// createQueue is idempotent - safe to call multiple times
 		await boss.createQueue("process-prompt", {
-			retryLimit: 3,
+			// Never retry: see PROMPT_JOB_OPTIONS in apps/worker/src/jobs/process-prompt.ts:46-60.
+			retryLimit: 0,
 			retryDelay: 60,
 			retryBackoff: true,
 			expireInSeconds: 60 * 15,
 		});
+		// createQueue is INSERT ... ON CONFLICT DO NOTHING, so it can't change a queue
+		// that already exists; this brings older databases' policy down to zero retries.
+		await boss.updateQueue("process-prompt", { retryLimit: 0 });
 		await boss.createQueue("generate-report", {
 			retryLimit: 3,
 			retryDelay: 60,

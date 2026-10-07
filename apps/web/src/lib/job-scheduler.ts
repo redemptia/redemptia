@@ -66,7 +66,8 @@ export async function createPromptJobScheduler(promptId: string, options: Schedu
 				{
 					singletonKey: `prompt-${promptId}`,
 					singletonSeconds: 60 * 60, // 1 hour - prevent duplicate jobs
-					retryLimit: 3,
+					// Never retry: see PROMPT_JOB_OPTIONS in apps/worker/src/jobs/process-prompt.ts:46-60.
+					retryLimit: 0,
 					retryDelay: 60,
 					retryBackoff: true,
 					expireInSeconds: 60 * 15, // 15 minute timeout
@@ -81,7 +82,8 @@ export async function createPromptJobScheduler(promptId: string, options: Schedu
 					singletonKey: `prompt-${promptId}`,
 					singletonSeconds: startAfterSeconds, // Prevent duplicates for the cadence period
 					startAfter: startAfterSeconds,
-					retryLimit: 3,
+					// Never retry: see PROMPT_JOB_OPTIONS in apps/worker/src/jobs/process-prompt.ts:46-60.
+					retryLimit: 0,
 					retryDelay: 60,
 					retryBackoff: true,
 					expireInSeconds: 60 * 15,
@@ -137,7 +139,8 @@ export async function sendImmediatePromptJob(promptId: string): Promise<boolean>
 			"process-prompt",
 			{ promptId, cadenceHours },
 			{
-				retryLimit: 3,
+				// Never retry: see PROMPT_JOB_OPTIONS in apps/worker/src/jobs/process-prompt.ts:46-60.
+				retryLimit: 0,
 				retryDelay: 60,
 				retryBackoff: true,
 				expireInSeconds: 60 * 15,
