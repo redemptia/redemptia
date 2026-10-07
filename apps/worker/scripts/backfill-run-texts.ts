@@ -52,18 +52,31 @@ function report({ processed, sentinel, skipped, remaining }: BackfillProgress) {
 	console.log(`processed ${processed}  sentinel ${sentinel}  skipped ${skipped}  remaining ${remaining}`);
 }
 
+function warnDivergent({ label, cause }: { label: string; cause: string }) {
+	console.warn(
+		`\nWARNING: found ${label} runs. These rows cannot be faithfully reconstructed from stored raw_output: ${cause}. ` +
+			"Their backfilled text may differ from what the run was scored on, or be empty where the run had an answer. " +
+			"They are written with source 'backfill'.\n",
+	);
+}
+
 async function main() {
 	const options = parseArgs(process.argv.slice(2));
 	console.log(
 		`${options.dryRun ? "Dry run: " : ""}backfilling run_texts in batches of ${options.batchSize}, ${options.pauseMs}ms apart`,
 	);
 	try {
-		const result = await backfillRunTexts({ ...options, onProgress: report });
+		const result = await backfillRunTexts({ ...options, onProgress: report, onDivergent: warnDivergent });
 		console.log(
 			options.dryRun
 				? `Would write ${result.remaining} rows; ${result.skipped} runs are already current. Nothing was written.`
 				: `Done: ${result.processed} with text, ${result.sentinel} without (no answer), ${result.skipped} already current.`,
 		);
+		const divergent = Object.entries(result.divergent);
+		if (divergent.length > 0) {
+			console.warn("\nWARNING: rows that cannot be faithfully reconstructed (see the warnings above):");
+			for (const [label, count] of divergent) console.warn(`  ${label}: ${count}`);
+		}
 	} finally {
 		await db.$client.end();
 	}

@@ -5,7 +5,7 @@ import type { DbConnection } from "./db/db-connection";
 import { promptRuns, runTexts } from "./db/schema";
 import { answerTextOrNull, extractTextContent, TEXT_EXTRACTOR_VERSION } from "./text-extraction";
 
-function runTextValues(promptRunId: string, textContent: unknown) {
+function runTextValues(promptRunId: string, textContent: unknown, source: "live" | "backfill") {
 	const text = answerTextOrNull(textContent);
 	return {
 		promptRunId,
@@ -13,8 +13,67 @@ function runTextValues(promptRunId: string, textContent: unknown) {
 		contentHash: text === null ? null : createHash("sha256").update(text).digest("hex"),
 		answerLength: text === null ? null : text.length,
 		extractorVersion: TEXT_EXTRACTOR_VERSION,
+		source,
 	};
 }
+
+/**
+ * The answer text a stored run's raw_output yields, the way the backfill reads it.
+ * Stored runs may predate the provider column, so extraction falls back to the model.
+ *
+ * This is the generic re-reader, not each provider's own parse, so for the
+ * providers in KNOWN_DIVERGENT_EXTRACTIONS it can differ from the text the run
+ * was saved with. run-text-contract.test.ts holds the per-provider comparison.
+ */
+export function extractRunText(rawOutput: unknown, provider: string | null, model: string): string {
+	return extractTextContent(rawOutput, provider ?? model);
+}
+
+interface StoredRun {
+	provider: string | null;
+	model: string;
+	webSearchEnabled: boolean;
+	rawOutput: unknown;
+}
+
+/** DataForSEO LLM Responses carry their answer in items[].sections; the LLM Scraper never does. */
+function isDataforseoLlmResponse(rawOutput: unknown): boolean {
+	const items = (rawOutput as any)?.tasks?.[0]?.result?.[0]?.items;
+	return Array.isArray(items) && items.some((item: any) => Array.isArray(item?.sections));
+}
+
+/**
+ * Provider paths where the backfill's re-extraction cannot faithfully reproduce
+ * the text the provider parsed when the run was saved. run-text-contract.test.ts
+ * pins each one as an expected failure. Their backfilled rows can hold different
+ * text, or null where the live run had an answer.
+ */
+export const KNOWN_DIVERGENT_EXTRACTIONS: ReadonlyArray<{
+	label: string;
+	cause: string;
+	matches: (run: StoredRun) => boolean;
+}> = [
+	{
+		label: "brightdata chatbot datasets",
+		cause:
+			"the live parse can read response_raw, which is stripped before storage, and the re-reader prefers an ai_overview block the live parse ignores",
+		matches: (run) => run.provider === "brightdata" && run.model !== "google-ai-overview",
+	},
+	{
+		label: "mistral-api with web search",
+		cause: "the live parse keeps outputs[].content when it is a plain string; the re-reader drops it",
+		matches: (run) => run.provider === "mistral-api" && run.webSearchEnabled,
+	},
+	{
+		label: "dataforseo LLM Scraper",
+		cause:
+			"an answer only in items[].markdown, with no top-level markdown or sources, is re-read as a SERP response and comes back empty",
+		matches: (run) =>
+			run.provider === "dataforseo" &&
+			(run.model === "chatgpt" || run.model === "gemini") &&
+			!isDataforseoLlmResponse(run.rawOutput),
+	},
+];
 
 /**
  * Record a run's answer text. Call it in the same transaction as the run's
@@ -23,7 +82,7 @@ function runTextValues(promptRunId: string, textContent: unknown) {
  * extracted-and-empty rather than pending.
  */
 export async function insertRunText(conn: DbConnection, promptRunId: string, textContent: unknown): Promise<void> {
-	await conn.insert(runTexts).values(runTextValues(promptRunId, textContent));
+	await conn.insert(runTexts).values(runTextValues(promptRunId, textContent, "live"));
 }
 
 export interface BackfillOptions {
@@ -34,6 +93,8 @@ export interface BackfillOptions {
 	/** Count what would be done and write nothing. */
 	dryRun: boolean;
 	onProgress?: (progress: BackfillProgress) => void;
+	/** Called the first time a pass meets each of KNOWN_DIVERGENT_EXTRACTIONS. */
+	onDivergent?: (divergence: { label: string; cause: string }) => void;
 }
 
 export interface BackfillProgress {
@@ -45,6 +106,8 @@ export interface BackfillProgress {
 	skipped: number;
 	/** Runs still without a current row. */
 	remaining: number;
+	/** Runs written on a path the backfill can't faithfully reconstruct, by KNOWN_DIVERGENT_EXTRACTIONS label. */
+	divergent: Record<string, number>;
 }
 
 type RunTextValues = ReturnType<typeof runTextValues>;
@@ -77,6 +140,7 @@ async function writeBatch(values: RunTextValues[]): Promise<RunTextValues[]> {
 						contentHash: sql`excluded.content_hash`,
 						answerLength: sql`excluded.answer_length`,
 						extractorVersion: sql`excluded.extractor_version`,
+						source: sql`excluded.source`,
 					},
 					// Never overwrite a row newer logic already wrote.
 					setWhere: lt(runTexts.extractorVersion, sql`excluded.extractor_version`),
@@ -92,6 +156,31 @@ async function writeBatch(values: RunTextValues[]): Promise<RunTextValues[]> {
 		}
 	}
 	return pending;
+}
+
+function backfillValues(run: StoredRun & { id: string }): RunTextValues {
+	let extracted: unknown;
+	try {
+		extracted = extractRunText(run.rawOutput, run.provider, run.model);
+	} catch {
+		// A payload no extractor can read has no answer, the same as a sentinel.
+		extracted = null;
+	}
+	return runTextValues(run.id, extracted, "backfill");
+}
+
+/** Count each run on a known-divergent path, reporting each path the first time a pass meets it. */
+function noteDivergences(
+	batch: StoredRun[],
+	progress: BackfillProgress,
+	onDivergent: BackfillOptions["onDivergent"],
+): void {
+	for (const run of batch) {
+		const divergence = KNOWN_DIVERGENT_EXTRACTIONS.find((known) => known.matches(run));
+		if (!divergence) continue;
+		if (!(divergence.label in progress.divergent)) onDivergent?.(divergence);
+		progress.divergent[divergence.label] = (progress.divergent[divergence.label] ?? 0) + 1;
+	}
 }
 
 /** A run needs (re-)extracting when it has no row, or one from older extraction logic. */
@@ -118,8 +207,14 @@ export async function backfillRunTexts(options: BackfillOptions): Promise<Backfi
 		.leftJoin(runTexts, eq(runTexts.promptRunId, promptRuns.id))
 		.where(needsText);
 
-	const progress: BackfillProgress = { processed: 0, sentinel: 0, skipped: total - pending, remaining: pending };
-	options.onProgress?.({ ...progress });
+	const progress: BackfillProgress = {
+		processed: 0,
+		sentinel: 0,
+		skipped: total - pending,
+		remaining: pending,
+		divergent: {},
+	};
+	options.onProgress?.({ ...progress, divergent: { ...progress.divergent } });
 	if (options.dryRun) return progress;
 
 	// Walk by id rather than re-asking "what still needs a row" from the start each
@@ -131,6 +226,7 @@ export async function backfillRunTexts(options: BackfillOptions): Promise<Backfi
 				id: promptRuns.id,
 				provider: promptRuns.provider,
 				model: promptRuns.model,
+				webSearchEnabled: promptRuns.webSearchEnabled,
 				rawOutput: promptRuns.rawOutput,
 			})
 			.from(promptRuns)
@@ -140,26 +236,14 @@ export async function backfillRunTexts(options: BackfillOptions): Promise<Backfi
 			.limit(options.batchSize);
 		if (batch.length === 0) break;
 
-		const values = batch.map((run) => {
-			let extracted: unknown;
-			try {
-				// Stored runs may predate the provider column; extraction falls back to the model.
-				extracted = extractTextContent(run.rawOutput, run.provider ?? run.model);
-			} catch {
-				// A payload no extractor can read has no answer, the same as a sentinel.
-				extracted = null;
-			}
-			return runTextValues(run.id, extracted);
-		});
-
-		const written = await writeBatch(values);
-
+		noteDivergences(batch, progress, options.onDivergent);
+		const written = await writeBatch(batch.map(backfillValues));
 		for (const value of written) {
 			if (value.text === null) progress.sentinel++;
 			else progress.processed++;
 		}
 		progress.remaining = Math.max(0, progress.remaining - batch.length);
-		options.onProgress?.({ ...progress });
+		options.onProgress?.({ ...progress, divergent: { ...progress.divergent } });
 
 		after = batch[batch.length - 1].id;
 		if (batch.length < options.batchSize) break;
