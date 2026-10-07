@@ -1,6 +1,6 @@
 import * as Sentry from "@sentry/node";
 import { parseScrapeTargets } from "@workspace/config/scrape-targets";
-import { getDefaultDelayHours } from "@workspace/lib/constants";
+import { getDefaultDelayHours, PROMPT_JOB_OPTIONS } from "@workspace/lib/constants";
 import { db } from "@workspace/lib/db/db";
 import { brands, promptRuns, prompts } from "@workspace/lib/db/schema";
 import { getOrgEntitlementsMap } from "@workspace/lib/entitlements";
@@ -17,7 +17,6 @@ import {
 import { and, eq, gt, inArray, sql } from "drizzle-orm";
 import type { Job } from "pg-boss";
 import { getBoss } from "../boss";
-import { PROMPT_JOB_OPTIONS } from "./process-prompt";
 
 export interface ScheduleMaintenanceData {
 	source?: string; // For logging - "scheduled" or "manual"
