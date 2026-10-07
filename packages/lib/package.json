@@ -39,6 +39,7 @@
 		"./entitlements": "./src/entitlements/index.ts",
 		"./run-policy": "./src/run-policy/index.ts",
 		"./usage": "./src/usage/cost.ts",
+		"./usage/ceiling": "./src/usage/ceiling.ts",
 		"./citations/domain-categories": "./src/citations/domain-categories.ts",
 		"./citations/domain-lists": "./src/citations/domain-lists.ts",
 		"./citations/rollup": "./src/citations/rollup.ts"
