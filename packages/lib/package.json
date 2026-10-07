@@ -33,6 +33,7 @@
 		"./bulk-prompts": "./src/bulk-prompts.ts",
 		"./website-excerpt": "./src/website-excerpt.ts",
 		"./report-metrics": "./src/report-metrics.ts",
+		"./run-texts": "./src/run-texts.ts",
 		"./secrets": "./src/secrets/index.ts",
 		"./providers": "./src/providers/index.ts",
 		"./providers/types": "./src/providers/types.ts",
