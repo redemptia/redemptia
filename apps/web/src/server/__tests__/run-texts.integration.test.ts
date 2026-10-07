@@ -42,6 +42,7 @@ describe("run texts", () => {
 			contentHash: createHash("sha256").update(answer).digest("hex"),
 			answerLength: answer.length,
 			extractorVersion: TEXT_EXTRACTOR_VERSION,
+			source: "live",
 		});
 	});
 

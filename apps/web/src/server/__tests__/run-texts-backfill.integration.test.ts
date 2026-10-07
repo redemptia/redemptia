@@ -16,12 +16,13 @@ const answered = { choices: [{ message: { content: ANSWER } }] };
 let brandId: string;
 let promptId: string;
 
-async function run(rawOutput: unknown, provider = "openrouter") {
+async function run(rawOutput: unknown, provider = "openrouter", opts: { model?: string; webSearch?: boolean } = {}) {
 	const { id } = await createRun(brandId, promptId, {
 		at: "2026-09-01T12:00:00Z",
 		brandMentioned: false,
 		provider,
 		rawOutput,
+		...opts,
 	});
 	return id;
 }
@@ -31,7 +32,8 @@ async function textRow(runId: string) {
 }
 
 // Small batches, so the backfill crosses batch boundaries even on a quiet database.
-const backfill = (dryRun = false) => backfillRunTexts({ batchSize: 2, pauseMs: 0, dryRun });
+const backfill = (dryRun = false, onDivergent?: (divergence: { label: string }) => void) =>
+	backfillRunTexts({ batchSize: 2, pauseMs: 0, dryRun, onDivergent });
 
 beforeAll(async () => {
 	brandId = await createBrand();
@@ -62,6 +64,7 @@ describe("backfilling run texts", () => {
 			contentHash: createHash("sha256").update(ANSWER).digest("hex"),
 			answerLength: ANSWER.length,
 			extractorVersion: TEXT_EXTRACTOR_VERSION,
+			source: "backfill",
 		});
 	});
 
@@ -80,22 +83,33 @@ describe("backfilling run texts", () => {
 
 	it("leaves a run that already has a current row alone", async () => {
 		const runId = await run(answered);
-		await db.insert(runTexts).values({ promptRunId: runId, text: "kept", extractorVersion: TEXT_EXTRACTOR_VERSION });
+		await db
+			.insert(runTexts)
+			.values({ promptRunId: runId, text: "kept", extractorVersion: TEXT_EXTRACTOR_VERSION, source: "live" });
 
 		await backfill();
 
-		expect(await textRow(runId)).toMatchObject({ text: "kept", extractorVersion: TEXT_EXTRACTOR_VERSION });
+		expect(await textRow(runId)).toMatchObject({
+			text: "kept",
+			extractorVersion: TEXT_EXTRACTOR_VERSION,
+			source: "live",
+		});
 	});
 
 	it("re-extracts a row written by an older extractor", async () => {
 		const runId = await run(answered);
 		await db
 			.insert(runTexts)
-			.values({ promptRunId: runId, text: "stale", extractorVersion: TEXT_EXTRACTOR_VERSION - 1 });
+			.values({ promptRunId: runId, text: "stale", extractorVersion: TEXT_EXTRACTOR_VERSION - 1, source: "live" });
 
 		await backfill();
 
-		expect(await textRow(runId)).toMatchObject({ text: ANSWER, extractorVersion: TEXT_EXTRACTOR_VERSION });
+		// The original parse is replaced by a reconstruction, and says so.
+		expect(await textRow(runId)).toMatchObject({
+			text: ANSWER,
+			extractorVersion: TEXT_EXTRACTOR_VERSION,
+			source: "backfill",
+		});
 	});
 
 	it("leaves every run with a current row", async () => {
@@ -106,5 +120,15 @@ describe("backfilling run texts", () => {
 		for (const runId of runIds) {
 			expect((await textRow(runId))?.extractorVersion).toBe(TEXT_EXTRACTOR_VERSION);
 		}
+	});
+
+	it("warns about a run on a path it can't faithfully reconstruct", async () => {
+		await run({ outputs: [{ content: ANSWER }] }, "mistral-api", { model: "mistral", webSearch: true });
+		const warned: string[] = [];
+
+		const progress = await backfill(false, ({ label }) => warned.push(label));
+
+		expect(warned).toContain("mistral-api with web search");
+		expect(progress.divergent["mistral-api with web search"]).toBeGreaterThanOrEqual(1);
 	});
 });
