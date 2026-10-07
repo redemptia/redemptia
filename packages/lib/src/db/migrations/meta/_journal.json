@@ -183,6 +183,13 @@
       "when": 1791362161998,
       "tag": "0101_competitors_brand_id_name_unique",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1791363974495,
+      "tag": "0102_run_texts",
+      "breakpoints": true
     }
   ]
 }

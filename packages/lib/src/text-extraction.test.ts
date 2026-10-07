@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
+	answerTextOrNull,
 	CITATION_TITLE_MAX_LENGTH,
 	extractCitations,
 	extractCitationsFromBrightdata,
@@ -825,5 +826,66 @@ describe("text-extraction", () => {
 			expect(citations).toHaveLength(1);
 			expect(citations[0].title).toHaveLength(CITATION_TITLE_MAX_LENGTH);
 		});
+	});
+});
+
+describe("telling an answer from an extractor's stand-in message", () => {
+	// Every provider key extractTextContent dispatches on, plus one it doesn't.
+	const providers = [
+		"openai-api",
+		"anthropic-api",
+		"mistral-api",
+		"dataforseo",
+		"openrouter",
+		"searchapi",
+		"olostep",
+		"brightdata",
+		"oxylabs",
+		"cloro",
+		"some-new-provider",
+	];
+	// Empty and unrecognised payloads, each known shape with its answer missing,
+	// and one that throws on any read so the extractors' error paths run.
+	const noAnswers: unknown[] = [
+		null,
+		{},
+		{ unexpected: true },
+		{ results: [{ content: { unrelated: 1 } }] },
+		{ tasks: [{ result: [{ items: [{ sections: [] }] }] }] },
+		{ tasks: [{ result: [{ sources: [] }] }] },
+		new Proxy(
+			{},
+			{
+				get() {
+					throw new Error("unreadable payload");
+				},
+			},
+		),
+	];
+
+	it("never reads what an extractor returns for a payload with no answer as an answer", () => {
+		const quiet = vi.spyOn(console, "error").mockImplementation(() => {});
+		for (const provider of providers) {
+			for (const payload of noAnswers) {
+				let extracted: string;
+				try {
+					extracted = extractTextContent(payload, provider);
+				} catch {
+					// The generic fallback has no catch of its own; a throw is not text.
+					continue;
+				}
+				expect(answerTextOrNull(extracted), `${provider} → ${JSON.stringify(extracted)}`).toBeNull();
+			}
+		}
+		quiet.mockRestore();
+	});
+
+	it("keeps a real answer", () => {
+		const extracted = extractTextContent({ choices: [{ message: { content: "Acme is a good pick." } }] }, "openrouter");
+		expect(answerTextOrNull(extracted)).toBe("Acme is a good pick.");
+	});
+
+	it("treats blank and non-string text as no answer", () => {
+		for (const value of ["", "   \n", undefined, 42]) expect(answerTextOrNull(value)).toBeNull();
 	});
 });
