@@ -29,6 +29,7 @@ import {
 } from "@workspace/lib/run-policy";
 import type { Citation } from "@workspace/lib/text-extraction";
 import { estimateRunCostUsd } from "@workspace/lib/usage";
+import { isOrgOverDailyCeiling } from "@workspace/lib/usage/ceiling";
 import { and, eq, gt, sql } from "drizzle-orm";
 import type { Job } from "pg-boss";
 import { getBoss } from "../boss";
@@ -157,25 +158,6 @@ async function getLastRunsByTargetKey(promptId: string, maxIntervalHours: number
 		.groupBy(promptRuns.model, promptRuns.provider, promptRuns.webSearchEnabled);
 
 	return lastRunsByTargetKey(rows);
-}
-
-/**
- * Runaway protection: how many provider attempts the org has recorded in the
- * last 24h, compared against its plan-derived ceiling before spending more.
- *
- * Counts usage_events rather than prompt_runs because a retry storm writes no prompt_runs
- * rows but burns spend — counting attempts is the stronger meaning for a
- * safety ceiling. usage_events also has the org_id denormalized and an
- * index on (organization_id, created_at), so this scan is cheap.
- */
-async function isOrgOverDailyCeiling(organizationId: string, ceiling: number): Promise<boolean> {
-	const [row] = await db
-		.select({ value: sql<number>`COUNT(*)` })
-		.from(usageEvents)
-		.where(
-			and(eq(usageEvents.organizationId, organizationId), gt(usageEvents.createdAt, sql`now() - interval '24 hours'`)),
-		);
-	return Number(row?.value ?? 0) >= ceiling;
 }
 
 async function savePromptRun(

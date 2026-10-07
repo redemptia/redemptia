@@ -303,6 +303,11 @@ export const usageEvents = pgTable(
 	},
 	(table) => ({
 		orgCreatedIdx: index("usage_events_org_created_idx").on(table.organizationId, table.createdAt),
+		orgTypeCreatedIdx: index("usage_events_org_type_created_idx").on(
+			table.organizationId,
+			table.eventType,
+			table.createdAt,
+		),
 	}),
 ).enableRLS();
 

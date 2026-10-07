@@ -1,6 +1,6 @@
 # Host-side checks: format and lint, type check, unit, Storybook and Postgres
-# integration tests, and a real `pnpm build` that must leave the working tree
-# clean.
+# integration tests, migration drift, and a real `pnpm build` that must leave
+# the working tree clean.
 #
 # The clean-tree check is the point of running a host build at all.
 # `routeTree.gen.ts` is committed because `tsc` needs it to resolve routes, so
@@ -99,6 +99,40 @@ jobs:
           # Off UTC on purpose: a timestamp that loses its zone between Postgres
           # and JS only reads wrong on a host that isn't in UTC.
           TZ: America/Los_Angeles
+
+      # Not `drizzle-kit check`: it only checks the snapshots in the migrations
+      # folder against each other. Not `drizzle-kit push`: against a freshly
+      # migrated database it reports drift that isn't there (indexes created in
+      # hand-written SQL, array defaults) and applies it. `generate` diffs
+      # schema.ts against the latest snapshot and writes nothing when they agree.
+      # It runs after Type check, which regenerates schema-auth.ts.
+      - name: Schema matches the migrations
+        run: |
+          pnpm -C packages/lib exec drizzle-kit generate
+          if [ -n "$(git status --porcelain=v1 --untracked-files=all -- packages/lib/src/db/migrations)" ]; then
+            echo "::error::schema.ts has changes no migration covers. Run 'pnpm exec drizzle-kit generate' in packages/lib and commit the migration."
+            git status --porcelain=v1 --untracked-files=all -- packages/lib/src/db/migrations
+            exit 1
+          fi
+        env:
+          DATABASE_URL: postgres://unused
+
+      # The only thing that catches a migration drizzle skips without a word: one
+      # whose journal `when` predates a migration a deployed database already
+      # ran, typically an upstream cherry-pick (see UPSTREAM.md). The scratch
+      # database is upgraded from the base commit's migrations, as a deployed
+      # one would be, because a fresh database applies everything regardless.
+      - name: Migrations apply on upgrade from the base commit
+        run: |
+          git fetch --no-tags --depth=1 origin "$BASE_SHA"
+          mkdir -p "$RUNNER_TEMP/base"
+          git archive "$BASE_SHA" packages/lib/src/db/migrations | tar -x -C "$RUNNER_TEMP/base"
+          psql postgres://postgres:postgres@localhost:5432/elmo_test -c "CREATE DATABASE migrations_test"
+          node packages/lib/scripts/check-migrations.mjs \
+            "$RUNNER_TEMP/base/packages/lib/src/db/migrations" packages/lib/src/db/migrations
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/migrations_test
 
       # scripts/ is outside the workspace, so turbo does not reach it.
       - name: Release script tests
