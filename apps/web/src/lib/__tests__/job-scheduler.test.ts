@@ -3,6 +3,7 @@
  * fan-out, so every path the web app enqueues one through must opt out of
  * queue-level retries. Send-time options override the queue policy.
  */
+import { PROMPT_JOB_OPTIONS } from "@workspace/lib/constants";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const send = vi.fn(async () => "job_1");
@@ -58,5 +59,14 @@ describe("prompt job enqueueing", () => {
 	it("never retries a manually triggered prompt job", async () => {
 		await expect(sendImmediatePromptJob("prompt_1")).resolves.toBe(true);
 		for (const options of promptJobOptions()) expect(options.retryLimit).toBe(0);
+	});
+
+	it("gives web-enqueued prompt jobs the same expiry as worker-enqueued ones", async () => {
+		await createPromptJobScheduler("prompt_1");
+		await createPromptJobScheduler("prompt_1", { sendImmediate: false });
+		await sendImmediatePromptJob("prompt_1");
+		for (const options of promptJobOptions()) {
+			expect(options.expireInSeconds).toBe(PROMPT_JOB_OPTIONS.expireInSeconds);
+		}
 	});
 });
