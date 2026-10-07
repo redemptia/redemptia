@@ -8,6 +8,48 @@
  * at write time, so these functions are primarily for reading historical data.
  */
 
+/**
+ * Bump when a change to text extraction (here or in a provider's own extractor)
+ * would change the text stored for a run, so run_texts rows written by older
+ * logic can be found and re-extracted.
+ */
+export const TEXT_EXTRACTOR_VERSION = 1;
+
+/**
+ * Every message an extractor returns in place of an answer. Extractors return
+ * these strings rather than null, so anything storing or scoring text has to
+ * recognise them: an error message must never be read as a model's answer. Two
+ * come from provider modules that keep their own extractor (OpenRouter, Olostep).
+ */
+export const EXTRACTION_SENTINELS: ReadonlySet<string> = new Set([
+	"Error extracting text content.",
+	"No content.",
+	"Unknown provider format - cannot extract text content.",
+	"No AI overview content found.",
+	"No text content found in OpenAI output.",
+	"No text content found in Anthropic output.",
+	"No text content found in Mistral output.",
+	"No text content found in OpenRouter output.",
+	"No text content found in Olostep output.",
+	"No text content found in SearchApi output.",
+	"No text content found in DataForSEO LLM output.",
+	"No text content found in DataForSEO Scraper output.",
+	"No content in BrightData output.",
+	"No text content found in BrightData output.",
+	"No content in Oxylabs output.",
+	"No text content found in Oxylabs output.",
+	"No content in Cloro output.",
+	"No text content found in Cloro output.",
+	"No text content found in OpenRouter response.",
+	"No text content found in Olostep response.",
+]);
+
+/** The answer in `text`, or null when it holds no answer: blank, or an extractor's sentinel. */
+export function answerTextOrNull(text: unknown): string | null {
+	if (typeof text !== "string" || text.trim() === "" || EXTRACTION_SENTINELS.has(text)) return null;
+	return text;
+}
+
 // ============================================================================
 // Text extraction by provider
 // ============================================================================
