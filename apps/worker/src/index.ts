@@ -43,11 +43,15 @@ async function main() {
 
 	// Create queues if they don't exist (required in pg-boss v12)
 	await boss.createQueue("process-prompt", {
-		retryLimit: 3,
+		// Never retry: see PROMPT_JOB_OPTIONS in ./jobs/process-prompt.ts:46-60.
+		retryLimit: 0,
 		retryDelay: 60,
 		retryBackoff: true,
 		expireInSeconds: 60 * 15, // 15 minute timeout
 	});
+	// createQueue is INSERT ... ON CONFLICT DO NOTHING, so it can't change a queue
+	// that already exists; this brings older databases' policy down to zero retries.
+	await boss.updateQueue("process-prompt", { retryLimit: 0 });
 	if (getDeploymentFeatures().reportGeneration) {
 		await boss.createQueue("generate-report", {
 			retryLimit: 3,
