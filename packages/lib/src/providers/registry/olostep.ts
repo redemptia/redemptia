@@ -1,6 +1,6 @@
 import Olostep from "olostep";
 import { getCredential } from "../../secrets";
-import { type Citation, normalizeCitationTitle } from "../../text-extraction";
+import { type Citation, normalizeCitationTitle, OLOSTEP_RESPONSE_NO_TEXT } from "../../text-extraction";
 import { configuredWhen, reportedWebQueries } from "../config";
 import type { ModelConfig, Provider, ProviderOptions, ScrapeResult } from "../types";
 import { nonEmptyStrings } from "./scrape-shared";
@@ -56,7 +56,7 @@ function extractTextFromOlostep(data: any): string {
 	if (data?.answer_markdown) return data.answer_markdown;
 	if (data?.result?.text_content) return data.result.text_content;
 	if (typeof data?.answer === "string") return data.answer;
-	return "No text content found in Olostep response.";
+	return OLOSTEP_RESPONSE_NO_TEXT;
 }
 
 function extractCitationsFromOlostep(data: any): Citation[] {

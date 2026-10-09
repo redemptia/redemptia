@@ -1,5 +1,5 @@
 import { getCredential } from "../../secrets";
-import { type Citation, normalizeCitationTitle } from "../../text-extraction";
+import { type Citation, normalizeCitationTitle, OPENROUTER_RESPONSE_NO_TEXT } from "../../text-extraction";
 import { API_PROVIDER_MAX_OUTPUT_TOKENS, configuredWhen, reportedWebQueries, warnIfOutputCapped } from "../config";
 import type {
 	Provider,
@@ -42,7 +42,7 @@ function extractTextFromOpenRouterResponse(data: any): string {
 	if (chatContent) return chatContent;
 
 	const texts = responsesApiTexts(data?.output);
-	return texts.length > 0 ? texts.join("\n") : "No text content found in OpenRouter response.";
+	return texts.length > 0 ? texts.join("\n") : OPENROUTER_RESPONSE_NO_TEXT;
 }
 
 function extractCitationsFromOpenRouterResponse(data: any): Citation[] {

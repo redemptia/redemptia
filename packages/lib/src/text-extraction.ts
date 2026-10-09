@@ -15,11 +15,17 @@
  */
 export const TEXT_EXTRACTOR_VERSION = 1;
 
+/** Returned by the OpenRouter provider's own extractor when a response has no text. */
+export const OPENROUTER_RESPONSE_NO_TEXT = "No text content found in OpenRouter response.";
+/** Returned by the Olostep provider's own extractor when a response has no text. */
+export const OLOSTEP_RESPONSE_NO_TEXT = "No text content found in Olostep response.";
+
 /**
  * Every message an extractor returns in place of an answer. Extractors return
  * these strings rather than null, so anything storing or scoring text has to
- * recognise them: an error message must never be read as a model's answer. Two
- * come from provider modules that keep their own extractor (OpenRouter, Olostep).
+ * recognise them: an error message must never be read as a model's answer.
+ * Provider modules with their own extractor return the constants above rather
+ * than a literal, so the set can't drift from what they emit.
  */
 export const EXTRACTION_SENTINELS: ReadonlySet<string> = new Set([
 	"Error extracting text content.",
@@ -40,8 +46,8 @@ export const EXTRACTION_SENTINELS: ReadonlySet<string> = new Set([
 	"No text content found in Oxylabs output.",
 	"No content in Cloro output.",
 	"No text content found in Cloro output.",
-	"No text content found in OpenRouter response.",
-	"No text content found in Olostep response.",
+	OPENROUTER_RESPONSE_NO_TEXT,
+	OLOSTEP_RESPONSE_NO_TEXT,
 ]);
 
 /** The answer in `text`, or null when it holds no answer: blank, or an extractor's sentinel. */

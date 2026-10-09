@@ -198,6 +198,9 @@ export const citations = pgTable(
  * model's answer. extractor_version records which extraction logic produced the
  * row, so a later change to it can find and re-extract older rows.
  */
+/** How a run_texts row came to be: see runTexts.source. */
+export const runTextSourceEnum = pgEnum("run_text_source", ["live", "backfill"]);
+
 export const runTexts = pgTable("run_texts", {
 	// Cascades because prompt_runs are hard-deleted directly (prompt deletion,
 	// seeding and test cleanup all DELETE them), and a restricting FK would make
@@ -209,6 +212,11 @@ export const runTexts = pgTable("run_texts", {
 	contentHash: text("content_hash"),
 	answerLength: integer("answer_length"),
 	extractorVersion: integer("extractor_version").notNull(),
+	// "live" is the provider's own parse, written when the run was saved;
+	// "backfill" is a re-extraction from the stored raw_output. They can differ
+	// for the same run (some providers parse fields that aren't stored), so this
+	// records provenance; extractor_version records only which logic ran.
+	source: runTextSourceEnum("source").notNull(),
 	createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 }).enableRLS();
 
