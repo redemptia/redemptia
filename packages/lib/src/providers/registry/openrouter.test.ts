@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { z } from "zod";
 import { API_PROVIDER_MAX_OUTPUT_TOKENS } from "../config";
 import { openrouter } from "./openrouter";
 
@@ -64,5 +65,26 @@ describe("openrouter run", () => {
 		expect(warn).toHaveBeenCalledWith(expect.stringContaining("hit the output cap"));
 		// Logged, never thrown — the partial answer still flows through.
 		expect(result.textContent).toBe("clipped");
+	});
+});
+
+describe("openrouter runStructuredResearch", () => {
+	const schema = z.object({ ok: z.boolean() });
+	const jsonAnswer = { choices: [{ message: { content: '{"ok":true}' } }] };
+
+	it("sends the requested model and reports it as the model used", async () => {
+		const fetchMock = stubFetch({ ...jsonAnswer, model: "anthropic/claude-haiku-5-20260101" });
+		const res = await openrouter.runStructuredResearch!({ prompt: "p", schema, model: "anthropic/claude-haiku-5" });
+
+		expect(sentBody(fetchMock).model).toBe("anthropic/claude-haiku-5");
+		expect(res).toEqual({ object: { ok: true }, modelVersion: "anthropic/claude-haiku-5" });
+	});
+
+	it("uses openai/gpt-5-mini when no model is requested", async () => {
+		const fetchMock = stubFetch(jsonAnswer);
+		const res = await openrouter.runStructuredResearch!({ prompt: "p", schema });
+
+		expect(sentBody(fetchMock).model).toBe("openai/gpt-5-mini");
+		expect(res.modelVersion).toBe("openai/gpt-5-mini");
 	});
 });

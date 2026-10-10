@@ -128,32 +128,33 @@ export const mistralApi: Provider = {
 		prompt,
 		schema,
 		webSearch = true,
+		model = DEFAULT_RESEARCH_MODEL,
 	}: StructuredResearchOptions<T>): Promise<StructuredResearchResult<T>> {
 		const responseFormat = jsonSchemaResponseFormat(schema);
 		if (!webSearch) {
 			// Pure completion: plain chat endpoint with server-validated json_schema.
 			const data = await mistralPost("/v1/chat/completions", {
-				model: DEFAULT_RESEARCH_MODEL,
+				model,
 				messages: [{ role: "user", content: prompt }],
 				response_format: responseFormat,
 			});
 			return {
 				object: parseSchemaJson(schema, data?.choices?.[0]?.message?.content ?? ""),
-				modelVersion: data?.model ?? DEFAULT_RESEARCH_MODEL,
+				modelVersion: data?.model ?? model,
 			};
 		}
 		// /v1/conversations forwards completion_args.response_format through to
 		// the underlying chat completion, so we can have web_search AND
 		// server-validated json_schema output in a single call.
 		const data = await mistralPost("/v1/conversations", {
-			model: DEFAULT_RESEARCH_MODEL,
+			model,
 			inputs: prompt,
 			tools: [{ type: "web_search" }],
 			completion_args: { response_format: responseFormat },
 		});
 		return {
 			object: parseSchemaJson(schema, parseConversationsResponse(data).textContent),
-			modelVersion: data?.model ?? DEFAULT_RESEARCH_MODEL,
+			modelVersion: data?.model ?? model,
 		};
 	},
 };

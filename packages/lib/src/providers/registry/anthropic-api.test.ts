@@ -1,7 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { z } from "zod";
 import { ANTHROPIC_WEB_SEARCH_MAX_USES, API_PROVIDER_MAX_OUTPUT_TOKENS } from "../config";
 
 const anthropicClient = vi.hoisted(() => ({ create: vi.fn() }));
+const aiMock = vi.hoisted(() => ({ generateText: vi.fn() }));
+
+vi.mock("ai", () => ({
+	generateText: aiMock.generateText,
+	Output: { object: vi.fn() },
+}));
 
 vi.mock("@anthropic-ai/sdk", () => ({
 	default: class {
@@ -117,5 +124,31 @@ describe("anthropic-api web search handling", () => {
 		expect(anthropicClient.create).toHaveBeenCalledTimes(2);
 		expect(res.webQueries).toEqual(["elmo aeo"]);
 		vi.useRealTimers();
+	});
+});
+
+describe("anthropic-api runStructuredResearch", () => {
+	const schema = z.object({ ok: z.boolean() });
+
+	beforeEach(() => {
+		aiMock.generateText.mockResolvedValue({ output: { ok: true } });
+	});
+
+	function researchModelId(): string {
+		return aiMock.generateText.mock.calls[0][0].model.modelId;
+	}
+
+	it("sends the requested model and reports it as the model used", async () => {
+		const res = await anthropicApi.runStructuredResearch!({ prompt: "p", schema, model: "claude-haiku-5" });
+
+		expect(researchModelId()).toBe("claude-haiku-5");
+		expect(res).toEqual({ object: { ok: true }, modelVersion: "claude-haiku-5" });
+	});
+
+	it("uses claude-sonnet-5 when no model is requested", async () => {
+		const res = await anthropicApi.runStructuredResearch!({ prompt: "p", schema });
+
+		expect(researchModelId()).toBe("claude-sonnet-5");
+		expect(res.modelVersion).toBe("claude-sonnet-5");
 	});
 });

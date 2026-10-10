@@ -117,14 +117,15 @@ export const anthropicApi: Provider = {
 		prompt,
 		schema,
 		webSearch = true,
+		model = DEFAULT_RESEARCH_MODEL,
 	}: StructuredResearchOptions<T>): Promise<StructuredResearchResult<T>> {
-		const object = await structuredResearch(getAnthropicLanguageModel(DEFAULT_RESEARCH_MODEL), {
+		const object = await structuredResearch(getAnthropicLanguageModel(model), {
 			prompt,
 			schema,
 			...(webSearch
 				? { tools: { web_search: anthropic.tools.webSearch_20250305({ maxUses: RESEARCH_WEB_SEARCH_MAX_USES }) } }
 				: {}),
 		});
-		return { object, modelVersion: DEFAULT_RESEARCH_MODEL };
+		return { object, modelVersion: model };
 	},
 };

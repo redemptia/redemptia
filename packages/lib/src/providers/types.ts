@@ -29,6 +29,12 @@ export interface StructuredResearchOptions<T> {
 	 * supplied entirely in the prompt — no tools, no agent loop.
 	 */
 	webSearch?: boolean;
+	/**
+	 * Model id in the provider's own namespace (e.g. "gpt-5-mini" for
+	 * openai-api, "openai/gpt-5-mini" for openrouter). Defaults to the
+	 * provider's research model.
+	 */
+	model?: string;
 }
 
 export interface StructuredResearchResult<T> {
