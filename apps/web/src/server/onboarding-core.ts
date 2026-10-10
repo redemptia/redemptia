@@ -431,7 +431,9 @@ export async function saveWizardOnboarding(input: WizardOnboardingInput): Promis
 export interface ListBrandsFilters {
 	limit?: number;
 	offset?: number;
-	scope?: SQL;
+	/** Required so a caller can't forget it; nullable because an admin principal
+	 * has no condition and `brandScopeCondition` returns undefined for it. */
+	scope: SQL | undefined;
 }
 
 export async function listBrands(filters: ListBrandsFilters): Promise<{ data: BrandResult[]; total: number }> {

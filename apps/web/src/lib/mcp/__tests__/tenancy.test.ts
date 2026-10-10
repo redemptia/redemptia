@@ -85,6 +85,11 @@ const CALLS: Record<string, Record<string, unknown>> = {
 	get_run: { promptId: "prompt_1", runId: "run_1" },
 };
 
+/** A second call for a tool whose first one is refused before reaching the path
+ * that matters: without a `brandId`, `list_prompts` has only the scope condition
+ * between the caller and every tenant's prompts. */
+const UNGATED_CALLS: Array<[string, Record<string, unknown>]> = [["list_prompts", {}]];
+
 const NO_TENANT_DATA = ["whoami", "list_models"];
 
 beforeEach(() => {
@@ -102,16 +107,26 @@ describe("tenancy", () => {
 		expect(MCP_TOOLS.map((tool) => tool.name).sort()).toEqual(covered);
 	});
 
-	for (const tool of MCP_TOOLS.filter((t) => !NO_TENANT_DATA.includes(t.name))) {
-		it(`${tool.name} refuses when the scope check refuses`, async () => {
+	const tenantCalls: Array<[string, Record<string, unknown>]> = [
+		...MCP_TOOLS.filter((t) => !NO_TENANT_DATA.includes(t.name)).map((t): [string, Record<string, unknown>] => [
+			t.name,
+			CALLS[t.name],
+		]),
+		...UNGATED_CALLS,
+	];
+
+	for (const [name, args] of tenantCalls) {
+		const tool = MCP_TOOLS.find((t) => t.name === name);
+		it(`${name} ${JSON.stringify(args)} refuses when the scope check refuses`, async () => {
+			if (!tool) throw new Error(`no tool named ${name}`);
 			const admin = {
 				auth: { kind: "admin", scopes: null, organizationId: null },
 				toolNames: [],
 			} as const;
-			await expect(tool.run(admin, CALLS[tool.name])).rejects.toThrow();
+			await expect(tool.run(admin, args)).rejects.toThrow();
 			// Refused *because it asked*, not for some other reason.
 			const asked = SCOPE_CHECKS.some((check) => check.mock.calls.length > 0);
-			expect(asked, `${tool.name} never consulted lib/api/scope`).toBe(true);
+			expect(asked, `${name} never consulted lib/api/scope`).toBe(true);
 		});
 	}
 });
