@@ -22,7 +22,9 @@ export interface ListCompetitorsFilters {
 	brandId?: string;
 	limit?: number;
 	offset?: number;
-	scope?: SQL;
+	/** Required so a caller can't forget it; nullable because an admin principal
+	 * has no condition and `brandScopeCondition` returns undefined for it. */
+	scope: SQL | undefined;
 }
 
 export async function listCompetitors(
