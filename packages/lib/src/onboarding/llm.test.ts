@@ -1,5 +1,6 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { resolveResearchProvider } from "./llm";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { z } from "zod";
+import { resolveResearchProvider, runStructuredCompletionPrompt } from "./llm";
 
 const ENV_KEYS = [
 	"ONBOARDING_LLM_TARGET",
@@ -101,5 +102,39 @@ describe("resolveResearchProvider", () => {
 
 	it("throws when no provider is configured", () => {
 		expect(() => resolveResearchProvider({})).toThrow(/at least one direct LLM API/);
+	});
+});
+
+describe("runStructuredCompletionPrompt", () => {
+	const schema = z.object({ ok: z.boolean() });
+
+	function stubMistral() {
+		process.env.MISTRAL_API_KEY = "x";
+		const fetchMock = vi.fn().mockResolvedValue({
+			ok: true,
+			json: async () => ({ choices: [{ message: { content: '{"ok":true}' } }] }),
+		});
+		vi.stubGlobal("fetch", fetchMock);
+		return () => JSON.parse(fetchMock.mock.calls[0][1].body).model;
+	}
+
+	afterEach(() => {
+		vi.unstubAllGlobals();
+	});
+
+	it("runs the requested model on the resolved provider", async () => {
+		const sentModel = stubMistral();
+		const res = await runStructuredCompletionPrompt("p", schema, { model: "mistral-small-latest" });
+
+		expect(sentModel()).toBe("mistral-small-latest");
+		expect(res).toEqual({ object: { ok: true }, modelVersion: "mistral-small-latest" });
+	});
+
+	it("leaves the model to the provider when none is requested", async () => {
+		const sentModel = stubMistral();
+		const res = await runStructuredCompletionPrompt("p", schema);
+
+		expect(sentModel()).toBe("mistral-large-latest");
+		expect(res.modelVersion).toBe("mistral-large-latest");
 	});
 });

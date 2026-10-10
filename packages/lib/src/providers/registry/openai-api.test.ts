@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { z } from "zod";
 import { API_PROVIDER_MAX_OUTPUT_TOKENS, OPENAI_WEB_SEARCH_MAX_TOOL_CALLS } from "../config";
 
 const aiMock = vi.hoisted(() => ({ generateText: vi.fn() }));
@@ -169,5 +170,27 @@ describe("openai-api web queries", () => {
 		const res = await openaiApi.run("chatgpt", "prompt", { webSearch: false, version: "gpt-5-mini" });
 
 		expect(res.webQueries).toEqual([]);
+	});
+});
+
+describe("openai-api runStructuredResearch", () => {
+	const schema = z.object({ ok: z.boolean() });
+
+	beforeEach(() => {
+		aiMock.generateText.mockResolvedValue({ output: { ok: true } });
+	});
+
+	it("sends the requested model and reports it as the model used", async () => {
+		const res = await openaiApi.runStructuredResearch!({ prompt: "p", schema, model: "gpt-5" });
+
+		expect(sentArgs().model.modelId).toBe("gpt-5");
+		expect(res).toEqual({ object: { ok: true }, modelVersion: "gpt-5" });
+	});
+
+	it("uses gpt-5-mini when no model is requested", async () => {
+		const res = await openaiApi.runStructuredResearch!({ prompt: "p", schema });
+
+		expect(sentArgs().model.modelId).toBe("gpt-5-mini");
+		expect(res.modelVersion).toBe("gpt-5-mini");
 	});
 });
