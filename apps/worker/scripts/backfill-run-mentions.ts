@@ -7,9 +7,9 @@
  * against a brand's older subject set. Safe to stop and run again: it picks up
  * whatever is still stale.
  *
- * Run it after any deploy that bumps ANALYZER_VERSION, and after
- * backfill-run-texts, since re-extracted text makes its analysis stale. Subject
- * edits are recomputed by the worker; this catches anything that missed.
+ * Run it after any deploy that bumps ANALYZER_VERSION, after backfill-run-texts
+ * (new or re-extracted text leaves its run unanalysed), and after editing a
+ * brand's name, aliases, domains or competitors.
  *
  * It reads run_texts, never raw_output, so batches are small in memory. Like
  * the run_texts backfill, it is a script so it runs once, deliberately, with
@@ -21,7 +21,9 @@
  */
 
 import { db } from "@workspace/lib/db/db";
+import { brands } from "@workspace/lib/db/schema";
 import { type ReconcileProgress, reconcileRunAnalyses } from "@workspace/lib/enrichment/reconcile";
+import { eq } from "drizzle-orm";
 
 // Answer text is a few KB per run, so a batch is well under a megabyte.
 const DEFAULT_BATCH_SIZE = 200;
@@ -74,6 +76,11 @@ async function main() {
 		`${options.dryRun ? "Dry run: " : ""}reconciling mention analysis${options.brandId ? ` for ${options.brandId}` : ""} in batches of ${options.batchSize}, ${options.pauseMs}ms apart`,
 	);
 	try {
+		if (options.brandId && !(await db.query.brands.findFirst({ where: eq(brands.id, options.brandId) }))) {
+			console.error(`No brand with id ${options.brandId}`);
+			process.exitCode = 2;
+			return;
+		}
 		const result = await reconcileRunAnalyses({ ...options, onProgress: report });
 		console.log(
 			options.dryRun

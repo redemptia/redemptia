@@ -3,7 +3,7 @@ import { db } from "../db/db";
 import { brands } from "../db/schema";
 import { subjectFingerprint } from "./analysis";
 import { ANALYZER_VERSION } from "./prominence";
-import { loadBrandSubjects, writeRunAnalysis } from "./write";
+import { loadBrandSubjects, lockBrandAnalysis, writeRunAnalysis } from "./write";
 
 export interface ReconcileOptions {
 	/** Only this brand's runs; every brand when omitted. */
@@ -60,11 +60,9 @@ async function countBrand(brandId: string, fingerprint: string) {
 }
 
 /**
- * One batch in one transaction. Subjects are read inside it, so the stored
- * fingerprint is the set current at commit, and the batch's runs are locked so
- * a concurrent pass (the backfill script alongside a recompute job) can't
- * interleave its delete and insert with this one's. NO KEY UPDATE rather than
- * UPDATE, so citations being inserted against these runs don't wait on it.
+ * One batch in one transaction, holding the brand's analysis lock, so it reads
+ * subjects and stale runs only after any other writer of the brand has
+ * committed.
  */
 async function reconcileBatch(
 	brandId: string,
@@ -72,6 +70,7 @@ async function reconcileBatch(
 	batchSize: number,
 ): Promise<StaleRun[] | null> {
 	return db.transaction(async (tx) => {
+		await lockBrandAnalysis(tx, brandId);
 		const subjects = await loadBrandSubjects(tx, brandId);
 		if (!subjects) return null;
 		const { rows } = await tx.execute<StaleRun>(sql`
@@ -83,8 +82,7 @@ async function reconcileBatch(
 				AND (pr.created_at, pr.id) > (${cursor.at}::timestamptz, ${cursor.id}::uuid)
 				AND ${isStale(subjectFingerprint(subjects))}
 			ORDER BY pr.created_at, pr.id
-			LIMIT ${batchSize}
-			FOR NO KEY UPDATE OF pr`);
+			LIMIT ${batchSize}`);
 		for (const run of rows) {
 			await writeRunAnalysis(
 				tx,
@@ -114,28 +112,27 @@ export async function reconcileRunAnalyses(options: ReconcileOptions): Promise<R
 		: (await db.select({ id: brands.id }).from(brands).orderBy(asc(brands.id))).map((row) => row.id);
 
 	const progress: ReconcileProgress = { analysed: 0, remaining: 0, awaitingText: 0 };
-	const fingerprints = new Map<string, string>();
+	const existing: string[] = [];
 	for (const brandId of brandIds) {
 		const subjects = await loadBrandSubjects(db, brandId);
 		if (!subjects) continue;
-		const fingerprint = subjectFingerprint(subjects);
-		fingerprints.set(brandId, fingerprint);
-		const counts = await countBrand(brandId, fingerprint);
+		existing.push(brandId);
+		const counts = await countBrand(brandId, subjectFingerprint(subjects));
 		progress.remaining += counts.stale;
 		progress.awaitingText += counts.awaiting;
 	}
 	options.onProgress?.({ ...progress });
 	if (options.dryRun) return progress;
 
-	for (const brandId of fingerprints.keys()) await reconcileBrand(brandId, options, progress);
+	for (const brandId of existing) await reconcileBrand(brandId, options, progress);
 	return progress;
 }
 
 /**
  * Walk one brand's stale runs in (created_at, id) order. The cursor only ever
  * moves forward, so a run that is still stale after its batch (its brand's
- * subjects changed mid-pass) can't hold the pass in a loop; the recompute that
- * change queued will reach it.
+ * subjects changed mid-pass) can't hold the pass in a loop; the next pass for
+ * that brand reaches it.
  */
 async function reconcileBrand(brandId: string, options: ReconcileOptions, progress: ReconcileProgress) {
 	let cursor = { at: "-infinity", id: "00000000-0000-0000-0000-000000000000" };

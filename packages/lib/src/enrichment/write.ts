@@ -11,11 +11,17 @@ export interface AnalysedRun {
 }
 
 /**
- * A brand's subjects as they stand in `conn`'s snapshot, or null if the brand is
- * gone. Read inside the writing transaction rather than earlier, so the
- * fingerprint stored with an analysis is the subject set current when it
- * commits: a subject edit that lands after that queues its own recompute.
+ * Serialise every writer of one brand's analysis until its transaction ends.
+ * Take it before loading subjects: under READ COMMITTED each statement after the
+ * wait sees what the writer ahead committed, so a writer can never stamp a run
+ * with a subject set older than one already written. A row lock can't do this,
+ * because a query that waited on it keeps the rows and markers it saw before.
  */
+export async function lockBrandAnalysis(conn: DbConnection, brandId: string): Promise<void> {
+	await conn.execute(sql`select pg_advisory_xact_lock(hashtext('run-mention-analysis'), hashtext(${brandId}))`);
+}
+
+/** A brand's subjects, or null if the brand is gone. */
 export async function loadBrandSubjects(conn: DbConnection, brandId: string): Promise<AnalysisSubject[] | null> {
 	const [brand] = await conn.select().from(brands).where(eq(brands.id, brandId));
 	if (!brand) return null;
@@ -76,6 +82,7 @@ export async function tryWriteRunAnalysis(
 ): Promise<boolean> {
 	try {
 		await tx.transaction(async (savepoint) => {
+			await lockBrandAnalysis(savepoint, run.brandId);
 			const subjects = await loadBrandSubjects(savepoint, run.brandId);
 			if (!subjects) throw new Error(`Brand ${run.brandId} not found`);
 			await writeRunAnalysis(savepoint, run, text, extractorVersion, subjects);

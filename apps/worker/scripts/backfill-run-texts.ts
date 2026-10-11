@@ -73,8 +73,8 @@ async function main() {
 				: `Done: ${result.processed} with text, ${result.sentinel} without (no answer), ${result.skipped} already current.`,
 		);
 		if (!options.dryRun && result.processed + result.sentinel > 0) {
-			// Re-extracted text makes the mention analysis computed from it stale.
-			console.log("Next: run backfill:run-mentions to re-analyse the runs whose text changed.");
+			// A run whose text was just written or re-extracted has no current mention analysis.
+			console.log("Next: run backfill:run-mentions to analyse the runs whose text this wrote.");
 		}
 		const divergent = Object.entries(result.divergent);
 		if (divergent.length > 0) {

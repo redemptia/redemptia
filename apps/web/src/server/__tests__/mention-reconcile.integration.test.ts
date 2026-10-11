@@ -1,9 +1,10 @@
 import { db } from "@workspace/lib/db/db";
-import { competitors, promptRuns, runMentionAnalyses, runSubjectMentions, runTexts } from "@workspace/lib/db/schema";
+import { competitors, runMentionAnalyses, runSubjectMentions, runTexts } from "@workspace/lib/db/schema";
 import { reconcileRunAnalyses } from "@workspace/lib/enrichment/reconcile";
 import { insertRunText } from "@workspace/lib/run-texts";
-import { and, eq, inArray, sql } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { afterAll, describe, expect, it } from "vitest";
+import { holdBrandLock } from "@/test/integration/brand-analysis-lock";
 import { createBrand, createCompetitor, createPrompt, createRun, deleteBrand } from "@/test/integration/stats-fixtures";
 
 const brandIds: string[] = [];
@@ -140,29 +141,40 @@ describe("reconcileRunAnalyses", () => {
 		expect(await markerCount(runIds)).toBe(4);
 	});
 
-	it("walks past runs saved within the same millisecond", async () => {
+	it("walks past runs saved at the identical instant, one batch at a time", async () => {
 		const { brandId, promptId } = await brandWithRuns([]);
 		const ids: string[] = [];
-		for (const micros of ["100", "200", "300"]) {
-			const [row] = await db
-				.insert(promptRuns)
-				.values({
-					promptId,
-					brandId,
-					model: "chatgpt",
-					version: "test",
-					webSearchEnabled: true,
-					rawOutput: {},
-					brandMentioned: false,
-					createdAt: sql`${`2026-10-01 12:00:00.000${micros}+00`}::timestamptz`,
-				})
-				.returning({ id: promptRuns.id });
-			await insertRunText(db, row.id, "Acme.");
-			ids.push(row.id);
+		for (let i = 0; i < 3; i++) {
+			const run = await createRun(brandId, promptId, { at: "2026-10-01T12:00:00.123Z", brandMentioned: false });
+			await insertRunText(db, run.id, "Acme.");
+			ids.push(run.id);
 		}
 
 		expect((await reconcile(brandId, { batchSize: 1 })).analysed).toBe(3);
 		expect(await markerCount(ids)).toBe(3);
+	});
+
+	it("analyses a run whose answer was empty as having no mentions", async () => {
+		const { brandId, runIds } = await brandWithRuns([""]);
+		const [text] = await db.select().from(runTexts).where(eq(runTexts.promptRunId, runIds[0]));
+		expect(text.text).toBeNull();
+
+		expect((await reconcile(brandId)).analysed).toBe(1);
+		expect(await markerCount(runIds)).toBe(1);
+		expect(await mentionedNames(runIds)).toEqual([[]]);
+	});
+
+	it("reads the brand's subjects only after a writer ahead of it on the brand commits", async () => {
+		const { brandId, runIds } = await brandWithRuns(["Initech and Acme."]);
+		const ahead = holdBrandLock(brandId, (tx) => tx.insert(competitors).values({ brandId, name: "Initech" }));
+		await ahead.locked;
+		const pass = reconcile(brandId);
+		await new Promise((resolve) => setTimeout(resolve, 200));
+		ahead.release();
+		await ahead.done;
+		await pass;
+
+		expect(await mentionedNames(runIds)).toEqual([["Acme", "Initech"]]);
 	});
 
 	it("lets two passes run at once without colliding", async () => {
@@ -171,7 +183,7 @@ describe("reconcileRunAnalyses", () => {
 
 		const results = await Promise.all([reconcile(brandId, { batchSize: 3 }), reconcile(brandId, { batchSize: 3 })]);
 
-		expect(results[0].analysed + results[1].analysed).toBeGreaterThanOrEqual(20);
+		expect(results[0].analysed + results[1].analysed).toBe(20);
 		expect(await markerCount(runIds)).toBe(20);
 		const names = await mentionedNames(runIds);
 		expect(names.filter((n) => n.length === 2)).toHaveLength(10);

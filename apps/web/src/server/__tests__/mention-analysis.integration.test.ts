@@ -1,10 +1,11 @@
 import { db } from "@workspace/lib/db/db";
-import { promptRuns, runMentionAnalyses, runSubjectMentions, runTexts } from "@workspace/lib/db/schema";
+import { competitors, promptRuns, runMentionAnalyses, runSubjectMentions, runTexts } from "@workspace/lib/db/schema";
 import { ANALYZER_VERSION, brandSubjects, subjectFingerprint } from "@workspace/lib/enrichment";
 import { loadBrandSubjects, tryWriteRunAnalysis, writeRunAnalysis } from "@workspace/lib/enrichment/write";
 import { insertRunText } from "@workspace/lib/run-texts";
 import { eq, sql } from "drizzle-orm";
 import { afterAll, describe, expect, it } from "vitest";
+import { holdBrandLock } from "@/test/integration/brand-analysis-lock";
 import { createBrand, createCompetitor, createPrompt, createRun, deleteBrand } from "@/test/integration/stats-fixtures";
 
 const brandIds: string[] = [];
@@ -154,6 +155,19 @@ describe("tryWriteRunAnalysis", () => {
 		);
 		expect(ok).toBe(false);
 		expect((await stored(run.id)).marker).toBeUndefined();
+	});
+
+	it("reads the brand's subjects only after a writer ahead of it on the brand commits", async () => {
+		const { brandId, run } = await freshRun();
+		const ahead = holdBrandLock(brandId, (tx) => tx.insert(competitors).values({ brandId, name: "Globex" }));
+		await ahead.locked;
+		const write = db.transaction((tx) => tryWriteRunAnalysis(tx, run, "Globex and Acme.", 1, () => {}));
+		await new Promise((resolve) => setTimeout(resolve, 200));
+		ahead.release();
+		await ahead.done;
+		expect(await write).toBe(true);
+
+		expect((await stored(run.id)).mentions).toHaveLength(2);
 	});
 
 	it("analyses against the brand's subjects as they stand when it writes", async () => {
