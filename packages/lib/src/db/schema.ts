@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import {
 	boolean,
 	check,
@@ -17,7 +18,6 @@ import {
 	uniqueIndex,
 	uuid,
 } from "drizzle-orm/pg-core";
-import { sql } from "drizzle-orm";
 // `organization` is referenced by the brands FK below; the re-export makes it
 // (and the rest of the auth schema) visible to `import * as schema` consumers.
 import { organization } from "./schema-auth";
@@ -272,10 +272,7 @@ export const runSubjectMentions = pgTable(
 			table.firstOffset,
 		),
 		firstOffsetCheck: check("run_subject_mentions_first_offset_check", sql`${table.firstOffset} >= 0`),
-		positionCheck: check(
-			"run_subject_mentions_position_check",
-			sql`${table.position} >= 0 AND ${table.position} < 1`,
-		),
+		positionCheck: check("run_subject_mentions_position_check", sql`${table.position} >= 0 AND ${table.position} < 1`),
 	}),
 ).enableRLS();
 
