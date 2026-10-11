@@ -21,7 +21,8 @@ describe("brandSubjects", () => {
 });
 
 describe("subjectFingerprint", () => {
-	const fingerprint = (b = brand, competitors = [globex, initech]) => subjectFingerprint(brandSubjects(b, competitors));
+	const fingerprint = (b = brand, competitors: Parameters<typeof brandSubjects>[1] = [globex, initech]) =>
+		subjectFingerprint(brandSubjects(b, competitors));
 
 	it("is the same whatever order competitors are listed in", () => {
 		expect(fingerprint(brand, [initech, globex])).toBe(fingerprint(brand, [globex, initech]));
