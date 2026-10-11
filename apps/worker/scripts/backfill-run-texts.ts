@@ -72,6 +72,10 @@ async function main() {
 				? `Would write ${result.remaining} rows; ${result.skipped} runs are already current. Nothing was written.`
 				: `Done: ${result.processed} with text, ${result.sentinel} without (no answer), ${result.skipped} already current.`,
 		);
+		if (!options.dryRun && result.processed + result.sentinel > 0) {
+			// Re-extracted text makes the mention analysis computed from it stale.
+			console.log("Next: run backfill:run-mentions to re-analyse the runs whose text changed.");
+		}
 		const divergent = Object.entries(result.divergent);
 		if (divergent.length > 0) {
 			console.warn("\nWARNING: rows that cannot be faithfully reconstructed (see the warnings above):");

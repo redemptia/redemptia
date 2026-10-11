@@ -1,13 +1,26 @@
 import { eq, sql } from "drizzle-orm";
 import type { DbConnection } from "../db/db-connection";
-import { promptRuns, runMentionAnalyses, runSubjectMentions } from "../db/schema";
-import { type AnalysisSubject, analyzeRun, subjectFingerprint } from "./analysis";
+import { brands, competitors, promptRuns, runMentionAnalyses, runSubjectMentions } from "../db/schema";
+import { type AnalysisSubject, analyzeRun, brandSubjects, subjectFingerprint } from "./analysis";
 import { ANALYZER_VERSION } from "./prominence";
 
 export interface AnalysedRun {
 	id: string;
 	promptId: string;
 	model: string;
+}
+
+/**
+ * A brand's subjects as they stand in `conn`'s snapshot, or null if the brand is
+ * gone. Read inside the writing transaction rather than earlier, so the
+ * fingerprint stored with an analysis is the subject set current when it
+ * commits: a subject edit that lands after that queues its own recompute.
+ */
+export async function loadBrandSubjects(conn: DbConnection, brandId: string): Promise<AnalysisSubject[] | null> {
+	const [brand] = await conn.select().from(brands).where(eq(brands.id, brandId));
+	if (!brand) return null;
+	const brandCompetitors = await conn.select().from(competitors).where(eq(competitors.brandId, brandId));
+	return brandSubjects(brand, brandCompetitors);
 }
 
 /**
@@ -56,14 +69,17 @@ export async function writeRunAnalysis(
  */
 export async function tryWriteRunAnalysis(
 	tx: DbConnection,
-	run: AnalysedRun,
+	run: AnalysedRun & { brandId: string },
 	text: string | null,
 	extractorVersion: number,
-	subjects: readonly AnalysisSubject[],
 	onError: (error: unknown) => void,
 ): Promise<boolean> {
 	try {
-		await tx.transaction((savepoint) => writeRunAnalysis(savepoint, run, text, extractorVersion, subjects));
+		await tx.transaction(async (savepoint) => {
+			const subjects = await loadBrandSubjects(savepoint, run.brandId);
+			if (!subjects) throw new Error(`Brand ${run.brandId} not found`);
+			await writeRunAnalysis(savepoint, run, text, extractorVersion, subjects);
+		});
 		return true;
 	} catch (error) {
 		try {
