@@ -127,20 +127,28 @@ export async function reconcileRunAnalyses(options: ReconcileOptions): Promise<R
 	options.onProgress?.({ ...progress });
 	if (options.dryRun) return progress;
 
-	for (const brandId of fingerprints.keys()) {
-		let cursor = { at: "-infinity", id: "00000000-0000-0000-0000-000000000000" };
-		for (;;) {
-			const batch = await reconcileBatch(brandId, cursor, options.batchSize);
-			if (!batch || batch.length === 0) break;
-			progress.analysed += batch.length;
-			progress.remaining = Math.max(0, progress.remaining - batch.length);
-			options.onProgress?.({ ...progress });
-
-			const last = batch[batch.length - 1];
-			cursor = { at: last.cursor_at, id: last.id };
-			if (batch.length < options.batchSize) break;
-			if (options.pauseMs > 0) await new Promise((resolve) => setTimeout(resolve, options.pauseMs));
-		}
-	}
+	for (const brandId of fingerprints.keys()) await reconcileBrand(brandId, options, progress);
 	return progress;
+}
+
+/**
+ * Walk one brand's stale runs in (created_at, id) order. The cursor only ever
+ * moves forward, so a run that is still stale after its batch (its brand's
+ * subjects changed mid-pass) can't hold the pass in a loop; the recompute that
+ * change queued will reach it.
+ */
+async function reconcileBrand(brandId: string, options: ReconcileOptions, progress: ReconcileProgress) {
+	let cursor = { at: "-infinity", id: "00000000-0000-0000-0000-000000000000" };
+	for (;;) {
+		const batch = await reconcileBatch(brandId, cursor, options.batchSize);
+		if (!batch || batch.length === 0) return;
+		progress.analysed += batch.length;
+		progress.remaining = Math.max(0, progress.remaining - batch.length);
+		options.onProgress?.({ ...progress });
+
+		const last = batch[batch.length - 1];
+		cursor = { at: last.cursor_at, id: last.id };
+		if (batch.length < options.batchSize) return;
+		if (options.pauseMs > 0) await new Promise((resolve) => setTimeout(resolve, options.pauseMs));
+	}
 }
