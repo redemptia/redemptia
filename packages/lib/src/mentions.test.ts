@@ -97,6 +97,20 @@ describe("locateSubject", () => {
 		]);
 	});
 
+	it("counts a span starting inside a longer one as the same place, even after a shorter one ended", () => {
+		const subject = { name: "acme", aliases: ["acme corp group", "group"] };
+		expect(locateSubject("acme corp group", subject)?.count).toBe(1);
+	});
+
+	it("counts back-to-back repeats separately, and never overlaps a term with itself", () => {
+		const location = locateSubject("aaaa", { name: "aa" });
+		expect(location?.count).toBe(2);
+		expect(location?.spans).toEqual([
+			{ start: 0, end: 2, kind: "name" },
+			{ start: 2, end: 4, kind: "name" },
+		]);
+	});
+
 	it("reports a term listed under two kinds once, as the name", () => {
 		const location = locateSubject("acme wins.", { name: "Acme", aliases: ["ACME", " acme "] });
 		expect(location?.spans).toEqual([{ start: 0, end: 4, kind: "name" }]);
@@ -193,8 +207,15 @@ describe("locateSubject agrees with the reference matching rule", () => {
 			expect(location.first).toBe(Math.min(...location.spans.map((span) => span.start)));
 			expect(location.position).toBeGreaterThanOrEqual(0);
 			expect(location.position).toBeLessThan(1);
-			expect(location.count).toBeGreaterThanOrEqual(1);
-			expect(location.count).toBeLessThanOrEqual(location.spans.length);
+			const merged = [...location.spans]
+				.sort((x, y) => x.start - y.start)
+				.reduce<Array<[number, number]>>((places, span) => {
+					const last = places[places.length - 1];
+					if (last && span.start < last[1]) last[1] = Math.max(last[1], span.end);
+					else places.push([span.start, span.end]);
+					return places;
+				}, []);
+			expect(location.count).toBe(merged.length);
 		}
 	});
 });

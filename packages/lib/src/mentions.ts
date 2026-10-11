@@ -28,24 +28,21 @@ function needleFor(term: string | null | undefined): string | null {
 }
 
 export interface SubjectSpan {
-	/** Offsets into the lowercased content, end exclusive. */
 	start: number;
+	/** Exclusive. */
 	end: number;
 	kind: "name" | "alias" | "domain";
 }
 
 export interface SubjectLocation {
-	/** Where the earliest span starts. */
 	first: number;
 	/** `first` as a fraction of the content's length: 0 opens the answer. */
 	position: number;
 	/** Places the subject appears, with overlapping spans ("Acme" inside "Acme Corp") counted once. */
 	count: number;
-	/** Every match of every term, ordered by start. */
+	/** Each term's non-overlapping matches, ordered by start. */
 	spans: SubjectSpan[];
 }
-
-const KIND_PRIORITY: Record<SubjectSpan["kind"], number> = { name: 0, alias: 1, domain: 2 };
 
 /**
  * Offsets index `contentLower`, not the original answer: lowercasing can change
@@ -62,17 +59,16 @@ export function locateSubject(contentLower: string, subject: MentionSubject): Su
 			.map((domain): [string, SubjectSpan["kind"]] => [normalizeDomain(domain), "domain"]),
 	];
 
-	// Keyed by offsets so a term listed twice, or a name repeated as an alias, is one span.
+	// Keyed by offsets so a term listed twice, or a name repeated as an alias, is
+	// one span. Terms are scanned name, aliases, domains, so the first kind to
+	// claim an offset is the one reported.
 	const spansByOffsets = new Map<string, SubjectSpan>();
 	for (const [term, kind] of terms) {
 		const needle = needleFor(term);
 		if (!needle) continue;
 		for (let at = contentLower.indexOf(needle); at !== -1; at = contentLower.indexOf(needle, at + needle.length)) {
 			const key = `${at}:${at + needle.length}`;
-			const existing = spansByOffsets.get(key);
-			if (!existing || KIND_PRIORITY[kind] < KIND_PRIORITY[existing.kind]) {
-				spansByOffsets.set(key, { start: at, end: at + needle.length, kind });
-			}
+			if (!spansByOffsets.has(key)) spansByOffsets.set(key, { start: at, end: at + needle.length, kind });
 		}
 	}
 	if (spansByOffsets.size === 0) return null;
