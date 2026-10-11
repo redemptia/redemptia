@@ -1,5 +1,7 @@
 import {
 	boolean,
+	check,
+	doublePrecision,
 	index,
 	integer,
 	json,
@@ -8,7 +10,6 @@ import {
 	pgEnum,
 	pgTable,
 	primaryKey,
-	real,
 	smallint,
 	text,
 	timestamp,
@@ -16,6 +17,7 @@ import {
 	uniqueIndex,
 	uuid,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 // `organization` is referenced by the brands FK below; the re-export makes it
 // (and the rest of the auth schema) visible to `import * as schema` consumers.
 import { organization } from "./schema-auth";
@@ -232,7 +234,9 @@ export const subjectKindEnum = pgEnum("subject_kind", ["brand", "competitor"]);
  *
  * Only first_offset and position are stored; prominence and rank are computed
  * from them on read. prompt_id, model and created_at are copied from the run so
- * the per-prompt read never joins prompt_runs.
+ * counting mentions needs no join. Anything that also needs the runs without
+ * mentions, or whether a run is analysed at all, still reads prompt_runs and
+ * the marker.
  */
 export const runSubjectMentions = pgTable(
 	"run_subject_mentions",
@@ -240,8 +244,8 @@ export const runSubjectMentions = pgTable(
 		promptRunId: uuid("prompt_run_id")
 			.notNull()
 			.references(() => promptRuns.id, { onDelete: "cascade" }),
-		// A competitor's uuid or the brand's id. No FK: a competitor's rows must
-		// outlive it until recompute removes them, and the brand id isn't a competitor.
+		// A competitor's uuid or the brand's id, so no single FK can cover it. Being
+		// text, a join to competitors.id needs a cast.
 		subjectKey: text("subject_key").notNull(),
 		subjectKind: subjectKindEnum("subject_kind").notNull(),
 		// The name when analysed, so a row stays readable after a rename or delete.
@@ -250,17 +254,27 @@ export const runSubjectMentions = pgTable(
 		model: text("model").notNull(),
 		createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
 		firstOffset: integer("first_offset").notNull(),
-		position: real("position").notNull(),
+		// Double, so prominence (1 - position) reads back without float4 noise.
+		position: doublePrecision("position").notNull(),
 	},
 	(table) => ({
 		pk: primaryKey({ columns: [table.promptRunId, table.subjectKey] }),
-		// Key columns rather than INCLUDE, which drizzle can't express; either way
-		// the per-prompt, per-day read is an index-only scan.
+		// Key columns rather than INCLUDE, which drizzle can't express. They cover
+		// every column a per-prompt window read uses, with or without a model
+		// filter and including per-run rank, so those reads stay index-only.
 		promptCreatedIdx: index("run_subject_mentions_prompt_created_idx").on(
 			table.promptId,
 			table.createdAt,
 			table.subjectKey,
 			table.position,
+			table.model,
+			table.promptRunId,
+			table.firstOffset,
+		),
+		firstOffsetCheck: check("run_subject_mentions_first_offset_check", sql`${table.firstOffset} >= 0`),
+		positionCheck: check(
+			"run_subject_mentions_position_check",
+			sql`${table.position} >= 0 AND ${table.position} < 1`,
 		),
 	}),
 ).enableRLS();

@@ -1,5 +1,5 @@
 {
-  "id": "6647de74-9ad8-4133-ba02-728e810ee0c0",
+  "id": "8a51859c-59f4-4b3b-9b9d-82bdf25e12c4",
   "prevId": "aac9d18f-c09e-40ef-93e4-da00c1bf5489",
   "version": "7",
   "dialect": "postgresql",
@@ -1148,7 +1148,7 @@
         },
         "position": {
           "name": "position",
-          "type": "real",
+          "type": "double precision",
           "primaryKey": false,
           "notNull": true
         }
@@ -1177,6 +1177,24 @@
             },
             {
               "expression": "position",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "model",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "prompt_run_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "first_offset",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -1214,7 +1232,16 @@
       },
       "uniqueConstraints": {},
       "policies": {},
-      "checkConstraints": {},
+      "checkConstraints": {
+        "run_subject_mentions_first_offset_check": {
+          "name": "run_subject_mentions_first_offset_check",
+          "value": "\"run_subject_mentions\".\"first_offset\" >= 0"
+        },
+        "run_subject_mentions_position_check": {
+          "name": "run_subject_mentions_position_check",
+          "value": "\"run_subject_mentions\".\"position\" >= 0 AND \"run_subject_mentions\".\"position\" < 1"
+        }
+      },
       "isRLSEnabled": true
     },
     "public.run_texts": {
