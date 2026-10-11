@@ -7,6 +7,8 @@ import {
 	numeric,
 	pgEnum,
 	pgTable,
+	primaryKey,
+	real,
 	smallint,
 	text,
 	timestamp,
@@ -218,6 +220,65 @@ export const runTexts = pgTable("run_texts", {
 	// records provenance; extractor_version records only which logic ran.
 	source: runTextSourceEnum("source").notNull(),
 	createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}).enableRLS();
+
+export const subjectKindEnum = pgEnum("subject_kind", ["brand", "competitor"]);
+
+/**
+ * Where a run's answer first mentions each subject, one row per mentioned
+ * subject only. Absence is meaningful only alongside a current
+ * run_mention_analyses marker: without one the run is not analysed, which is
+ * not the same as no mentions.
+ *
+ * Only first_offset and position are stored; prominence and rank are computed
+ * from them on read. prompt_id, model and created_at are copied from the run so
+ * the per-prompt read never joins prompt_runs.
+ */
+export const runSubjectMentions = pgTable(
+	"run_subject_mentions",
+	{
+		promptRunId: uuid("prompt_run_id")
+			.notNull()
+			.references(() => promptRuns.id, { onDelete: "cascade" }),
+		// A competitor's uuid or the brand's id. No FK: a competitor's rows must
+		// outlive it until recompute removes them, and the brand id isn't a competitor.
+		subjectKey: text("subject_key").notNull(),
+		subjectKind: subjectKindEnum("subject_kind").notNull(),
+		// The name when analysed, so a row stays readable after a rename or delete.
+		subjectName: text("subject_name").notNull(),
+		promptId: uuid("prompt_id").notNull(),
+		model: text("model").notNull(),
+		createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
+		firstOffset: integer("first_offset").notNull(),
+		position: real("position").notNull(),
+	},
+	(table) => ({
+		pk: primaryKey({ columns: [table.promptRunId, table.subjectKey] }),
+		// Key columns rather than INCLUDE, which drizzle can't express; either way
+		// the per-prompt, per-day read is an index-only scan.
+		promptCreatedIdx: index("run_subject_mentions_prompt_created_idx").on(
+			table.promptId,
+			table.createdAt,
+			table.subjectKey,
+			table.position,
+		),
+	}),
+).enableRLS();
+
+/**
+ * One row per analysed run: the completeness marker that makes a missing
+ * run_subject_mentions row mean "not mentioned". A run is stale, and so not
+ * analysed, when its marker is missing or disagrees with the current
+ * ANALYZER_VERSION, its run_texts row's extractor_version, or its brand's
+ * subject fingerprint.
+ */
+export const runMentionAnalyses = pgTable("run_mention_analyses", {
+	promptRunId: uuid("prompt_run_id")
+		.primaryKey()
+		.references(() => promptRuns.id, { onDelete: "cascade" }),
+	analyzerVersion: smallint("analyzer_version").notNull(),
+	extractorVersion: integer("extractor_version").notNull(),
+	subjectFingerprint: text("subject_fingerprint").notNull(),
 }).enableRLS();
 
 export const reports = pgTable(
