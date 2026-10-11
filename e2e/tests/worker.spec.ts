@@ -75,6 +75,23 @@ test.describe("Worker job processing", () => {
         [prompt.id],
       );
       expect(settled[0]?.n, "run volume must not exceed RUNS_PER_PROMPT").toBe(5);
+
+      // Mention analysis is written in the same transaction as each run, so a
+      // run the worker saved without a marker means the live write is not wired.
+      // The stub answers with no text, so every run is analysed with no mentions,
+      // from the same text version its run_texts row holds.
+      const { rows: analysis } = await client.query<{ runs: number; analysed: number; mentions: number }>(
+        `SELECT COUNT(*)::int AS runs,
+                COUNT(*) FILTER (WHERE a.extractor_version = rt.extractor_version AND a.analyzer_version = 1)::int AS analysed,
+                (SELECT COUNT(*)::int FROM run_subject_mentions m JOIN prompt_runs r ON r.id = m.prompt_run_id
+                  WHERE r.prompt_id = $1) AS mentions
+           FROM prompt_runs pr
+           LEFT JOIN run_texts rt ON rt.prompt_run_id = pr.id
+           LEFT JOIN run_mention_analyses a ON a.prompt_run_id = pr.id
+          WHERE pr.prompt_id = $1`,
+        [prompt.id],
+      );
+      expect(analysis[0], "every saved run carries its mention analysis").toEqual({ runs: 5, analysed: 5, mentions: 0 });
     } finally {
       await client.end();
     }
