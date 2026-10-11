@@ -136,8 +136,7 @@ describe("locateSubject agrees with the reference matching rule", () => {
 	const pick = <T>(items: readonly T[]): T => items[Math.floor(random() * items.length)];
 	// A small alphabet, so random terms hit often; "İ" changes length when lowercased.
 	const alphabet = ["a", "b", "c", "A", "B", " ", ".", "-", "İ", "/"];
-	const randomText = (max: number) =>
-		Array.from({ length: Math.floor(random() * max) }, () => pick(alphabet)).join("");
+	const randomText = (max: number) => Array.from({ length: Math.floor(random() * max) }, () => pick(alphabet)).join("");
 	const termFrom = (content: string): string | null | undefined => {
 		const roll = random();
 		if (roll < 0.35 && content.length > 0) {
