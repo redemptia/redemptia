@@ -13,7 +13,8 @@ const initech = { id: "c-2", name: "Initech", aliases: ["Initech Inc"], domains:
 
 describe("brandSubjects", () => {
 	it("matches the brand by its website as well as its additional domains", () => {
-		const [subject] = brandSubjects(brand, []);
+		// A name that appears in neither domain, so only the domains can match.
+		const [subject] = brandSubjects({ ...brand, name: "Zenith", aliases: [] }, []);
 		expect(analyzeRun("see acme.com for pricing", [subject])).toHaveLength(1);
 		expect(analyzeRun("see acme.io for pricing", [subject])).toHaveLength(1);
 	});
