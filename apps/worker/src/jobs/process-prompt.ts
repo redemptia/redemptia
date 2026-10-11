@@ -14,7 +14,6 @@ import {
 	usageEvents,
 } from "@workspace/lib/db/schema";
 import { type AnalysisSubject, brandSubjects } from "@workspace/lib/enrichment";
-import { tryWriteRunAnalysis } from "@workspace/lib/enrichment/write";
 import { getOrgEntitlements } from "@workspace/lib/entitlements";
 import { analyzeMentions } from "@workspace/lib/mentions";
 import { getProvider, type ModelConfig, type Provider } from "@workspace/lib/providers";
@@ -30,7 +29,7 @@ import {
 	targetKey,
 } from "@workspace/lib/run-policy";
 import { insertRunText } from "@workspace/lib/run-texts";
-import { answerTextOrNull, type Citation, TEXT_EXTRACTOR_VERSION } from "@workspace/lib/text-extraction";
+import type { Citation } from "@workspace/lib/text-extraction";
 import { estimateRunCostUsd } from "@workspace/lib/usage";
 import { isOrgOverDailyCeiling } from "@workspace/lib/usage/ceiling";
 import { and, eq, gt, sql } from "drizzle-orm";
@@ -194,19 +193,6 @@ async function savePromptRun(
 			})
 			.returning({ id: promptRuns.id, createdAt: promptRuns.createdAt });
 		await insertRunText(tx, result.id, textContent);
-		// The run is paid for, so a failed analysis must not roll it back. The run
-		// is left without a marker, which reads as not analysed.
-		await tryWriteRunAnalysis(
-			tx,
-			{ id: result.id, promptId, model },
-			answerTextOrNull(textContent),
-			TEXT_EXTRACTOR_VERSION,
-			subjects,
-			(error) => {
-				console.error(`Mention analysis failed for run ${result.id}; it is left unanalysed:`, error);
-				Sentry.captureException(error, { tags: { stage: "mention-analysis" } });
-			},
-		);
 		return result;
 	});
 }
