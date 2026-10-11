@@ -3,7 +3,7 @@ import { promptRuns, runMentionAnalyses, runSubjectMentions, runTexts } from "@w
 import { ANALYZER_VERSION, type AnalysisSubject, brandSubjects, subjectFingerprint } from "@workspace/lib/enrichment";
 import { tryWriteRunAnalysis, writeRunAnalysis } from "@workspace/lib/enrichment/write";
 import { insertRunText } from "@workspace/lib/run-texts";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { afterAll, describe, expect, it } from "vitest";
 import { createBrand, createPrompt, createRun, deleteBrand } from "@/test/integration/stats-fixtures";
 
@@ -55,6 +55,33 @@ describe("writeRunAnalysis", () => {
 		});
 	});
 
+	it("dates each mention exactly as its run, to the microsecond", async () => {
+		const { brandId, promptId } = await freshRun();
+		// now() carries microseconds, which a JS Date round trip would drop.
+		const [row] = await db
+			.insert(promptRuns)
+			.values({
+				promptId,
+				brandId,
+				model: "chatgpt",
+				version: "test",
+				webSearchEnabled: true,
+				rawOutput: {},
+				brandMentioned: true,
+				createdAt: sql`'2026-10-01 12:00:00.123456+00'`,
+			})
+			.returning({ id: promptRuns.id });
+		await db.transaction((tx) =>
+			writeRunAnalysis(tx, { id: row.id, promptId, model: "chatgpt" }, "Acme.", 1, subjectsFor(brandId)),
+		);
+
+		const { rows } = await db.execute<{ same: boolean }>(sql`
+			SELECT m.created_at = r.created_at AS same
+			FROM run_subject_mentions m JOIN prompt_runs r ON r.id = m.prompt_run_id
+			WHERE m.prompt_run_id = ${row.id}`);
+		expect(rows).toEqual([{ same: true }]);
+	});
+
 	it("marks a run with no answer text as analysed, with no mentions", async () => {
 		const { brandId, run } = await freshRun();
 		await db.transaction((tx) => writeRunAnalysis(tx, run, null, 1, subjectsFor(brandId)));
@@ -101,11 +128,11 @@ describe("tryWriteRunAnalysis", () => {
 					brandMentioned: true,
 					competitorsMentioned: ["Globex"],
 				})
-				.returning({ id: promptRuns.id, createdAt: promptRuns.createdAt });
+				.returning({ id: promptRuns.id });
 			await insertRunText(tx, row.id, "Globex and Acme.");
 			const ok = await tryWriteRunAnalysis(
 				tx,
-				{ id: row.id, promptId, model: "chatgpt", createdAt: row.createdAt },
+				{ id: row.id, promptId, model: "chatgpt" },
 				"Globex and Acme.",
 				1,
 				collidingSubjects(brandId),
@@ -121,6 +148,16 @@ describe("tryWriteRunAnalysis", () => {
 		const { marker, mentions } = await stored(runId);
 		expect(marker).toBeUndefined();
 		expect(mentions).toEqual([]);
+	});
+
+	it("doesn't let a failing error reporter fail the caller either", async () => {
+		const { brandId, run } = await freshRun();
+		const ok = await db.transaction((tx) =>
+			tryWriteRunAnalysis(tx, run, "Globex and Acme.", 1, collidingSubjects(brandId), () => {
+				throw new Error("reporter down");
+			}),
+		);
+		expect(ok).toBe(false);
 	});
 
 	it("writes the analysis when nothing goes wrong", async () => {

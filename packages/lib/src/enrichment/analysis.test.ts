@@ -23,20 +23,17 @@ describe("brandSubjects", () => {
 describe("subjectFingerprint", () => {
 	const fingerprint = (b = brand, competitors = [globex, initech]) => subjectFingerprint(brandSubjects(b, competitors));
 
-	it("is the same for the same subjects in any order", () => {
-		const reordered = subjectFingerprint(
-			brandSubjects({ ...brand, additionalDomains: [...brand.additionalDomains] }, [
-				{ ...initech, aliases: [...initech.aliases].reverse() },
-				globex,
-			]),
-		);
-		expect(reordered).toBe(fingerprint());
+	it("is the same whatever order competitors are listed in", () => {
+		expect(fingerprint(brand, [initech, globex])).toBe(fingerprint(brand, [globex, initech]));
 	});
 
 	it("is the same whatever order aliases and domains are stored in", () => {
 		const a = fingerprint({ ...brand, aliases: ["One", "Two"], additionalDomains: ["a.com", "b.com"] });
 		const b = fingerprint({ ...brand, aliases: ["Two", "One"], additionalDomains: ["b.com", "a.com"] });
 		expect(a).toBe(b);
+		const competitor = { id: "c-1", name: "Globex", aliases: ["G1", "G2"], domains: ["g.com", "g.io"] };
+		const reversed = { ...competitor, aliases: ["G2", "G1"], domains: ["g.io", "g.com"] };
+		expect(fingerprint(brand, [reversed])).toBe(fingerprint(brand, [competitor]));
 	});
 
 	it("changes when anything matching reads changes", () => {

@@ -194,16 +194,16 @@ async function savePromptRun(
 			})
 			.returning({ id: promptRuns.id, createdAt: promptRuns.createdAt });
 		await insertRunText(tx, result.id, textContent);
-		// The run is paid for, so a failed analysis must not roll it back; the
-		// backfill picks up a run left without one.
+		// The run is paid for, so a failed analysis must not roll it back. The run
+		// is left without a marker, which reads as not analysed.
 		await tryWriteRunAnalysis(
 			tx,
-			{ id: result.id, promptId, model, createdAt: result.createdAt },
+			{ id: result.id, promptId, model },
 			answerTextOrNull(textContent),
 			TEXT_EXTRACTOR_VERSION,
 			subjects,
 			(error) => {
-				console.error(`Mention analysis failed for run ${result.id}; leaving it for the backfill:`, error);
+				console.error(`Mention analysis failed for run ${result.id}; it is left unanalysed:`, error);
 				Sentry.captureException(error, { tags: { stage: "mention-analysis" } });
 			},
 		);

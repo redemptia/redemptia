@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import type { DbConnection } from "../db/db-connection";
-import { runMentionAnalyses, runSubjectMentions } from "../db/schema";
+import { promptRuns, runMentionAnalyses, runSubjectMentions } from "../db/schema";
 import { type AnalysisSubject, analyzeRun, subjectFingerprint } from "./analysis";
 import { ANALYZER_VERSION } from "./prominence";
 
@@ -8,7 +8,6 @@ export interface AnalysedRun {
 	id: string;
 	promptId: string;
 	model: string;
-	createdAt: Date;
 }
 
 /**
@@ -32,7 +31,8 @@ export async function writeRunAnalysis(
 				promptRunId: run.id,
 				promptId: run.promptId,
 				model: run.model,
-				createdAt: run.createdAt,
+				// Read from the run itself: a JS Date would drop its microseconds.
+				createdAt: sql`(SELECT ${promptRuns.createdAt} FROM ${promptRuns} WHERE ${promptRuns.id} = ${run.id})`,
 			})),
 		);
 	}
@@ -49,10 +49,10 @@ export async function writeRunAnalysis(
 
 /**
  * writeRunAnalysis for a caller whose transaction must commit regardless, such
- * as saving a run that was already paid for. It runs in a savepoint: a failed
- * statement would otherwise abort the caller's whole transaction, and a plain
- * catch can't undo that. On failure nothing is written, so the run reads as not
- * analysed and the backfill picks it up.
+ * as saving a run that was already paid for. Pass the caller's transaction: the
+ * write runs in a savepoint of it, because a failed statement would otherwise
+ * abort the whole transaction and a plain catch can't undo that. On failure
+ * nothing is written, so the run reads as not analysed.
  */
 export async function tryWriteRunAnalysis(
 	tx: DbConnection,
@@ -66,7 +66,11 @@ export async function tryWriteRunAnalysis(
 		await tx.transaction((savepoint) => writeRunAnalysis(savepoint, run, text, extractorVersion, subjects));
 		return true;
 	} catch (error) {
-		onError(error);
+		try {
+			onError(error);
+		} catch {
+			// Reporting the failure must not become a way to fail the run.
+		}
 		return false;
 	}
 }
