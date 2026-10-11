@@ -30,6 +30,7 @@
 		"./onboarding": "./src/onboarding/index.ts",
 		"./mentions": "./src/mentions.ts",
 		"./enrichment": "./src/enrichment/index.ts",
+		"./enrichment/write": "./src/enrichment/write.ts",
 		"./tag-utils": "./src/tag-utils.ts",
 		"./bulk-prompts": "./src/bulk-prompts.ts",
 		"./website-excerpt": "./src/website-excerpt.ts",
