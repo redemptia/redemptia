@@ -6,6 +6,11 @@ describe("prominence", () => {
 		expect(prominence(0)).toBe(1);
 	});
 
+	it("falls in proportion to how far into the answer a subject first appears", () => {
+		expect(prominence(0.25)).toBe(0.75);
+		expect(prominence(0.5)).toBe(0.5);
+	});
+
 	it("is higher the earlier a subject first appears", () => {
 		expect(prominence(0.1) as number).toBeGreaterThan(prominence(0.6) as number);
 	});
@@ -36,6 +41,16 @@ describe("rankSubjects", () => {
 			{ key: "coda", first: 40 },
 		]);
 		expect(Object.fromEntries(ranks)).toEqual({ notion: 1, "notion-ai": 1, coda: 3 });
+	});
+
+	it("shares a rank for a tie behind the leader too", () => {
+		const ranks = rankSubjects([
+			{ key: "first", first: 5 },
+			{ key: "tied-a", first: 40 },
+			{ key: "tied-b", first: 40 },
+			{ key: "last", first: 90 },
+		]);
+		expect(Object.fromEntries(ranks)).toEqual({ first: 1, "tied-a": 2, "tied-b": 2, last: 4 });
 	});
 
 	it("leaves unmentioned subjects unranked and doesn't count them", () => {
