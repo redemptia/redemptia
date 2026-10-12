@@ -17,11 +17,14 @@ const PAUSE_MS = 100;
  */
 export async function recomputeBrandMentionsJob(jobs: Job<RecomputeBrandMentionsData>[]): Promise<void> {
 	for (const job of jobs) {
+		// reconcileRunAnalyses reads a missing brand id as every brand.
+		if (!job.data?.brandId) throw new Error(`recompute-brand-mentions job ${job.id} has no brandId`);
 		const { analysed } = await reconcileRunAnalyses({
 			brandId: job.data.brandId,
 			batchSize: BATCH_SIZE,
 			pauseMs: PAUSE_MS,
 			dryRun: false,
+			signal: job.signal,
 		});
 		console.log(`[recompute-brand-mentions] ${job.data.brandId}: ${analysed} runs analysed`);
 	}

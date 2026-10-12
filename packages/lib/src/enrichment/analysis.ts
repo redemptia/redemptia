@@ -50,7 +50,12 @@ export function brandSubjects(brand: BrandInput, competitors: readonly Competito
 	];
 }
 
-/** Whether a brand update sets any column brandSubjects reads, and so leaves its stored analysis stale. */
+/**
+ * Whether a brand update sets any column brandSubjects reads, and so leaves its
+ * stored analysis stale. It checks that a column is set, not that its value
+ * changed: a save that rewrites the same values costs one pass that finds
+ * nothing stale. Keep the list in step with brandSubjects.
+ */
 export function touchesSubjects(
 	update: Partial<Record<"name" | "website" | "aliases" | "additionalDomains", unknown>>,
 ): boolean {

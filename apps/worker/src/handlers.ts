@@ -57,9 +57,9 @@ export async function registerHandlers(boss: PgBoss): Promise<void> {
 	);
 	console.log("Registered handler: analyze-brand");
 
-	// One at a time, against process-prompt's ten: pg-boss priority orders jobs
-	// only within a queue, so this low concurrency is what keeps recomputes
-	// behind the scraper.
+	// One at a time per worker process, against process-prompt's ten. pg-boss
+	// priority orders jobs only within a queue, so this cap is what bounds the
+	// share of the worker and database a recompute takes from the scraper.
 	if (getDeploymentFeatures().enrichment) {
 		await boss.work<RecomputeBrandMentionsData>(
 			MENTION_RECOMPUTE_QUEUE,

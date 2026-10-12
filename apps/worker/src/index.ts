@@ -2,7 +2,12 @@ import * as Sentry from "@sentry/node";
 import { assertRequiredEnv } from "@workspace/config/env";
 import { parseScrapeTargets } from "@workspace/config/scrape-targets";
 import { getDeploymentFeatures } from "@workspace/deployment";
-import { MENTION_RECOMPUTE_QUEUE, MENTION_RECOMPUTE_QUEUE_OPTIONS, PROMPT_JOB_OPTIONS } from "@workspace/lib/constants";
+import {
+	MENTION_RECOMPUTE_QUEUE,
+	MENTION_RECOMPUTE_QUEUE_OPTIONS,
+	MENTION_RECOMPUTE_QUEUE_POLICY,
+	PROMPT_JOB_OPTIONS,
+} from "@workspace/lib/constants";
 import { getProvider, validateScrapeTargets } from "@workspace/lib/providers";
 import { startCredentialRefresh } from "@workspace/lib/secrets";
 import { getBoss } from "./boss";
@@ -62,7 +67,11 @@ async function main() {
 		expireInSeconds: 60 * 15, // 15 minute timeout for onboarding brand analysis
 	});
 	if (getDeploymentFeatures().enrichment) {
-		await boss.createQueue(MENTION_RECOMPUTE_QUEUE, MENTION_RECOMPUTE_QUEUE_OPTIONS);
+		await boss.createQueue(MENTION_RECOMPUTE_QUEUE, {
+			policy: MENTION_RECOMPUTE_QUEUE_POLICY,
+			...MENTION_RECOMPUTE_QUEUE_OPTIONS,
+		});
+		await boss.updateQueue(MENTION_RECOMPUTE_QUEUE, MENTION_RECOMPUTE_QUEUE_OPTIONS);
 	}
 	await boss.createQueue("schedule-maintenance", {
 		retryLimit: 3,

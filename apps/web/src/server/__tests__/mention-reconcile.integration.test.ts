@@ -177,6 +177,21 @@ describe("reconcileRunAnalyses", () => {
 		expect(await mentionedNames(runIds)).toEqual([["Acme", "Initech"]]);
 	});
 
+	it("stops between batches once its signal is aborted", async () => {
+		const { brandId, runIds } = await brandWithRuns(["Acme.", "Globex.", "Acme."]);
+		const controller = new AbortController();
+		const result = await reconcile(brandId, {
+			batchSize: 1,
+			signal: controller.signal,
+			onProgress: (progress) => {
+				if (progress.analysed === 1) controller.abort();
+			},
+		});
+
+		expect(result.analysed).toBe(1);
+		expect(await markerCount(runIds)).toBe(1);
+	});
+
 	it("lets two passes run at once without colliding", async () => {
 		const answers = Array.from({ length: 20 }, (_, i) => (i % 2 ? "Globex and Acme." : "Acme."));
 		const { brandId, runIds } = await brandWithRuns(answers);

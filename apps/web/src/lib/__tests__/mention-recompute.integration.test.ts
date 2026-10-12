@@ -1,15 +1,16 @@
-import { MENTION_RECOMPUTE_QUEUE } from "@workspace/lib/constants";
+import { randomUUID } from "node:crypto";
+import {
+	MENTION_RECOMPUTE_QUEUE,
+	MENTION_RECOMPUTE_QUEUE_OPTIONS,
+	MENTION_RECOMPUTE_QUEUE_POLICY,
+} from "@workspace/lib/constants";
 import { db } from "@workspace/lib/db/db";
-import { runSubjectMentions } from "@workspace/lib/db/schema";
-import { reconcileRunAnalyses } from "@workspace/lib/enrichment/reconcile";
-import { insertRunText } from "@workspace/lib/run-texts";
-import { eq, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getBoss } from "@/lib/boss-client";
 import { enqueueMentionRecompute } from "@/lib/job-scheduler";
-import { setBrandCompetitors } from "@/server/competitors-core";
 import { updateBrand } from "@/server/onboarding-core";
-import { createBrand, createPrompt, createRun, deleteBrand } from "@/test/integration/stats-fixtures";
+import { createBrand, deleteBrand } from "@/test/integration/stats-fixtures";
 
 const brandIds: string[] = [];
 
@@ -87,25 +88,22 @@ describe("queueing a mention recompute", () => {
 	});
 });
 
-describe("the recompute a rename queues", () => {
-	it("moves a renamed competitor's mentions to its new id", async () => {
-		const brandId = await newBrand();
-		const [globex] = await setBrandCompetitors(brandId, [{ name: "Globex", domains: ["globex.com"], aliases: [] }]);
-		const promptId = await createPrompt(brandId);
-		const run = await createRun(brandId, promptId, { at: "2026-10-01T12:00:00Z", brandMentioned: false });
-		await insertRunText(db, run.id, "Globex Corp leads.");
-		await reconcileRunAnalyses({ brandId, batchSize: 50, pauseMs: 0, dryRun: false });
+describe("the recompute queue's policy", () => {
+	it("starts one job per brand at a time, with one more waiting and later sends folded into it", async () => {
+		// A queue of its own, built from the same policy and options, so jobs other
+		// tests queued can't be the ones fetched.
+		const boss = await getBoss();
+		const queue = `recompute-policy-test-${randomUUID()}`;
+		await boss.createQueue(queue, { policy: MENTION_RECOMPUTE_QUEUE_POLICY, ...MENTION_RECOMPUTE_QUEUE_OPTIONS });
+		try {
+			await boss.send(queue, {}, { singletonKey: "brand-a" });
+			expect(await boss.fetch(queue)).toHaveLength(1);
 
-		const [renamed] = await setBrandCompetitors(brandId, [
-			{ name: "Globex Corp", domains: ["globex.com"], aliases: [] },
-		]);
-		expect(renamed.id).not.toBe(globex.id);
-		await reconcileRunAnalyses({ brandId, batchSize: 50, pauseMs: 0, dryRun: false });
-
-		const keys = await db
-			.select({ key: runSubjectMentions.subjectKey, name: runSubjectMentions.subjectName })
-			.from(runSubjectMentions)
-			.where(eq(runSubjectMentions.promptRunId, run.id));
-		expect(keys).toEqual([{ key: renamed.id, name: "Globex Corp" }]);
+			expect(await boss.send(queue, {}, { singletonKey: "brand-a" })).not.toBeNull();
+			expect(await boss.send(queue, {}, { singletonKey: "brand-a" })).toBeNull();
+			expect(await boss.fetch(queue)).toEqual([]);
+		} finally {
+			await boss.deleteQueue(queue);
+		}
 	});
 });
