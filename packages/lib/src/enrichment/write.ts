@@ -1,13 +1,32 @@
 import { eq, sql } from "drizzle-orm";
 import type { DbConnection } from "../db/db-connection";
-import { promptRuns, runMentionAnalyses, runSubjectMentions } from "../db/schema";
-import { type AnalysisSubject, analyzeRun, subjectFingerprint } from "./analysis";
+import { brands, competitors, promptRuns, runMentionAnalyses, runSubjectMentions } from "../db/schema";
+import { type AnalysisSubject, analyzeRun, brandSubjects, subjectFingerprint } from "./analysis";
 import { ANALYZER_VERSION } from "./prominence";
 
 export interface AnalysedRun {
 	id: string;
 	promptId: string;
 	model: string;
+}
+
+/**
+ * Serialise every writer of one brand's analysis until its transaction ends.
+ * Take it before loading subjects: under READ COMMITTED each statement after the
+ * wait sees what the writer ahead committed, so a writer can never stamp a run
+ * with a subject set older than one already written. A row lock can't do this,
+ * because a query that waited on it keeps the rows and markers it saw before.
+ */
+export async function lockBrandAnalysis(conn: DbConnection, brandId: string): Promise<void> {
+	await conn.execute(sql`select pg_advisory_xact_lock(hashtext('run-mention-analysis'), hashtext(${brandId}))`);
+}
+
+/** A brand's subjects, or null if the brand is gone. */
+export async function loadBrandSubjects(conn: DbConnection, brandId: string): Promise<AnalysisSubject[] | null> {
+	const [brand] = await conn.select().from(brands).where(eq(brands.id, brandId));
+	if (!brand) return null;
+	const brandCompetitors = await conn.select().from(competitors).where(eq(competitors.brandId, brandId));
+	return brandSubjects(brand, brandCompetitors);
 }
 
 /**
@@ -56,14 +75,18 @@ export async function writeRunAnalysis(
  */
 export async function tryWriteRunAnalysis(
 	tx: DbConnection,
-	run: AnalysedRun,
+	run: AnalysedRun & { brandId: string },
 	text: string | null,
 	extractorVersion: number,
-	subjects: readonly AnalysisSubject[],
 	onError: (error: unknown) => void,
 ): Promise<boolean> {
 	try {
-		await tx.transaction((savepoint) => writeRunAnalysis(savepoint, run, text, extractorVersion, subjects));
+		await tx.transaction(async (savepoint) => {
+			await lockBrandAnalysis(savepoint, run.brandId);
+			const subjects = await loadBrandSubjects(savepoint, run.brandId);
+			if (!subjects) throw new Error(`Brand ${run.brandId} not found`);
+			await writeRunAnalysis(savepoint, run, text, extractorVersion, subjects);
+		});
 		return true;
 	} catch (error) {
 		try {

@@ -13,7 +13,6 @@ import {
 	prompts,
 	usageEvents,
 } from "@workspace/lib/db/schema";
-import { type AnalysisSubject, brandSubjects } from "@workspace/lib/enrichment";
 import { tryWriteRunAnalysis } from "@workspace/lib/enrichment/write";
 import { getOrgEntitlements } from "@workspace/lib/entitlements";
 import { analyzeMentions } from "@workspace/lib/mentions";
@@ -175,7 +174,6 @@ async function savePromptRun(
 	brandMentioned: boolean,
 	competitorsMentioned: string[],
 	textContent: string,
-	subjects: AnalysisSubject[],
 ): Promise<{ id: string; createdAt: Date }> {
 	return db.transaction(async (tx) => {
 		const [result] = await tx
@@ -198,10 +196,9 @@ async function savePromptRun(
 		// is left without a marker, which reads as not analysed.
 		await tryWriteRunAnalysis(
 			tx,
-			{ id: result.id, promptId, model },
+			{ id: result.id, promptId, model, brandId },
 			answerTextOrNull(textContent),
 			TEXT_EXTRACTOR_VERSION,
-			subjects,
 			(error) => {
 				console.error(`Mention analysis failed for run ${result.id}; it is left unanalysed:`, error);
 				Sentry.captureException(error, { tags: { stage: "mention-analysis" } });
@@ -320,7 +317,6 @@ async function runModelIteration({
 			brandMentioned,
 			competitorsMentioned,
 			safeTextContent,
-			brandSubjects(brand, competitorsList),
 		);
 		console.log(`${logPrefix} Saved prompt run ${promptRunId}`);
 

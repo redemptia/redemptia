@@ -1,11 +1,12 @@
 import { db } from "@workspace/lib/db/db";
-import { promptRuns, runMentionAnalyses, runSubjectMentions, runTexts } from "@workspace/lib/db/schema";
-import { ANALYZER_VERSION, type AnalysisSubject, brandSubjects, subjectFingerprint } from "@workspace/lib/enrichment";
-import { tryWriteRunAnalysis, writeRunAnalysis } from "@workspace/lib/enrichment/write";
+import { competitors, promptRuns, runMentionAnalyses, runSubjectMentions, runTexts } from "@workspace/lib/db/schema";
+import { ANALYZER_VERSION, brandSubjects, subjectFingerprint } from "@workspace/lib/enrichment";
+import { loadBrandSubjects, tryWriteRunAnalysis, writeRunAnalysis } from "@workspace/lib/enrichment/write";
 import { insertRunText } from "@workspace/lib/run-texts";
 import { eq, sql } from "drizzle-orm";
 import { afterAll, describe, expect, it } from "vitest";
-import { createBrand, createPrompt, createRun, deleteBrand } from "@/test/integration/stats-fixtures";
+import { holdBrandLock } from "@/test/integration/brand-analysis-lock";
+import { createBrand, createCompetitor, createPrompt, createRun, deleteBrand } from "@/test/integration/stats-fixtures";
 
 const brandIds: string[] = [];
 
@@ -104,13 +105,6 @@ describe("writeRunAnalysis", () => {
 });
 
 describe("tryWriteRunAnalysis", () => {
-	// Two subjects under one key collide on the primary key: a real database
-	// error, raised inside the caller's transaction.
-	const collidingSubjects = (brandId: string): AnalysisSubject[] => [
-		...subjectsFor(brandId),
-		{ key: "c-1", kind: "competitor", name: "Acme" },
-	];
-
 	it("lets the caller's transaction commit the run when the analysis fails, leaving it unanalysed", async () => {
 		const { brandId, promptId } = await freshRun();
 		const errors: unknown[] = [];
@@ -126,16 +120,18 @@ describe("tryWriteRunAnalysis", () => {
 					webSearchEnabled: true,
 					rawOutput: {},
 					brandMentioned: true,
-					competitorsMentioned: ["Globex"],
+					competitorsMentioned: [],
 				})
 				.returning({ id: promptRuns.id });
-			await insertRunText(tx, row.id, "Globex and Acme.");
+			await insertRunText(tx, row.id, "Acme leads.");
+			// A prompt id that isn't a uuid fails the mention insert in the database,
+			// after the delete has run: a real statement error inside the caller's
+			// transaction.
 			const ok = await tryWriteRunAnalysis(
 				tx,
-				{ id: row.id, promptId, model: "chatgpt" },
-				"Globex and Acme.",
+				{ id: row.id, promptId: "not-a-uuid", model: "chatgpt", brandId },
+				"Acme leads.",
 				1,
-				collidingSubjects(brandId),
 				(error) => errors.push(error),
 			);
 			expect(ok).toBe(false);
@@ -151,19 +147,38 @@ describe("tryWriteRunAnalysis", () => {
 	});
 
 	it("doesn't let a failing error reporter fail the caller either", async () => {
-		const { brandId, run } = await freshRun();
+		const { run } = await freshRun();
 		const ok = await db.transaction((tx) =>
-			tryWriteRunAnalysis(tx, run, "Globex and Acme.", 1, collidingSubjects(brandId), () => {
+			tryWriteRunAnalysis(tx, { ...run, promptId: "not-a-uuid" }, "Acme leads.", 1, () => {
 				throw new Error("reporter down");
 			}),
 		);
 		expect(ok).toBe(false);
+		expect((await stored(run.id)).marker).toBeUndefined();
 	});
 
-	it("writes the analysis when nothing goes wrong", async () => {
+	it("reads the brand's subjects only after a writer ahead of it on the brand commits", async () => {
 		const { brandId, run } = await freshRun();
-		const ok = await db.transaction((tx) => tryWriteRunAnalysis(tx, run, "Acme.", 1, subjectsFor(brandId), () => {}));
+		const ahead = holdBrandLock(brandId, (tx) => tx.insert(competitors).values({ brandId, name: "Globex" }));
+		await ahead.locked;
+		const write = db.transaction((tx) => tryWriteRunAnalysis(tx, run, "Globex and Acme.", 1, () => {}));
+		await new Promise((resolve) => setTimeout(resolve, 200));
+		ahead.release();
+		await ahead.done;
+		expect(await write).toBe(true);
+
+		expect((await stored(run.id)).mentions).toHaveLength(2);
+	});
+
+	it("analyses against the brand's subjects as they stand when it writes", async () => {
+		const { brandId, run } = await freshRun();
+		await createCompetitor(brandId, "Globex", ["globex.example"]);
+		const ok = await db.transaction((tx) => tryWriteRunAnalysis(tx, run, "Globex and Acme.", 1, () => {}));
 		expect(ok).toBe(true);
-		expect((await stored(run.id)).marker).toBeDefined();
+
+		const { marker, mentions } = await stored(run.id);
+		expect(mentions).toHaveLength(2);
+		const current = await loadBrandSubjects(db, brandId);
+		expect(marker?.subjectFingerprint).toBe(subjectFingerprint(current ?? []));
 	});
 });
