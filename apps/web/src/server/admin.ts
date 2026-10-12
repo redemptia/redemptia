@@ -2,6 +2,7 @@
  * Server functions for admin operations.
  * Replaces apps/web/src/app/api/admin/* API routes.
  */
+
 import { createServerFn } from "@tanstack/react-start";
 import type { Entitlements } from "@workspace/config/entitlements";
 import { getModelMeta } from "@workspace/config/models";
@@ -24,6 +25,7 @@ import { Client } from "pg";
 import { z } from "zod";
 import { isAdmin, requireAuthSession } from "@/lib/auth/helpers";
 import { sendImmediatePromptJob } from "@/lib/job-scheduler";
+import { getWorkerHealthMetrics } from "@/server/worker-metrics";
 
 // ============================================================================
 // Admin guard helper
@@ -814,12 +816,13 @@ export const getWorkflowDataFn = createServerFn({ method: "GET" }).handler(async
 		);
 	}
 
-	const [orgSlugs, recentJobs, scheduleMap, activeJobMap, queueStats] = await Promise.all([
+	const [orgSlugs, recentJobs, scheduleMap, activeJobMap, queueStats, workerHealth] = await Promise.all([
 		organizationSlugs(allBrands.map((brand) => brand.organizationId)),
 		getRecentJobs(5000),
 		getScheduleMap(),
 		getActiveJobMap(),
 		getQueueStats(),
+		getWorkerHealthMetrics(),
 	]);
 
 	// The dashboard reports against what each prompt is actually supposed to run,
@@ -868,6 +871,7 @@ export const getWorkflowDataFn = createServerFn({ method: "GET" }).handler(async
 			percentOnSchedule: totalEnabled > 0 ? Math.round((totalOnSchedule / totalEnabled) * 100) : 100,
 		},
 		queue: queueStats,
+		workerHealth,
 		recentJobs: recentJobs.sort((a, b) => b.timestamp - a.timestamp),
 		brands: brandSummaries,
 	};

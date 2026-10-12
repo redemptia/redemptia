@@ -34,6 +34,7 @@ import { useCallback, useEffect, useState } from "react";
 import { pageHead } from "@/lib/route-head";
 import { useWriteErrorMessage } from "@/lib/write-errors";
 import { getJobLogsFn, getWorkflowDataFn, retryJobFn } from "@/server/admin";
+import type { WorkerHealthMetrics } from "@/server/worker-metrics";
 
 // ============================================================================
 // Types
@@ -118,6 +119,7 @@ interface WorkflowsData {
 		percentOnSchedule: number;
 	};
 	queue: QueueStats;
+	workerHealth: WorkerHealthMetrics;
 	recentJobs: RecentJob[];
 	brands: BrandScheduleSummary[];
 }
@@ -206,6 +208,45 @@ function QueueStatsCard({ stats, title }: { stats: QueueStats; title: string }) 
 					<div>
 						<p className="text-muted-foreground">Total Pending</p>
 						<p className="text-xl font-semibold text-violet-600">{stats.totalPending}</p>
+					</div>
+				</div>
+			</CardContent>
+		</Card>
+	);
+}
+
+function WorkerHealthCard({ health }: { health: WorkerHealthMetrics }) {
+	const { recomputeQueue, promptLatency } = health;
+	return (
+		<Card data-testid="worker-health">
+			<CardHeader className="pb-2">
+				<CardTitle className="text-sm font-medium flex items-center gap-2">
+					<Server className="h-4 w-4" />
+					Worker Health
+				</CardTitle>
+				<CardDescription>Whether the worker is keeping up with prompt runs and mention recompute</CardDescription>
+			</CardHeader>
+			<CardContent>
+				<div className="grid grid-cols-3 gap-4 text-sm">
+					<div title="95% of the prompt jobs completed in the window took this long or less">
+						<p className="text-muted-foreground">Prompt job p95 ({promptLatency.windowHours}h)</p>
+						<p className="text-xl font-semibold">
+							{promptLatency.p95Seconds === null ? "—" : `${Math.round(promptLatency.p95Seconds)}s`}
+						</p>
+						<p className="text-xs text-muted-foreground">over {promptLatency.completedJobs.toLocaleString()} jobs</p>
+					</div>
+					<div title="Brands waiting for a mention recompute, or retrying one">
+						<p className="text-muted-foreground">Recompute waiting</p>
+						<p className="text-xl font-semibold text-blue-600">
+							{(recomputeQueue.queued + recomputeQueue.retrying).toLocaleString()}
+						</p>
+						{recomputeQueue.retrying > 0 && (
+							<p className="text-xs text-amber-600">{recomputeQueue.retrying} retrying</p>
+						)}
+					</div>
+					<div title="Mention recomputes running now">
+						<p className="text-muted-foreground">Recompute running</p>
+						<p className="text-xl font-semibold text-emerald-600">{recomputeQueue.active}</p>
 					</div>
 				</div>
 			</CardContent>
@@ -844,6 +885,7 @@ function WorkflowsPage() {
 
 			{/* Queue Stats */}
 			<QueueStatsCard stats={data.queue} title="Prompt Queue" />
+			<WorkerHealthCard health={data.workerHealth} />
 
 			{/* Brands Table */}
 			<Card>
