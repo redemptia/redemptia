@@ -8,6 +8,7 @@ import type { AnalyticsFilters, AnalyticsWindow } from "@/server/analytics-core"
 import {
 	getBrandAnalytics,
 	getBrandCitations,
+	getBrandMentionProminence,
 	getBrandPromptPerformance,
 	getBrandQueryFanout,
 } from "@/server/analytics-core";
@@ -54,6 +55,14 @@ export const getPromptPerformance = analyticsTool({
 	description:
 		"How each prompt performed over the window — which questions surface the brand and which don't. Enabled prompts only; a disabled one isn't sampled, so it has nothing to report.",
 	run: async ({ brand, range, filters }) => ({ data: await getBrandPromptPerformance(brand.id, range, filters) }),
+});
+
+export const getMentionProminence = analyticsTool({
+	name: "get_mention_prominence",
+	title: "Get where answers name the brand and its competitors",
+	description:
+		"For the brand and each competitor: how many analysed answers name it, how early (prominence, 1 = the answer opens with it), and in what order among the others (rank, 1 = named first). Prominence and rank are averaged over only the answers that name the subject, so read them with mentionRate: a competitor named first in one answer out of hundreds has rank 1. Counted from analysed runs only — `coverage` says how many of the window's runs that is — so it can differ from get_analytics' visibility and share of voice, which count every run. Never read an unanalysed run as one that didn't mention a subject.",
+	run: async ({ brand, range, filters }) => getBrandMentionProminence(brand.id, range, filters),
 });
 
 export const getCitations = analyticsTool({

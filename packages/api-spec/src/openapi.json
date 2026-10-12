@@ -1397,6 +1397,71 @@
 					"firstEvaluatedAt"
 				]
 			},
+			"MentionProminence": {
+				"type": "object",
+				"properties": {
+					"brandId": {
+						"type": "string"
+					},
+					"range": {
+						"$ref": "#/components/schemas/DateRange"
+					},
+					"coverage": {
+						"type": "object",
+						"description": "The window's runs, and how many have a current mention analysis. Only analysed runs are counted in `subjects`.",
+						"properties": {
+							"runs": {
+								"type": "integer"
+							},
+							"analysed": {
+								"type": "integer"
+							}
+						},
+						"required": ["runs", "analysed"]
+					},
+					"subjects": {
+						"type": "array",
+						"description": "The brand first, then its competitors by name.",
+						"items": {
+							"$ref": "#/components/schemas/SubjectProminence"
+						}
+					}
+				},
+				"required": ["brandId", "range", "coverage", "subjects"]
+			},
+			"SubjectProminence": {
+				"type": "object",
+				"properties": {
+					"key": {
+						"type": "string",
+						"description": "The brand's id, or the competitor's id."
+					},
+					"kind": {
+						"type": "string",
+						"enum": ["brand", "competitor"]
+					},
+					"name": {
+						"type": "string"
+					},
+					"mentionedRuns": {
+						"type": "integer",
+						"description": "Analysed runs whose answer names the subject."
+					},
+					"mentionRate": {
+						"type": ["number", "null"],
+						"description": "`mentionedRuns` over analysed runs, as a fraction of 1. Null when no run is analysed."
+					},
+					"averageProminence": {
+						"type": ["number", "null"],
+						"description": "Averaged over the runs that name the subject, not all analysed runs; read it with `mentionRate`. 1 when answers open with the subject, falling toward 0 the later it first appears. Null when never mentioned."
+					},
+					"averageRank": {
+						"type": ["number", "null"],
+						"description": "Averaged over the runs that name the subject, not all analysed runs; read it with `mentionRate`. Its rank among the subjects each answer names, 1 being named first; subjects named at the same place share a rank and the next skips past them. Null when never mentioned."
+					}
+				},
+				"required": ["key", "kind", "name", "mentionedRuns", "mentionRate", "averageProminence", "averageRank"]
+			},
 			"PromptPerformanceList": {
 				"type": "object",
 				"properties": {
@@ -2560,6 +2625,62 @@
 							"application/json": {
 								"schema": {
 									"$ref": "#/components/schemas/PromptPerformanceList"
+								}
+							}
+						}
+					},
+					"400": {
+						"$ref": "#/components/responses/ValidationError"
+					},
+					"401": {
+						"$ref": "#/components/responses/UnauthorizedError"
+					},
+					"403": {
+						"$ref": "#/components/responses/ForbiddenError"
+					},
+					"404": {
+						"$ref": "#/components/responses/NotFoundError"
+					},
+					"429": {
+						"$ref": "#/components/responses/RateLimitError"
+					},
+					"500": {
+						"$ref": "#/components/responses/InternalServerError"
+					}
+				}
+			}
+		},
+		"/brands/{brandId}/mention-prominence": {
+			"get": {
+				"summary": "Get mention prominence",
+				"description": "For the brand and each competitor: how many analysed answers name it, how early (prominence), and in what order among the subjects each answer names (rank).\n\nCounted from analysed runs only. `coverage` gives the window's runs and how many have a current analysis; a run without one is not counted as one that didn't mention a subject. Because of that, these numbers can differ from visibility and share of voice in `GET /brands/{brandId}/analytics`, which count every run.",
+				"operationId": "getBrandMentionProminence",
+				"tags": ["Analytics"],
+				"x-elmo-scopes": ["read"],
+				"parameters": [
+					{
+						"$ref": "#/components/parameters/BrandIdPath"
+					},
+					{
+						"$ref": "#/components/parameters/WindowStart"
+					},
+					{
+						"$ref": "#/components/parameters/WindowEnd"
+					},
+					{
+						"$ref": "#/components/parameters/ModelFilter"
+					},
+					{
+						"$ref": "#/components/parameters/TagsFilter"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Get mention prominence",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/MentionProminence"
 								}
 							}
 						}

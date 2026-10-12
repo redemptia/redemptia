@@ -29,10 +29,11 @@ export interface ReconcileProgress {
 }
 
 /**
- * The read-layer contract's definition of a run that is not analysed. `rt` and
- * `a` are the run's run_texts row and marker.
+ * The read-layer contract's definition of a run that is not analysed, shared by
+ * the reconciler and every reader so the two can't disagree. `rt` and `a` must
+ * be the run's run_texts row and marker.
  */
-function isStale(fingerprint: string): SQL {
+export function isStale(fingerprint: string): SQL {
 	return sql`(a.prompt_run_id IS NULL
 		OR a.analyzer_version <> ${ANALYZER_VERSION}
 		OR a.extractor_version <> rt.extractor_version
