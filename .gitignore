@@ -89,3 +89,6 @@ apps/web/storybook-static/
 .claude/worktrees/
 .readonlydb
 .pnpm-store/
+
+# Machine-local agent instructions
+CLAUDE.local.md
