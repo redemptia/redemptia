@@ -58,7 +58,7 @@ function assertLocalDatabase() {
 	const host = url && !url.searchParams.has("host") && !url.searchParams.has("hostaddr") ? url.hostname : null;
 	if (host !== "localhost" && host !== "127.0.0.1") {
 		console.error(
-			`Refusing to run against ${host ?? "an unset DATABASE_URL"}: this script only runs on a local database.`,
+			`Refusing to run against ${host ?? "a DATABASE_URL that is unset, non-local, or overrides its host"}: this script only runs on a local database.`,
 		);
 		process.exit(2);
 	}
