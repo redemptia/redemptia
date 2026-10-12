@@ -5,7 +5,14 @@
 
 import { getDeployment } from "@workspace/deployment";
 import { type Principal, principalScopes } from "@/lib/auth/api-auth";
-import { getAnalytics, getCitations, getOpportunities, getPromptPerformance, getQueryFanout } from "./analytics";
+import {
+	getAnalytics,
+	getCitations,
+	getMentionProminence,
+	getOpportunities,
+	getPromptPerformance,
+	getQueryFanout,
+} from "./analytics";
 import { getBilling, getBrand, listBrandsTool, listCompetitorsTool } from "./brands";
 import type { McpTool } from "./define";
 import { listModels, whoami } from "./identity";
@@ -27,6 +34,7 @@ export const MCP_TOOLS: readonly McpTool[] = [
 	updatePromptTool,
 	getAnalytics,
 	getPromptPerformance,
+	getMentionProminence,
 	getCitations,
 	getQueryFanout,
 	getOpportunities,
