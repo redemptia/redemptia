@@ -101,6 +101,8 @@ describe("the get_mention_prominence MCP tool", () => {
 	});
 
 	it("refuses another tenant's brand", async () => {
-		await expect(getMentionProminence.run(ctx(), { brandId: otherBrand, ...WINDOW })).rejects.toThrow();
+		await expect(getMentionProminence.run(ctx(), { brandId: otherBrand, ...WINDOW })).rejects.toMatchObject({
+			status: 404,
+		});
 	});
 });

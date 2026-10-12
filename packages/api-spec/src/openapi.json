@@ -1453,11 +1453,11 @@
 					},
 					"averageProminence": {
 						"type": ["number", "null"],
-						"description": "1 when answers open with the subject, falling toward 0 the later it first appears. Null when never mentioned."
+						"description": "Averaged over the runs that name the subject, not all analysed runs; read it with `mentionRate`. 1 when answers open with the subject, falling toward 0 the later it first appears. Null when never mentioned."
 					},
 					"averageRank": {
 						"type": ["number", "null"],
-						"description": "Mean of its rank among the subjects each answer names, 1 being named first; subjects named at the same place share a rank. Null when never mentioned."
+						"description": "Averaged over the runs that name the subject, not all analysed runs; read it with `mentionRate`. Its rank among the subjects each answer names, 1 being named first; subjects named at the same place share a rank and the next skips past them. Null when never mentioned."
 					}
 				},
 				"required": ["key", "kind", "name", "mentionedRuns", "mentionRate", "averageProminence", "averageRank"]

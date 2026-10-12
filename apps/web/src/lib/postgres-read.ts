@@ -1384,6 +1384,9 @@ export interface SubjectProminenceRow {
  * analysis is current against `fingerprint` (see isStale). A run that is not
  * analysed is in `runs` but nowhere else, so it is never read as unmentioned.
  *
+ * One statement, so coverage and the per-subject counts share a snapshot: a run
+ * analysed between two queries would otherwise count in one and not the other.
+ *
  * Rank is RANK() over each run's first offsets: subjects first named at the
  * same offset share a rank and the next skips past them, as rankSubjects does.
  */
@@ -1396,8 +1399,8 @@ export async function getMentionProminence(
 	fingerprint: string,
 	model?: string,
 ): Promise<{ coverage: MentionCoverageRow; subjects: SubjectProminenceRow[] }> {
-	const window = sql`
-		window_runs AS (
+	const rows = await queryPg<MentionCoverageRow & Partial<SubjectProminenceRow>>(sql`
+		WITH window_runs AS (
 			SELECT id FROM prompt_runs
 			WHERE brand_id = ${brandId}
 				${dateFilter(fromDate, toDate, timezone)}
@@ -1410,23 +1413,30 @@ export async function getMentionProminence(
 			JOIN run_texts rt ON rt.prompt_run_id = window_runs.id
 			JOIN run_mention_analyses a ON a.prompt_run_id = window_runs.id
 			WHERE NOT ${isStale(fingerprint)}
-		)`;
-	const [coverage, subjects] = await Promise.all([
-		queryPg<MentionCoverageRow>(sql`
-			WITH ${window}
-			SELECT (SELECT count(*) FROM window_runs)::int AS runs, (SELECT count(*) FROM analysed)::int AS analysed`),
-		queryPg<SubjectProminenceRow>(sql`
-			WITH ${window},
-			ranked AS (
-				SELECT m.subject_key, m.position,
-					RANK() OVER (PARTITION BY m.prompt_run_id ORDER BY m.first_offset) AS rank
-				FROM run_subject_mentions m
-				JOIN analysed ON analysed.id = m.prompt_run_id
-			)
+		),
+		ranked AS (
+			SELECT m.subject_key, m.position,
+				RANK() OVER (PARTITION BY m.prompt_run_id ORDER BY m.first_offset) AS rank
+			FROM run_subject_mentions m
+			JOIN analysed ON analysed.id = m.prompt_run_id
+		),
+		per_subject AS (
 			SELECT subject_key, count(*)::int AS mentioned_runs,
 				avg(position)::float8 AS avg_position, avg(rank)::float8 AS avg_rank
 			FROM ranked
-			GROUP BY subject_key`),
-	]);
-	return { coverage: coverage[0] ?? { runs: 0, analysed: 0 }, subjects };
+			GROUP BY subject_key
+		)
+		SELECT c.runs, c.analysed, s.subject_key, s.mentioned_runs, s.avg_position, s.avg_rank
+		FROM (SELECT (SELECT count(*) FROM window_runs)::int AS runs, (SELECT count(*) FROM analysed)::int AS analysed) c
+		LEFT JOIN per_subject s ON true`);
+	const coverage = { runs: rows[0]?.runs ?? 0, analysed: rows[0]?.analysed ?? 0 };
+	const subjects = rows
+		.filter((row): row is MentionCoverageRow & SubjectProminenceRow => row.subject_key != null)
+		.map(({ subject_key, mentioned_runs, avg_position, avg_rank }) => ({
+			subject_key,
+			mentioned_runs,
+			avg_position,
+			avg_rank,
+		}));
+	return { coverage, subjects };
 }

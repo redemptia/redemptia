@@ -1,5 +1,5 @@
 import { db } from "@workspace/lib/db/db";
-import { runMentionAnalyses } from "@workspace/lib/db/schema";
+import { runMentionAnalyses, runTexts } from "@workspace/lib/db/schema";
 import { rankSubjects } from "@workspace/lib/enrichment";
 import { reconcileRunAnalyses } from "@workspace/lib/enrichment/reconcile";
 import { loadBrandSubjects } from "@workspace/lib/enrichment/write";
@@ -11,10 +11,12 @@ import { getBrandMentionProminence } from "@/server/analytics-core";
 import { createBrand, createCompetitor, createPrompt, createRun, deleteBrand } from "@/test/integration/stats-fixtures";
 
 const WINDOW = { from: "2026-10-01T00:00:00Z", to: "2026-10-02T00:00:00Z", timezone: "UTC" };
-// Analysed: the first three. The last three are left not analysed, each in a
+// Analysed: the first three. The rest are left not analysed, each in a
 // different way, and name only Initech, so counting any of them would show.
-const ANALYSED = ["Globex leads, then Acme.", "Acme alone.", "Acme Labs and Acme, together."];
-const NOT_ANALYSED = ["Initech, Initech.", "Initech wins.", "Initech again."];
+// The third opens with a tie ("Acme Labs" starts with "Acme"), then Globex, which
+// must rank 3 rather than 2.
+const ANALYSED = ["Globex leads, then Acme.", "Acme alone.", "Acme Labs and Acme, then Globex."];
+const NOT_ANALYSED = ["Initech, Initech.", "Initech wins.", "Initech again.", "Initech, re-extracted."];
 
 let brandId: string;
 let runIds: string[];
@@ -33,7 +35,8 @@ beforeAll(async () => {
 	}
 	await reconcileRunAnalyses({ brandId, batchSize: 50, pauseMs: 0, dryRun: false });
 
-	const [stale, missing, otherSubjects] = runIds.slice(3);
+	const [stale, missing, otherSubjects, reextracted] = runIds.slice(3);
+	await db.update(runTexts).set({ extractorVersion: 99 }).where(eq(runTexts.promptRunId, reextracted));
 	await db.update(runMentionAnalyses).set({ analyzerVersion: 0 }).where(eq(runMentionAnalyses.promptRunId, stale));
 	await db.delete(runMentionAnalyses).where(eq(runMentionAnalyses.promptRunId, missing));
 	await db
@@ -49,7 +52,7 @@ afterAll(async () => {
 describe("getBrandMentionProminence", () => {
 	it("counts every run in coverage but only current analyses as analysed", async () => {
 		const { coverage } = await getBrandMentionProminence(brandId, WINDOW);
-		expect(coverage).toEqual({ runs: 6, analysed: 3 });
+		expect(coverage).toEqual({ runs: 7, analysed: 3 });
 	});
 
 	it("reads mentions only from analysed runs, so a subject named only in the rest shows none", async () => {
@@ -67,7 +70,7 @@ describe("getBrandMentionProminence", () => {
 		expect(subjects.map((s) => [s.name, s.mentionedRuns, s.mentionRate])).toEqual([
 			["Acme", 3, 1],
 			["Acme Labs", 1, 1 / 3],
-			["Globex", 1, 1 / 3],
+			["Globex", 2, 2 / 3],
 			["Initech", 0, 0],
 		]);
 	});
@@ -80,7 +83,7 @@ describe("getBrandMentionProminence", () => {
 			return (lower.indexOf("acme") as number) / lower.length;
 		});
 		expect(acme?.averageProminence).toBeCloseTo(1 - offsets.reduce((a, b) => a + b, 0) / offsets.length, 10);
-		expect(subjects.find((s) => s.name === "Globex")?.averageProminence).toBe(1);
+		expect(subjects.find((s) => s.name === "Acme Labs")?.averageProminence).toBe(1);
 	});
 
 	it("ranks exactly as rankSubjects does, ties included", async () => {
@@ -99,8 +102,14 @@ describe("getBrandMentionProminence", () => {
 			const ranks = totals.get(subject.key);
 			expect(subject.averageRank).toBe(ranks ? ranks.reduce((a, b) => a + b, 0) / ranks.length : null);
 		}
-		// The third answer opens with "Acme Labs", which also starts with "Acme": a tie at rank 1.
-		expect(subjects.find((s) => s.name === "Acme Labs")?.averageRank).toBe(1);
+		// Globex: rank 1 in the first answer, and 3 (not 2) after the tie in the third.
+		expect(subjects.find((s) => s.name === "Globex")?.averageRank).toBe(2);
+	});
+
+	it("narrows coverage and counts to the filtered model", async () => {
+		const { coverage, subjects } = await getBrandMentionProminence(brandId, WINDOW, { model: "claude" });
+		expect(coverage).toEqual({ runs: 0, analysed: 0 });
+		expect(subjects.every((s) => s.mentionedRuns === 0)).toBe(true);
 	});
 
 	it("reports nothing analysed, rather than zero mentions, when no run is", async () => {

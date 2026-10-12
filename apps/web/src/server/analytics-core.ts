@@ -461,9 +461,16 @@ export interface SubjectProminence {
 	mentionedRuns: number;
 	/** Of analysed runs only; null when none are analysed. */
 	mentionRate: number | null;
-	/** 1 when answers open with the subject, falling toward 0 the later it first appears; null when never mentioned. */
+	/**
+	 * Over the runs that name the subject, not all analysed runs: 1 when answers
+	 * open with it, falling toward 0 the later it first appears. Null when never
+	 * mentioned. Read it with mentionRate.
+	 */
 	averageProminence: number | null;
-	/** Mean of its per-run rank among the subjects each answer names (1 = named first); null when never mentioned. */
+	/**
+	 * Over the runs that name the subject: its mean rank among the subjects each
+	 * of those answers names (1 = named first). Null when never mentioned.
+	 */
 	averageRank: number | null;
 }
 
@@ -486,18 +493,13 @@ export async function getBrandMentionProminence(
 	filters: AnalyticsFilters = {},
 ): Promise<BrandMentionProminence> {
 	const [{ promptIds }, subjects] = await Promise.all([resolveScope(brandId, filters), loadBrandSubjects(db, brandId)]);
-	if (!subjects || promptIds.length === 0) return { coverage: { runs: 0, analysed: 0 }, subjects: [] };
+	if (!subjects) return { coverage: { runs: 0, analysed: 0 }, subjects: [] };
 
 	const { from, to, timezone } = window;
-	const { coverage, subjects: rows } = await getMentionProminence(
-		brandId,
-		from,
-		to,
-		timezone,
-		promptIds,
-		subjectFingerprint(subjects),
-		filters.model,
-	);
+	const { coverage, subjects: rows } =
+		promptIds.length === 0
+			? { coverage: { runs: 0, analysed: 0 }, subjects: [] }
+			: await getMentionProminence(brandId, from, to, timezone, promptIds, subjectFingerprint(subjects), filters.model);
 	const byKey = new Map(rows.map((row) => [row.subject_key, row]));
 
 	const ordered = [
