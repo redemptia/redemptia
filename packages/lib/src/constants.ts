@@ -54,6 +54,31 @@ export const MAX_PROMPTS = 100;
  */
 export const WEB_QUERIES_UNAVAILABLE = "unavailable";
 
+export const MENTION_RECOMPUTE_QUEUE = "recompute-brand-mentions";
+
+/**
+ * The recompute queue's options, apart from its policy: pg-boss fixes a policy
+ * when the queue is created, and updateQueue refuses one, so callers create it
+ * with MENTION_RECOMPUTE_QUEUE_POLICY and converge these with updateQueue.
+ */
+export const MENTION_RECOMPUTE_QUEUE_OPTIONS = {
+	retryLimit: 3,
+	retryDelay: 60,
+	retryBackoff: true,
+	// A full Business brand (~504k runs) took about 13 minutes at the job's pace
+	// against a local database. The handler stops between batches when the job
+	// expires, so an expiry costs one batch, not a second loop.
+	expireInSeconds: 60 * 60,
+} as const;
+
+/**
+ * "stately", keyed by brand id, allows at most one job per brand in each state
+ * (queued, retrying, active), and fetches none for a brand that already has one
+ * active. An edit made while a recompute runs queues one more, whose pass sees
+ * that edit; any further edits fold into that queued job.
+ */
+export const MENTION_RECOMPUTE_QUEUE_POLICY = "stately";
+
 /**
  * Queue options for a process-prompt job, wherever it's scheduled from, and the
  * process-prompt queue's own policy. Web and worker both send with these, so a

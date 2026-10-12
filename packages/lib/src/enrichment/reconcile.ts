@@ -15,6 +15,8 @@ export interface ReconcileOptions {
 	/** Count what would be done and write nothing. */
 	dryRun: boolean;
 	onProgress?: (progress: ReconcileProgress) => void;
+	/** Stop between batches once aborted, such as when a job running the pass expires. */
+	signal?: AbortSignal;
 }
 
 export interface ReconcileProgress {
@@ -137,6 +139,7 @@ export async function reconcileRunAnalyses(options: ReconcileOptions): Promise<R
 async function reconcileBrand(brandId: string, options: ReconcileOptions, progress: ReconcileProgress) {
 	let cursor = { at: "-infinity", id: "00000000-0000-0000-0000-000000000000" };
 	for (;;) {
+		if (options.signal?.aborted) return;
 		const batch = await reconcileBatch(brandId, cursor, options.batchSize);
 		if (!batch || batch.length === 0) return;
 		progress.analysed += batch.length;
