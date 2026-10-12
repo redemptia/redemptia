@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { db } from "@workspace/lib/db/db";
 import { sql } from "drizzle-orm";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { getBoss } from "@/lib/boss-client";
 import { getWorkerHealthMetrics } from "@/server/worker-metrics";
 
@@ -16,7 +16,7 @@ async function job(queue: string, state: string, seconds?: number, agoHours = 1)
 		UPDATE pgboss.job SET state = ${state}::pgboss.job_state,
 			started_on = CASE WHEN ${seconds ?? null}::int IS NULL THEN started_on
 				ELSE now() - make_interval(hours => ${agoHours}) - make_interval(secs => ${seconds ?? 0}) END,
-			completed_on = CASE WHEN ${state} = 'completed' THEN now() - make_interval(hours => ${agoHours}) ELSE completed_on END
+			completed_on = CASE WHEN ${state} IN ('completed', 'failed') THEN now() - make_interval(hours => ${agoHours}) ELSE completed_on END
 		WHERE id = ${id}::uuid AND name = ${queue}`);
 }
 
@@ -30,6 +30,8 @@ beforeAll(async () => {
 	}
 	// Finished before the window, and far slower: must not count.
 	await job(queues.prompt, "completed", 10_000, 48);
+	// Failed by expiry after a slow run: the overload the metric exists to show.
+	await job(queues.prompt, "failed", 400);
 	// Running, not finished: has no latency yet.
 	await job(queues.prompt, "active", 5_000);
 
@@ -47,16 +49,30 @@ afterAll(async () => {
 	await boss.stop({ graceful: false });
 });
 
+beforeEach(() => {
+	vi.stubEnv("DEPLOYMENT_MODE", "local");
+});
+
+afterEach(() => {
+	vi.unstubAllEnvs();
+});
+
 describe("getWorkerHealthMetrics", () => {
 	it("counts recompute work that is waiting, retrying or running, not finished work", async () => {
 		const { recomputeQueue } = await getWorkerHealthMetrics(queues);
 		expect(recomputeQueue).toEqual({ queued: 2, retrying: 1, active: 1 });
 	});
 
+	it("reports recompute as off where the deployment doesn't run it, not as an empty queue", async () => {
+		vi.stubEnv("DEPLOYMENT_MODE", "demo");
+		expect((await getWorkerHealthMetrics(queues)).recomputeQueue).toBeNull();
+	});
+
 	it("reports the 95th percentile run time of prompt jobs finished in the last day", async () => {
 		const { promptLatency } = await getWorkerHealthMetrics(queues);
-		// 10s, 20s … 200s: the continuous 95th percentile of those twenty.
-		expect(promptLatency.completedJobs).toBe(20);
-		expect(promptLatency.p95Seconds).toBeCloseTo(190.5, 5);
+		// 10s, 20s … 200s plus the failed 400s: the continuous 95th percentile of those 21.
+		expect(promptLatency.finishedJobs).toBe(21);
+		expect(promptLatency.failedJobs).toBe(1);
+		expect(promptLatency.p95Seconds).toBeCloseTo(200, 5);
 	});
 });

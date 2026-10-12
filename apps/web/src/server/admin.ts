@@ -2,7 +2,6 @@
  * Server functions for admin operations.
  * Replaces apps/web/src/app/api/admin/* API routes.
  */
-
 import { createServerFn } from "@tanstack/react-start";
 import type { Entitlements } from "@workspace/config/entitlements";
 import { getModelMeta } from "@workspace/config/models";
