@@ -17,6 +17,7 @@
  */
 
 import { randomUUID } from "node:crypto";
+import { getDeploymentFeatures } from "@workspace/deployment";
 import { db } from "@workspace/lib/db/db";
 import { brands, promptRuns, prompts } from "@workspace/lib/db/schema";
 import { reconcileRunAnalyses } from "@workspace/lib/enrichment/reconcile";
@@ -39,17 +40,22 @@ function argument(flag: string, fallback: number): number {
 	const i = process.argv.indexOf(flag);
 	if (i === -1) return fallback;
 	const value = Number(process.argv[i + 1]);
-	if (!Number.isInteger(value) || value < 1) {
-		console.error(`${flag} needs a positive integer`);
+	if (!Number.isInteger(value) || value < 1 || value > 10_000) {
+		console.error(`${flag} needs an integer from 1 to 10000`);
 		process.exit(2);
 	}
 	return value;
 }
 
-/** It writes and deletes rows, so only ever against a database on this machine. */
+/**
+ * It writes and deletes rows, so only ever against a database on this machine.
+ * pg lets a `host` or `hostaddr` query parameter override the URL's host, so
+ * those are refused too. A local port tunnelled to a remote database can't be
+ * told apart from here: don't point this at one.
+ */
 function assertLocalDatabase() {
-	const url = process.env.DATABASE_URL;
-	const host = url ? new URL(url).hostname : null;
+	const url = process.env.DATABASE_URL ? new URL(process.env.DATABASE_URL) : null;
+	const host = url && !url.searchParams.has("host") && !url.searchParams.has("hostaddr") ? url.hostname : null;
 	if (host !== "localhost" && host !== "127.0.0.1") {
 		console.error(
 			`Refusing to run against ${host ?? "an unset DATABASE_URL"}: this script only runs on a local database.`,
@@ -73,8 +79,31 @@ function report(step: string, result: BrandMentionProminence) {
 	}
 }
 
+/** Mentioned runs per subject the fixed answers must produce, so the proof checks itself. */
+function expectedMentions(names: string[], runCount: number): Map<string, number> {
+	const counts = new Map<string, number>();
+	for (const name of names) {
+		let n = 0;
+		for (let i = 0; i < runCount; i++) if (ANSWERS[i % ANSWERS.length].toLowerCase().includes(name.toLowerCase())) n++;
+		counts.set(name, n);
+	}
+	return counts;
+}
+
+function check(step: string, result: BrandMentionProminence, names: string[], runCount: number): boolean {
+	const expected = expectedMentions(names, runCount);
+	const wrong = result.subjects.filter((s) => s.mentionedRuns !== expected.get(s.name));
+	const ok = result.coverage.analysed === runCount && wrong.length === 0 && result.subjects.length === names.length;
+	if (!ok) console.error(`  ✗ ${step} did not match the answers it was seeded with`);
+	return ok;
+}
+
 async function main() {
 	assertLocalDatabase();
+	if (!getDeploymentFeatures().enrichment) {
+		console.error("This deployment doesn't recompute mention analysis (enrichment is off), so step 4 can't happen.");
+		process.exit(2);
+	}
 	const runCount = argument("--runs", 200);
 	const waitSeconds = argument("--wait-seconds", 300);
 
@@ -85,6 +114,27 @@ async function main() {
 		timezone: "UTC",
 	};
 	const read = () => getBrandMentionProminence(brandId, window);
+	let bossStarted = false;
+	let cleanedUp = false;
+	const cleanup = async () => {
+		if (cleanedUp) return;
+		cleanedUp = true;
+		await db.delete(promptRuns).where(eq(promptRuns.brandId, brandId));
+		await db.delete(prompts).where(eq(prompts.brandId, brandId));
+		await setBrandCompetitors(brandId, []);
+		await db.delete(brands).where(eq(brands.id, brandId));
+		await db.execute(sql`DELETE FROM organization WHERE id = ${brandId}`);
+		console.log(`\nDeleted ${brandId}.`);
+		// The enqueue opened a pg-boss client, which would keep the process alive.
+		if (bossStarted) await (await getBoss()).stop({ graceful: false });
+		await db.$client.end();
+	};
+	// Ctrl-C during the wait for the worker would otherwise skip `finally`.
+	for (const signal of ["SIGINT", "SIGTERM"] as const) {
+		process.on(signal, () => {
+			cleanup().finally(() => process.exit(130));
+		});
+	}
 
 	// Raw SQL: tsx's ESM loader doesn't resolve schema.ts's re-export of the auth tables.
 	await db.execute(
@@ -131,7 +181,9 @@ async function main() {
 		report("1. Before backfill", await read());
 
 		await reconcileRunAnalyses({ brandId, batchSize: 100, pauseMs: 0, dryRun: false });
-		report("2. After backfill", await read());
+		const afterBackfill = await read();
+		report("2. After backfill", afterBackfill);
+		let ok = check("Step 2", afterBackfill, ["Northwind", "Contoso", "Fabrikam"], runCount);
 
 		// The same write and enqueue the competitors settings page makes.
 		await setBrandCompetitors(brandId, [
@@ -139,8 +191,10 @@ async function main() {
 			{ name: "Fabrikam", domains: ["fabrikam.example.com"], aliases: [] },
 			{ name: "Initrode", domains: ["initrode.example.com"], aliases: [] },
 		]);
-		await enqueueMentionRecompute(brandId);
+		// Read before enqueueing, so a fast worker can't hide that the edit made every run stale.
 		report("3. After adding Initrode as a competitor", await read());
+		await enqueueMentionRecompute(brandId);
+		bossStarted = true;
 
 		const deadline = Date.now() + waitSeconds * 1000;
 		const waitStart = Date.now();
@@ -155,17 +209,11 @@ async function main() {
 			process.exitCode = 1;
 		} else {
 			report(`4. After the worker's recompute (${seconds}s)`, latest);
+			ok = check("Step 4", latest, ["Northwind", "Contoso", "Fabrikam", "Initrode"], runCount) && ok;
 		}
+		if (!ok) process.exitCode = 1;
 	} finally {
-		await db.delete(promptRuns).where(eq(promptRuns.brandId, brandId));
-		await db.delete(prompts).where(eq(prompts.brandId, brandId));
-		await setBrandCompetitors(brandId, []).catch(() => {});
-		await db.delete(brands).where(eq(brands.id, brandId));
-		await db.execute(sql`DELETE FROM organization WHERE id = ${brandId}`);
-		console.log(`\nDeleted ${brandId}.`);
-		// The enqueue opened a pg-boss client, which would keep the process alive.
-		await (await getBoss()).stop({ graceful: false });
-		await db.$client.end();
+		await cleanup();
 	}
 }
 
