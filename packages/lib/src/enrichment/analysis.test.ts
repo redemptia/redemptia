@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { type AnalysisSubject, analyzeRun, brandSubjects, subjectFingerprint } from "./analysis";
+import { type AnalysisSubject, analyzeRun, brandSubjects, subjectFingerprint, touchesSubjects } from "./analysis";
 
 const brand = {
 	id: "brand-1",
@@ -76,5 +76,19 @@ describe("analyzeRun", () => {
 
 	it("writes nothing for a run with no answer text", () => {
 		expect(analyzeRun(null, subjects)).toEqual([]);
+	});
+});
+
+describe("touchesSubjects", () => {
+	it("is true for an update to any column analysis reads", () => {
+		expect(touchesSubjects({ name: "Acme Inc" })).toBe(true);
+		expect(touchesSubjects({ website: "https://acme.net" })).toBe(true);
+		expect(touchesSubjects({ aliases: [] })).toBe(true);
+		expect(touchesSubjects({ additionalDomains: [] })).toBe(true);
+	});
+
+	it("is false for an update that leaves them alone", () => {
+		expect(touchesSubjects({})).toBe(false);
+		expect(touchesSubjects({ name: undefined })).toBe(false);
 	});
 });

@@ -173,8 +173,8 @@ export async function sendReportJob(data: {
  * the brand's runs reading as not analysed until backfill:run-mentions runs.
  */
 export async function enqueueMentionRecompute(brandId: string): Promise<void> {
-	if (!getDeploymentFeatures().enrichment) return;
 	try {
+		if (!getDeploymentFeatures().enrichment) return;
 		const boss = await getBoss();
 		await boss.send(MENTION_RECOMPUTE_QUEUE, { brandId }, { singletonKey: brandId });
 	} catch (error) {
