@@ -42,14 +42,14 @@ function Coverage({ coverage }: { coverage: BrandMentionProminence["coverage"] }
 	const { runs, analysed } = coverage;
 	const complete = runs > 0 && analysed === runs;
 	return (
-		<Alert data-testid="mention-coverage">
+		<Alert data-testid="mention-coverage" role="status">
 			<AlertTitle>
 				{analysed.toLocaleString()} of {runs.toLocaleString()} runs in this window are analysed
 			</AlertTitle>
 			<AlertDescription>
 				{complete
 					? "Every run in this window is counted below."
-					: "Only analysed runs are counted below. The rest are not analysed yet, which is not the same as not mentioning anyone, and they are left out rather than counted as zero. Coverage drops after you edit your brand or competitors and climbs back as they are re-analysed, so it can rise while you watch."}
+					: "Only analysed runs are counted below. The rest are not analysed yet, which is not the same as not mentioning anyone, and they are left out rather than counted as zero. Coverage drops after you edit your brand or competitors and climbs back as they are re-analysed, so it can rise while you watch; this page checks again every 30 seconds."}
 			</AlertDescription>
 		</Alert>
 	);
@@ -62,7 +62,7 @@ function MentionsPage() {
 	const trackedTargets = brand?.trackedTargets ?? [];
 	const modelParam = model === ALL_MODELS_VALUE ? undefined : model;
 	const { data: promptsSummary } = usePromptsSummary(brandId, { lookback, model: modelParam });
-	const { data, isLoading } = useMentionProminence(brandId, { lookback, model: modelParam, tags });
+	const { data, isLoading, error } = useMentionProminence(brandId, { lookback, model: modelParam, tags });
 
 	const infoContent = (
 		<p>
@@ -84,6 +84,16 @@ function MentionsPage() {
 				</CardContent>
 			</Card>
 		);
+	} else if (error) {
+		content = (
+			<Card>
+				<CardContent className="pt-6">
+					<div className="text-destructive text-center py-8">
+						Mention analysis couldn't be loaded. Try again shortly.
+					</div>
+				</CardContent>
+			</Card>
+		);
 	} else if (!data || data.coverage.runs === 0) {
 		content = (
 			<Card>
@@ -93,6 +103,20 @@ function MentionsPage() {
 					</div>
 				</CardContent>
 			</Card>
+		);
+	} else if (data.coverage.analysed === 0) {
+		content = (
+			<>
+				<Coverage coverage={data.coverage} />
+				<Card>
+					<CardContent className="pt-6">
+						<div data-testid="mention-none-analysed" className="text-muted-foreground text-center py-8">
+							None of this window's runs are analysed yet, so there is nothing to count. That doesn't mean nobody was
+							mentioned.
+						</div>
+					</CardContent>
+				</Card>
+			</>
 		);
 	} else {
 		content = (
@@ -130,6 +154,7 @@ function MentionsPage() {
 									<TableRow
 										key={subject.key}
 										data-subject={subject.name}
+										data-subject-key={subject.key}
 										className={subject.kind === "brand" ? "bg-muted/40" : undefined}
 									>
 										<TableCell className="font-medium">

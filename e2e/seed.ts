@@ -693,10 +693,19 @@ async function seedMentionsBrand(client: pg.Client) {
   const createdAt = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
   for (const [i, text] of answers.entries()) {
+    // The flags the worker would have set from the same text, so this brand's
+    // Visibility and Share of Voice agree with what its answers say.
+    const named = analyzeRun(text, subjects);
     const { rows } = await client.query<{ id: string }>(
       `INSERT INTO prompt_runs (prompt_id, brand_id, model, version, web_search_enabled, raw_output, web_queries, brand_mentioned, competitors_mentioned, created_at)
-       VALUES ($1, $2, 'chatgpt', 'gpt-4o', false, '{}', '{}', false, '{}', $3) RETURNING id`,
-      [MENTIONS_PROMPT_ID, MENTIONS_BRAND_ID, new Date(createdAt.getTime() + i * 1000)]
+       VALUES ($1, $2, 'chatgpt', 'gpt-4o', false, '{}', '{}', $3, $4, $5) RETURNING id`,
+      [
+        MENTIONS_PROMPT_ID,
+        MENTIONS_BRAND_ID,
+        named.some((m) => m.subjectKind === "brand"),
+        named.filter((m) => m.subjectKind === "competitor").map((m) => m.subjectName),
+        new Date(createdAt.getTime() + i * 1000),
+      ]
     );
     const runId = rows[0].id;
     await client.query(

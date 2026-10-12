@@ -25,7 +25,13 @@ export function useMentionProminence(brandId?: string, filters?: MentionProminen
 			}),
 		enabled: !!resolvedBrandId,
 		staleTime: 30_000,
-		placeholderData: (prev) => prev,
+		// While some runs aren't analysed a recompute may be filling them in, so
+		// keep coverage current without a reload. Not faster: at a large brand's
+		// full window one read is over a second.
+		refetchInterval: (q) => {
+			const coverage = q.state.data?.coverage;
+			return coverage && coverage.analysed < coverage.runs ? 30_000 : false;
+		},
 	});
-	return { data: query.data, isLoading: query.isLoading };
+	return { data: query.data, isLoading: query.isLoading, error: query.error };
 }

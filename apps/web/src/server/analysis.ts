@@ -1,7 +1,8 @@
 /**
- * Server functions for AI-visibility analysis: Share of Voice. Read-only —
- * derived entirely from existing prompt_runs data via the postgres read layer
- * plus the pure stats in `@/lib/visibility-stats`. No schema changes.
+ * Server functions for AI-visibility analysis. Read-only. Share of Voice is
+ * derived from prompt_runs via the postgres read layer plus the pure stats in
+ * `@/lib/visibility-stats`; mention prominence reads the stored mention
+ * analysis, counting analysed runs only.
  *
  * Filters are resolved server-side (tags/search -> prompt IDs) via
  * `resolveFilteredPrompts`, and the lookback window is computed in the user's
