@@ -41,6 +41,7 @@ const fixed = (value: number | null, digits: number) => (value === null ? "—" 
 function Coverage({ coverage }: { coverage: BrandMentionProminence["coverage"] }) {
 	const { runs, analysed } = coverage;
 	const complete = runs > 0 && analysed === runs;
+	if (!complete) return null;
 	return (
 		<Alert data-testid="mention-coverage" role="status">
 			<AlertTitle>
@@ -168,9 +169,9 @@ function MentionsPage() {
 											</span>
 										</TableCell>
 										<TableCell className="text-right tabular-nums">
-											{subject.mentionedRuns.toLocaleString()} of {data.coverage.analysed.toLocaleString()}
+											{subject.mentionedRuns.toLocaleString()} of {data.coverage.runs.toLocaleString()}
 										</TableCell>
-										<TableCell className="text-right tabular-nums">{pct(subject.mentionRate)}</TableCell>
+										<TableCell className="text-right tabular-nums">{pct(subject.mentionedRuns / data.coverage.runs)}</TableCell>
 										<TableCell className="text-right tabular-nums">{fixed(subject.averageProminence, 2)}</TableCell>
 										<TableCell className="text-right tabular-nums">{fixed(subject.averageRank, 1)}</TableCell>
 									</TableRow>
