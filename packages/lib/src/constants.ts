@@ -72,6 +72,22 @@ export const WEB_QUERIES_UNAVAILABLE = "unavailable";
  * through the handler's own backoff reschedule instead, or through
  * schedule-maintenance for a job that died before reaching it.
  */
+export const MENTION_RECOMPUTE_QUEUE = "recompute-brand-mentions";
+
+/**
+ * "stately" allows one queued and one active job per brand, keyed by brand id.
+ * An edit made while a recompute runs queues exactly one more, whose pass sees
+ * that edit; any further edits fold into the queued one.
+ */
+export const MENTION_RECOMPUTE_QUEUE_OPTIONS = {
+	policy: "stately",
+	retryLimit: 3,
+	retryDelay: 60,
+	retryBackoff: true,
+	// A full Business brand is ~504k runs, about 13 minutes at the job's pace.
+	expireInSeconds: 60 * 60,
+} as const;
+
 export const PROMPT_JOB_OPTIONS = {
 	retryLimit: 0,
 	expireInSeconds: 90 * 60,

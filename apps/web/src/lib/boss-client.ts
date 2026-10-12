@@ -1,4 +1,5 @@
-import { PROMPT_JOB_OPTIONS } from "@workspace/lib/constants";
+import { getDeploymentFeatures } from "@workspace/deployment";
+import { MENTION_RECOMPUTE_QUEUE, MENTION_RECOMPUTE_QUEUE_OPTIONS, PROMPT_JOB_OPTIONS } from "@workspace/lib/constants";
 import { PgBoss } from "pg-boss";
 
 let bossInstance: PgBoss | null = null;
@@ -50,6 +51,12 @@ export async function getBoss(): Promise<PgBoss> {
 			retryBackoff: false,
 			expireInSeconds: 60 * 15,
 		});
+
+		// Here as well as in the worker, so an edit made before the worker first
+		// starts can still queue its recompute.
+		if (getDeploymentFeatures().enrichment) {
+			await boss.createQueue(MENTION_RECOMPUTE_QUEUE, MENTION_RECOMPUTE_QUEUE_OPTIONS);
+		}
 
 		bossInstance = boss;
 		return boss;

@@ -50,6 +50,13 @@ export function brandSubjects(brand: BrandInput, competitors: readonly Competito
 	];
 }
 
+/** Whether a brand update sets any column brandSubjects reads, and so leaves its stored analysis stale. */
+export function touchesSubjects(
+	update: Partial<Record<"name" | "website" | "aliases" | "additionalDomains", unknown>>,
+): boolean {
+	return (["name", "website", "aliases", "additionalDomains"] as const).some((column) => update[column] !== undefined);
+}
+
 /**
  * Changes whenever anything analysis reads about a brand's subjects changes,
  * so a stored analysis can tell it was computed against an older set. It hashes
