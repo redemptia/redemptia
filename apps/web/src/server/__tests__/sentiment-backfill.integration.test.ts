@@ -5,7 +5,7 @@ import { reconcileRunAnalyses } from "@workspace/lib/enrichment/reconcile";
 import { backfillSentiment, type Classifier } from "@workspace/lib/enrichment/sentiment";
 import { insertRunText } from "@workspace/lib/run-texts";
 import { eq, sql } from "drizzle-orm";
-import { afterAll, describe, expect, it } from "vitest";
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createBrand, createCompetitor, createPrompt, createRun, deleteBrand } from "@/test/integration/stats-fixtures";
 
 const DAY = "2026-10-01";
@@ -70,6 +70,14 @@ const backfill = (brandId: string, classify: Classifier, dryRun: boolean) =>
 		model: "gemini-3.5-flash-lite",
 		costPerCallUsd: 0.0005,
 	});
+
+beforeEach(() => {
+	vi.stubEnv("DEPLOYMENT_MODE", "local");
+});
+
+afterEach(() => {
+	vi.unstubAllEnvs();
+});
 
 afterAll(async () => {
 	for (const id of brandIds) {
