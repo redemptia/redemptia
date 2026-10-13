@@ -4,7 +4,7 @@ import { reconcileRunAnalyses } from "@workspace/lib/enrichment/reconcile";
 import { SENTIMENT_ANALYZER_VERSION } from "@workspace/lib/enrichment/sentiment";
 import { insertRunText } from "@workspace/lib/run-texts";
 import { eq, inArray } from "drizzle-orm";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { getBrandSentiment } from "@/server/analytics-core";
 import { createBrand, createCompetitor, createPrompt, createRun, deleteBrand } from "@/test/integration/stats-fixtures";
 
@@ -80,6 +80,14 @@ beforeAll(async () => {
 	await judge("Never buy Acme.", "Acme", "disrecommended");
 });
 
+beforeEach(() => {
+	vi.stubEnv("DEPLOYMENT_MODE", "local");
+});
+
+afterEach(() => {
+	vi.unstubAllEnvs();
+});
+
 afterAll(async () => {
 	await db.delete(stanceJudgements).where(inArray(stanceJudgements.contentHash, [...hashes.values()]));
 	await deleteBrand(brandId);
@@ -135,5 +143,15 @@ describe("getBrandSentiment", () => {
 		const { subjects, riskPrompts } = await getBrandSentiment(brandId, WINDOW, { model: "claude" });
 		expect(subjects.every((s) => s.judged === 0 && s.netStanceRate === null)).toBe(true);
 		expect(riskPrompts).toEqual([]);
+	});
+
+	it("says whether this deployment is judging new answers", async () => {
+		vi.stubEnv("SENTIMENT_API_KEY", "sentiment-key");
+		expect((await getBrandSentiment(brandId, WINDOW)).analysisEnabled).toBe(true);
+		vi.stubEnv("DEPLOYMENT_MODE", "demo");
+		expect((await getBrandSentiment(brandId, WINDOW)).analysisEnabled).toBe(false);
+		vi.stubEnv("DEPLOYMENT_MODE", "local");
+		vi.stubEnv("SENTIMENT_API_KEY", "");
+		expect((await getBrandSentiment(brandId, WINDOW)).analysisEnabled).toBe(false);
 	});
 });
