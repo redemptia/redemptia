@@ -44,6 +44,7 @@
 		"./run-policy": "./src/run-policy/index.ts",
 		"./usage": "./src/usage/cost.ts",
 		"./usage/ceiling": "./src/usage/ceiling.ts",
+		"./usage/events": "./src/usage/events.ts",
 		"./citations/domain-categories": "./src/citations/domain-categories.ts",
 		"./citations/domain-lists": "./src/citations/domain-lists.ts",
 		"./citations/rollup": "./src/citations/rollup.ts"

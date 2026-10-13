@@ -3,6 +3,7 @@
   "globalEnv": [
     "DATABASE_URL",
     "DATABASE_POOL_MAX",
+    "ENRICHMENT_DAILY_CAP_USD",
     "APP_URL",
     "BETTER_AUTH_SECRET",
     "AUTH0_DOMAIN",

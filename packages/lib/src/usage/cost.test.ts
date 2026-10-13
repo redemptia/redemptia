@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { estimateRunCostUsd, projectMonthlyTargetCostUsd } from "./cost";
+import { estimateRunCostUsd, estimateTokenCostUsd, projectMonthlyTargetCostUsd } from "./cost";
 
 describe("estimateRunCostUsd", () => {
 	it("prices a run by provider", () => {
@@ -38,5 +38,12 @@ describe("projectMonthlyTargetCostUsd", () => {
 		expect(
 			projectMonthlyTargetCostUsd({ costPerRunUsd: null, enabledPrompts: 10, runsPerDay: 4, replication: 5 }),
 		).toBeNull();
+	});
+});
+
+describe("estimateTokenCostUsd", () => {
+	it("prices input and output tokens separately, per million", () => {
+		expect(estimateTokenCostUsd({ inputTokens: 1_000_000, outputTokens: 0 }, { input: 0.5, output: 4 })).toBe(0.5);
+		expect(estimateTokenCostUsd({ inputTokens: 0, outputTokens: 1_000_000 }, { input: 0.5, output: 4 })).toBe(4);
 	});
 });
