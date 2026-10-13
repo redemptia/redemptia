@@ -58,6 +58,8 @@ export const entitlementOverridesSchema = z
 		premiumRunsPerDay: z.number().int().min(1).max(MAX_STANDARD_RUNS_PER_DAY).optional(),
 		/** Runs per firing for standard targets (cloud default 1). */
 		replication: z.number().int().min(1).max(10).optional(),
+		/** Turns model-judged sentiment on or off regardless of the plan. */
+		sentimentAnalysis: z.boolean().optional(),
 	})
 	.strict();
 

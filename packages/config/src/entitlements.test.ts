@@ -235,6 +235,14 @@ describe("parseEntitlementOverrides", () => {
 		expect(parseEntitlementOverrides({ maxBrands: 3 })).toEqual({ maxBrands: 3 });
 	});
 
+	it("keeps a sentimentAnalysis override rather than dropping the whole payload", () => {
+		expect(parseEntitlementOverrides({ maxBrands: 3, sentimentAnalysis: true })).toEqual({
+			maxBrands: 3,
+			sentimentAnalysis: true,
+		});
+		expect(parseEntitlementOverrides({ sentimentAnalysis: "yes" })).toBeNull();
+	});
+
 	it("returns null for null/undefined", () => {
 		expect(parseEntitlementOverrides(null)).toBeNull();
 		expect(parseEntitlementOverrides(undefined)).toBeNull();
