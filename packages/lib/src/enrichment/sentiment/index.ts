@@ -1,10 +1,14 @@
 export {
+	DEFAULT_SENTIMENT_BASE_URL,
 	DEFAULT_SENTIMENT_MODEL,
 	SENTIMENT_FALLBACK_MODELS,
 	SENTIMENT_PROVIDER,
 	sentimentAvailable,
+	sentimentBaseUrl,
+	sentimentFallbackModels,
 	sentimentModel,
 } from "./availability";
+export { backfillSentiment, type SentimentBackfillOptions, type SentimentBackfillResult } from "./backfill";
 export { type Classifier, type ClassifierResult, sentimentClassifier } from "./classify";
 export { type EvalPrediction, type EvalReport, type GoldenAnswer, loadGoldenSet, scoreSentimentEval } from "./eval";
 export {
