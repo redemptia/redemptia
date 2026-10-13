@@ -1,5 +1,5 @@
 {
-	"note": "Draft labels by Claude, to be corrected by a human before the first eval run. Fictional brands throughout. Each answer is judged for every subject listed under it.",
+	"note": "Draft labels by Claude, reviewed once by Claude against the analyzer's stance definitions; still to be corrected by a human. Fictional brands throughout. Each answer is judged for every subject listed under it.",
 	"answers": [
 		{
 			"id": "a01",
@@ -23,8 +23,8 @@
 			"answer": "I would avoid Initrode for anything customer-facing right now. Several reviewers report data loss after the last update, and support response times have been measured in weeks. Fabrikam or Northwind are safer choices.",
 			"labels": {
 				"Initrode": "disrecommended",
-				"Fabrikam": "mentioned_neutral",
-				"Northwind": "mentioned_neutral"
+				"Fabrikam": "recommended",
+				"Northwind": "recommended"
 			}
 		},
 		{
@@ -106,8 +106,8 @@
 			"answer": "Globex had a serious security breach last year that exposed customer records, and its disclosure was slow. Until an independent audit is published, I'd steer clear and consider Umbrella or Initrode instead.",
 			"labels": {
 				"Globex": "disrecommended",
-				"Umbrella": "mentioned_neutral",
-				"Initrode": "mentioned_neutral"
+				"Umbrella": "recommended",
+				"Initrode": "recommended"
 			}
 		},
 		{
@@ -255,7 +255,7 @@
 			"labels": {
 				"Acme": "recommended",
 				"Stark": "recommended",
-				"Contoso": "mentioned_neutral"
+				"Contoso": "recommended"
 			}
 		},
 		{
@@ -358,7 +358,7 @@
 			"labels": {
 				"Umbrella": "comparison_anchor",
 				"Hooli": "mentioned_caveated",
-				"Stark": "disrecommended"
+				"Stark": "mentioned_caveated"
 			}
 		},
 		{
@@ -401,8 +401,8 @@
 			"answer": "Of the options you listed, Wayne is the one I would cross off first. Its reliability has slipped badly this year and the roadmap has stalled. Acme or Globex would serve you better.",
 			"labels": {
 				"Wayne": "disrecommended",
-				"Acme": "mentioned_neutral",
-				"Globex": "mentioned_neutral"
+				"Acme": "recommended",
+				"Globex": "recommended"
 			}
 		},
 		{
@@ -483,7 +483,7 @@
 			"labels": {
 				"Northwind": "comparison_anchor",
 				"Contoso": "mentioned_caveated",
-				"Initrode": "mentioned_neutral"
+				"Initrode": "mentioned_caveated"
 			}
 		},
 		{
