@@ -30,12 +30,15 @@ export async function structuredResearchWithUsage<T>(
 		...(tools ? { tools } : {}),
 		...(providerOptions ? { providerOptions } : {}),
 	});
+	const usage = result.usage;
+	if (usage?.inputTokens == null) return { output: result.output as T, usage: undefined };
+	// Gemini's OpenAI-compatible endpoint leaves thinking out of completion_tokens
+	// but counts it in total_tokens, and bills it as output; so does this.
+	const rawTotal = usage.raw?.total_tokens;
+	const hidden = typeof rawTotal === "number" ? rawTotal - usage.inputTokens - (usage.outputTokens ?? 0) : 0;
 	return {
 		output: result.output as T,
-		usage:
-			result.usage?.inputTokens == null
-				? undefined
-				: { inputTokens: result.usage.inputTokens, outputTokens: result.usage.outputTokens ?? 0 },
+		usage: { inputTokens: usage.inputTokens, outputTokens: (usage.outputTokens ?? 0) + Math.max(0, hidden) },
 	};
 }
 
