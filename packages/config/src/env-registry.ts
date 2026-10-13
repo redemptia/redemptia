@@ -66,8 +66,7 @@ export const ENV_REGISTRY: EnvVarSpec[] = [
 		name: "SENTIMENT_MODEL",
 		scope: "server",
 		requiredBy: "optional",
-		description:
-			"Model id the sentiment analyzer asks SENTIMENT_BASE_URL for (default gemini-3.5-flash-lite).",
+		description: "Model id the sentiment analyzer asks SENTIMENT_BASE_URL for (default gemini-3.5-flash-lite).",
 	},
 	{
 		name: "SENTIMENT_FALLBACK_MODELS",
