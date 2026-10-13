@@ -19,7 +19,7 @@ import type {
 	StructuredResearchOptions,
 	StructuredResearchResult,
 } from "../types";
-import { structuredResearch } from "./ai-sdk";
+import { structuredResearchWithUsage } from "./ai-sdk";
 import { nonEmptyStrings } from "./scrape-shared";
 
 const DEFAULT_RESEARCH_MODEL = "gpt-5-mini";
@@ -118,7 +118,7 @@ export const openaiApi: Provider = {
 		webSearch = true,
 		model = DEFAULT_RESEARCH_MODEL,
 	}: StructuredResearchOptions<T>): Promise<StructuredResearchResult<T>> {
-		const object = await structuredResearch(getOpenAIResponsesModel(model), {
+		const { output: object, usage } = await structuredResearchWithUsage(getOpenAIResponsesModel(model), {
 			prompt,
 			schema,
 			...(webSearch
@@ -130,6 +130,6 @@ export const openaiApi: Provider = {
 					}
 				: {}),
 		});
-		return { object, modelVersion: model };
+		return { object, modelVersion: model, usage };
 	},
 };

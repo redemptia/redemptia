@@ -49,6 +49,13 @@ export const ENV_REGISTRY: EnvVarSpec[] = [
 		description: "PostgreSQL connection string.",
 	},
 	{
+		name: "SENTIMENT_MODEL",
+		scope: "server",
+		requiredBy: "optional",
+		description:
+			"OpenRouter model id the sentiment analyzer uses (default google/gemini-2.5-flash, falling back to google/gemini-2.5-flash-lite). It runs only when OPENROUTER_API_KEY is set.",
+	},
+	{
 		name: "ENRICHMENT_DAILY_CAP_USD",
 		scope: "server",
 		requiredBy: "optional",
