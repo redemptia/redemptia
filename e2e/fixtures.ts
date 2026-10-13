@@ -307,5 +307,20 @@ export const MENTIONS_ANALYSED_ANSWERS = [
   "Fabrikam is popular.",
   "Nothing relevant here.",
 ] as const;
+/**
+ * Stance judgements the seed stores for the analysed answers. Fabrikam and the
+ * third answer are left unjudged, so counting an unjudged mention would show.
+ */
+export const MENTIONS_STANCES = [
+  { answer: MENTIONS_ANALYSED_ANSWERS[0], subject: "Northwind", stance: "recommended", evidence: null },
+  { answer: MENTIONS_ANALYSED_ANSWERS[0], subject: "Contoso", stance: "comparison_anchor", evidence: null },
+  {
+    answer: MENTIONS_ANALYSED_ANSWERS[1],
+    subject: "Northwind",
+    stance: "disrecommended",
+    evidence: MENTIONS_ANALYSED_ANSWERS[1],
+  },
+  { answer: MENTIONS_ANALYSED_ANSWERS[1], subject: "Contoso", stance: "mentioned_neutral", evidence: null },
+] as const;
 /** Name only Initrode (and Northwind), so counting either would show on the page. */
 export const MENTIONS_UNANALYSED_ANSWERS = ["Initrode, Northwind, Initrode.", "Initrode wins outright."] as const;
