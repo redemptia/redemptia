@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { sentimentAvailable } from "./availability";
 import { verbatimEvidence } from "./judge";
 
@@ -19,7 +19,17 @@ describe("verbatimEvidence", () => {
 });
 
 describe("sentimentAvailable", () => {
+	afterEach(() => vi.unstubAllEnvs());
+
 	it("is off where enrichment is off, whatever keys exist", () => {
 		expect(sentimentAvailable({ enrichment: false })).toBe(false);
+	});
+
+	it("needs the analyzer's own key: the scraper's OpenAI key doesn't count", () => {
+		vi.stubEnv("SENTIMENT_API_KEY", "");
+		vi.stubEnv("OPENAI_API_KEY", "scraper-key");
+		expect(sentimentAvailable({ enrichment: true })).toBe(false);
+		vi.stubEnv("SENTIMENT_API_KEY", "sentiment-key");
+		expect(sentimentAvailable({ enrichment: true })).toBe(true);
 	});
 });
