@@ -233,14 +233,8 @@ async function main(): Promise<void> {
 	await waitFor("Edit SCRAPE_TARGETS before saving?");
 	await send(ENTER);
 
-	// Telemetry opt-in (default Yes) → No
-	await waitFor("Share telemetry?");
-	await send(ARROW_LEFT);
-	await send(ENTER);
-
-	// Product updates email (optional)
-	await waitFor("email to receive product updates");
-	await send(ENTER);
+	// No telemetry or product-updates prompts: init asks them only when the CLI
+	// has a PostHog key, and CI sets none.
 
 	// Access mode select — default "On this machine (localhost)"
 	await waitFor("How will you access Redemptia?");
