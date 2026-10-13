@@ -92,4 +92,4 @@ Facts and rules established across PRs, kept here so they reach whoever opens th
 - **`analytics-core.ts` feeds the dashboard, REST and MCP.**
 - **`openapi.json` is hand-maintained.** A new v1 route needs it updated, then `pnpm lint:spec`.
 - **Entitlement flags live in code.** `entitlementOverridesSchema` is `.strict()`, and a parse failure drops the whole payload, so ship a schema key before any data that uses it.
-- **Enrichment has no spend ceiling of its own (#9).** Phase 1 is zero-spend by construction.
+- **Enrichment has its own spend ceiling** (`isOrgOverEnrichmentCeiling` in `packages/lib/src/usage/ceiling.ts`): a per-org cap on `sentiment-analysis` event cost over a rolling 24 h, `ENRICHMENT_DAILY_CAP_USD` (default $2). Check it before every paid enrichment call. It's independent of the scraper ceiling.
