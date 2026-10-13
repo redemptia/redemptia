@@ -126,8 +126,10 @@ const PATHS: Record<string, (brandId: string) => Promise<unknown>> = {
 };
 
 // Starting the boss creates its schema, which a fresh database doesn't have
-// until the first send; `queued` reads its job table before any.
+// until the first send, and `queued` reads its job table before any. It creates
+// the recompute queue only when enrichment is on, so the mode is set first.
 beforeAll(async () => {
+	vi.stubEnv("DEPLOYMENT_MODE", "local");
 	await getBoss();
 });
 
