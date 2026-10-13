@@ -12,6 +12,7 @@
  */
 import { createHash } from "node:crypto";
 import { ANALYZER_VERSION, analyzeRun, brandSubjects, subjectFingerprint } from "@workspace/lib/enrichment";
+import { SENTIMENT_ANALYZER_VERSION } from "@workspace/lib/enrichment/sentiment";
 import { TEXT_EXTRACTOR_VERSION } from "@workspace/lib/text-extraction";
 import pg from "pg";
 import {
@@ -27,6 +28,7 @@ import {
   MENTIONS_BRAND_NAME,
   MENTIONS_COMPETITORS,
   MENTIONS_PROMPT_ID,
+  MENTIONS_STANCES,
   MENTIONS_UNANALYSED_ANSWERS,
   NIKE_BRAND_ID,
   NIKE_COMPETITOR_IDS,
@@ -216,6 +218,8 @@ async function seed(connectionString: string) {
     await client.query("DELETE FROM brand_opportunities");
     await client.query("DELETE FROM citations");
     await client.query("DELETE FROM prompt_runs");
+    // Keyed by answer text, not run, so a cascade from prompt_runs doesn't reach it.
+    await client.query("DELETE FROM stance_judgements");
     await client.query("DELETE FROM prompts");
     await client.query("DELETE FROM competitors");
     await client.query("DELETE FROM reports");
@@ -731,6 +735,13 @@ async function seedMentionsBrand(client: pg.Client) {
         [runId, TEXT_EXTRACTOR_VERSION, fingerprint]
       );
     }
+  }
+  for (const j of MENTIONS_STANCES) {
+    await client.query(
+      `INSERT INTO stance_judgements (content_hash, subject_name, analyzer_version, analyzer_model, status, stance, evidence)
+       VALUES ($1, $2, $3, 'e2e', 'done', $4, $5)`,
+      [createHash("sha256").update(j.answer).digest("hex"), j.subject, SENTIMENT_ANALYZER_VERSION, j.stance, j.evidence]
+    );
   }
   console.log("  Created brand:", MENTIONS_BRAND_ID, `(${answers.length} runs, ${MENTIONS_ANALYSED_ANSWERS.length} analysed)`);
 }
