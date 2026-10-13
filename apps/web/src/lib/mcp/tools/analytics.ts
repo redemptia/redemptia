@@ -14,6 +14,7 @@ import {
 	getBrandSentiment,
 } from "@/server/analytics-core";
 import { publishedOpportunities } from "@/server/opportunities-core";
+import { requireSentimentInPlan } from "@/server/sentiment-access";
 import { brandIdArg, defineTool, filtersFrom, type McpTool, windowArgs, windowFor } from "./define";
 
 interface BrandWindow {
@@ -70,8 +71,11 @@ export const getSentiment = analyticsTool({
 	name: "get_sentiment",
 	title: "Get how answers treat the brand and its competitors",
 	description:
-		"How AI answers treat the brand and each competitor, as judged by a model: counts per stance (recommended, mentioned_neutral, mentioned_caveated, disrecommended, comparison_anchor) and netStanceRate = (recommended − disrecommended − comparison_anchor) / judged, from −1 to 1. riskPrompts lists the prompts whose answers disrecommend the brand or use it as the foil for a competitor, with the answers' own words as evidence — the place to start when asked what to fix. Every figure is over judged mentions only, from one analyzer version; an unjudged mention is not a neutral one, and runs with no answer text are left out. analysisEnabled false means new answers aren't being judged on this deployment.",
-	run: async ({ brand, range, filters }) => getBrandSentiment(brand.id, range, filters),
+		"How AI answers treat the brand and each competitor, as judged by a model: counts per stance (recommended, mentioned_neutral, mentioned_caveated, disrecommended, comparison_anchor) and netStanceRate = (recommended − disrecommended − comparison_anchor) / judged, from −1 to 1. riskPrompts lists the prompts whose answers disrecommend the brand or use it as the foil for a competitor, with the answers' own words as evidence — the place to start when asked what to fix. Every figure is over judged mentions only, from one analyzer version; an unjudged mention is not a neutral one, and runs with no answer text are left out. analysisEnabled false means new answers aren't being judged on this deployment. Refused for an organization whose plan doesn't include sentiment (Starter); get_mention_prominence is on every plan.",
+	run: async ({ brand, range, filters }) => {
+		await requireSentimentInPlan(brand.organizationId);
+		return getBrandSentiment(brand.id, range, filters);
+	},
 });
 
 export const getCitations = analyticsTool({

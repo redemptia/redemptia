@@ -18,7 +18,7 @@ export async function analyzeSentimentJob(jobs: Job<SentimentBatch>[]): Promise<
 			model: sentimentModel(),
 		});
 		console.log(
-			`[analyze-sentiment] ${job.data.promptId} ${job.data.model} ${job.data.day}: ${result.calls} calls, ${result.cached} cached${result.stoppedAtCeiling ? ", stopped at the enrichment ceiling" : ""}`,
+			`[analyze-sentiment] ${job.data.promptId} ${job.data.model} ${job.data.day}: ${result.calls} calls, ${result.cached} cached${result.stoppedAtCeiling ? ", stopped at the enrichment ceiling" : ""}${result.entitled ? "" : ", not in the org's plan"}`,
 		);
 	}
 }

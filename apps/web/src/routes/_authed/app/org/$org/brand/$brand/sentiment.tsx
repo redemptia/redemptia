@@ -201,6 +201,49 @@ function StanceTable({ data }: { data: BrandSentiment }) {
 	);
 }
 
+function SentimentBody({ data, brandName }: { data: BrandSentiment; brandName: string }) {
+	if (!data.analysisEnabled && data.coverage.judged === 0) {
+		return (
+			<Notice testId="sentiment-analysis-off">
+				Model analysis is off for this deployment, so answers aren't judged for how they treat you. Mentions, prominence
+				and rank don't need it and are on the Mentions page.
+			</Notice>
+		);
+	}
+	if (data.coverage.runs === 0) {
+		return (
+			<Notice testId="sentiment-no-runs">
+				No runs yet for the selected filters. Sentiment appears once your prompts have been run and judged.
+			</Notice>
+		);
+	}
+	return (
+		<TooltipProvider delay={150}>
+			{!data.analysisEnabled && (
+				<Alert data-testid="sentiment-analysis-off-banner">
+					<AlertTitle>Model analysis is off</AlertTitle>
+					<AlertDescription>
+						What's below comes from earlier judgements. New answers aren't being judged on this deployment.
+					</AlertDescription>
+				</Alert>
+			)}
+			<Coverage data={data} />
+			<Tabs defaultValue="risk">
+				<TabsList>
+					<TabsTrigger value="risk">Risk prompts</TabsTrigger>
+					<TabsTrigger value="stance">Stance by brand</TabsTrigger>
+				</TabsList>
+				<TabsContent value="risk" className="pt-2">
+					<RiskList data={data} brandName={brandName} />
+				</TabsContent>
+				<TabsContent value="stance" className="pt-2">
+					<StanceTable data={data} />
+				</TabsContent>
+			</Tabs>
+		</TooltipProvider>
+	);
+}
+
 function SentimentPage() {
 	const brandId = useBrandId();
 	const { model, lookback, tags } = useListFilters();
@@ -208,10 +251,11 @@ function SentimentPage() {
 	const trackedTargets = brand?.trackedTargets ?? [];
 	const modelParam = model === ALL_MODELS_VALUE ? undefined : model;
 	const { data: promptsSummary } = usePromptsSummary(brandId, { lookback, model: modelParam });
-	const { data, isLoading, error } = useBrandSentiment(brandId, { lookback, model: modelParam, tags });
+	const { data: view, isLoading, error } = useBrandSentiment(brandId, { lookback, model: modelParam, tags });
+	const data = view?.inPlan ? view.sentiment : undefined;
 
 	let content: React.ReactNode;
-	if (isLoading && !data) {
+	if (isLoading && !view) {
 		content = (
 			<Card>
 				<CardHeader>
@@ -231,47 +275,15 @@ function SentimentPage() {
 				</CardContent>
 			</Card>
 		);
-	} else if (!data) {
-		content = null;
-	} else if (!data.analysisEnabled && data.coverage.judged === 0) {
+	} else if (view && !view.inPlan) {
 		content = (
-			<Notice testId="sentiment-analysis-off">
-				Model analysis is off for this deployment, so answers aren't judged for how they treat you. Mentions, prominence
-				and rank don't need it and are on the Mentions page.
+			<Notice testId="sentiment-not-in-plan">
+				Sentiment isn't included in your plan. It's available on Basic and above. Mentions, prominence and rank are on
+				every plan.
 			</Notice>
 		);
-	} else if (data.coverage.runs === 0) {
-		content = (
-			<Notice testId="sentiment-no-runs">
-				No runs yet for the selected filters. Sentiment appears once your prompts have been run and judged.
-			</Notice>
-		);
-	} else {
-		content = (
-			<TooltipProvider delay={150}>
-				{!data.analysisEnabled && (
-					<Alert data-testid="sentiment-analysis-off-banner">
-						<AlertTitle>Model analysis is off</AlertTitle>
-						<AlertDescription>
-							What's below comes from earlier judgements. New answers aren't being judged on this deployment.
-						</AlertDescription>
-					</Alert>
-				)}
-				<Coverage data={data} />
-				<Tabs defaultValue="risk">
-					<TabsList>
-						<TabsTrigger value="risk">Risk prompts</TabsTrigger>
-						<TabsTrigger value="stance">Stance by brand</TabsTrigger>
-					</TabsList>
-					<TabsContent value="risk" className="pt-2">
-						<RiskList data={data} brandName={brand?.name ?? "you"} />
-					</TabsContent>
-					<TabsContent value="stance" className="pt-2">
-						<StanceTable data={data} />
-					</TabsContent>
-				</Tabs>
-			</TooltipProvider>
-		);
+	} else if (data) {
+		content = <SentimentBody data={data} brandName={brand?.name ?? "you"} />;
 	}
 
 	return (

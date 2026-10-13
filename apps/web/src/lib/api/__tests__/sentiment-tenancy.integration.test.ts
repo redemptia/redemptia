@@ -5,7 +5,7 @@
  * on its own: removing either gate must turn its own test red.
  */
 import { db } from "@workspace/lib/db/db";
-import { runTexts, stanceJudgements } from "@workspace/lib/db/schema";
+import { runTexts, stanceJudgements, subscription } from "@workspace/lib/db/schema";
 import { reconcileRunAnalyses } from "@workspace/lib/enrichment/reconcile";
 import { SENTIMENT_ANALYZER_VERSION } from "@workspace/lib/enrichment/sentiment";
 import { insertRunText } from "@workspace/lib/run-texts";
@@ -51,6 +51,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+	await db.delete(subscription).where(eq(subscription.referenceId, ownBrand));
 	await db.delete(stanceJudgements).where(eq(stanceJudgements.contentHash, contentHash));
 	await deleteBrand(ownBrand);
 	await deleteBrand(otherBrand);
@@ -133,6 +134,38 @@ describe("the get_sentiment MCP tool", () => {
 	it("refuses another tenant's brand", async () => {
 		await expect(getSentiment.run(ctx(), { brandId: otherBrand, ...WINDOW })).rejects.toMatchObject({
 			status: 404,
+		});
+	});
+});
+
+describe("a plan without sentiment", () => {
+	const ctx = () => ({ auth: ownOrganizationSession(), toolNames: [] });
+
+	beforeEach(async () => {
+		vi.stubEnv("DEPLOYMENT_MODE", "cloud");
+		await db.delete(subscription).where(eq(subscription.referenceId, ownBrand));
+	});
+
+	async function subscribe(plan: string) {
+		await db.insert(subscription).values({ id: `sub-${ownBrand}`, plan, referenceId: ownBrand, status: "active" });
+	}
+
+	it("is refused over REST with a code saying so, and served on Basic", async () => {
+		await subscribe("starter");
+		const refused = await getV1(ownBrand);
+		expect(refused.status).toBe(403);
+		expect(await refused.json()).toMatchObject({ code: "sentiment_not_in_plan" });
+
+		await db.delete(subscription).where(eq(subscription.referenceId, ownBrand));
+		await subscribe("basic");
+		expect((await getV1(ownBrand)).status).toBe(200);
+	});
+
+	it("is refused by the get_sentiment MCP tool", async () => {
+		await subscribe("starter");
+		await expect(getSentiment.run(ctx(), { brandId: ownBrand, ...WINDOW })).rejects.toMatchObject({
+			status: 403,
+			code: "sentiment_not_in_plan",
 		});
 	});
 });

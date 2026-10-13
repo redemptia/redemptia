@@ -69,7 +69,24 @@ describe("resolveEntitlements: cloud plans", () => {
 			expect(result.replication).toBe(1);
 			expect(result.premiumPool).toBe(plan.premiumIncluded);
 			expect(result.premiumRunsPerDay).toBe(PREMIUM_RUNS_PER_DAY);
+			expect(result.sentimentAnalysis).toBe(plan.sentimentAnalysis);
 		}
+	});
+
+	it("gives stance to Basic and above, and Starter prominence and rank only", () => {
+		const stance = (plan: string) => resolve({ subscription: activeSubscription(plan) }).sentimentAnalysis;
+		expect(stance("starter")).toBe(false);
+		expect([stance("basic"), stance("pro"), stance("business")]).toEqual([true, true, true]);
+	});
+
+	it("lets an override turn sentiment on for Starter, or off for a paid plan", () => {
+		expect(
+			resolve({ subscription: activeSubscription("starter"), overrides: { sentimentAnalysis: true } })
+				.sentimentAnalysis,
+		).toBe(true);
+		expect(
+			resolve({ subscription: activeSubscription("pro"), overrides: { sentimentAnalysis: false } }).sentimentAnalysis,
+		).toBe(false);
 	});
 
 	it("no subscription resolves to the paywall state", () => {

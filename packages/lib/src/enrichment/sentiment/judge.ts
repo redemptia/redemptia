@@ -1,6 +1,7 @@
 import { eq, type SQL, sql } from "drizzle-orm";
 import { db } from "../../db/db";
 import { brands, prompts } from "../../db/schema";
+import { getOrgEntitlements } from "../../entitlements/service";
 import { isOrgOverEnrichmentCeiling } from "../../usage/ceiling";
 import { estimateTokenCostUsd } from "../../usage/cost";
 import { recordUsageEvent } from "../../usage/events";
@@ -26,6 +27,8 @@ export interface SentimentBatchResult {
 	cached: number;
 	/** True when the batch stopped early at the org's enrichment ceiling. */
 	stoppedAtCeiling: boolean;
+	/** False when the org's plan doesn't include sentiment, so nothing was judged. */
+	entitled: boolean;
 }
 
 /** A pending claim older than this is taken as abandoned (a crashed worker) and may be claimed again. */
@@ -158,21 +161,28 @@ async function store(
 
 /**
  * Judge every unjudged (answer, subject) pair in a batch, one paid call per
- * distinct answer, checking the org's enrichment ceiling before each call. It
- * never runs inside withQuotaLock: a model call holds nothing but its own
+ * distinct answer, checking the org's enrichment ceiling before each call, and
+ * none at all for an org whose plan doesn't include sentiment. It never runs
+ * inside withQuotaLock: a model call holds nothing but its own
  * claim. Safe to retry: judged and claimed pairs are skipped by the unique key.
  */
 export async function analyzeSentimentBatch(
 	batch: SentimentBatch,
 	deps: { classify: Classifier; capUsd: number; model: string },
 ): Promise<SentimentBatchResult> {
-	const result: SentimentBatchResult = { calls: 0, cached: 0, stoppedAtCeiling: false };
+	const result: SentimentBatchResult = { calls: 0, cached: 0, stoppedAtCeiling: false, entitled: true };
 	const [owner] = await db
 		.select({ brandId: prompts.brandId, organizationId: brands.organizationId })
 		.from(prompts)
 		.innerJoin(brands, eq(brands.id, prompts.brandId))
 		.where(eq(prompts.id, batch.promptId));
 	if (!owner) return result;
+	// Checked here rather than in the sweep, so the backfill can't spend on a
+	// plan without sentiment either.
+	if (!(await getOrgEntitlements(owner.organizationId)).sentimentAnalysis) {
+		result.entitled = false;
+		return result;
+	}
 	const subjects = await loadBrandSubjects(db, owner.brandId);
 	if (!subjects) return result;
 
