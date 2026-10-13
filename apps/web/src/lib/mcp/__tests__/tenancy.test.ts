@@ -79,6 +79,7 @@ const CALLS: Record<string, Record<string, unknown>> = {
 	get_analytics: { brandId: "brand_1", ...WINDOW },
 	get_prompt_performance: { brandId: "brand_1", ...WINDOW },
 	get_mention_prominence: { brandId: "brand_1", ...WINDOW },
+	get_sentiment: { brandId: "brand_1", ...WINDOW },
 	get_citations: { brandId: "brand_1", ...WINDOW },
 	get_query_fanout: { brandId: "brand_1", ...WINDOW },
 	get_opportunities: { brandId: "brand_1" },

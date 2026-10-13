@@ -11,6 +11,7 @@ import {
 	getBrandMentionProminence,
 	getBrandPromptPerformance,
 	getBrandQueryFanout,
+	getBrandSentiment,
 } from "@/server/analytics-core";
 import { publishedOpportunities } from "@/server/opportunities-core";
 import { brandIdArg, defineTool, filtersFrom, type McpTool, windowArgs, windowFor } from "./define";
@@ -63,6 +64,14 @@ export const getMentionProminence = analyticsTool({
 	description:
 		"For the brand and each competitor: how many analysed answers name it, how early (prominence, 1 = the answer opens with it), and in what order among the others (rank, 1 = named first). Prominence and rank are averaged over only the answers that name the subject, so read them with mentionRate: a competitor named first in one answer out of hundreds has rank 1. Counted from analysed runs only — `coverage` says how many of the window's runs that is — so it can differ from get_analytics' visibility and share of voice, which count every run. Never read an unanalysed run as one that didn't mention a subject.",
 	run: async ({ brand, range, filters }) => getBrandMentionProminence(brand.id, range, filters),
+});
+
+export const getSentiment = analyticsTool({
+	name: "get_sentiment",
+	title: "Get how answers treat the brand and its competitors",
+	description:
+		"How AI answers treat the brand and each competitor, as judged by a model: counts per stance (recommended, mentioned_neutral, mentioned_caveated, disrecommended, comparison_anchor) and netStanceRate = (recommended − disrecommended − comparison_anchor) / judged, from −1 to 1. riskPrompts lists the prompts whose answers disrecommend the brand or use it as the foil for a competitor, with the answers' own words as evidence — the place to start when asked what to fix. Every figure is over judged mentions only, from one analyzer version; an unjudged mention is not a neutral one, and runs with no answer text are left out. analysisEnabled false means new answers aren't being judged on this deployment.",
+	run: async ({ brand, range, filters }) => getBrandSentiment(brand.id, range, filters),
 });
 
 export const getCitations = analyticsTool({
