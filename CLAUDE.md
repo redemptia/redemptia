@@ -54,8 +54,9 @@ Facts and rules established across PRs, kept here so they reach whoever opens th
 
 ### The gate (before every push)
 `pnpm lint && pnpm turbo check-types test`, then `pnpm -C apps/web test:integration` with `TEST_DATABASE_URL` pointing at a database whose name ends in `_test`.
-- **Baseline:** 1,442 unit tests plus 4 expected failures, and 101 integration tests, all green.
+- **Baseline:** 1,442 unit tests plus 4 expected failures, and 131 integration tests, all green.
 - **CI** is 5 checks.
+- **CI sets no `DEPLOYMENT_MODE`.** An integration test that reaches deployment or entitlement code (`getDeploymentFeatures`, `getOrgEntitlements`) must `vi.stubEnv("DEPLOYMENT_MODE", …)`. A local `.env` hides the failure, so it shows up only in CI.
 - **Known flaky tests:**
   - `e2e/tests/shared/api-keys.spec.ts` (brand multi-select vs the Create click) and `e2e/tests/shared/overview.spec.ts` (sidebar links) can flake. `failOnFlakyTests` makes a flake red.
   - Re-run once. If it recurs, fix it: it may be an app bug.
