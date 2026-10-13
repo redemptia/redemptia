@@ -7,7 +7,7 @@ import { MENTION_RECOMPUTE_QUEUE } from "@workspace/lib/constants";
 import { db } from "@workspace/lib/db/db";
 import { competitors } from "@workspace/lib/db/schema";
 import { eq, sql } from "drizzle-orm";
-import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import type { OrganizationAuth } from "@/lib/auth/api-auth";
 import { createBrand, createCompetitor, deleteBrand } from "@/test/integration/stats-fixtures";
 
@@ -124,6 +124,12 @@ const PATHS: Record<string, (brandId: string) => Promise<unknown>> = {
 		await api("DELETE", `/competitors/${id}`, brandId, { competitorId: id });
 	},
 };
+
+// Starting the boss creates its schema, which a fresh database doesn't have
+// until the first send; `queued` reads its job table before any.
+beforeAll(async () => {
+	await getBoss();
+});
 
 beforeEach(() => {
 	vi.stubEnv("DEPLOYMENT_MODE", "local");
