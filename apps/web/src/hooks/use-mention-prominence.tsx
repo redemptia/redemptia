@@ -30,7 +30,7 @@ export function useMentionProminence(brandId?: string, filters?: MentionProminen
 		// full window one read is over a second.
 		refetchInterval: (q) => {
 			const coverage = q.state.data?.coverage;
-			return coverage && coverage.analysed < coverage.runs ? 30_000 : false;
+			return coverage && coverage.analysed < coverage.runs - coverage.blank ? 30_000 : false;
 		},
 	});
 	return { data: query.data, isLoading: query.isLoading, error: query.error };

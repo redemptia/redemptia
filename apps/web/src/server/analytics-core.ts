@@ -486,8 +486,11 @@ export interface SubjectProminence {
 const retainedFrom = () => retentionHorizon()?.toISOString() ?? null;
 
 export interface BrandMentionProminence {
-	/** Every retained run in the window, and how many of them have a current analysis. */
-	coverage: { runs: number; analysed: number; retainedFrom: string | null };
+	/**
+	 * Every retained run in the window; how many had no answer text, so nothing to
+	 * mention (counted in no rate); and how many of the rest have a current analysis.
+	 */
+	coverage: { runs: number; blank: number; analysed: number; retainedFrom: string | null };
 	subjects: SubjectProminence[];
 }
 
@@ -505,12 +508,12 @@ export async function getBrandMentionProminence(
 ): Promise<BrandMentionProminence> {
 	const [{ promptIds }, subjects] = await Promise.all([resolveScope(brandId, filters), loadBrandSubjects(db, brandId)]);
 	const retained = retainedFrom();
-	if (!subjects) return { coverage: { runs: 0, analysed: 0, retainedFrom: retained }, subjects: [] };
+	if (!subjects) return { coverage: { runs: 0, blank: 0, analysed: 0, retainedFrom: retained }, subjects: [] };
 
 	const { from, to, timezone } = window;
 	const { coverage: counts, subjects: rows } =
 		promptIds.length === 0
-			? { coverage: { runs: 0, analysed: 0 }, subjects: [] }
+			? { coverage: { runs: 0, blank: 0, analysed: 0 }, subjects: [] }
 			: await getMentionProminence(
 					brandId,
 					from,

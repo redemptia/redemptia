@@ -1408,10 +1408,14 @@
 					},
 					"coverage": {
 						"type": "object",
-						"description": "The window's runs, and how many have a current mention analysis. Only analysed runs are counted in `subjects`.",
+						"description": "The window's runs, how many had no answer text, and how many of the rest have a current mention analysis. Only analysed runs are counted in `subjects`.",
 						"properties": {
 							"runs": {
 								"type": "integer"
+							},
+							"blank": {
+								"type": "integer",
+								"description": "Runs whose answer has no text, so nothing to mention anyone in. Counted in no rate."
 							},
 							"analysed": {
 								"type": "integer"
@@ -1422,7 +1426,7 @@
 								"description": "Where stored mention analysis starts when the deployment purges older analysis (ENRICHMENT_RETENTION_DAYS); runs before it aren't counted, so a window reaching past it covers less than it asks for. Null when everything is kept."
 							}
 						},
-						"required": ["runs", "analysed", "retainedFrom"]
+						"required": ["runs", "blank", "analysed", "retainedFrom"]
 					},
 					"subjects": {
 						"type": "array",

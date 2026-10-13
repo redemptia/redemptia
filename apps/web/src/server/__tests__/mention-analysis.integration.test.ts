@@ -83,7 +83,9 @@ describe("writeRunAnalysis", () => {
 		expect(rows).toEqual([{ same: true }]);
 	});
 
-	it("marks a run with no answer text as analysed, with no mentions", async () => {
+	// The marker only says the run needs no more work; the mention read counts a
+	// run with no text as blank, never as one that mentioned nobody.
+	it("gives a run with no answer text a marker and no mentions, so it isn't analysed again", async () => {
 		const { brandId, run } = await freshRun();
 		await db.transaction((tx) => writeRunAnalysis(tx, run, null, 1, subjectsFor(brandId)));
 
