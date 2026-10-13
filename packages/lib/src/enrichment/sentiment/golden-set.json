@@ -1,0 +1,559 @@
+{
+	"note": "Draft labels by Claude, to be corrected by a human before the first eval run. Fictional brands throughout. Each answer is judged for every subject listed under it.",
+	"answers": [
+		{
+			"id": "a01",
+			"answer": "For a small marketing team, Northwind is the tool I'd recommend first: setup takes an afternoon and its templates cover most campaign workflows. Contoso is also solid if you already live in their suite, but the per-seat pricing adds up quickly for teams under ten people.",
+			"labels": {
+				"Northwind": "recommended",
+				"Contoso": "mentioned_caveated"
+			}
+		},
+		{
+			"id": "a02",
+			"answer": "Popular options for project tracking include Northwind, Contoso, Fabrikam, Initrode, Globex and Umbrella. Each has a free tier, and most teams pick based on which integrations they already use.",
+			"labels": {
+				"Northwind": "mentioned_neutral",
+				"Fabrikam": "mentioned_neutral",
+				"Umbrella": "mentioned_neutral"
+			}
+		},
+		{
+			"id": "a03",
+			"answer": "I would avoid Initrode for anything customer-facing right now. Several reviewers report data loss after the last update, and support response times have been measured in weeks. Fabrikam or Northwind are safer choices.",
+			"labels": {
+				"Initrode": "disrecommended",
+				"Fabrikam": "mentioned_neutral",
+				"Northwind": "mentioned_neutral"
+			}
+		},
+		{
+			"id": "a04",
+			"answer": "If you liked Globex but found it too expensive, look at Fabrikam: it has a similar kanban-first design at roughly half the price, and the mobile app is better.",
+			"labels": {
+				"Globex": "comparison_anchor",
+				"Fabrikam": "recommended"
+			}
+		},
+		{
+			"id": "a05",
+			"answer": "Contoso is the best overall CRM for mid-sized sales teams in 2026. Its pipeline forecasting is the most accurate I've seen, and the reporting is excellent. Northwind is a reasonable budget alternative, though it lacks forecasting entirely.",
+			"labels": {
+				"Contoso": "recommended",
+				"Northwind": "mentioned_caveated"
+			}
+		},
+		{
+			"id": "a06",
+			"answer": "Umbrella works, but only if your team is entirely on Windows; the macOS client is still in beta and crashes often. For mixed environments, Globex is the more reliable pick.",
+			"labels": {
+				"Umbrella": "mentioned_caveated",
+				"Globex": "recommended"
+			}
+		},
+		{
+			"id": "a07",
+			"answer": "Here is a long list of email marketing platforms to consider: Northwind, Contoso, Fabrikam, Globex, Initrode, Umbrella, Hooli, Stark, Wayne, Acme, Soylent and Tyrell. Compare their deliverability rates and pricing tiers before you commit.",
+			"labels": {
+				"Hooli": "mentioned_neutral",
+				"Acme": "mentioned_neutral",
+				"Tyrell": "mentioned_neutral"
+			}
+		},
+		{
+			"id": "a08",
+			"answer": "Most teams compare everything to Hooli, since it set the standard for real-time collaboration. Against that benchmark, Stark is faster on large documents, while Wayne has better permission controls. My pick for a regulated industry would be Wayne.",
+			"labels": {
+				"Hooli": "comparison_anchor",
+				"Stark": "mentioned_neutral",
+				"Wayne": "recommended"
+			}
+		},
+		{
+			"id": "a09",
+			"answer": "Don't choose Soylent for analytics. Its query engine times out on datasets over a few million rows, and the vendor has announced it is sunsetting the self-hosted edition.",
+			"labels": {
+				"Soylent": "disrecommended"
+			}
+		},
+		{
+			"id": "a10",
+			"answer": "Acme is a good fit for freelancers who need simple invoicing. It is not designed for agencies with multiple clients and approval chains, so larger teams usually outgrow it within a year.",
+			"labels": {
+				"Acme": "mentioned_caveated"
+			}
+		},
+		{
+			"id": "a11",
+			"answer": "Tyrell is my top recommendation for video hosting if you care about analytics: you get per-viewer engagement heatmaps and the player loads quickly worldwide. Hooli is cheaper, and Wayne bundles hosting with a course builder.",
+			"labels": {
+				"Tyrell": "recommended",
+				"Hooli": "mentioned_neutral",
+				"Wayne": "mentioned_neutral"
+			}
+		},
+		{
+			"id": "a12",
+			"answer": "Compared with Northwind, which most small businesses start on, Contoso offers deeper automation but a steeper learning curve. Fabrikam sits in between.",
+			"labels": {
+				"Northwind": "comparison_anchor",
+				"Contoso": "mentioned_caveated",
+				"Fabrikam": "mentioned_neutral"
+			}
+		},
+		{
+			"id": "a13",
+			"answer": "Globex had a serious security breach last year that exposed customer records, and its disclosure was slow. Until an independent audit is published, I'd steer clear and consider Umbrella or Initrode instead.",
+			"labels": {
+				"Globex": "disrecommended",
+				"Umbrella": "mentioned_neutral",
+				"Initrode": "mentioned_neutral"
+			}
+		},
+		{
+			"id": "a14",
+			"answer": "Fabrikam is excellent for remote teams: async standups, built-in video notes and timezone-aware scheduling. It is the tool I would choose for a fully distributed company.",
+			"labels": {
+				"Fabrikam": "recommended"
+			}
+		},
+		{
+			"id": "a15",
+			"answer": "Stark can be a good choice, but its free plan caps you at three projects and removes the export feature, so budget for the paid tier if you plan to scale.",
+			"labels": {
+				"Stark": "mentioned_caveated"
+			}
+		},
+		{
+			"id": "a16",
+			"answer": "The main helpdesk platforms are Wayne, Acme, Hooli and Soylent. Wayne and Acme target enterprises, while Hooli and Soylent focus on startups.",
+			"labels": {
+				"Wayne": "mentioned_neutral",
+				"Acme": "mentioned_neutral",
+				"Soylent": "mentioned_neutral"
+			}
+		},
+		{
+			"id": "a17",
+			"answer": "Think of Initrode as the Contoso of accounting tools: similar breadth, similar price. If Contoso feels right for your CRM, Initrode will feel familiar for bookkeeping, and I'd recommend it for that reason.",
+			"labels": {
+				"Contoso": "comparison_anchor",
+				"Initrode": "recommended"
+			}
+		},
+		{
+			"id": "a18",
+			"answer": "Umbrella is overpriced for what it does. You pay enterprise rates for features that free tools already offer, and the contract terms make it hard to leave. I can't recommend it.",
+			"labels": {
+				"Umbrella": "disrecommended"
+			}
+		},
+		{
+			"id": "a19",
+			"answer": "Hooli is the easiest website builder for beginners, with drag-and-drop editing and good templates. The trade-off is limited SEO control, which matters if organic search is your main channel.",
+			"labels": {
+				"Hooli": "mentioned_caveated"
+			}
+		},
+		{
+			"id": "a20",
+			"answer": "Best password managers for families: 1) Tyrell, which has the best sharing controls; 2) Acme, which is cheapest; 3) Soylent, which has the best browser extension. Tyrell is my overall pick.",
+			"labels": {
+				"Tyrell": "recommended",
+				"Acme": "mentioned_neutral",
+				"Soylent": "mentioned_neutral"
+			}
+		},
+		{
+			"id": "a21",
+			"answer": "Wayne used to be the default for payroll, but since the acquisition prices have doubled and customers report frequent tax filing errors. Most accountants I know now move clients to Northwind.",
+			"labels": {
+				"Wayne": "disrecommended",
+				"Northwind": "recommended"
+			}
+		},
+		{
+			"id": "a22",
+			"answer": "Like Stark, Globex focuses on speed, but Globex adds offline mode. Either is fine; choose based on whether your team travels without connectivity.",
+			"labels": {
+				"Stark": "comparison_anchor",
+				"Globex": "mentioned_neutral"
+			}
+		},
+		{
+			"id": "a23",
+			"answer": "Contoso is reliable and widely supported, though its interface feels dated and new users often need training before they are productive.",
+			"labels": {
+				"Contoso": "mentioned_caveated"
+			}
+		},
+		{
+			"id": "a24",
+			"answer": "For data warehousing, the leading platforms are Fabrikam, Tyrell, Initrode and Wayne. Fabrikam is the strongest choice for most companies because of its pricing model and SQL compatibility.",
+			"labels": {
+				"Fabrikam": "recommended",
+				"Tyrell": "mentioned_neutral",
+				"Initrode": "mentioned_neutral"
+			}
+		},
+		{
+			"id": "a25",
+			"answer": "I would not use Acme for HIPAA workloads. It does not sign business associate agreements, which rules it out for healthcare data no matter how good the rest of the product is.",
+			"labels": {
+				"Acme": "disrecommended"
+			}
+		},
+		{
+			"id": "a26",
+			"answer": "Soylent is an interesting option for teams that want an open-source core, though the hosted version is still missing single sign-on.",
+			"labels": {
+				"Soylent": "mentioned_caveated"
+			}
+		},
+		{
+			"id": "a27",
+			"answer": "Northwind is to scheduling what Hooli is to documents: the tool everyone has heard of. Newer entrants like Umbrella measure themselves against Northwind, and Umbrella wins on price but not on calendar integrations.",
+			"labels": {
+				"Northwind": "comparison_anchor",
+				"Hooli": "comparison_anchor",
+				"Umbrella": "mentioned_caveated"
+			}
+		},
+		{
+			"id": "a28",
+			"answer": "Tyrell is the clear winner for design handoff. Developers get exact measurements and code snippets, designers keep their existing workflow, and the comment threads keep everyone aligned. I recommend it without reservation.",
+			"labels": {
+				"Tyrell": "recommended"
+			}
+		},
+		{
+			"id": "a29",
+			"answer": "Initrode and Globex both offer survey tools. Initrode has more question types, while Globex has better logic branching.",
+			"labels": {
+				"Initrode": "mentioned_neutral",
+				"Globex": "mentioned_neutral"
+			}
+		},
+		{
+			"id": "a30",
+			"answer": "Stay away from Hooli's enterprise plan: users report that cancelling requires ninety days' notice and that the company has auto-renewed contracts without warning. The product itself is fine, but the billing practices are a real risk.",
+			"labels": {
+				"Hooli": "disrecommended"
+			}
+		},
+		{
+			"id": "a31",
+			"answer": "Wayne is a strong choice for compliance-heavy teams, with audit logs, retention policies and certifications out of the box. The downside is cost: expect to pay about twice what Fabrikam charges.",
+			"labels": {
+				"Wayne": "mentioned_caveated",
+				"Fabrikam": "comparison_anchor"
+			}
+		},
+		{
+			"id": "a32",
+			"answer": "Top picks for note-taking apps this year: Acme for students, Stark for researchers who need citations, Contoso for teams already in that ecosystem, and Globex if you want end-to-end encryption.",
+			"labels": {
+				"Acme": "recommended",
+				"Stark": "recommended",
+				"Contoso": "mentioned_neutral"
+			}
+		},
+		{
+			"id": "a33",
+			"answer": "Fabrikam's recent outages have been frustrating: three multi-hour incidents this quarter. It's still a capable platform, but I'd keep a backup plan if uptime is critical for you.",
+			"labels": {
+				"Fabrikam": "mentioned_caveated"
+			}
+		},
+		{
+			"id": "a34",
+			"answer": "Umbrella is simply the best endpoint security suite for small businesses: easy deployment, low false-positive rates and fair per-device pricing. Soylent and Wayne are alternatives worth a look.",
+			"labels": {
+				"Umbrella": "recommended",
+				"Soylent": "mentioned_neutral",
+				"Wayne": "mentioned_neutral"
+			}
+		},
+		{
+			"id": "a35",
+			"answer": "If you are moving off Contoso, the closest equivalent is Northwind, which imports Contoso data directly. Tyrell is another option but requires manual migration.",
+			"labels": {
+				"Contoso": "comparison_anchor",
+				"Northwind": "recommended",
+				"Tyrell": "mentioned_caveated"
+			}
+		},
+		{
+			"id": "a36",
+			"answer": "Initrode looks attractive on paper, but in practice its API rate limits are so low that any real integration hits them within minutes. For developer-heavy teams it is the wrong choice.",
+			"labels": {
+				"Initrode": "disrecommended"
+			}
+		},
+		{
+			"id": "a37",
+			"answer": "Several tools can handle this: Globex, Soylent, Tyrell and Hooli all support webhook triggers. Which one fits depends on your budget and how much custom code you want to write.",
+			"labels": {
+				"Globex": "mentioned_neutral",
+				"Soylent": "mentioned_neutral",
+				"Tyrell": "mentioned_neutral"
+			}
+		},
+		{
+			"id": "a38",
+			"answer": "Stark is no longer a good option: the company stopped shipping updates eight months ago, the last security patch is from early this year, and the community forum is full of unanswered bug reports.",
+			"labels": {
+				"Stark": "disrecommended"
+			}
+		},
+		{
+			"id": "a39",
+			"answer": "Acme gives you most of what Wayne offers for a fraction of the price. Wayne remains the reference for enterprise features, but for a team of twenty, Acme is the better value and what I'd pick.",
+			"labels": {
+				"Wayne": "comparison_anchor",
+				"Acme": "recommended"
+			}
+		},
+		{
+			"id": "a40",
+			"answer": "Northwind is fine for basic needs, but it isn't great for teams that need advanced reporting, and the export options are limited to CSV.",
+			"labels": {
+				"Northwind": "mentioned_caveated"
+			}
+		},
+		{
+			"id": "a41",
+			"answer": "Contoso, Hooli and Fabrikam are the three most-used options in this category according to recent surveys. Contoso leads in enterprise adoption, Hooli in startups and Fabrikam in agencies.",
+			"labels": {
+				"Contoso": "mentioned_neutral",
+				"Hooli": "mentioned_neutral",
+				"Fabrikam": "mentioned_neutral"
+			}
+		},
+		{
+			"id": "a42",
+			"answer": "Soylent markets itself as an all-in-one platform, but every module is weaker than the specialist tools, and migrating away later is painful. I'd recommend picking best-of-breed tools instead of Soylent.",
+			"labels": {
+				"Soylent": "disrecommended"
+			}
+		},
+		{
+			"id": "a43",
+			"answer": "Globex is my recommendation for customer support chat: the AI routing genuinely reduces response times, the inbox is fast, and pricing is transparent. Initrode is a cheaper but less capable alternative.",
+			"labels": {
+				"Globex": "recommended",
+				"Initrode": "mentioned_caveated"
+			}
+		},
+		{
+			"id": "a44",
+			"answer": "Tyrell is powerful, but it's overkill for a solo developer, and the configuration takes days to get right. For small projects, a simpler tool will serve you better.",
+			"labels": {
+				"Tyrell": "mentioned_caveated"
+			}
+		},
+		{
+			"id": "a45",
+			"answer": "Measured against Umbrella, which most security teams treat as the baseline, Hooli detects more threats in independent tests but uses more memory. Stark trails both on detection.",
+			"labels": {
+				"Umbrella": "comparison_anchor",
+				"Hooli": "mentioned_caveated",
+				"Stark": "disrecommended"
+			}
+		},
+		{
+			"id": "a46",
+			"answer": "Hooli's analytics add-on is not worth it. The dashboards lag a day behind, the numbers often disagree with the raw exports, and it costs as much as a dedicated analytics tool.",
+			"labels": {
+				"Hooli": "disrecommended"
+			}
+		},
+		{
+			"id": "a47",
+			"answer": "I'd rule out Contoso for a startup on a tight budget. The minimum contract is annual, onboarding fees are steep, and the cheaper tiers strip out the features that make it worth using.",
+			"labels": {
+				"Contoso": "disrecommended"
+			}
+		},
+		{
+			"id": "a48",
+			"answer": "Beware of Tyrell's free trial: it converts to an annual plan automatically and refunds are rarely granted. Several users on review sites describe being charged hundreds of dollars unexpectedly.",
+			"labels": {
+				"Tyrell": "disrecommended"
+			}
+		},
+		{
+			"id": "a49",
+			"answer": "Fabrikam is a poor fit for large enterprises. It lacks role-based access control, audit trails and data residency options, so security teams usually reject it during procurement.",
+			"labels": {
+				"Fabrikam": "disrecommended"
+			}
+		},
+		{
+			"id": "a50",
+			"answer": "Northwind should be avoided for financial reporting. Rounding errors in its export have been reported for months without a fix, which is unacceptable for anything going to auditors.",
+			"labels": {
+				"Northwind": "disrecommended"
+			}
+		},
+		{
+			"id": "a51",
+			"answer": "Of the options you listed, Wayne is the one I would cross off first. Its reliability has slipped badly this year and the roadmap has stalled. Acme or Globex would serve you better.",
+			"labels": {
+				"Wayne": "disrecommended",
+				"Acme": "mentioned_neutral",
+				"Globex": "mentioned_neutral"
+			}
+		},
+		{
+			"id": "a52",
+			"answer": "Globex is not a good choice for teams outside North America: there are no regional data centres, latency is high in Europe and Asia, and support only works US business hours.",
+			"labels": {
+				"Globex": "disrecommended"
+			}
+		},
+		{
+			"id": "a53",
+			"answer": "Acme's mobile app is so unreliable that I would not rely on it for field teams. Sync failures and lost entries are common complaints, and there is no offline mode.",
+			"labels": {
+				"Acme": "disrecommended"
+			}
+		},
+		{
+			"id": "a54",
+			"answer": "Initrode is what people mean when they say legacy CRM. Modern tools such as Northwind and Fabrikam are usually described as Initrode without the clunky interface, and I'd pick Fabrikam today.",
+			"labels": {
+				"Initrode": "comparison_anchor",
+				"Northwind": "mentioned_neutral",
+				"Fabrikam": "recommended"
+			}
+		},
+		{
+			"id": "a55",
+			"answer": "Pricing in this category ranges widely. Soylent is the reference point for affordability at five dollars per seat; Hooli costs about three times that, and Tyrell about five times.",
+			"labels": {
+				"Soylent": "comparison_anchor",
+				"Hooli": "mentioned_neutral",
+				"Tyrell": "mentioned_neutral"
+			}
+		},
+		{
+			"id": "a56",
+			"answer": "Umbrella's interface will feel familiar if you have used Contoso, because it copies Contoso's layout almost exactly. Umbrella is the better pick for small teams because it is far cheaper.",
+			"labels": {
+				"Contoso": "comparison_anchor",
+				"Umbrella": "recommended"
+			}
+		},
+		{
+			"id": "a57",
+			"answer": "Benchmarked against Stark, the speed leader, Wayne is about forty percent slower on large imports but far more stable. For overnight batch jobs I would pick Wayne.",
+			"labels": {
+				"Stark": "comparison_anchor",
+				"Wayne": "recommended"
+			}
+		},
+		{
+			"id": "a58",
+			"answer": "Think of Globex as the gold standard that every other scheduler is measured against. Acme matches most of its features and is free for small teams, which is why I recommend Acme to most of my clients.",
+			"labels": {
+				"Globex": "comparison_anchor",
+				"Acme": "recommended"
+			}
+		},
+		{
+			"id": "a59",
+			"answer": "Tyrell is often described as Hooli for designers: same collaborative editing model, but tuned for visual work.",
+			"labels": {
+				"Hooli": "comparison_anchor",
+				"Tyrell": "mentioned_neutral"
+			}
+		},
+		{
+			"id": "a60",
+			"answer": "If Fabrikam is the Swiss Army knife of this market, Stark is the scalpel: it does one job extremely well. For teams that only need that one job, Stark is the right choice.",
+			"labels": {
+				"Fabrikam": "comparison_anchor",
+				"Stark": "recommended"
+			}
+		},
+		{
+			"id": "a61",
+			"answer": "Northwind is the benchmark for ease of use; nobody beats it there. Contoso and Initrode both trail it on usability, but Contoso has stronger reporting.",
+			"labels": {
+				"Northwind": "comparison_anchor",
+				"Contoso": "mentioned_caveated",
+				"Initrode": "mentioned_neutral"
+			}
+		},
+		{
+			"id": "a62",
+			"answer": "Soylent is the best value in the market right now: it includes everything most teams need, the price has not changed in three years, and the support team is responsive. It is my default recommendation.",
+			"labels": {
+				"Soylent": "recommended"
+			}
+		},
+		{
+			"id": "a63",
+			"answer": "For a nonprofit, I'd go with Hooli. They offer free licences to registered charities, and the volunteer management features are the best I've used.",
+			"labels": {
+				"Hooli": "recommended"
+			}
+		},
+		{
+			"id": "a64",
+			"answer": "Initrode is worth considering if you need strong integrations, but expect a few weeks of setup and some help from their onboarding team before it runs smoothly.",
+			"labels": {
+				"Initrode": "mentioned_caveated"
+			}
+		},
+		{
+			"id": "a65",
+			"answer": "Wayne has great features, though the mobile experience lags behind the desktop app and some settings are only available on the web.",
+			"labels": {
+				"Wayne": "mentioned_caveated"
+			}
+		},
+		{
+			"id": "a66",
+			"answer": "Comparing the three, Acme is the most affordable, Globex the most feature-rich and Umbrella the most secure. Your choice depends on which of those matters most to you.",
+			"labels": {
+				"Acme": "mentioned_neutral",
+				"Globex": "mentioned_neutral",
+				"Umbrella": "mentioned_neutral"
+			}
+		},
+		{
+			"id": "a67",
+			"answer": "Avoid Soylent and Initrode for now: both have open security advisories without patches. Northwind is the safest choice until they ship fixes.",
+			"labels": {
+				"Soylent": "disrecommended",
+				"Initrode": "disrecommended",
+				"Northwind": "recommended"
+			}
+		},
+		{
+			"id": "a68",
+			"answer": "Stark is decent, but only if you pay for the premium tier; the standard tier throttles uploads to a crawl and hides the reporting features most teams need.",
+			"labels": {
+				"Stark": "mentioned_caveated"
+			}
+		},
+		{
+			"id": "a69",
+			"answer": "Contoso remains my top recommendation for enterprise resource planning. Nothing else integrates as cleanly with existing finance systems, and implementation partners are easy to find.",
+			"labels": {
+				"Contoso": "recommended"
+			}
+		},
+		{
+			"id": "a70",
+			"answer": "Teams switching away from Tyrell usually land on Fabrikam or Globex. Tyrell is the incumbent everyone compares against, and both alternatives import Tyrell projects directly.",
+			"labels": {
+				"Tyrell": "comparison_anchor",
+				"Fabrikam": "mentioned_neutral",
+				"Globex": "mentioned_neutral"
+			}
+		}
+	]
+}

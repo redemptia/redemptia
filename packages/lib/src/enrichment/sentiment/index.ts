@@ -6,6 +6,7 @@ export {
 	sentimentModel,
 } from "./availability";
 export { type Classifier, type ClassifierResult, sentimentClassifier } from "./classify";
+export { type EvalPrediction, type EvalReport, type GoldenAnswer, loadGoldenSet, scoreSentimentEval } from "./eval";
 export {
 	analyzeSentimentBatch,
 	findSentimentBatches,
