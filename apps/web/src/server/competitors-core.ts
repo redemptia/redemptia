@@ -2,7 +2,8 @@
  * `brandScopeCondition`. */
 import { db } from "@workspace/lib/db/db";
 import { competitors } from "@workspace/lib/db/schema";
-import { and, count, desc, eq, notInArray, type SQL, sql } from "drizzle-orm";
+import { competitorNameKey } from "@workspace/lib/db/unique-names";
+import { and, count, desc, eq, type SQL, sql } from "drizzle-orm";
 
 const COMPETITOR_COLUMNS = {
 	id: competitors.id,
@@ -62,29 +63,50 @@ export interface CompetitorInput {
  * Names are the match key, so a competitor whose name is unchanged keeps its row
  * and id, only names that left the list are deleted, and new names are inserted.
  */
+/** A text[] literal: drizzle would spread a bare JS array into separate parameters. */
+function textArray(values: string[]): SQL {
+	return values.length === 0
+		? sql`'{}'::text[]`
+		: sql`ARRAY[${sql.join(
+				values.map((value) => sql`${value}`),
+				sql`, `,
+			)}]::text[]`;
+}
+
 export async function setBrandCompetitors(brandId: string, list: CompetitorInput[]) {
-	// One name listed twice has no single row to become.
-	const names = list.map((c) => c.name);
-	const repeated = names.find((name, i) => names.indexOf(name) !== i);
+	// One name listed twice, even in another case, has no single row to become.
+	const keys = list.map((c) => competitorNameKey(c.name));
+	const repeated = list.find((_, i) => keys.indexOf(keys[i]) !== i);
 	if (repeated !== undefined) {
-		throw new Error(`"${repeated}" is listed more than once.`);
+		throw new Error(`"${repeated.name}" is listed more than once.`);
 	}
 
 	return db.transaction(async (tx) => {
-		await tx
-			.delete(competitors)
-			.where(and(eq(competitors.brandId, brandId), names.length > 0 ? notInArray(competitors.name, names) : undefined));
+		await tx.delete(competitors).where(
+			and(
+				eq(competitors.brandId, brandId),
+				list.length > 0
+					? sql`lower(btrim(${competitors.name})) NOT IN (${sql.join(
+							list.map((c) => sql`lower(btrim(${c.name}))`),
+							sql`, `,
+						)})`
+					: undefined,
+			),
+		);
 
 		if (list.length > 0) {
-			await tx
-				.insert(competitors)
-				.values(list.map((c) => ({ brandId, name: c.name, domains: c.domains, aliases: c.aliases })))
-				.onConflictDoUpdate({
-					target: [competitors.brandId, competitors.name],
-					set: { domains: sql`excluded.domains`, aliases: sql`excluded.aliases`, updatedAt: new Date() },
-					// Leaves unchanged rows alone, so updated_at only moves when something changed.
-					setWhere: sql`(${competitors.domains}, ${competitors.aliases}) is distinct from (excluded.domains, excluded.aliases)`,
-				});
+			// Raw SQL because drizzle's conflict target takes only columns, and this
+			// one is the (brand_id, lower(btrim(name))) expression index. A case-only
+			// rename lands on the same row, keeping its id, and stores the new spelling.
+			const rows = list.map((c) => sql`(${brandId}, ${c.name}, ${textArray(c.domains)}, ${textArray(c.aliases)})`);
+			await tx.execute(sql`
+				INSERT INTO competitors (brand_id, name, domains, aliases)
+				VALUES ${sql.join(rows, sql`, `)}
+				ON CONFLICT (brand_id, lower(btrim(name))) DO UPDATE
+				SET name = excluded.name, domains = excluded.domains, aliases = excluded.aliases, updated_at = now()
+				-- Leaves unchanged rows alone, so updated_at only moves when something changed.
+				WHERE (competitors.name, competitors.domains, competitors.aliases)
+					IS DISTINCT FROM (excluded.name, excluded.domains, excluded.aliases)`);
 		}
 
 		return tx.query.competitors.findMany({ where: eq(competitors.brandId, brandId) });

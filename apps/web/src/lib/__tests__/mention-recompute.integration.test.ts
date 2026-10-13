@@ -37,8 +37,11 @@ afterEach(() => {
 });
 
 afterAll(async () => {
-	await db.execute(sql`DELETE FROM pgboss.job WHERE name = ${MENTION_RECOMPUTE_QUEUE}`);
-	for (const id of brandIds) await deleteBrand(id);
+	// Only this file's brands: other files queue recomputes on the same queue in parallel.
+	for (const id of brandIds) {
+		await db.execute(sql`DELETE FROM pgboss.job WHERE name = ${MENTION_RECOMPUTE_QUEUE} AND singleton_key = ${id}`);
+		await deleteBrand(id);
+	}
 	await (await getBoss()).stop({ graceful: false });
 });
 
