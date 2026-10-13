@@ -416,6 +416,10 @@ export const usageEvents = pgTable(
 		webSearchEnabled: boolean("web_search_enabled").notNull().default(false),
 		units: integer("units").notNull().default(1),
 		estimatedCostUsd: numeric("estimated_cost_usd", { precision: 12, scale: 6 }),
+		// Raw token counts for token-billed calls, kept so cost can be re-derived
+		// when a price changes instead of trusting the dollar figure stamped above.
+		inputTokens: integer("input_tokens"),
+		outputTokens: integer("output_tokens"),
 		createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 	},
 	(table) => ({

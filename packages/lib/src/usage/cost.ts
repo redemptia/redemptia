@@ -42,6 +42,31 @@ export function estimateRunCostUsd(provider: string | null, webSearchEnabled: bo
 	return base;
 }
 
+/**
+ * Real per-token prices, unlike the coarse per-event placeholders above: these
+ * price the sentiment analyzer's calls from their measured token counts, and the
+ * enrichment spend ceiling enforces against the result. They are list prices in
+ * a public repo on purpose, as the one number that ceiling must get right.
+ *
+ * gpt-5-mini, USD per million tokens. UNVERIFIED: set at roughly twice the list
+ * price last known, so the ceiling errs strict. An underestimate here would let
+ * real spend run past the cap; an overestimate only stops it early. Confirm
+ * against current OpenAI pricing and lower it then, never raise past real.
+ */
+export const SENTIMENT_MODEL_PRICE_USD_PER_MTOK = { input: 0.5, output: 4 } as const;
+
+export interface TokenUsage {
+	inputTokens: number;
+	outputTokens: number;
+}
+
+export function estimateTokenCostUsd(
+	usage: TokenUsage,
+	price: { input: number; output: number } = SENTIMENT_MODEL_PRICE_USD_PER_MTOK,
+): number {
+	return (usage.inputTokens * price.input + usage.outputTokens * price.output) / 1_000_000;
+}
+
 /** Days per month used for cost projections — a flat 30, not a calendar month. */
 export const PROJECTION_DAYS_PER_MONTH = 30;
 

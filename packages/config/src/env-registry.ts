@@ -49,6 +49,13 @@ export const ENV_REGISTRY: EnvVarSpec[] = [
 		description: "PostgreSQL connection string.",
 	},
 	{
+		name: "ENRICHMENT_DAILY_CAP_USD",
+		scope: "server",
+		requiredBy: "optional",
+		description:
+			"Per-organization cap on enrichment (sentiment) spend, in USD over a rolling 24 hours (default 2). An invalid value falls back to the default.",
+	},
+	{
 		name: "DATABASE_POOL_MAX",
 		scope: "server",
 		requiredBy: "optional",

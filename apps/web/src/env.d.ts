@@ -43,6 +43,7 @@ declare global {
 			readonly DEPLOYMENT_MODE: string;
 			readonly DATABASE_URL: string;
 			readonly DATABASE_POOL_MAX?: string;
+			readonly ENRICHMENT_DAILY_CAP_USD?: string;
 			readonly APP_URL?: string;
 			readonly SCRAPE_TARGETS?: string;
 			readonly OPENAI_API_KEY: string;

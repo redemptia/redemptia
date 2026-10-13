@@ -11,7 +11,6 @@ import {
 	competitors,
 	promptRuns,
 	prompts,
-	usageEvents,
 } from "@workspace/lib/db/schema";
 import { tryWriteRunAnalysis } from "@workspace/lib/enrichment/write";
 import { getOrgEntitlements } from "@workspace/lib/entitlements";
@@ -32,6 +31,7 @@ import { insertRunText } from "@workspace/lib/run-texts";
 import { answerTextOrNull, type Citation, TEXT_EXTRACTOR_VERSION } from "@workspace/lib/text-extraction";
 import { estimateRunCostUsd } from "@workspace/lib/usage";
 import { isOrgOverDailyCeiling } from "@workspace/lib/usage/ceiling";
+import { recordUsageEvent } from "@workspace/lib/usage/events";
 import { and, eq, gt, sql } from "drizzle-orm";
 import type { Job } from "pg-boss";
 import { getBoss } from "../boss";
@@ -237,7 +237,8 @@ async function saveCitations(
  * Billing-grade attribution: one row per provider call, success
  * or failure. Never fails the run — attribution must not break tracking.
  */
-async function recordUsageEvent(input: {
+/** Best effort: scraper events attribute cost, and a lost one shouldn't fail a paid run. */
+async function recordScraperUsageEvent(input: {
 	organizationId: string;
 	brandId: string;
 	promptId: string;
@@ -245,8 +246,7 @@ async function recordUsageEvent(input: {
 	config: ModelConfig;
 }): Promise<void> {
 	try {
-		const cost = estimateRunCostUsd(input.config.provider, input.config.webSearch);
-		await db.insert(usageEvents).values({
+		await recordUsageEvent({
 			organizationId: input.organizationId,
 			brandId: input.brandId,
 			promptId: input.promptId,
@@ -254,8 +254,7 @@ async function recordUsageEvent(input: {
 			provider: input.config.provider,
 			model: input.config.model,
 			webSearchEnabled: input.config.webSearch,
-			units: 1,
-			estimatedCostUsd: cost === null ? null : cost.toFixed(6),
+			estimatedCostUsd: estimateRunCostUsd(input.config.provider, input.config.webSearch),
 		});
 	} catch (error) {
 		console.error("Failed to record usage event:", error);
@@ -321,7 +320,7 @@ async function runModelIteration({
 		console.log(`${logPrefix} Saved prompt run ${promptRunId}`);
 
 		await saveCitations(promptRunId, promptId, brand.id, config.model, extractedCitations, createdAt);
-		await recordUsageEvent({
+		await recordScraperUsageEvent({
 			organizationId: brand.organizationId,
 			brandId: brand.id,
 			promptId,
@@ -338,7 +337,7 @@ async function runModelIteration({
 			scope.setContext("run", { promptId, brandId: brand.id, runIndex });
 			Sentry.captureException(error);
 		});
-		await recordUsageEvent({
+		await recordScraperUsageEvent({
 			organizationId: brand.organizationId,
 			brandId: brand.id,
 			promptId,
