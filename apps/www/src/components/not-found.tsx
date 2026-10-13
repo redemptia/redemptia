@@ -5,7 +5,7 @@ import { Navbar } from "./navbar";
 
 const suggestedLinks = [
 	{ label: "Documentation", href: "/docs", description: "Get started and learn the API" },
-	{ label: "Features", href: "/features", description: "What Elmo can do for your brand" },
+	{ label: "Features", href: "/features", description: "What Redemptia can do for your brand" },
 	{ label: "Pricing", href: "/pricing", description: "Free to self-host; cloud from $29/mo" },
 	{ label: "Roadmap", href: "/roadmap", description: "What we're building next" },
 ];

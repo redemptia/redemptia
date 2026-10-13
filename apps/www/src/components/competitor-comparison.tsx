@@ -5,7 +5,6 @@ import { AlertTriangle, ArrowLeft, Check, ExternalLink, X } from "lucide-react";
 import {
 	CATEGORY_LABELS,
 	type Competitor,
-	ELMO_FEATURES,
 	FEATURE_CATEGORIES,
 	type FeatureKey,
 	getComparisonFaqs,
@@ -13,18 +12,23 @@ import {
 	getPopularityGrade,
 	getScreenshotUrl,
 	isLowDR,
+	REDEMPTIA_FEATURES,
 } from "@/lib/competitors";
 import { SELF_HOST_LINK } from "@/lib/self-host-link";
 import { Faq } from "./faq";
 
-function FeatureRow({ label, elmo, competitor }: { label: string; elmo: boolean; competitor: boolean }) {
-	const elmoWins = elmo && !competitor;
-	const competitorWins = !elmo && competitor;
+function FeatureRow({ label, redemptia, competitor }: { label: string; redemptia: boolean; competitor: boolean }) {
+	const redemptiaWins = redemptia && !competitor;
+	const competitorWins = !redemptia && competitor;
 	return (
 		<tr className="border-b border-dashed border-zinc-200 last:border-solid">
 			<td className="py-3 pr-4 text-sm text-zinc-600">{label}</td>
-			<td className={`px-4 py-3 text-center ${elmoWins ? "bg-blue-50" : ""}`}>
-				{elmo ? <Check className="mx-auto h-4 w-4 text-blue-600" /> : <X className="mx-auto h-4 w-4 text-zinc-300" />}
+			<td className={`px-4 py-3 text-center ${redemptiaWins ? "bg-blue-50" : ""}`}>
+				{redemptia ? (
+					<Check className="mx-auto h-4 w-4 text-blue-600" />
+				) : (
+					<X className="mx-auto h-4 w-4 text-zinc-300" />
+				)}
 			</td>
 			<td className={`px-4 py-3 text-center ${competitorWins ? "bg-blue-50" : ""}`}>
 				{competitor ? (
@@ -38,11 +42,11 @@ function FeatureRow({ label, elmo, competitor }: { label: string; elmo: boolean;
 }
 
 function diffFeatures(competitor: Competitor): {
-	elmoOnlyFeatures: string[];
+	redemptiaOnlyFeatures: string[];
 	competitorOnlyFeatures: string[];
 	sharedFeatures: string[];
 } {
-	const elmoOnlyFeatures: string[] = [];
+	const redemptiaOnlyFeatures: string[] = [];
 	const competitorOnlyFeatures: string[] = [];
 	const sharedFeatures: string[] = [];
 
@@ -50,19 +54,19 @@ function diffFeatures(competitor: Competitor): {
 		for (const featureKey of Object.keys(category.features)) {
 			const key = featureKey as FeatureKey;
 			const label = category.features[key].label;
-			const elmoHas = ELMO_FEATURES[key] ?? false;
+			const redemptiaHas = REDEMPTIA_FEATURES[key] ?? false;
 			const competitorHas = competitor.features[key] ?? false;
-			if (elmoHas && competitorHas) sharedFeatures.push(label);
-			else if (elmoHas) elmoOnlyFeatures.push(label);
+			if (redemptiaHas && competitorHas) sharedFeatures.push(label);
+			else if (redemptiaHas) redemptiaOnlyFeatures.push(label);
 			else if (competitorHas) competitorOnlyFeatures.push(label);
 		}
 	}
 
-	return { elmoOnlyFeatures, competitorOnlyFeatures, sharedFeatures };
+	return { redemptiaOnlyFeatures, competitorOnlyFeatures, sharedFeatures };
 }
 
 export function CompetitorComparison({ competitor }: { competitor: Competitor }) {
-	const { elmoOnlyFeatures, competitorOnlyFeatures, sharedFeatures } = diffFeatures(competitor);
+	const { redemptiaOnlyFeatures, competitorOnlyFeatures, sharedFeatures } = diffFeatures(competitor);
 
 	return (
 		<>
@@ -83,7 +87,9 @@ export function CompetitorComparison({ competitor }: { competitor: Competitor })
 					<Badge variant="outline" className="mb-4">
 						{CATEGORY_LABELS[competitor.category]}
 					</Badge>
-					<h1 className="font-heading text-4xl text-balance text-zinc-950 md:text-5xl">Elmo vs {competitor.name}</h1>
+					<h1 className="font-heading text-4xl text-balance text-zinc-950 md:text-5xl">
+						Redemptia vs {competitor.name}
+					</h1>
 					<p className="mt-4 max-w-3xl text-lg text-balance text-zinc-600">{getComparisonVerdict(competitor)}</p>
 					{competitor.status === "shutting-down" && (
 						<div className="mt-4 rounded-md border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
@@ -109,7 +115,7 @@ export function CompetitorComparison({ competitor }: { competitor: Competitor })
 			<section className="border-b border-zinc-200 bg-zinc-50 py-8">
 				<div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-4 md:px-6">
 					<div>
-						<h3 className="mb-1 text-lg font-semibold text-zinc-950">Elmo</h3>
+						<h3 className="mb-1 text-lg font-semibold text-zinc-950">Redemptia</h3>
 						<div className="mt-2 flex flex-wrap gap-2">
 							<Badge variant="secondary">Open Source</Badge>
 							<Badge variant="secondary">Self-Hosted</Badge>
@@ -192,7 +198,7 @@ export function CompetitorComparison({ competitor }: { competitor: Competitor })
 							<thead>
 								<tr className="border-b border-zinc-200">
 									<th className="py-3 pr-4 text-left font-semibold text-zinc-950">Feature</th>
-									<th className="w-32 px-4 py-3 text-center font-semibold text-zinc-950">Elmo</th>
+									<th className="w-32 px-4 py-3 text-center font-semibold text-zinc-950">Redemptia</th>
 									<th className="w-32 px-4 py-3 text-center font-semibold text-zinc-950">{competitor.name}</th>
 								</tr>
 							</thead>
@@ -210,7 +216,7 @@ export function CompetitorComparison({ competitor }: { competitor: Competitor })
 										<FeatureRow
 											key={featureKey}
 											label={featureDef.label}
-											elmo={ELMO_FEATURES[featureKey as FeatureKey] ?? false}
+											redemptia={REDEMPTIA_FEATURES[featureKey as FeatureKey] ?? false}
 											competitor={competitor.features[featureKey as FeatureKey] ?? false}
 										/>
 									)),
@@ -226,13 +232,13 @@ export function CompetitorComparison({ competitor }: { competitor: Competitor })
 				<div className="mx-auto max-w-6xl px-4 md:px-6">
 					<h2 className="font-heading mb-8 text-2xl text-zinc-950">Key differences</h2>
 					<div className="grid gap-6 md:grid-cols-3">
-						{elmoOnlyFeatures.length > 0 && (
+						{redemptiaOnlyFeatures.length > 0 && (
 							<div className="rounded-md border border-zinc-200 bg-zinc-50 p-5">
 								<h3 className="mb-3 font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
-									Only in Elmo
+									Only in Redemptia
 								</h3>
 								<ul className="space-y-2">
-									{elmoOnlyFeatures.map((f) => (
+									{redemptiaOnlyFeatures.map((f) => (
 										<li key={f} className="flex items-center gap-2 text-sm text-zinc-600">
 											<Check className="h-3.5 w-3.5 shrink-0 text-blue-600" />
 											{f}
@@ -275,10 +281,10 @@ export function CompetitorComparison({ competitor }: { competitor: Competitor })
 				</div>
 			</section>
 
-			{/* Why Elmo */}
+			{/* Why Redemptia */}
 			<section className="border-b border-zinc-200 bg-white py-12">
 				<div className="mx-auto max-w-6xl px-4 md:px-6">
-					<h2 className="font-heading mb-4 text-2xl text-zinc-950">Why choose Elmo over {competitor.name}?</h2>
+					<h2 className="font-heading mb-4 text-2xl text-zinc-950">Why choose Redemptia over {competitor.name}?</h2>
 					<div className="grid gap-6 sm:grid-cols-2">
 						<div className="rounded-md border border-zinc-200 bg-white p-5">
 							<h3 className="font-semibold text-zinc-950">Open source and transparent</h3>
@@ -290,8 +296,8 @@ export function CompetitorComparison({ competitor }: { competitor: Competitor })
 						<div className="rounded-md border border-zinc-200 bg-white p-5">
 							<h3 className="font-semibold text-zinc-950">Self-host for free, forever</h3>
 							<p className="mt-2 text-sm text-zinc-600">
-								Run Elmo on your own infrastructure. The core platform is free and always will be, even when we release
-								a cloud version of Elmo.
+								Run Redemptia on your own infrastructure. The core platform is free and always will be, even when we
+								release a cloud version of Redemptia.
 							</p>
 						</div>
 						<div className="rounded-md border border-zinc-200 bg-white p-5">
@@ -313,15 +319,15 @@ export function CompetitorComparison({ competitor }: { competitor: Competitor })
 				<div className="mx-auto max-w-3xl px-4 text-center md:px-6">
 					<h2 className="font-heading text-3xl text-zinc-950 md:text-4xl">Ready to track your AI visibility?</h2>
 					<p className="mx-auto mt-4 max-w-xl text-lg text-balance text-zinc-600">
-						Deploy Elmo in minutes and start monitoring how ChatGPT, Claude, and Google AI Overviews talk about your
-						brand.
+						Deploy Redemptia in minutes and start monitoring how ChatGPT, Claude, and Google AI Overviews talk about
+						your brand.
 					</p>
 					<div className="mt-8 flex flex-wrap justify-center gap-3">
 						<Link {...SELF_HOST_LINK} className={buttonVariants({ size: "sm" })}>
-							Deploy Elmo
+							Deploy Redemptia
 						</Link>
 						<a
-							href="https://github.com/elmohq/elmo"
+							href="https://github.com/redemptia/redemptia"
 							target="_blank"
 							rel="noopener noreferrer"
 							className={buttonVariants({ variant: "outline", size: "sm" })}

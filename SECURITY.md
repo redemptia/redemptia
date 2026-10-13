@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-We apply security fixes only to the **latest released version** of Elmo. If
+We apply security fixes only to the **latest released version** of Redemptia. If
 you are running an older version, please upgrade before reporting an issue.
 
 ## Reporting a Vulnerability

@@ -13,13 +13,13 @@ import pngToIco from "png-to-ico";
  *   - apps/www/public/            favicon.ico, apple-touch-icon.png (root — so
  *                                 default browser probes for /favicon.ico and
  *                                 /apple-touch-icon.png resolve without needing
- *                                 explicit <link> tags). www is always Elmo-
+ *                                 explicit <link> tags). www is always Redemptia-
  *                                 branded, so there's no whitelabel concern
  *                                 about these being served from the root.
- *   - apps/www/public/icons/      elmo-icon.svg, elmo-icon-maskable.svg,
- *                                 elmo-icon-96.png, elmo-icon-192.png,
- *                                 elmo-icon-512.png, elmo-icon-maskable-192.png,
- *                                 elmo-icon-maskable-512.png
+ *   - apps/www/public/icons/      redemptia-icon.svg, redemptia-icon-maskable.svg,
+ *                                 redemptia-icon-96.png, redemptia-icon-192.png,
+ *                                 redemptia-icon-512.png, redemptia-icon-maskable-192.png,
+ *                                 redemptia-icon-maskable-512.png
  *
  * Mirrors apps/web/scripts/generate-brand-icons.tsx — SVG built by embedding the
  * Titan One WOFF2 as base64, PNGs rasterized via Takumi, ICO packaged by
@@ -117,8 +117,8 @@ mkdirSync(ICONS_DIR, { recursive: true });
 const fontBase64 = TITAN_ONE.toString("base64");
 
 const svgIcons = [
-	{ name: "elmo-icon.svg", build: buildStandardSvg },
-	{ name: "elmo-icon-maskable.svg", build: buildMaskableSvg },
+	{ name: "redemptia-icon.svg", build: buildStandardSvg },
+	{ name: "redemptia-icon-maskable.svg", build: buildMaskableSvg },
 ];
 
 for (const { name, build } of svgIcons) {
@@ -127,11 +127,11 @@ for (const { name, build } of svgIcons) {
 }
 
 const iconPngs = [
-	{ name: "elmo-icon-96.png", element: <StandardIcon size={96} />, size: 96 },
-	{ name: "elmo-icon-192.png", element: <StandardIcon size={192} />, size: 192 },
-	{ name: "elmo-icon-512.png", element: <StandardIcon size={512} />, size: 512 },
-	{ name: "elmo-icon-maskable-192.png", element: <MaskableIcon size={192} />, size: 192 },
-	{ name: "elmo-icon-maskable-512.png", element: <MaskableIcon size={512} />, size: 512 },
+	{ name: "redemptia-icon-96.png", element: <StandardIcon size={96} />, size: 96 },
+	{ name: "redemptia-icon-192.png", element: <StandardIcon size={192} />, size: 192 },
+	{ name: "redemptia-icon-512.png", element: <StandardIcon size={512} />, size: 512 },
+	{ name: "redemptia-icon-maskable-192.png", element: <MaskableIcon size={192} />, size: 192 },
+	{ name: "redemptia-icon-maskable-512.png", element: <MaskableIcon size={512} />, size: 512 },
 ];
 
 for (const { name, element, size } of iconPngs) {

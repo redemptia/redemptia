@@ -9,8 +9,8 @@
  * NOTE: Whitelabel mode does NOT use these defaults - all values must be
  * provided via environment variables.
  */
-export const DEFAULT_APP_NAME = "Elmo";
-export const DEFAULT_APP_ICON = "/icons/elmo-icon.svg";
+export const DEFAULT_APP_NAME = "Redemptia";
+export const DEFAULT_APP_ICON = "/icons/redemptia-icon.svg";
 export const DEFAULT_APP_URL = "http://localhost:3000/";
 
 /**
@@ -25,15 +25,15 @@ export const PROVIDERS_DOCS_URL = "https://redemptia.example/docs/user-guide/pro
 export const API_DOCS_URL = "https://redemptia.example/docs/api";
 
 /**
- * Elmo brand constants — used for icon generation, manifest, and the brand kit.
+ * Redemptia brand constants — used for icon generation, manifest, and the brand kit.
  */
-export const ELMO_BRAND_COLOR = "#2563eb"; // blue-600
-export const ELMO_BRAND_FONT = "Titan One";
-export const ELMO_THEME_COLOR = "#2563eb";
-export const ELMO_BACKGROUND_COLOR = "#ffffff";
+export const REDEMPTIA_BRAND_COLOR = "#2563eb"; // blue-600
+export const REDEMPTIA_BRAND_FONT = "Titan One";
+export const REDEMPTIA_THEME_COLOR = "#2563eb";
+export const REDEMPTIA_BACKGROUND_COLOR = "#ffffff";
 
 /**
- * Default chart colors for the Elmo product.
+ * Default chart colors for the Redemptia product.
  *
  * 11 base hues (Observable + Tableau, anchored to brand blue) expanded
  * into 55 colors across five lightness tiers: base → dark → light →

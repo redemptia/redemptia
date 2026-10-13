@@ -14,24 +14,24 @@ declare global {
 
 const CRISP_SCRIPT_URL = "https://client.crisp.chat/l.js";
 
-const QUESTIONS_URL = "https://github.com/elmohq/elmo/issues";
+const QUESTIONS_URL = "https://github.com/redemptia/redemptia/issues";
 const SELF_HOST_DOCS_URL = "https://redemptia.example/docs/getting-started";
 
 const DEMO_GREETING =
-	"👋 You're in the Elmo demo — it's read-only sample data, so click around freely. Ask me anything as you go.";
+	"👋 You're in the Redemptia demo — it's read-only sample data, so click around freely. Ask me anything as you go.";
 
 // Not a carousel: at chatbox width its track shows one card at a time, which
 // left the last option off screen.
 const DEMO_NEXT_STEPS = [
 	"Whenever you're ready:",
 	`• [Ask a question](${QUESTIONS_URL}) — open an issue on GitHub`,
-	`• [Start with Elmo Cloud](${CLOUD_SIGNUP_URL}) — the managed version, nothing to deploy`,
+	`• [Start with Redemptia Cloud](${CLOUD_SIGNUP_URL}) — the managed version, nothing to deploy`,
 	`• [Self-host it free](${SELF_HOST_DOCS_URL}) — open source, running in about five minutes`,
 ].join("\n");
 
 // So an operator picking up the thread points at the same three places.
 const DEMO_SESSION_DATA: [string, string][] = [
-	["walkthrough_url", DEMO_WALKTHROUGH_URL],
+	["questions_url", QUESTIONS_URL],
 	["self_host_docs_url", SELF_HOST_DOCS_URL],
 	["cloud_signup_url", CLOUD_SIGNUP_URL],
 ];

@@ -144,7 +144,7 @@ export const createApiKeyFn = createServerFn({ method: "POST" })
 				name: data.name,
 				organizationId: org.id,
 				userId: session.user.id,
-				prefix: "elmo_",
+				prefix: "redemptia_",
 				permissions: scopesToPermissions(ACCESS_SCOPES[data.access]),
 				// Absent, not empty: "every brand" is the absence of a narrowing.
 				metadata: data.brandIds ? { brandIds: data.brandIds } : {},

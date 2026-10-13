@@ -5,7 +5,7 @@ export * from "./planner.js";
 export * from "./types.js";
 
 // Register migrations here when a release needs to change config/env on disk.
-// Most releases need NO entry — docker images roll automatically on `elmo upgrade`.
+// Most releases need NO entry — docker images roll automatically on `redemptia upgrade`.
 //
 // Each entry runs once when a user upgrades through its `from` version. Keep the
 // `run` function pure over the passed-in context so it stays unit-testable.

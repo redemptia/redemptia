@@ -221,7 +221,7 @@ function YouTubeThumbnail() {
 						lineHeight: 1,
 					}}
 				>
-					elmo
+					redemptia
 				</div>
 				<div
 					style={{

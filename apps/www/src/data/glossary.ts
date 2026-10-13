@@ -90,9 +90,7 @@ export const glossaryTerms: GlossaryTerm[] = [
 			"That changes what visibility means. Instead of a ranking you can hold, there is a single answer that either names your brand or does not.",
 		],
 		related: ["ai-search-engine", "google-ai-overviews", "chatgpt-search"],
-		seeAlso: [
-			{ label: "How to show up in AI search engines", href: "/ai-search" },
-		],
+		seeAlso: [{ label: "How to show up in AI search engines", href: "/ai-search" }],
 	},
 	{
 		slug: "ai-search-engine",
@@ -166,9 +164,7 @@ export const glossaryTerms: GlossaryTerm[] = [
 			"Mentions and citations are worth tracking separately. You can be named without being cited, and cited without being named, and the gap between the two tells you where to focus.",
 		],
 		related: ["ai-citation", "share-of-voice", "ai-brand-sentiment"],
-		seeAlso: [
-			{ label: "Full AEO guide", href: "/answer-engine-optimization" },
-		],
+		seeAlso: [{ label: "Full AEO guide", href: "/answer-engine-optimization" }],
 	},
 	{
 		slug: "share-of-voice",
@@ -242,8 +238,7 @@ export const glossaryTerms: GlossaryTerm[] = [
 			"Clean, consistent naming, structured data, and corroborating mentions on trusted sources all help an engine resolve who you are and what you do.",
 		],
 		related: ["knowledge-graph", "structured-data", "grounding"],
-		seeAlso: [
-		],
+		seeAlso: [],
 	},
 	{
 		slug: "structured-data",
@@ -301,9 +296,7 @@ export const glossaryTerms: GlossaryTerm[] = [
 			"Grounding and good source material reduce the risk. Monitoring matters too, since the only way to catch a hallucination about your brand is to look for it.",
 		],
 		related: ["grounding", "ai-brand-sentiment"],
-		seeAlso: [
-			{ label: "Full AEO guide", href: "/answer-engine-optimization" },
-		],
+		seeAlso: [{ label: "Full AEO guide", href: "/answer-engine-optimization" }],
 	},
 	{
 		slug: "ai-crawler",

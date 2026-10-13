@@ -27,7 +27,7 @@ function ToolCard({ competitor }: { competitor: Competitor }) {
 					params={{ slug: getComparisonSlug(competitor) }}
 					className="inline-flex items-center gap-1 text-sm font-medium text-blue-700 hover:text-blue-900"
 				>
-					Compare with Elmo
+					Compare with Redemptia
 					<ArrowRight className="h-3.5 w-3.5" />
 				</Link>
 				<a

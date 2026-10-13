@@ -86,7 +86,7 @@ export const CUSTOMER_QUOTES = {
 	},
 	tradesites: {
 		quote:
-			"We were looking for an affordable way to track our visibility in AI search, and Elmo was a great fit. They were incredibly responsive and quickly added the integration we needed.",
+			"We were looking for an affordable way to track our visibility in AI search, and Redemptia was a great fit. They were incredibly responsive and quickly added the integration we needed.",
 		author: "James",
 		company: "TradeSites",
 		companyUrl: "https://www.tradesites.ai/",

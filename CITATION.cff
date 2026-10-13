@@ -1,8 +1,8 @@
 cff-version: 1.2.0
 message: If you use this software, please cite it as below.
-title: Elmo
+title: Redemptia
 abstract: >-
-  Elmo is an open-source, self-hosted AI visibility platform for Answer Engine
+  Redemptia is an open-source, self-hosted AI visibility platform for Answer Engine
   Optimization (AEO). It tracks how AI answer engines such as ChatGPT, Claude,
   Perplexity, Gemini, and Google AI Overviews mention, cite, and describe
   brands, so teams can benchmark competitors and grow their visibility in AI
@@ -11,7 +11,7 @@ type: software
 authors:
   - given-names: Jared
     family-names: Rhizor
-repository-code: https://github.com/elmohq/elmo
+repository-code: https://github.com/redemptia/redemptia
 url: https://redemptia.example/
 license: MIT
 keywords:

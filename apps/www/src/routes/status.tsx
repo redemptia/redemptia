@@ -39,7 +39,7 @@ import {
 	unavailableReason,
 } from "@/lib/status-helpers";
 
-const title = "Provider Status · Elmo";
+const title = "Provider Status · Redemptia";
 const description = "Real-time status and performance monitoring for AI search provider integrations.";
 
 export const Route = createFileRoute("/status")({
@@ -96,7 +96,7 @@ const TIER_SOLID: Record<RateTier, string> = {
 };
 
 // Diagonal hatch marking "not available" cells — a combination that can't exist,
-// distinct from the flat dot used for combinations Elmo just doesn't track yet.
+// distinct from the flat dot used for combinations Redemptia just doesn't track yet.
 const HATCH_BG =
 	"repeating-linear-gradient(-45deg, rgb(228 228 231) 0, rgb(228 228 231) 1px, transparent 1px, transparent 6px)";
 
@@ -794,14 +794,14 @@ function UnavailableTip({ model, provider }: { model: string; provider: string }
 function UntrackedTip({ model, provider }: { model: string; provider: string }) {
 	const modelLabel = formatModel(model);
 	const providerLabel = PROVIDER_FILTER_LABELS[provider];
-	const href = `https://github.com/elmohq/elmo/issues/new?title=${encodeURIComponent(
+	const href = `https://github.com/redemptia/redemptia/issues/new?title=${encodeURIComponent(
 		`Track ${modelLabel} via ${providerLabel}`,
 	)}`;
 	return (
 		<>
 			<TipHeader title="Not supported yet" subtitle={`${modelLabel} · ${providerLabel}`} />
 			<div className="text-zinc-600">
-				Elmo could reach {modelLabel} through {providerPhrase(provider)}, but doesn't track it today.
+				Redemptia could reach {modelLabel} through {providerPhrase(provider)}, but doesn't track it today.
 			</div>
 			<a
 				href={href}
@@ -1054,9 +1054,9 @@ function StatusPage() {
 					<p className="mb-3 font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">/ STATUS</p>
 					<h1 className="font-heading text-3xl text-zinc-950 md:text-4xl">Provider Status</h1>
 					<p className="mt-2 text-zinc-600">
-						Status of the third-party AI providers and scraping services Elmo uses to track your brand's visibility and
-						citations. Tests run automatically 4 times per day. Latencies shown are for individual prompt evaluations;
-						batches can vary significantly.
+						Status of the third-party AI providers and scraping services Redemptia uses to track your brand's visibility
+						and citations. Tests run automatically 4 times per day. Latencies shown are for individual prompt
+						evaluations; batches can vary significantly.
 					</p>
 				</div>
 

@@ -26,7 +26,7 @@ function WalkthroughDialog({ open, onOpenChange }: { open: boolean; onOpenChange
 			<DialogContent
 				className={`${HOME_FONT_CLASS} gap-0 overflow-hidden bg-zinc-950 p-0 sm:max-w-5xl [&>button]:text-white`}
 			>
-				<DialogTitle className="sr-only">Elmo product walkthrough</DialogTitle>
+				<DialogTitle className="sr-only">Redemptia product walkthrough</DialogTitle>
 				{/* Mounted only while open, so the player's script and poster cost nothing up front. */}
 				{open ? (
 					<Suspense fallback={<div className="aspect-video w-full" />}>
@@ -42,7 +42,7 @@ function WalkthroughDialog({ open, onOpenChange }: { open: boolean; onOpenChange
 							autoPlay
 							metadata={{
 								video_id: "KGvs37kE02Z6mnTpcrnLJCtiS01V023aJEHK3MZlmaULPA",
-								video_title: "Elmo demo",
+								video_title: "Redemptia demo",
 							}}
 							style={{ aspectRatio: "16 / 9", display: "block", width: "100%" }}
 						/>
@@ -66,7 +66,7 @@ export function Hero() {
 			<div className="relative mx-auto max-w-6xl px-4 pb-20 pt-14 md:px-6 md:pt-20 lg:pb-28">
 				<div className="mx-auto flex max-w-3xl flex-col items-center text-center">
 					<a
-						href="https://github.com/elmohq/elmo"
+						href="https://github.com/redemptia/redemptia"
 						target="_blank"
 						rel="noopener noreferrer"
 						className="group inline-flex h-7 items-center gap-2 rounded-full bg-white/80 pl-1 pr-3 text-xs font-medium text-zinc-600 shadow-sm ring-1 ring-zinc-200 transition hover:text-zinc-950 hover:ring-zinc-300"
@@ -82,8 +82,9 @@ export function Hero() {
 						Win AI Search
 					</h1>
 					<p className="mt-6 max-w-[60ch] text-pretty text-[17px]/7 text-zinc-600 md:text-xl/8">
-						Elmo is the open-source AI visibility platform for AEO and GEO. See how ChatGPT, Claude, Gemini, and every
-						other AI model talk about your brand, which sources they trust, and exactly what to do to get recommended.
+						Redemptia is the open-source AI visibility platform for AEO and GEO. See how ChatGPT, Claude, Gemini, and
+						every other AI model talk about your brand, which sources they trust, and exactly what to do to get
+						recommended.
 					</p>
 					<div className="mt-9 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
 						<a href={CLOUD_URL} className={`${BUTTON} bg-blue-600 text-white hover:bg-blue-700`}>

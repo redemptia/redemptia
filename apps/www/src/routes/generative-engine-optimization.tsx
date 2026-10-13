@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { DirectoryHero, ElmoCta } from "@/components/directory-shell";
+import { DirectoryHero, RedemptiaCta } from "@/components/directory-shell";
 import { Faq } from "@/components/faq";
 import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
@@ -47,7 +47,7 @@ function PillarPage() {
 				<DirectoryHero eyebrow={pillar.eyebrow} title={pillar.h1} lead={pillar.lead} />
 				<PillarBody pillar={pillar} />
 				<Faq items={pillar.faqs} eyebrow="/ FAQ" />
-				<ElmoCta />
+				<RedemptiaCta />
 			</main>
 			<Footer />
 		</div>

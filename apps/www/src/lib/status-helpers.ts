@@ -110,7 +110,7 @@ const SCRAPE_ONLY_MODELS = new Set(["google-ai-mode", "google-ai-overview", "cop
 
 // Which models each provider category has a collector for. A model missing from
 // a category's set can't be reached through it — a hard capability gap, not
-// merely something Elmo hasn't wired up yet. Mirrors the provider registries in
+// merely something Redemptia hasn't wired up yet. Mirrors the provider registries in
 // @workspace/lib. Categories absent here (direct-api, openrouter) reach any
 // model that exposes an inference endpoint.
 const PROVIDER_MODELS: Record<string, Set<string>> = {
@@ -123,15 +123,15 @@ const PROVIDER_MODELS: Record<string, Set<string>> = {
 	// Gemini from the LLM Scraper API — all four scrape a live surface. There is
 	// no Perplexity scraper on either.
 	"dataforseo-scraper": new Set(["google-ai-mode", "google-ai-overview", "chatgpt", "gemini"]),
-	// Claude is reachable via LLM Responses but Elmo doesn't track it there.
+	// Claude is reachable via LLM Responses but Redemptia doesn't track it there.
 	"dataforseo-api": new Set(["chatgpt", "perplexity", "gemini", "claude"]),
 };
 
 export type CellAvailability = "tracked" | "untracked" | "unavailable";
 
 // Classify a model × provider-category combination independent of run data:
-// "tracked" when Elmo runs it, "unavailable" when the combination can't exist,
-// "untracked" when it could exist but Elmo doesn't currently run it.
+// "tracked" when Redemptia runs it, "unavailable" when the combination can't exist,
+// "untracked" when it could exist but Redemptia doesn't currently run it.
 function cellAvailability(model: string, provider: string, hasTarget: boolean): CellAvailability {
 	if (hasTarget) return "tracked";
 	// Categories with a fixed collector list reach only those surfaces.

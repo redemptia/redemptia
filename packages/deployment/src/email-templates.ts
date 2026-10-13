@@ -54,9 +54,9 @@ export function verificationEmail(input: { url: string }): EmailContent {
 export function passwordResetEmail(input: { url: string }): EmailContent {
 	const { url } = input;
 	return {
-		subject: "Reset your Elmo password",
+		subject: "Reset your Redemptia password",
 		html: wrapHtml("Reset your password", "Click the button below to choose a new password.", url),
-		text: `Reset your Elmo password by visiting this link: ${url}`,
+		text: `Reset your Redemptia password by visiting this link: ${url}`,
 	};
 }
 
@@ -65,13 +65,13 @@ export function invitationEmail(input: { inviterName: string; orgName: string; u
 	const safeInviterName = escapeHtml(inviterName);
 	const safeOrgName = escapeHtml(orgName);
 	return {
-		subject: `${inviterName} invited you to ${orgName} on Elmo`,
+		subject: `${inviterName} invited you to ${orgName} on Redemptia`,
 		html: wrapHtml(
 			`You've been invited to join ${safeOrgName}`,
-			`${safeInviterName} invited you to join ${safeOrgName} on Elmo. Click the button below to accept.`,
+			`${safeInviterName} invited you to join ${safeOrgName} on Redemptia. Click the button below to accept.`,
 			url,
 		),
-		text: `${inviterName} invited you to join ${orgName} on Elmo. Accept the invitation here: ${url}`,
+		text: `${inviterName} invited you to join ${orgName} on Redemptia. Accept the invitation here: ${url}`,
 	};
 }
 
@@ -79,7 +79,7 @@ export function paymentFailedEmail(input: { orgName: string; graceDays: number; 
 	const { orgName, graceDays, url } = input;
 	const safeOrgName = escapeHtml(orgName);
 	return {
-		subject: `Payment failed for ${orgName} on Elmo`,
+		subject: `Payment failed for ${orgName} on Redemptia`,
 		html: wrapHtml(
 			"Payment failed",
 			`We couldn't renew the subscription for the ${safeOrgName} organization. Tracking continues while Stripe retries, but it pauses after ${graceDays} days unless a payment succeeds — update your card in the billing portal to avoid an interruption.`,
@@ -94,7 +94,7 @@ export function paymentRecoveredEmail(input: { orgName: string; url: string }): 
 	const { orgName, url } = input;
 	const safeOrgName = escapeHtml(orgName);
 	return {
-		subject: `Payment received for ${orgName} on Elmo`,
+		subject: `Payment received for ${orgName} on Redemptia`,
 		html: wrapHtml(
 			"You're all set",
 			`Payment for the ${safeOrgName} organization went through and the subscription is active again. No further action is needed.`,
@@ -109,7 +109,7 @@ export function subscriptionEndedEmail(input: { orgName: string; url: string }):
 	const { orgName, url } = input;
 	const safeOrgName = escapeHtml(orgName);
 	return {
-		subject: `Your Elmo subscription for ${orgName} has ended`,
+		subject: `Your Redemptia subscription for ${orgName} has ended`,
 		html: wrapHtml(
 			"Subscription ended",
 			`The subscription for the ${safeOrgName} organization has ended, so prompt tracking is stopped. Your existing data stays viewable, and choosing a plan restarts tracking.`,

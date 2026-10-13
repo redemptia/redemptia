@@ -1,4 +1,4 @@
-# Elmo 
+# Redemptia 
 # Supports: web app (Nitro server) and worker
 
 # Base stage with Node.js
@@ -67,16 +67,16 @@ ENV NODE_ENV=production
 
 # Create non-root user
 RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 elmo
+RUN adduser --system --uid 1001 redemptia
 
 # Copy entrypoint script
 COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 # Copy Nitro output - this is the entire server bundle
-COPY --from=web-build --chown=elmo:nodejs /app/apps/web/.output ./.output
+COPY --from=web-build --chown=redemptia:nodejs /app/apps/web/.output ./.output
 
-USER elmo
+USER redemptia
 
 EXPOSE 3000
 ENV PORT=3000

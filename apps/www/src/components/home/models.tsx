@@ -34,11 +34,11 @@ export function ModelCoverage() {
 				<div className="lg:col-span-5">
 					<SectionHeading
 						title="Every answer engine your buyers use."
-						lede="Elmo both scrapes what real users see in popular AI search tools and captures all other models with direct API calls and OpenRouter."
+						lede="Redemptia both scrapes what real users see in popular AI search tools and captures all other models with direct API calls and OpenRouter."
 					/>
 				</div>
 				<div className="lg:col-span-7">
-					<ul className="grid grid-cols-2 gap-2.5 sm:grid-cols-3" aria-label="AI engines Elmo tracks">
+					<ul className="grid grid-cols-2 gap-2.5 sm:grid-cols-3" aria-label="AI engines Redemptia tracks">
 						{ENGINES.map((m) => (
 							<Tile key={m.name} {...m} />
 						))}

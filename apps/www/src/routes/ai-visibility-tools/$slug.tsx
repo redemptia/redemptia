@@ -7,9 +7,9 @@ import {
 	breadcrumbJsonLd,
 	canonicalUrl,
 	comparisonJsonLd,
-	ELMO_LISTING,
 	faqJsonLd,
 	ogMeta,
+	REDEMPTIA_LISTING,
 	softwareApplicationJsonLd,
 } from "@/lib/seo";
 
@@ -22,8 +22,8 @@ export const Route = createFileRoute("/ai-visibility-tools/$slug")({
 	head: ({ params, loaderData }) => {
 		if (!loaderData) return {};
 		const { competitor, faqs, noindex } = loaderData;
-		const title = `Elmo vs ${competitor.name} | AI Visibility Tool Comparison · Elmo`;
-		const description = `Compare Elmo and ${competitor.name} for AI visibility tracking. Feature-by-feature breakdown, pricing, and key differences.`;
+		const title = `Redemptia vs ${competitor.name} | AI Visibility Tool Comparison · Redemptia`;
+		const description = `Compare Redemptia and ${competitor.name} for AI visibility tracking. Feature-by-feature breakdown, pricing, and key differences.`;
 		const path = `/ai-visibility-tools/${params.slug}`;
 		const meta = [{ title }, { name: "description", content: description }, ...ogMeta({ title, description, path })];
 		if (noindex) {
@@ -36,10 +36,10 @@ export const Route = createFileRoute("/ai-visibility-tools/$slug")({
 				breadcrumbJsonLd([
 					{ name: "Home", path: "/" },
 					{ name: "AI Visibility Tool Directory", path: "/ai-visibility-tools" },
-					{ name: `Elmo vs ${competitor.name}`, path },
+					{ name: `Redemptia vs ${competitor.name}`, path },
 				]),
 				faqJsonLd(faqs),
-				comparisonJsonLd([ELMO_LISTING, { name: competitor.name, url: competitor.url }]),
+				comparisonJsonLd([REDEMPTIA_LISTING, { name: competitor.name, url: competitor.url }]),
 				softwareApplicationJsonLd(),
 			],
 		};

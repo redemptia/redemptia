@@ -7,7 +7,7 @@ import { openapi } from "@/lib/openapi";
 // so the full operation list shows as soon as the user expands "API".
 function apiTagFoldersOpenByDefault(): LoaderPlugin {
 	return {
-		name: "elmo:api-tag-folders-open",
+		name: "redemptia:api-tag-folders-open",
 		transformPageTree: {
 			folder(node, folderPath) {
 				if (folderPath.startsWith("api/")) {

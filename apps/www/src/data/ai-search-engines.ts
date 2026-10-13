@@ -8,7 +8,7 @@ export interface AiSearchEngine {
 	intro: string[];
 	/** Steps to improve your odds of appearing. Emitted as HowTo JSON-LD. */
 	steps: { name: string; text: string }[];
-	/** How Elmo tracks this engine. */
+	/** How Redemptia tracks this engine. */
 	tracking: string;
 	related?: string[];
 }
@@ -46,7 +46,7 @@ export const aiSearchEngines: AiSearchEngine[] = [
 			},
 		],
 		tracking:
-			"Elmo runs your prompts through ChatGPT on a schedule and records whether it mentions your brand, cites your site, and how it frames you. Tracking the same prompts repeatedly turns noisy one-off answers into a trend you can act on.",
+			"Redemptia runs your prompts through ChatGPT on a schedule and records whether it mentions your brand, cites your site, and how it frames you. Tracking the same prompts repeatedly turns noisy one-off answers into a trend you can act on.",
 		related: ["perplexity", "google-ai-overviews", "claude"],
 	},
 	{
@@ -81,7 +81,7 @@ export const aiSearchEngines: AiSearchEngine[] = [
 			},
 		],
 		tracking:
-			"Elmo queries Perplexity with your prompts and logs every citation and mention, so you can see exactly which pages get pulled into answers and where rivals are winning the citation instead.",
+			"Redemptia queries Perplexity with your prompts and logs every citation and mention, so you can see exactly which pages get pulled into answers and where rivals are winning the citation instead.",
 		related: ["chatgpt", "claude", "google-ai-overviews"],
 	},
 	{
@@ -116,7 +116,7 @@ export const aiSearchEngines: AiSearchEngine[] = [
 			},
 		],
 		tracking:
-			"Elmo tracks whether your brand appears in Google AI Overviews for your prompts, which sources are cited alongside or instead of you, and how that changes over time.",
+			"Redemptia tracks whether your brand appears in Google AI Overviews for your prompts, which sources are cited alongside or instead of you, and how that changes over time.",
 		related: ["gemini", "chatgpt", "perplexity"],
 	},
 	{
@@ -151,7 +151,7 @@ export const aiSearchEngines: AiSearchEngine[] = [
 			},
 		],
 		tracking:
-			"Elmo runs your prompts through Google's Gemini-powered surfaces and records how your brand is mentioned and cited, so you can tell where you appear and where you are missing.",
+			"Redemptia runs your prompts through Google's Gemini-powered surfaces and records how your brand is mentioned and cited, so you can tell where you appear and where you are missing.",
 		related: ["google-ai-overviews", "chatgpt"],
 	},
 	{
@@ -186,7 +186,7 @@ export const aiSearchEngines: AiSearchEngine[] = [
 			},
 		],
 		tracking:
-			"Elmo queries Claude with your prompts and records its mentions, citations, and framing of your brand, so an inaccurate or stale description does not go unnoticed.",
+			"Redemptia queries Claude with your prompts and records its mentions, citations, and framing of your brand, so an inaccurate or stale description does not go unnoticed.",
 		related: ["chatgpt", "perplexity"],
 	},
 	{
@@ -221,7 +221,7 @@ export const aiSearchEngines: AiSearchEngine[] = [
 			},
 		],
 		tracking:
-			"Elmo tracks how Microsoft Copilot mentions and cites your brand across your prompts, so you can see the payoff from Bing-side improvements over time.",
+			"Redemptia tracks how Microsoft Copilot mentions and cites your brand across your prompts, so you can see the payoff from Bing-side improvements over time.",
 		related: ["chatgpt", "google-ai-overviews"],
 	},
 	{
@@ -256,7 +256,7 @@ export const aiSearchEngines: AiSearchEngine[] = [
 			},
 		],
 		tracking:
-			"Elmo runs your prompts through Grok and records its mentions, citations, and framing, so you can monitor a fast-moving, social-driven surface alongside the rest.",
+			"Redemptia runs your prompts through Grok and records its mentions, citations, and framing, so you can monitor a fast-moving, social-driven surface alongside the rest.",
 		related: ["chatgpt", "perplexity"],
 	},
 ];

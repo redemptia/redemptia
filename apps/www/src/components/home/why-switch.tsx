@@ -1,8 +1,8 @@
 const FACTS = [
-	{ lead: "More Data", rest: "Elmo runs every prompt against models 4× daily." },
+	{ lead: "More Data", rest: "Redemptia runs every prompt against models 4× daily." },
 	{ lead: "No Bloat", rest: "We only do AEO / GEO, but we do it very well." },
 	{ lead: "Unlimited Seats", rest: "For your whole team on every plan." },
-	{ lead: "API + MCP", rest: "Fit Elmo into your stack and agents." },
+	{ lead: "API + MCP", rest: "Fit Redemptia into your stack and agents." },
 	{ lead: "Open Source", rest: "Self host at any time, with no lock-in." },
 ];
 
@@ -14,7 +14,7 @@ export function WhySwitch() {
 					id="why-switch"
 					className="text-center text-2xl font-semibold tracking-[-0.025em] text-zinc-950 md:text-3xl"
 				>
-					Why Teams Switch to Elmo
+					Why Teams Switch to Redemptia
 				</h2>
 				<ul className="mt-10 grid gap-px overflow-hidden rounded-2xl bg-zinc-200/80 ring-1 ring-zinc-200/80 sm:grid-cols-2 lg:grid-cols-5">
 					{FACTS.map((f) => (

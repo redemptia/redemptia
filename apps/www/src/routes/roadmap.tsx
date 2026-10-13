@@ -6,11 +6,11 @@ import upcomingData from "@/data/upcoming-features.json";
 import { type RoadmapIssue as GitHubRoadmapIssue, getGitHubRoadmap } from "@/lib/github-roadmap";
 import { breadcrumbJsonLd, canonicalUrl, ogMeta } from "@/lib/seo";
 
-const title = "Roadmap · Elmo";
-const description = "See what's coming next for Elmo. React or comment on GitHub issues to help prioritize.";
+const title = "Roadmap · Redemptia";
+const description = "See what's coming next for Redemptia. React or comment on GitHub issues to help prioritize.";
 
-const PROJECT_BOARD_URL = "https://github.com/orgs/elmohq/projects/3/views/1";
-const ISSUES_URL = "https://github.com/elmohq/elmo/issues";
+const PROJECT_BOARD_URL = "https://github.com/orgs/redemptia/projects/3/views/1";
+const ISSUES_URL = "https://github.com/redemptia/redemptia/issues";
 
 interface UpcomingHighlight {
 	title: string;
@@ -158,7 +158,7 @@ function RoadmapPage() {
 							What's coming next.
 						</h1>
 						<p className="mt-5 max-w-[58ch] text-pretty text-lg text-zinc-600">
-							We build Elmo in the open. Vote on what matters by reacting on GitHub.
+							We build Redemptia in the open. Vote on what matters by reacting on GitHub.
 						</p>
 						<div className="mt-7 flex flex-wrap items-center gap-2">
 							<a
@@ -172,7 +172,7 @@ function RoadmapPage() {
 								<ArrowUpRight className="size-3.5" />
 							</a>
 							<a
-								href="https://github.com/elmohq/elmo/issues/new"
+								href="https://github.com/redemptia/redemptia/issues/new"
 								target="_blank"
 								rel="noopener noreferrer"
 								className="inline-flex h-8 items-center gap-1.5 rounded-md bg-white px-3 text-sm font-medium leading-none text-zinc-900 ring-1 ring-zinc-200 hover:bg-zinc-50 hover:ring-zinc-300"

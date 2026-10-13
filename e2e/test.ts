@@ -10,7 +10,7 @@ export type ConsoleErrorPattern = string | RegExp;
  * load it. Letting the browser fetch it makes the suite depend on which origins
  * Crisp's CDN is willing to serve — it answers localhost:1515 and refuses the
  * ports the other modes run on, which is nothing this suite has an opinion
- * about. support-chat.spec.ts asserts on the loader Elmo installs, and that is
+ * about. support-chat.spec.ts asserts on the loader Redemptia installs, and that is
  * in the DOM either way.
  */
 export const CRISP_HOSTS = "**://*.crisp.chat/**";

@@ -29,7 +29,7 @@ async function confirmStaleCli(cliVersion: string, assumeYes: boolean | undefine
 
 	log.warn(`Your CLI (${cliVersion}) is behind the latest published version (${latestCli}).`);
 	log.info("Recommended: upgrade the CLI first, then rerun this command:");
-	console.log(`  ${pc.bold("npm install -g @elmohq/cli@latest")}`);
+	console.log(`  ${pc.bold("npm install -g @redemptia/cli@latest")}`);
 	const proceed = assumeYes
 		? true
 		: await p.confirm({
@@ -38,7 +38,7 @@ async function confirmStaleCli(cliVersion: string, assumeYes: boolean | undefine
 			});
 	assertNotCancelled(proceed);
 	if (!proceed) {
-		p.cancel("Upgrade cancelled. Upgrade the CLI and rerun `elmo upgrade`.");
+		p.cancel("Upgrade cancelled. Upgrade the CLI and rerun `redemptia upgrade`.");
 		process.exit(0);
 	}
 }
@@ -96,9 +96,9 @@ async function applyUpgradeMigrations(
 		await runMigrations(plan, ctx);
 	} catch (error) {
 		log.error(`Migration failed: ${error instanceof Error ? error.message : String(error)}`);
-		log.info("Your config version was left unchanged. Fix the issue and rerun `elmo upgrade`.");
+		log.info("Your config version was left unchanged. Fix the issue and rerun `redemptia upgrade`.");
 		if (wasRunning) {
-			log.info("The stack was stopped for the upgrade. Restart with `elmo compose up -d` after fixing.");
+			log.info("The stack was stopped for the upgrade. Restart with `redemptia compose up -d` after fixing.");
 		}
 		process.exit(1);
 	}
@@ -106,7 +106,7 @@ async function applyUpgradeMigrations(
 
 async function restartAfterUpgrade(configDir: string, wasRunning: boolean): Promise<void> {
 	if (!wasRunning) {
-		log.info("Stack was stopped before upgrade — leaving it stopped. Start with `elmo compose up -d`.");
+		log.info("Stack was stopped before upgrade — leaving it stopped. Start with `redemptia compose up -d`.");
 		return;
 	}
 	log.step("Starting services...");
@@ -122,13 +122,13 @@ async function restartAfterUpgrade(configDir: string, wasRunning: boolean): Prom
 }
 export async function runUpgrade(options: UpgradeOptions, cliVersion: string): Promise<void> {
 	printBanner();
-	p.intro(pc.bold("Upgrading Elmo"));
+	p.intro(pc.bold("Upgrading Redemptia"));
 
 	await confirmStaleCli(cliVersion, options.yes);
 
 	// ── Resolve config + the version it was last rendered with ───────────
 	const configDir = await resolveConfigDir(options.dir);
-	const composePath = path.join(configDir, "elmo.yaml");
+	const composePath = path.join(configDir, "redemptia.yaml");
 	const detectedVersion = await readRenderedVersion(composePath);
 	const fromVersion = detectedVersion ?? cliVersion;
 	if (!semver.valid(fromVersion)) {
@@ -138,7 +138,7 @@ export async function runUpgrade(options: UpgradeOptions, cliVersion: string): P
 	if (semver.gt(fromVersion, cliVersion)) {
 		log.warn(`Your deployment (${fromVersion}) is newer than this CLI (${cliVersion}).`);
 		log.info("Upgrade the CLI to match, then rerun:");
-		console.log(`  ${pc.bold("npm install -g @elmohq/cli@latest")}`);
+		console.log(`  ${pc.bold("npm install -g @redemptia/cli@latest")}`);
 		process.exit(1);
 	}
 
@@ -178,7 +178,7 @@ export async function runUpgrade(options: UpgradeOptions, cliVersion: string): P
 
 	// ── Pull new images (dev builds from source, so nothing to pull) ─────
 	if (isDev) {
-		log.info("Dev mode detected — rebuild with `elmo compose build` to apply the new version.");
+		log.info("Dev mode detected — rebuild with `redemptia compose build` to apply the new version.");
 	} else {
 		log.step("Pulling images...");
 		await runDockerCompose(configDir, ["pull"]);

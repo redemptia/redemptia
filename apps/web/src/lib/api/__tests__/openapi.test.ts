@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { deploymentOpenApiSpec } from "../openapi";
 
-const ELMO = { name: "Elmo", url: "https://app.redemptia.example" };
+const REDEMPTIA = { name: "Redemptia", url: "https://app.redemptia.example" };
 const AGENCY = { name: "Acme Visibility", url: "https://visibility.acme.com" };
 
 describe("deploymentOpenApiSpec", () => {
 	it("answers with the host the spec was fetched from", () => {
-		const spec = deploymentOpenApiSpec(ELMO, "https://app.redemptia.example");
+		const spec = deploymentOpenApiSpec(REDEMPTIA, "https://app.redemptia.example");
 
-		expect(spec.servers).toEqual([{ url: "https://app.redemptia.example/api/v1", description: "Elmo API" }]);
+		expect(spec.servers).toEqual([{ url: "https://app.redemptia.example/api/v1", description: "Redemptia API" }]);
 	});
 
 	it("does not leak the vendor into a whitelabel deployment", () => {
@@ -23,7 +23,7 @@ describe("deploymentOpenApiSpec", () => {
 	});
 
 	it("serves a self-hosted instance its own address, port and all", () => {
-		const spec = deploymentOpenApiSpec({ name: "Elmo", url: "http://localhost:3000" }, "http://localhost:3000");
+		const spec = deploymentOpenApiSpec({ name: "Redemptia", url: "http://localhost:3000" }, "http://localhost:3000");
 
 		expect(spec.servers?.[0].url).toBe("http://localhost:3000/api/v1");
 	});
@@ -32,14 +32,14 @@ describe("deploymentOpenApiSpec", () => {
 	// request landed, and a stale one must not send callers somewhere they
 	// cannot reach.
 	it("takes the server from the request even when the configured URL differs", () => {
-		const spec = deploymentOpenApiSpec(ELMO, "https://staging.redemptia.example");
+		const spec = deploymentOpenApiSpec(REDEMPTIA, "https://staging.redemptia.example");
 
 		expect(spec.servers?.[0].url).toBe("https://staging.redemptia.example/api/v1");
-		expect(spec.info.contact).toEqual(ELMO);
+		expect(spec.info.contact).toEqual(REDEMPTIA);
 	});
 
 	it("leaves the operations alone", () => {
-		const spec = deploymentOpenApiSpec(ELMO, "https://app.redemptia.example");
+		const spec = deploymentOpenApiSpec(REDEMPTIA, "https://app.redemptia.example");
 
 		expect(Object.keys(spec.paths as object)).toContain("/brands");
 	});

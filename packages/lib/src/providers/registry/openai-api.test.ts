@@ -91,7 +91,7 @@ describe("openai-api stored payload", () => {
 				id: "ws_1",
 				type: "web_search_call",
 				status: "completed",
-				action: { type: "search", query: "elmo aeo", queries: ["elmo aeo", "elmo pricing"] },
+				action: { type: "search", query: "redemptia aeo", queries: ["redemptia aeo", "redemptia pricing"] },
 			},
 			{
 				id: "msg_1",
@@ -149,11 +149,11 @@ describe("openai-api web queries", () => {
 	}
 
 	it("reports the query the provider-run search actually issued", async () => {
-		aiMock.generateText.mockResolvedValue(searchResult({ type: "search", query: "elmo aeo" }));
+		aiMock.generateText.mockResolvedValue(searchResult({ type: "search", query: "redemptia aeo" }));
 
 		const res = await openaiApi.run("chatgpt", "prompt", { webSearch: true, version: "gpt-5-mini" });
 
-		expect(res.webQueries).toEqual(["elmo aeo"]);
+		expect(res.webQueries).toEqual(["redemptia aeo"]);
 	});
 
 	it("reports every query when the search fans out", async () => {

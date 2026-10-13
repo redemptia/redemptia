@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { SITE_URL } from "@/lib/seo";
 import { aeoVerticals } from "@/data/aeo-verticals";
 import { aiSearchEngines } from "@/data/ai-search-engines";
 import { glossaryTerms } from "@/data/glossary";
@@ -17,8 +16,8 @@ import {
 	indexedCompetitors,
 	isLowDR,
 } from "@/lib/competitors";
+import { SITE_URL } from "@/lib/seo";
 import { source } from "@/lib/source";
-
 
 interface SitemapEntry {
 	path: string;

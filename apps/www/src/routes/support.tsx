@@ -7,11 +7,12 @@ import { Navbar } from "@/components/navbar";
 import { externalRel } from "@/lib/external-link";
 import { breadcrumbJsonLd, canonicalUrl, ogMeta } from "@/lib/seo";
 
-const title = "Support · Elmo";
-const description = "Get help with Elmo: report bugs and request features on GitHub, or report a vulnerability privately.";
+const title = "Support · Redemptia";
+const description =
+	"Get help with Redemptia: report bugs and request features on GitHub, or report a vulnerability privately.";
 
-const GITHUB_ISSUES_URL = "https://github.com/elmohq/elmo/issues";
-const SECURITY_REPORT_URL = "https://github.com/elmohq/elmo/security/advisories/new";
+const GITHUB_ISSUES_URL = "https://github.com/redemptia/redemptia/issues";
+const SECURITY_REPORT_URL = "https://github.com/redemptia/redemptia/security/advisories/new";
 
 export const Route = createFileRoute("/support")({
 	head: () => ({
@@ -81,14 +82,14 @@ function SupportPage() {
 					<p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">/ SUPPORT</p>
 					<h1 className="font-heading text-4xl text-zinc-950 lg:text-5xl">Support</h1>
 					<p className="max-w-2xl text-lg text-balance text-zinc-600">
-						Questions about your account, billing, the MCP server, or self-hosting Elmo? Here is how to reach us.
+						Questions about your account, billing, the MCP server, or self-hosting Redemptia? Here is how to reach us.
 					</p>
 				</header>
 
 				<section className="mb-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 					<ContactCard
 						heading="Bugs and feature requests"
-						body="Elmo is open source. Report bugs and request features on GitHub, where you can follow the fix."
+						body="Redemptia is open source. Report bugs and request features on GitHub, where you can follow the fix."
 						action={<ExternalButton href={GITHUB_ISSUES_URL}>Open an issue</ExternalButton>}
 					/>
 					<ContactCard
@@ -105,7 +106,7 @@ function SupportPage() {
 						<ResourceLink
 							href="/docs/api/mcp"
 							label="MCP server"
-							detail="Connecting Elmo to ChatGPT, Claude, Cursor, and other clients."
+							detail="Connecting Redemptia to ChatGPT, Claude, Cursor, and other clients."
 						/>
 						<ResourceLink href="/status" label="Provider status" detail="How each AI provider integration is doing." />
 					</div>

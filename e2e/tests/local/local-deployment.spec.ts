@@ -3,7 +3,7 @@
  *
  * A local instance is single-user by design: exactly one account is ever
  * created, there is no public signup, no team invitations, and no billing. It
- * ships the full report generator and the stock Elmo branding, and it lets the
+ * ships the full report generator and the stock Redemptia branding, and it lets the
  * operator create as many brands as they like.
  */
 import { ABORTED_SSR_STREAM, expect, failedResource, test } from "../../test";
@@ -117,29 +117,29 @@ test.describe("Local features", () => {
     await page.waitForURL(/\/app$/, { timeout: 30_000 });
   });
 
-  test("stock Elmo branding is used", async ({ page }) => {
+  test("stock Redemptia branding is used", async ({ page }) => {
     await page.goto(`${brandUrl()}`);
 
-    // The Elmo wordmark, not a whitelabel icon + name.
-    await expect(page.getByText("elmo", { exact: true }).first()).toBeVisible({ timeout: 30_000 });
+    // The Redemptia wordmark, not a whitelabel icon + name.
+    await expect(page.getByText("redemptia", { exact: true }).first()).toBeVisible({ timeout: 30_000 });
     // Self-hosters get the version and project links a whitelabel build hides.
-    await expect(page.locator('a[href="https://github.com/elmohq/elmo"]')).toBeVisible();
+    await expect(page.locator('a[href="https://github.com/redemptia/redemptia"]')).toBeVisible();
   });
 
-  test("the web manifest carries the Elmo icons", async ({ request }) => {
+  test("the web manifest carries the Redemptia icons", async ({ request }) => {
     const response = await request.get("/api/manifest");
     expect(response.status()).toBe(200);
 
     const manifest = (await response.json()) as { short_name: string; icons: { src: string }[] };
-    expect(manifest.short_name).toBe("Elmo");
-    expect(manifest.icons.some((icon) => icon.src.startsWith("/icons/elmo-icon"))).toBe(true);
+    expect(manifest.short_name).toBe("Redemptia");
+    expect(manifest.icons.some((icon) => icon.src.startsWith("/icons/redemptia-icon"))).toBe(true);
   });
 
   test("an installed app launches at the app root, not the manifest's own directory", async ({ request }) => {
     const response = await request.get("/api/manifest");
     const manifest = (await response.json()) as { start_url: string; scope: string };
 
-    const manifestUrl = "https://elmo.test/api/manifest";
+    const manifestUrl = "https://redemptia.test/api/manifest";
     expect(new URL(manifest.start_url, manifestUrl).pathname).toBe("/");
     expect(new URL(manifest.scope, manifestUrl).pathname).toBe("/");
   });

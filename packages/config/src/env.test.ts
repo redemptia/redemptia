@@ -46,16 +46,16 @@ describe("cloud env requirements", () => {
 	it("does not flag the cloud vars once they are set", () => {
 		const env: Record<string, string> = {
 			DEPLOYMENT_MODE: "cloud",
-			DATABASE_URL: "postgres://localhost/elmo",
+			DATABASE_URL: "postgres://localhost/redemptia",
 			BETTER_AUTH_SECRET: "secret",
 			SCRAPE_TARGETS: "chatgpt:olostep:online",
-			APP_URL: "https://app.elmo.com/",
+			APP_URL: "https://app.redemptia.com/",
 			STRIPE_SECRET_KEY: "sk_test_x",
 			STRIPE_WEBHOOK_SECRET: "whsec_x",
 			RESEND_API_KEY: "re_test_x",
 			GOOGLE_CLIENT_ID: "test-google-client-id",
 			GOOGLE_CLIENT_SECRET: "test-google-client-secret",
-			RESEND_FROM_EMAIL: "Elmo <notifications@example.com>",
+			RESEND_FROM_EMAIL: "Redemptia <notifications@example.com>",
 		};
 		const { missing } = validateEnvRequirements(cloudReqs, env);
 		const missingIds = new Set(missing.map((entry) => entry.id));
@@ -119,7 +119,7 @@ describe("research provider requirement", () => {
 describe("requireEnvVars", () => {
 	it("reports every missing required env var at once", () => {
 		expect(() =>
-			requireEnvVars(["VITE_APP_NAME", "VITE_APP_ICON", "VITE_APP_URL"], { VITE_APP_URL: "https://app.elmo.com" }),
+			requireEnvVars(["VITE_APP_NAME", "VITE_APP_ICON", "VITE_APP_URL"], { VITE_APP_URL: "https://app.redemptia.com" }),
 		).toThrow("Missing required environment variables: VITE_APP_NAME, VITE_APP_ICON");
 	});
 
@@ -128,7 +128,7 @@ describe("requireEnvVars", () => {
 	});
 
 	it("returns the resolved values when every var is present", () => {
-		const env = { VITE_APP_NAME: "Acme", VITE_APP_URL: "https://app.elmo.com" };
+		const env = { VITE_APP_NAME: "Acme", VITE_APP_URL: "https://app.redemptia.com" };
 		expect(requireEnvVars(["VITE_APP_NAME", "VITE_APP_URL"], env)).toEqual(env);
 	});
 });
@@ -150,7 +150,7 @@ describe("assertRequiredEnv", () => {
 		expect(() =>
 			assertRequiredEnv({
 				DEPLOYMENT_MODE: "local",
-				DATABASE_URL: "postgres://localhost/elmo",
+				DATABASE_URL: "postgres://localhost/redemptia",
 				BETTER_AUTH_SECRET: "secret",
 				ELMO_ENCRYPTION_KEY: "key",
 				SCRAPE_TARGETS: "chatgpt:olostep:online",

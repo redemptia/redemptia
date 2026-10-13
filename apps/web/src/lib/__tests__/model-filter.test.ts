@@ -37,7 +37,7 @@ describe("getAvailableModels", () => {
 		]);
 	});
 
-	it("works for arbitrary deployment-configured model ids, not just the ones Elmo knows about", () => {
+	it("works for arbitrary deployment-configured model ids, not just the ones Redemptia knows about", () => {
 		expect(getAvailableModels([target("my-custom-model"), target("another-model")])).toEqual([
 			ALL_MODELS_VALUE,
 			"my-custom-model",

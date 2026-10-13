@@ -81,7 +81,7 @@ export async function composeUsesBuild(composePath: string): Promise<boolean> {
 
 export function runDockerCompose(configDir: string, args: string[]): Promise<void> {
 	return new Promise((resolve, reject) => {
-		const composeFile = path.join(configDir, "elmo.yaml");
+		const composeFile = path.join(configDir, "redemptia.yaml");
 		const commandArgs = ["compose", "-f", composeFile, ...args];
 		const child = spawn("docker", commandArgs, {
 			stdio: "inherit",
@@ -98,7 +98,7 @@ export function runDockerCompose(configDir: string, args: string[]): Promise<voi
 
 function runDockerComposeCapture(configDir: string, args: string[]): Promise<string> {
 	return new Promise((resolve, reject) => {
-		const composeFile = path.join(configDir, "elmo.yaml");
+		const composeFile = path.join(configDir, "redemptia.yaml");
 		const commandArgs = ["compose", "-f", composeFile, ...args];
 		const child = spawn("docker", commandArgs);
 		let stdout = "";

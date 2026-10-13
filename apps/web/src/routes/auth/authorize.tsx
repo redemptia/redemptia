@@ -78,7 +78,7 @@ function AuthorizePage() {
 
 	if (!client) {
 		return (
-			<FullPageCard title="Connect to Elmo" subtitle="This client isn't registered with this instance.">
+			<FullPageCard title="Connect to Redemptia" subtitle="This client isn't registered with this instance.">
 				<Alert variant="destructive">
 					<AlertDescription>
 						Continuing will not work — start the connection from your MCP client again.
@@ -89,7 +89,7 @@ function AuthorizePage() {
 	}
 
 	return (
-		<FullPageCard title="Connect to Elmo" subtitle={`${label} is asking to read and manage your Elmo data.`}>
+		<FullPageCard title="Connect to Redemptia" subtitle={`${label} is asking to read and manage your Redemptia data.`}>
 			<div className="w-full space-y-4">
 				{error && (
 					<Alert variant="destructive">
@@ -119,8 +119,8 @@ function AuthorizePage() {
 				{client.loopbackOnly && (
 					<Alert>
 						<AlertDescription>
-							This client runs on your computer, so Elmo can't tell which program is asking. Continue only if you just
-							started this from a client you trust.
+							This client runs on your computer, so Redemptia can't tell which program is asking. Continue only if you
+							just started this from a client you trust.
 						</AlertDescription>
 					</Alert>
 				)}

@@ -101,7 +101,7 @@ export const ENV_REGISTRY: EnvVarSpec[] = [
 		scope: "server",
 		requiredBy: ["cloud"],
 		description:
-			"Public base URL of the web app. Required in cloud (used for auth, email links, and Stripe redirects); written by `elmo init` for local.",
+			"Public base URL of the web app. Required in cloud (used for auth, email links, and Stripe redirects); written by `redemptia init` for local.",
 	},
 	{
 		name: "BETTER_AUTH_SECRET",
@@ -274,7 +274,7 @@ export const ENV_REGISTRY: EnvVarSpec[] = [
 	{
 		name: "ELMO_ENCRYPTION_KEY",
 		scope: "server",
-		// Local only: `elmo init` generates it and the CLI backfills it on
+		// Local only: `redemptia init` generates it and the CLI backfills it on
 		// upgrade, so every self-hosted deployment has one. The hosted modes are
 		// provisioned out of band and store no credentials of their own.
 		requiredBy: ["local"],
@@ -435,7 +435,19 @@ export const ENV_REGISTRY: EnvVarSpec[] = [
 		name: "VITE_POSTHOG_KEY",
 		scope: "client",
 		requiredBy: "optional",
-		description: "PostHog project API key override.",
+		description: "Your PostHog project API key for product analytics. Unset sends nothing.",
+	},
+	{
+		name: "POSTHOG_KEY",
+		scope: "server",
+		requiredBy: "optional",
+		description: "Your PostHog project API key for worker and CLI telemetry. Unset sends nothing.",
+	},
+	{
+		name: "VITE_CRISP_WEBSITE_ID",
+		scope: "client",
+		requiredBy: "optional",
+		description: "Your Crisp website ID for the support chat in cloud and demo modes. Unset shows no chat.",
 	},
 	{
 		name: "VITE_CHART_COLORS",
@@ -487,7 +499,7 @@ export const ENV_REGISTRY: EnvVarSpec[] = [
 		scope: "server",
 		requiredBy: ["cloud"],
 		description:
-			"Sender address for transactional email, in the form: Elmo <notifications@updates.example.com>. The domain must be verified in Resend.",
+			"Sender address for transactional email, in the form: Redemptia <notifications@updates.example.com>. The domain must be verified in Resend.",
 	},
 ];
 

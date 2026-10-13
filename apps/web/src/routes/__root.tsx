@@ -6,7 +6,7 @@ import titanOneFont from "@fontsource/titan-one/files/titan-one-latin-400-normal
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import type { QueryClient } from "@tanstack/react-query";
 import { createRootRouteWithContext, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
-import { DEFAULT_APP_ICON, ELMO_THEME_COLOR } from "@workspace/config/constants";
+import { DEFAULT_APP_ICON, REDEMPTIA_THEME_COLOR } from "@workspace/config/constants";
 import type { MissingEnvVar } from "@workspace/config/env";
 import type { DeploymentMode } from "@workspace/config/types";
 import { CookieConsentBanner } from "@workspace/ui/consent/cookie-consent-banner";
@@ -54,14 +54,14 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 		}
 
 		const hasCustomIcon = Boolean(branding?.icon && branding.icon !== DEFAULT_APP_ICON);
-		const appName = branding?.name || "Elmo";
-		const themeColor = hasCustomIcon ? "#000000" : ELMO_THEME_COLOR;
+		const appName = branding?.name || "Redemptia";
+		const themeColor = hasCustomIcon ? "#000000" : REDEMPTIA_THEME_COLOR;
 		const appUrl = branding?.url ? branding.url.replace(/\/$/, "") : undefined;
 
 		const title = `${appName} - AI Search Optimization`;
 		const description = "Track and optimize your brand's visibility across AI models.";
 		// Don't pass `title` to /api/og — the renderer already shows the brand
-		// (Elmo logo or whitelabel icon + name), so a "Brand - AI Search Optimization"
+		// (Redemptia logo or whitelabel icon + name), so a "Brand - AI Search Optimization"
 		// title would render redundantly. Pages that override og:image can supply
 		// a page-specific title via the query param.
 		const ogImageParams = new URLSearchParams({ description });
@@ -117,7 +117,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 				{ rel: "stylesheet", href: appCss },
 				{ rel: "manifest", href: "/api/manifest" },
 				// Whitelabel uses its own icon URL for both favicon and iOS touch;
-				// Elmo default uses the committed SVG + opaque 180×180 PNG.
+				// Redemptia default uses the committed SVG + opaque 180×180 PNG.
 				...(hasCustomIcon && branding?.icon
 					? [
 							{ rel: "icon", type: "image/png", href: branding.icon },
@@ -126,9 +126,9 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 					: [
 							// Icons live under /icons/ (not the root) so browsers' default
 							// probes for /favicon.ico and /apple-touch-icon.png 404 on
-							// whitelabel deployments instead of picking up Elmo assets.
-							{ rel: "icon", type: "image/svg+xml", href: "/icons/elmo-icon.svg" },
-							{ rel: "icon", type: "image/png", sizes: "96x96", href: "/icons/elmo-icon-96.png" },
+							// whitelabel deployments instead of picking up Redemptia assets.
+							{ rel: "icon", type: "image/svg+xml", href: "/icons/redemptia-icon.svg" },
+							{ rel: "icon", type: "image/png", sizes: "96x96", href: "/icons/redemptia-icon-96.png" },
 							{ rel: "icon", type: "image/x-icon", href: "/icons/favicon.ico" },
 							{ rel: "apple-touch-icon", href: "/icons/apple-touch-icon.png" },
 						]),
@@ -143,7 +143,7 @@ function RootComponent() {
 	const { envValidation, clientConfig, consentRegion } = Route.useRouteContext();
 	const clarityProjectId = clientConfig?.analytics?.clarityProjectId;
 	const posthogKey = clientConfig?.analytics?.posthogKey;
-	// Only Elmo Cloud asks: a self-hosted deployment is governed by whoever runs
+	// Only Redemptia Cloud asks: a self-hosted deployment is governed by whoever runs
 	// it, and its telemetry already has an operator-level opt-out.
 	const asksForConsent = clientConfig?.mode === "cloud";
 	// Null until the browser resolves it — the time-zone fallback would read the
@@ -191,9 +191,7 @@ function RootComponent() {
 			</head>
 			<body className="font-sans antialiased">
 				<Outlet />
-				{asksForConsent && consentRequired !== null && (
-					<CookieConsentBanner consentRequired={consentRequired} />
-				)}
+				{asksForConsent && consentRequired !== null && <CookieConsentBanner consentRequired={consentRequired} />}
 				<TanStackDevtools plugins={[queryDevtools]} />
 				<Scripts />
 			</body>

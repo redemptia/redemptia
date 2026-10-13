@@ -6,8 +6,9 @@ import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
 import { breadcrumbJsonLd, canonicalUrl, ogMeta } from "@/lib/seo";
 
-const title = "Brand · Elmo";
-const description = "Download Elmo logos, icons, and brand assets. Everything you need to represent the Elmo brand.";
+const title = "Brand · Redemptia";
+const description =
+	"Download Redemptia logos, icons, and brand assets. Everything you need to represent the Redemptia brand.";
 
 export const Route = createFileRoute("/brand")({
 	head: () => ({
@@ -40,22 +41,22 @@ interface BrandAsset {
 const icons: BrandAsset[] = [
 	{
 		label: "Icon",
-		filename: "elmo-icon-512.png",
-		path: "/brand/icons/elmo-icon-512.png",
-		svgPath: "/icons/elmo-icon.svg",
+		filename: "redemptia-icon-512.png",
+		path: "/brand/icons/redemptia-icon-512.png",
+		svgPath: "/icons/redemptia-icon.svg",
 		transparent: true,
 		preview: { bg: "#ffffff" },
 	},
 	{
 		label: "Icon — Dark",
-		filename: "elmo-icon-dark-512.png",
-		path: "/brand/icons/elmo-icon-dark-512.png",
+		filename: "redemptia-icon-dark-512.png",
+		path: "/brand/icons/redemptia-icon-dark-512.png",
 		preview: { bg: "#111827" },
 	},
 	{
 		label: "Icon — White",
-		filename: "elmo-icon-white-512.png",
-		path: "/brand/icons/elmo-icon-white-512.png",
+		filename: "redemptia-icon-white-512.png",
+		path: "/brand/icons/redemptia-icon-white-512.png",
 		preview: { bg: "#ffffff" },
 	},
 ];
@@ -63,21 +64,21 @@ const icons: BrandAsset[] = [
 const logos: BrandAsset[] = [
 	{
 		label: "Logo",
-		filename: "elmo-logo-xl.png",
-		path: "/brand/logos/elmo-logo-xl.png",
+		filename: "redemptia-logo-xl.png",
+		path: "/brand/logos/redemptia-logo-xl.png",
 		transparent: true,
 		preview: { bg: "#ffffff", padding: "p-8" },
 	},
 	{
 		label: "Logo — Dark",
-		filename: "elmo-logo-dark-xl.png",
-		path: "/brand/logos/elmo-logo-dark-xl.png",
+		filename: "redemptia-logo-dark-xl.png",
+		path: "/brand/logos/redemptia-logo-dark-xl.png",
 		preview: { bg: "#111827", padding: "p-8" },
 	},
 	{
 		label: "Logo — White",
-		filename: "elmo-logo-white-xl.png",
-		path: "/brand/logos/elmo-logo-white-xl.png",
+		filename: "redemptia-logo-white-xl.png",
+		path: "/brand/logos/redemptia-logo-white-xl.png",
 		preview: { bg: "#ffffff", padding: "p-8" },
 	},
 ];
@@ -170,8 +171,8 @@ function BrandPage() {
 					<p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">/ BRAND</p>
 					<h1 className="font-heading text-4xl text-zinc-950 lg:text-5xl">Brand Assets</h1>
 					<p className="max-w-2xl text-lg text-balance text-zinc-600">
-						Writing about Elmo or building an integration? Download official logos and icons to use in blog posts,
-						videos, partner pages, or anywhere you reference Elmo.
+						Writing about Redemptia or building an integration? Download official logos and icons to use in blog posts,
+						videos, partner pages, or anywhere you reference Redemptia.
 					</p>
 				</header>
 
@@ -247,7 +248,7 @@ function BrandPage() {
 							rel="noopener noreferrer"
 							className="group rounded-md border border-zinc-200 bg-white p-6 transition-colors hover:bg-zinc-50"
 						>
-							<p className="font-titan-one text-4xl lowercase text-blue-600">elmo</p>
+							<p className="font-titan-one text-4xl lowercase text-blue-600">redemptia</p>
 							<p className="mt-3 text-sm font-medium text-zinc-950 group-hover:text-blue-600">Titan One</p>
 							<p className="text-xs text-zinc-500">Used for the logo wordmark and icon glyph</p>
 						</a>
@@ -272,7 +273,7 @@ function BrandPage() {
 					</p>
 					<div className="mt-4 flex flex-wrap items-center justify-center gap-3">
 						<a
-							href="https://github.com/elmohq/elmo/issues/new"
+							href="https://github.com/redemptia/redemptia/issues/new"
 							target="_blank"
 							rel="noopener noreferrer"
 							className={buttonVariants({ variant: "outline", size: "sm" })}

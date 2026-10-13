@@ -21,7 +21,7 @@ import { join, resolve } from "node:path";
  *   pnpm --filter @workspace/lib compare:onboarding nike.com --max-prompts 30 --max-competitors 12
  *   pnpm --filter @workspace/lib compare:onboarding nike.com --only anthropic-api,openrouter
  *   pnpm --filter @workspace/lib compare:onboarding nike.com --skip mistral-api
- *   pnpm --filter @workspace/lib compare:onboarding nike.com --env-file ~/code/elmo/apps/web/.env
+ *   pnpm --filter @workspace/lib compare:onboarding nike.com --env-file ~/code/redemptia/apps/web/.env
  *
  * Reads `<repo>/apps/web/.env` and `<repo>/.env` automatically; --env-file
  * PATH overrides. Real env vars always win over .env entries.
@@ -285,7 +285,7 @@ function printUsage(): void {
 			"Example:",
 			"  pnpm --filter @workspace/lib compare:onboarding nike.com",
 			"  pnpm --filter @workspace/lib compare:onboarding nike.com --only anthropic-api,openrouter",
-			"  pnpm --filter @workspace/lib compare:onboarding nike.com --env-file ~/code/elmo/apps/web/.env",
+			"  pnpm --filter @workspace/lib compare:onboarding nike.com --env-file ~/code/redemptia/apps/web/.env",
 		].join("\n"),
 	);
 }

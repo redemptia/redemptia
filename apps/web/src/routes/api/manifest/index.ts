@@ -3,13 +3,13 @@
  *
  * Generates a manifest.json tailored to the current deployment mode:
  *   - Whitelabel: single 128×128 icon from the configured icon URL
- *   - Local/Demo (Elmo): static SVG icons committed to public/icons/
+ *   - Local/Demo (Redemptia): static SVG icons committed to public/icons/
  *
  * Branding values (name, theme color, etc.) are read from server config
  * so they stay in sync with the rest of the app.
  */
 import { createFileRoute } from "@tanstack/react-router";
-import { DEFAULT_APP_ICON, ELMO_BACKGROUND_COLOR, ELMO_THEME_COLOR } from "@workspace/config/constants";
+import { DEFAULT_APP_ICON, REDEMPTIA_BACKGROUND_COLOR, REDEMPTIA_THEME_COLOR } from "@workspace/config/constants";
 import { getDeployment } from "@workspace/deployment";
 
 interface ManifestIcon {
@@ -35,38 +35,38 @@ function buildManifest(): object {
 			},
 		];
 	} else {
-		// Elmo-only assets — never reference these from the whitelabel branch.
+		// Redemptia-only assets — never reference these from the whitelabel branch.
 		icons = [
 			{
-				src: "/icons/elmo-icon.svg",
+				src: "/icons/redemptia-icon.svg",
 				sizes: "any",
 				type: "image/svg+xml",
 			},
 			{
-				src: "/icons/elmo-icon-maskable.svg",
+				src: "/icons/redemptia-icon-maskable.svg",
 				sizes: "any",
 				type: "image/svg+xml",
 				purpose: "maskable",
 			},
 			// PWA installers on Android/Chrome require concrete PNG sizes.
 			{
-				src: "/icons/elmo-icon-192.png",
+				src: "/icons/redemptia-icon-192.png",
 				sizes: "192x192",
 				type: "image/png",
 			},
 			{
-				src: "/icons/elmo-icon-512.png",
+				src: "/icons/redemptia-icon-512.png",
 				sizes: "512x512",
 				type: "image/png",
 			},
 			{
-				src: "/icons/elmo-icon-maskable-192.png",
+				src: "/icons/redemptia-icon-maskable-192.png",
 				sizes: "192x192",
 				type: "image/png",
 				purpose: "maskable",
 			},
 			{
-				src: "/icons/elmo-icon-maskable-512.png",
+				src: "/icons/redemptia-icon-maskable-512.png",
 				sizes: "512x512",
 				type: "image/png",
 				purpose: "maskable",
@@ -74,7 +74,7 @@ function buildManifest(): object {
 		];
 	}
 
-	const themeColor = hasCustomIcon ? "#000000" : ELMO_THEME_COLOR;
+	const themeColor = hasCustomIcon ? "#000000" : REDEMPTIA_THEME_COLOR;
 
 	return {
 		short_name: branding.name,
@@ -84,7 +84,7 @@ function buildManifest(): object {
 		scope: "/",
 		display: "standalone",
 		theme_color: themeColor,
-		background_color: ELMO_BACKGROUND_COLOR,
+		background_color: REDEMPTIA_BACKGROUND_COLOR,
 	};
 }
 

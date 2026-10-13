@@ -1,5 +1,6 @@
 // The site operator's own Crisp inbox, set at build time; with none, no chat loads.
 const CRISP_WEBSITE_ID: string | undefined = import.meta.env.VITE_CRISP_WEBSITE_ID || undefined;
+
 import { afterPageIdle } from "./idle";
 
 type CrispCommand = unknown[];

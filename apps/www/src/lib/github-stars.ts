@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getRedis } from "./redis";
 
-const CACHE_KEY = "gh:stars:elmohq/elmo";
+const CACHE_KEY = "gh:stars:redemptia/redemptia";
 const TTL_SECONDS = 60 * 60;
 const ERROR_TTL_SECONDS = 60;
 const FALLBACK_STARS = 0;
@@ -11,9 +11,9 @@ export const getGitHubStars = createServerFn({ method: "GET" }).handler(async ()
 		const cached = await getRedis().get<number>(CACHE_KEY);
 		if (typeof cached === "number") return cached;
 
-		const res = await fetch("https://api.github.com/repos/elmohq/elmo", {
+		const res = await fetch("https://api.github.com/repos/redemptia/redemptia", {
 			headers: {
-				"User-Agent": "elmo-www",
+				"User-Agent": "redemptia-www",
 				Accept: "application/vnd.github+json",
 			},
 		});

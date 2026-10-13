@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { DirectoryBackLink, DirectoryHero, DirectorySection, ElmoCta } from "@/components/directory-shell";
+import { DirectoryBackLink, DirectoryHero, DirectorySection, RedemptiaCta } from "@/components/directory-shell";
 import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
 import {
@@ -12,7 +12,7 @@ import {
 } from "@/lib/competitors";
 import { breadcrumbJsonLd, canonicalUrl, itemListJsonLd, ogMeta } from "@/lib/seo";
 
-const title = "AI Visibility Tools by Feature · Elmo";
+const title = "AI Visibility Tools by Feature · Redemptia";
 const description =
 	"Browse AI visibility tools by capability: multi-LLM tracking, citation analytics, sentiment, white-label, and more. See which tools offer each feature.";
 
@@ -81,7 +81,7 @@ function FeatureHub() {
 						</ul>
 					</DirectorySection>
 				))}
-				<ElmoCta />
+				<RedemptiaCta />
 			</main>
 			<Footer />
 		</div>

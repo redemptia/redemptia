@@ -24,18 +24,18 @@ export function isOpenSource(competitor: Competitor): boolean {
 
 /**
  * A 40–60 word lead "answer block" for a comparison page, written to be lifted
- * verbatim into an AI answer for "Elmo vs {competitor}" style queries. Branches
+ * verbatim into an AI answer for "Redemptia vs {competitor}" style queries. Branches
  * on whether the competitor is itself open source so the claim stays accurate.
  */
 export function getComparisonVerdict(competitor: Competitor): string {
 	const name = competitor.name;
 
 	if (isOpenSource(competitor)) {
-		return `Elmo and ${name} are both open-source AI visibility tools you can self-host and audit. Elmo's focus is transparent, independently verifiable tracking across ChatGPT, Claude, Perplexity, and Google AI Overviews — with white-label support for agencies and a documented methodology behind every number.`;
+		return `Redemptia and ${name} are both open-source AI visibility tools you can self-host and audit. Redemptia's focus is transparent, independently verifiable tracking across ChatGPT, Claude, Perplexity, and Google AI Overviews — with white-label support for agencies and a documented methodology behind every number.`;
 	}
 
 	const noun = CATEGORY_NOUN[competitor.category];
-	return `Elmo is an open-source, self-hostable alternative to ${name}, ${indefiniteArticle(noun)} ${noun} tool. Both measure how AI answer engines describe your brand, but Elmo ships every line of code, runs on your own infrastructure, and is free to self-host — so your data stays yours and each metric is independently verifiable.`;
+	return `Redemptia is an open-source, self-hostable alternative to ${name}, ${indefiniteArticle(noun)} ${noun} tool. Both measure how AI answer engines describe your brand, but Redemptia ships every line of code, runs on your own infrastructure, and is free to self-host — so your data stays yours and each metric is independently verifiable.`;
 }
 
 /**
@@ -51,27 +51,27 @@ export function getComparisonFaqs(competitor: Competitor): FaqItem[] {
 	const faqs: FaqItem[] = [];
 
 	faqs.push({
-		question: `What is the difference between Elmo and ${name}?`,
+		question: `What is the difference between Redemptia and ${name}?`,
 		answer: openSource
-			? `Both Elmo and ${name} are open source, so you can self-host either one and inspect the code. Elmo focuses specifically on transparent, independently verifiable AI visibility tracking across every major answer engine, with white-label support for agencies and a fully documented methodology behind each number.`
-			: `Elmo is an open-source, self-hostable AI visibility platform, while ${name} is a closed-source ${noun} tool. Both track how AI answer engines describe your brand, but Elmo gives you the full source code and runs on your own infrastructure, so you can verify every metric and keep your data in-house.`,
+			? `Both Redemptia and ${name} are open source, so you can self-host either one and inspect the code. Redemptia focuses specifically on transparent, independently verifiable AI visibility tracking across every major answer engine, with white-label support for agencies and a fully documented methodology behind each number.`
+			: `Redemptia is an open-source, self-hostable AI visibility platform, while ${name} is a closed-source ${noun} tool. Both track how AI answer engines describe your brand, but Redemptia gives you the full source code and runs on your own infrastructure, so you can verify every metric and keep your data in-house.`,
 	});
 
 	faqs.push({
-		question: `Is Elmo a free, open-source alternative to ${name}?`,
-		answer: `Yes. Elmo is a free, open-source alternative to ${name}. You can self-host the full platform at no cost, read every line of code, and track your AI visibility across ChatGPT, Claude, Perplexity, Gemini, and Google AI Overviews without per-seat or per-prompt fees.`,
+		question: `Is Redemptia a free, open-source alternative to ${name}?`,
+		answer: `Yes. Redemptia is a free, open-source alternative to ${name}. You can self-host the full platform at no cost, read every line of code, and track your AI visibility across ChatGPT, Claude, Perplexity, Gemini, and Google AI Overviews without per-seat or per-prompt fees.`,
 	});
 
 	faqs.push({
 		question: `Is ${name} open source?`,
 		answer: openSource
-			? `Yes, ${name} is open source. Elmo is open source as well and is built specifically for self-hosted, independently verifiable AI visibility tracking, so you can audit exactly how each metric is calculated.`
-			: `No, ${name} is a closed-source, hosted product, so you cannot inspect how its metrics are calculated. Elmo is fully open source — you can audit the code, self-host it on your own infrastructure, and avoid vendor lock-in.`,
+			? `Yes, ${name} is open source. Redemptia is open source as well and is built specifically for self-hosted, independently verifiable AI visibility tracking, so you can audit exactly how each metric is calculated.`
+			: `No, ${name} is a closed-source, hosted product, so you cannot inspect how its metrics are calculated. Redemptia is fully open source — you can audit the code, self-host it on your own infrastructure, and avoid vendor lock-in.`,
 	});
 
 	faqs.push({
-		question: `Can I self-host Elmo instead of ${name}?`,
-		answer: `Yes. Elmo is designed to be self-hosted — deploy it on your own infrastructure in minutes with the CLI. You keep full ownership of your data and prompts, with no per-seat pricing and no third-party dashboard holding your visibility history.`,
+		question: `Can I self-host Redemptia instead of ${name}?`,
+		answer: `Yes. Redemptia is designed to be self-hosted — deploy it on your own infrastructure in minutes with the CLI. You keep full ownership of your data and prompts, with no per-seat pricing and no third-party dashboard holding your visibility history.`,
 	});
 
 	return faqs;

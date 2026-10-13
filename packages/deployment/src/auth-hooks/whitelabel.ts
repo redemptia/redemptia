@@ -6,13 +6,13 @@
  *
  * Auth0 is authoritative over who belongs where, not over which orgs exist:
  * orgs are created by the admin API (`POST /api/v1/brands`) before their users
- * sign in, so an `elmo_orgs` entry with no row here is skipped.
+ * sign in, so an `redemptia_orgs` entry with no row here is skipped.
  *
  * Data flow:
  * 1. User logs in via Auth0 SSO -> better-auth creates user + session
  * 2. provisionUser fires (before session cookie is set)
  * 3. Fetches app_metadata from Auth0 Management API
- * 4. Reconciles memberships against elmo_orgs
+ * 4. Reconciles memberships against redemptia_orgs
  * 5. Sets user admin role and report generator access flags
  * 6. Mutates the user object so the session cookie has correct data
  */
@@ -23,28 +23,28 @@ import { ManagementClient } from "auth0";
 import { z } from "zod";
 
 interface Auth0AppMetadata {
-	elmo_orgs: Array<{ id: string; name: string }>;
-	elmo_report_generator_access?: boolean;
-	elmo_admin?: boolean;
+	redemptia_orgs: Array<{ id: string; name: string }>;
+	redemptia_report_generator_access?: boolean;
+	redemptia_admin?: boolean;
 }
 
 let managementClient: ManagementClient | null = null;
 
 const Auth0AppMetadataSchema = z.object({
-	elmo_orgs: z.array(
+	redemptia_orgs: z.array(
 		z.object({
 			id: z.string().min(1),
 			name: z.string().min(1),
 		}),
 	),
-	elmo_report_generator_access: z.boolean().optional(),
-	elmo_admin: z.boolean().optional(),
+	redemptia_report_generator_access: z.boolean().optional(),
+	redemptia_admin: z.boolean().optional(),
 });
 
 const REVOKED_METADATA: Auth0AppMetadata = {
-	elmo_orgs: [],
-	elmo_report_generator_access: false,
-	elmo_admin: false,
+	redemptia_orgs: [],
+	redemptia_report_generator_access: false,
+	redemptia_admin: false,
 };
 
 function getManagementClient(): ManagementClient {
@@ -112,11 +112,11 @@ export async function syncAuth0User(
 	console.log(`[auth0-sync] Syncing user=${userId}`);
 	const metadata = await fetchAuth0AppMetadata(auth0UserId);
 
-	await syncOrganizations(userId, metadata.elmo_orgs);
+	await syncOrganizations(userId, metadata.redemptia_orgs);
 
 	const flags = {
-		role: metadata.elmo_admin ? "admin" : "user",
-		hasReportGeneratorAccess: metadata.elmo_report_generator_access ?? false,
+		role: metadata.redemptia_admin ? "admin" : "user",
+		hasReportGeneratorAccess: metadata.redemptia_report_generator_access ?? false,
 	};
 	await updateUserFlags(userId, flags);
 

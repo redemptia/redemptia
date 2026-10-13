@@ -18,7 +18,7 @@ export const Route = createFileRoute("/glossary/$slug")({
 	head: ({ loaderData }) => {
 		if (!loaderData) return {};
 		const t = loaderData.term;
-		const title = `What is ${t.term}? · Elmo`;
+		const title = `What is ${t.term}? · Redemptia`;
 		const description = t.short;
 		const path = `/glossary/${t.slug}`;
 		return {
@@ -116,7 +116,7 @@ function GlossaryTermPage() {
 					<div className="mx-auto max-w-3xl px-4 text-center md:px-6">
 						<h2 className="font-heading text-2xl text-zinc-950">See it in your own data</h2>
 						<p className="mx-auto mt-3 max-w-xl text-zinc-600">
-							Elmo is an open-source AI visibility platform. Self-host it for free and track how AI answer engines
+							Redemptia is an open-source AI visibility platform. Self-host it for free and track how AI answer engines
 							mention and cite your brand.
 						</p>
 						<div className="mt-6 flex flex-wrap justify-center gap-3">

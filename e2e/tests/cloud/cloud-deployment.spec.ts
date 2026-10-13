@@ -1,5 +1,5 @@
 /**
- * What makes an Elmo Cloud deployment different.
+ * What makes an Redemptia Cloud deployment different.
  *
  * Cloud is the multi-tenant hosted product: anyone allowed by the signup
  * allowlist can register, addresses must be verified before sign-in, teammates

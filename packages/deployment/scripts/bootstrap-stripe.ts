@@ -1,5 +1,5 @@
 /**
- * Provision a Stripe account (test or live) with the Elmo Cloud catalog:
+ * Provision a Stripe account (test or live) with the Redemptia Cloud catalog:
  * one product per plan plus the extra premium slots add-on, with monthly and
  * annual prices carrying the lookup keys the app resolves at checkout.
  *
@@ -43,7 +43,7 @@ function desiredCatalog(): DesiredPrice[] {
 		for (const [interval, usd, stripeInterval] of entries) {
 			prices.push({
 				lookupKey: stripePlanLookupKey(key, interval),
-				productName: `Elmo Cloud ${plan.name}`,
+				productName: `Redemptia Cloud ${plan.name}`,
 				productKey: key,
 				unitAmountUsd: usd,
 				interval: stripeInterval,
@@ -52,14 +52,14 @@ function desiredCatalog(): DesiredPrice[] {
 	}
 	prices.push({
 		lookupKey: PREMIUM_ADDON_LOOKUP_KEYS.monthly,
-		productName: "Elmo Cloud Extra Premium Prompts",
+		productName: "Redemptia Cloud Extra Premium Prompts",
 		productKey: "premium-addon",
 		unitAmountUsd: PREMIUM_ADDON_MONTHLY_USD,
 		interval: "month",
 	});
 	prices.push({
 		lookupKey: PREMIUM_ADDON_LOOKUP_KEYS.annual,
-		productName: "Elmo Cloud Extra Premium Prompts",
+		productName: "Redemptia Cloud Extra Premium Prompts",
 		productKey: "premium-addon",
 		unitAmountUsd: PREMIUM_ADDON_ANNUAL_USD,
 		interval: "year",
@@ -84,7 +84,7 @@ async function main() {
 
 	const products = await stripe.products.list({ limit: 100, active: true });
 	const productByKey = new Map(
-		products.data.filter((p) => p.metadata.elmo_catalog_key).map((p) => [p.metadata.elmo_catalog_key, p]),
+		products.data.filter((p) => p.metadata.redemptia_catalog_key).map((p) => [p.metadata.redemptia_catalog_key, p]),
 	);
 
 	for (const desired of catalog) {
@@ -98,7 +98,7 @@ async function main() {
 		if (!product) {
 			product = await stripe.products.create({
 				name: desired.productName,
-				metadata: { elmo_catalog_key: desired.productKey },
+				metadata: { redemptia_catalog_key: desired.productKey },
 			});
 			productByKey.set(desired.productKey, product);
 			console.log(`+ product ${desired.productName} → ${product.id}`);

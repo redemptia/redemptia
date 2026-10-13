@@ -17,7 +17,7 @@ beforeEach(() => {
 	vi.stubEnv("APP_URL", "https://app.example.com");
 	vi.stubEnv("GOOGLE_CLIENT_ID", "test-google-client-id");
 	vi.stubEnv("GOOGLE_CLIENT_SECRET", "test-google-client-secret");
-	vi.stubEnv("RESEND_FROM_EMAIL", "Elmo <notifications@example.com>");
+	vi.stubEnv("RESEND_FROM_EMAIL", "Redemptia <notifications@example.com>");
 	vi.stubEnv("RESEND_API_KEY", "re_test_x");
 	vi.stubEnv("STRIPE_SECRET_KEY", "sk_test_x");
 	vi.stubEnv("STRIPE_WEBHOOK_SECRET", "whsec_x");
@@ -86,7 +86,7 @@ describe("signup allowlist", () => {
 	});
 
 	it("matches case-insensitively", async () => {
-		await expect(signUp("Alice@Elmohq.com", "@ELMOHQ.COM")).resolves.toBeUndefined();
+		await expect(signUp("Alice@Redemptia.Example", "@REDEMPTIA.EXAMPLE")).resolves.toBeUndefined();
 	});
 
 	it("does not let a domain entry match a lookalike domain", async () => {

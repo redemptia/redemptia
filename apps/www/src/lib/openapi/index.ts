@@ -18,5 +18,5 @@ export const hostedSpec = {
 export const openapi = createOpenAPI({
 	// fumadocs-openapi v11 replaced the `() => SchemaMap` factory with a record
 	// of `name -> string | Document | (() => Awaitable<...>)`.
-	input: { "elmo-api": hostedSpec as OpenAPIV3_2.Document },
+	input: { "redemptia-api": hostedSpec as OpenAPIV3_2.Document },
 });

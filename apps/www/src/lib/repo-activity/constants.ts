@@ -2,7 +2,7 @@
 
 import { DEFAULT_CHART_COLORS } from "@workspace/config/constants";
 
-export const REPO = "elmohq/elmo";
+export const REPO = "redemptia/redemptia";
 
 /**
  * Response `Cache-Control` max-age: how often GitHub's Camo image proxy revalidates

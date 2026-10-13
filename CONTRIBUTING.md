@@ -1,4 +1,4 @@
-# Contributing to Elmo
+# Contributing to Redemptia
 
 Thanks for your interest in contributing! For minor fixes, feel free to
 open a PR directly. For anything larger, please open an issue first so
@@ -27,5 +27,5 @@ Please do not open a public issue for security vulnerabilities. Email
 
 ## Questions?
 
-- [GitHub Issues](https://github.com/elmohq/elmo/issues) — for bug reports
+- [GitHub Issues](https://github.com/redemptia/redemptia/issues) — for bug reports
   and feature requests.

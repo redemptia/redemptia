@@ -1,6 +1,6 @@
 ---
 title: Commands Reference
-description: All development scripts and commands for working on Elmo.
+description: All development scripts and commands for working on Redemptia.
 ---
 
 ## Development
@@ -52,8 +52,8 @@ database in `TEST_DATABASE_URL` and write to it, so they refuse to run unless it
 points at a local database whose name ends in `_test`:
 
 ```bash
-createdb elmo_test
-TEST_DATABASE_URL=postgres://postgres:postgres@localhost:5432/elmo_test \
+createdb redemptia_test
+TEST_DATABASE_URL=postgres://postgres:postgres@localhost:5432/redemptia_test \
   pnpm --filter @workspace/web test:integration
 ```
 
@@ -139,7 +139,7 @@ pnpm --filter @workspace/web storybook:build
 
 ```bash
 # Run CLI directly from source
-pnpm elmo <command>
+pnpm redemptia <command>
 
 # Build and link CLI globally for testing
 pnpm cli:link
@@ -152,20 +152,20 @@ pnpm cli:unlink
 
 ```bash
 # Build Docker images locally
-elmo compose build
+redemptia compose build
 
 # Build without cache
-elmo compose build --no-cache
+redemptia compose build --no-cache
 
 # Build only web or worker
-elmo compose build web
-elmo compose build worker
+redemptia compose build web
+redemptia compose build worker
 
 # Run other docker compose commands
-elmo compose up -d
-elmo compose ps
-elmo compose logs -f web
-elmo compose down
+redemptia compose up -d
+redemptia compose ps
+redemptia compose logs -f web
+redemptia compose down
 ```
 
 ## Versioning

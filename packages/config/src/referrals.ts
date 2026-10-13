@@ -3,7 +3,7 @@
  *
  * Each one carries a `ref` naming the surface it was clicked from, so the
  * marketing site can tell a self-hosted operator who arrived from the sign-in
- * page apart from one who arrived from `elmo init` — the two want different
+ * page apart from one who arrived from `redemptia init` — the two want different
  * things and convert at very different rates.
  */
 

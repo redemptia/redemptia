@@ -2,14 +2,14 @@ import { MARKETING_SITE_URL } from "@workspace/config/referrals";
 import { getMarketingOgImage } from "./og";
 
 export const SITE_URL = MARKETING_SITE_URL;
-export const SITE_NAME = "Elmo";
+export const SITE_NAME = "Redemptia";
 // Fallback description for pages without their own, and the description on the
 // WebSite/Organization/SoftwareApplication entities. Spells out "answer engine
 // optimization" because answer engines expand the acronym when they search, and
 // carries no pricing so it stays true wherever it is reused.
 export const SITE_DESCRIPTION =
 	"Open-source answer engine optimization (AEO) platform: track how AI answers mention and cite your brand.";
-const SITE_LOGO_URL = `${SITE_URL}/brand/icons/elmo-icon-512.png`;
+const SITE_LOGO_URL = `${SITE_URL}/brand/icons/redemptia-icon-512.png`;
 
 export function canonicalUrl(path: string): string {
 	return `${SITE_URL}${path}`;
@@ -201,15 +201,15 @@ export function itemListJsonLd(items: { name: string; path?: string; url?: strin
 	});
 }
 
-/** Elmo's entry for a comparison ItemList (always the open-source option). */
-export const ELMO_LISTING = { name: SITE_NAME, url: SITE_URL };
+/** Redemptia's entry for a comparison ItemList (always the open-source option). */
+export const REDEMPTIA_LISTING = { name: SITE_NAME, url: SITE_URL };
 
 /**
  * ItemList of the software products weighed on a comparison page, each as a
  * SoftwareApplication. Honest structured data for "X vs Y" and "X vs Y vs Z"
  * pages: it names the tools compared so answer engines can parse the matchup,
  * without asserting prices or ratings we don't have for other vendors. Pair it
- * with softwareApplicationJsonLd() so Elmo's free offer is stated explicitly.
+ * with softwareApplicationJsonLd() so Redemptia's free offer is stated explicitly.
  */
 export function comparisonJsonLd(tools: { name: string; url?: string }[]) {
 	return jsonLd({

@@ -5,17 +5,17 @@ description: Environment variables, deployment modes, and advanced configuration
 
 ## Deployment Modes
 
-Elmo supports several deployment modes, controlled by the `DEPLOYMENT_MODE` environment variable:
+Redemptia supports several deployment modes, controlled by the `DEPLOYMENT_MODE` environment variable:
 
 | Mode | Description |
 |------|-------------|
 | `local` | Single-org, email/password auth. Best for individual use. **(default)** |
-| `demo` | Read-only mode for showcasing Elmo without allowing changes. |
-| `cloud` | Managed hosting. [Sign up for Elmo Cloud](https://app.redemptia.example/auth/register). |
+| `demo` | Read-only mode for showcasing Redemptia without allowing changes. |
+| `cloud` | Managed hosting. [Sign up for Redemptia Cloud](https://app.redemptia.example/auth/register). |
 
 ## Environment Variables
 
-When you run `elmo init`, the CLI generates a `.env` file in your config directory. You can edit this file directly to change settings.
+When you run `redemptia init`, the CLI generates a `.env` file in your config directory. You can edit this file directly to change settings.
 
 ### Core Settings
 
@@ -32,7 +32,7 @@ When you run `elmo init`, the CLI generates a `.env` file in your config directo
 | `RUNS_PER_PROMPT` | How many times each run samples every tracked platform. Answers vary between identical calls, so several samples make a mention rate a measurement rather than an anecdote — but each one is a provider call you pay for. | `5` |
 
 <Callout type="warn">
-	Back up `ELMO_ENCRYPTION_KEY` alongside your database. Credentials stored in the database are encrypted with it and nothing else — if you lose the key, or restore a database backup onto a deployment that generated a different one, those credentials cannot be recovered and have to be entered again. Elmo logs an error and falls back to the provider keys in your `.env` when a stored credential will not decrypt.
+	Back up `ELMO_ENCRYPTION_KEY` alongside your database. Credentials stored in the database are encrypted with it and nothing else — if you lose the key, or restore a database backup onto a deployment that generated a different one, those credentials cannot be recovered and have to be entered again. Redemptia logs an error and falls back to the provider keys in your `.env` when a stored credential will not decrypt.
 </Callout>
 
 ### Rotating the encryption key
@@ -42,7 +42,7 @@ Every stored credential records which key encrypted it, so a rotation doesn't ha
 1. Move the current value of `ELMO_ENCRYPTION_KEY` into `ELMO_ENCRYPTION_KEY_OLD`.
 2. Put a freshly generated key in `ELMO_ENCRYPTION_KEY` (`openssl rand -base64 32`), and restart.
 
-New values are encrypted under the new key while anything saved under a retired one stays readable, so nothing has to be re-entered up front. Drop `ELMO_ENCRYPTION_KEY_OLD` once every stored credential has been saved again — until then, keep it, or those credentials become unreadable and Elmo logs which key it is missing.
+New values are encrypted under the new key while anything saved under a retired one stays readable, so nothing has to be re-entered up front. Drop `ELMO_ENCRYPTION_KEY_OLD` once every stored credential has been saved again — until then, keep it, or those credentials become unreadable and Redemptia logs which key it is missing.
 
 <Callout type="info">
 	`RUNS_PER_PROMPT` multiplies provider spend one-for-one: at the default, one firing of one prompt
@@ -58,9 +58,9 @@ New values are encrypted under the new key while anything saved under a retired 
 
 ### AI Provider Keys
 
-At least one provider is required for Elmo to track visibility. See [Providers](/docs/user-guide/providers) for a full cost/capability breakdown and recommended setups.
+At least one provider is required for Redemptia to track visibility. See [Providers](/docs/user-guide/providers) for a full cost/capability breakdown and recommended setups.
 
-Brand onboarding and the Opportunities report also need one direct LLM API key — `OPENAI_API_KEY`, `OPENROUTER_API_KEY`, `ANTHROPIC_API_KEY`, or `MISTRAL_API_KEY` — even if `SCRAPE_TARGETS` only uses scrapers. Elmo uses the first of those that's set; to pick one explicitly, set `ONBOARDING_LLM_TARGET` (e.g. `claude:anthropic-api`).
+Brand onboarding and the Opportunities report also need one direct LLM API key — `OPENAI_API_KEY`, `OPENROUTER_API_KEY`, `ANTHROPIC_API_KEY`, or `MISTRAL_API_KEY` — even if `SCRAPE_TARGETS` only uses scrapers. Redemptia uses the first of those that's set; to pick one explicitly, set `ONBOARDING_LLM_TARGET` (e.g. `claude:anthropic-api`).
 
 | Variable | Description |
 |----------|-------------|
@@ -84,44 +84,44 @@ To change environment variables after initial setup:
 
 ```bash
 # Edit the .env file
-nano ~/.elmo/.env
+nano ~/.redemptia/.env
 
 # Restart services to pick up changes
-elmo compose down
-elmo compose up -d
+redemptia compose down
+redemptia compose up -d
 ```
 
-## Serving Elmo from a Domain
+## Serving Redemptia from a Domain
 
-`elmo init` asks how you'll access Elmo. Choose **From a domain** and enter it (for example `elmo.example.com`, which becomes `https://elmo.example.com`), then point your reverse proxy at the port you pick. Sign-in is only accepted from the configured URL.
+`redemptia init` asks how you'll access Redemptia. Choose **From a domain** and enter it (for example `redemptia.example.com`, which becomes `https://redemptia.example.com`), then point your reverse proxy at the port you pick. Sign-in is only accepted from the configured URL.
 
-To change it later, run `elmo edit env`, set both `APP_URL` and `VITE_APP_URL` to the new URL (for example `https://elmo.example.com`), then restart with `elmo compose up -d`. Elmo must be served from the root of its domain, not a subpath.
+To change it later, run `redemptia edit env`, set both `APP_URL` and `VITE_APP_URL` to the new URL (for example `https://redemptia.example.com`), then restart with `redemptia compose up -d`. Redemptia must be served from the root of its domain, not a subpath.
 
 ## Using an External Database
 
-By default, `elmo init` provisions a PostgreSQL container. To use an existing database instead, choose "Use existing Postgres" during `elmo init` and provide your connection string when prompted.
+By default, `redemptia init` provisions a PostgreSQL container. To use an existing database instead, choose "Use existing Postgres" during `redemptia init` and provide your connection string when prompted.
 
 Your database must be PostgreSQL 15 or later.
 
 ## Upgrading Postgres
 
-`elmo init` provisions Postgres 18. `elmo upgrade` rolls the Elmo images but never touches the Postgres container, so a deployment created on an earlier major keeps running on it — supported, and nothing you have to act on. Postgres 16 gets fixes until November 2028.
+`redemptia init` provisions Postgres 18. `redemptia upgrade` rolls the Redemptia images but never touches the Postgres container, so a deployment created on an earlier major keeps running on it — supported, and nothing you have to act on. Postgres 16 gets fixes until November 2028.
 
 If you do want to move, Postgres cannot read a data directory written by a different major version, so it takes a dump and restore.
 
 <Callout type="warn">
-  Do not just change the image tag. From version 18 on, the official Postgres image stores its data in a version-specific subdirectory (`/var/lib/postgresql/18/docker`) and declares its volume one level up, at `/var/lib/postgresql`. An 18 image with the old `/var/lib/postgresql/data` mount does not fail — it writes a brand new, empty cluster to an anonymous volume that is discarded the next time the container is recreated. Your original data survives in `elmo_postgres_data`, but Elmo comes up empty and anything written in the meantime is lost.
+  Do not just change the image tag. From version 18 on, the official Postgres image stores its data in a version-specific subdirectory (`/var/lib/postgresql/18/docker`) and declares its volume one level up, at `/var/lib/postgresql`. An 18 image with the old `/var/lib/postgresql/data` mount does not fail — it writes a brand new, empty cluster to an anonymous volume that is discarded the next time the container is recreated. Your original data survives in `redemptia_postgres_data`, but Redemptia comes up empty and anything written in the meantime is lost.
 </Callout>
 
 Take a dump while the old container is still running:
 
 ```bash
-elmo compose up -d postgres
-docker compose -f ~/.elmo/elmo.yaml exec -T postgres pg_dump -U postgres -d elmo > elmo-backup.sql
-elmo compose down
+redemptia compose up -d postgres
+docker compose -f ~/.redemptia/redemptia.yaml exec -T postgres pg_dump -U postgres -d redemptia > redemptia-backup.sql
+redemptia compose down
 ```
 
-Check that `elmo-backup.sql` is non-empty and ends with `-- PostgreSQL database dump complete` before continuing. Then edit the Postgres service with `elmo edit compose`, changing **both** the image and the mount path:
+Check that `redemptia-backup.sql` is non-empty and ends with `-- PostgreSQL database dump complete` before continuing. Then edit the Postgres service with `redemptia edit compose`, changing **both** the image and the mount path:
 
 ```yaml
 postgres:
@@ -133,11 +133,11 @@ postgres:
 Now restore. Postgres 18 finds no cluster at its new path, initializes an empty one alongside the old files, and the dump goes into that:
 
 ```bash
-elmo compose up -d postgres
-docker compose -f ~/.elmo/elmo.yaml exec -T postgres psql -U postgres -d elmo < elmo-backup.sql
-elmo compose up -d
+redemptia compose up -d postgres
+docker compose -f ~/.redemptia/redemptia.yaml exec -T postgres psql -U postgres -d redemptia < redemptia-backup.sql
+redemptia compose up -d
 ```
 
 Bringing up `postgres` on its own first matters: it keeps `db-migrate` from initializing an empty schema ahead of the restore.
 
-Nothing is destroyed along the way: the old cluster stays in the volume, unused, so you can roll back by putting the original image and `/var/lib/postgresql/data` mount back. Keep `elmo-backup.sql` either way.
+Nothing is destroyed along the way: the old cluster stays in the volume, unused, so you can roll back by putting the original image and `/var/lib/postgresql/data` mount back. Keep `redemptia-backup.sql` either way.

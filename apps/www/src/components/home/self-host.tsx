@@ -33,7 +33,7 @@ export function SelfHost() {
 						Read the setup guide
 						<ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
 					</Link>
-					<a href="https://github.com/elmohq/elmo" target="_blank" rel="noopener noreferrer" className={LINK}>
+					<a href="https://github.com/redemptia/redemptia" target="_blank" rel="noopener noreferrer" className={LINK}>
 						View the source on GitHub
 						<ArrowUpRight
 							className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"

@@ -1,6 +1,6 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
-import { DirectoryHero, ElmoCta } from "@/components/directory-shell";
+import { DirectoryHero, RedemptiaCta } from "@/components/directory-shell";
 import { Faq } from "@/components/faq";
 import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
@@ -17,7 +17,7 @@ export const Route = createFileRoute("/aeo-for/$slug")({
 	head: ({ loaderData }) => {
 		if (!loaderData) return {};
 		const { vertical: v, others } = loaderData;
-		const title = v.metaTitle ?? `AEO for ${v.audience}: Track AI Visibility · Elmo`;
+		const title = v.metaTitle ?? `AEO for ${v.audience}: Track AI Visibility · Redemptia`;
 		const description = v.metaDescription ?? v.short;
 		const path = `/aeo-for/${v.slug}`;
 		return {
@@ -110,8 +110,8 @@ function VerticalPage() {
 							</ol>
 
 							<div className="mt-12 rounded-md border border-blue-200 bg-blue-50/40 p-6">
-								<h2 className="font-heading text-xl text-zinc-950">Where Elmo fits</h2>
-								<p className="mt-2 leading-relaxed text-zinc-600">{vertical.elmoFit}</p>
+								<h2 className="font-heading text-xl text-zinc-950">Where Redemptia fits</h2>
+								<p className="mt-2 leading-relaxed text-zinc-600">{vertical.redemptiaFit}</p>
 							</div>
 
 							<div className="mt-10">
@@ -133,7 +133,7 @@ function VerticalPage() {
 				</section>
 
 				<Faq items={vertical.faqs} eyebrow="/ FAQ" />
-				<ElmoCta />
+				<RedemptiaCta />
 			</main>
 			<Footer />
 		</div>

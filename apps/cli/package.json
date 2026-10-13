@@ -1,5 +1,5 @@
 {
-	"name": "@elmohq/cli",
+	"name": "@redemptia/cli",
 	"version": "0.4.4",
 	"license": "MIT",
 	"keywords": [
@@ -20,7 +20,7 @@
 		"ai-visibility"
 	],
 	"bin": {
-		"elmo": "dist/index.js"
+		"redemptia": "dist/index.js"
 	},
 	"files": [
 		"dist",

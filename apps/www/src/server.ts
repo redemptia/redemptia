@@ -39,7 +39,7 @@ const DISCOVERY_LINKS = [
 	`</docs>; rel="service-doc"; type="text/html"`,
 	`</llms.txt>; rel="describedby"; type="text/plain"`,
 	`</sitemap.xml>; rel="sitemap"; type="application/xml"`,
-	`<https://github.com/elmohq/elmo/blob/main/LICENSE.md>; rel="license"`,
+	`<https://github.com/redemptia/redemptia/blob/main/LICENSE.md>; rel="license"`,
 ].join(", ");
 
 function isDiscoverable(response: Response): boolean {
@@ -55,9 +55,7 @@ function addDiscoveryLinks(response: Response, markdownAlternate?: string): void
 	response.headers.set("Link", links);
 }
 
-const MARKDOWN_SOURCES = [
-	{ base: "/docs", indexIsPage: true },
-].map(({ base, indexIsPage }) => ({
+const MARKDOWN_SOURCES = [{ base: "/docs", indexIsPage: true }].map(({ base, indexIsPage }) => ({
 	base,
 	indexIsPage,
 	stripMd: rewritePath(`${base}{/*path}.md`, `/llms.mdx${base}{/*path}`).rewrite,

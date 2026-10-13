@@ -8,9 +8,9 @@ import { Pricing } from "@/components/pricing";
 import { PRICING_FAQS } from "@/lib/faqs";
 import { breadcrumbJsonLd, canonicalUrl, faqJsonLd, ogMeta } from "@/lib/seo";
 
-const title = "Pricing — Free, Cloud & White-Label AI Visibility · Elmo";
+const title = "Pricing — Free, Cloud & White-Label AI Visibility · Redemptia";
 const description =
-	"Elmo is free and open source to self-host, available as managed cloud from $29/mo, and white-label for agencies.";
+	"Redemptia is free and open source to self-host, available as managed cloud from $29/mo, and white-label for agencies.";
 
 export const Route = createFileRoute("/pricing")({
 	head: () => ({

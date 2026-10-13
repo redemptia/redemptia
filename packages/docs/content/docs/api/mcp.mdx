@@ -1,9 +1,9 @@
 ---
 title: MCP
-description: Connect Claude Code, Codex, Cursor, VS Code, or another AI client to Elmo.
+description: Connect Claude Code, Codex, Cursor, VS Code, or another AI client to Redemptia.
 ---
 
-Elmo serves a [Model Context Protocol](https://modelcontextprotocol.io) endpoint at `/api/mcp`, so an
+Redemptia serves a [Model Context Protocol](https://modelcontextprotocol.io) endpoint at `/api/mcp`, so an
 AI client can read your visibility data and manage prompts without you copying numbers between
 windows.
 
@@ -26,7 +26,7 @@ register first, on cloud or on your own instance.
 ### Claude Code
 
 ```bash
-claude mcp add --transport http elmo https://app.redemptia.example/api/mcp
+claude mcp add --transport http redemptia https://app.redemptia.example/api/mcp
 ```
 
 Then run `/mcp` and choose **Authenticate**.
@@ -34,7 +34,7 @@ Then run `/mcp` and choose **Authenticate**.
 ### VS Code
 
 ```bash
-code --add-mcp '{"name":"elmo","type":"http","url":"https://app.redemptia.example/api/mcp"}'
+code --add-mcp '{"name":"redemptia","type":"http","url":"https://app.redemptia.example/api/mcp"}'
 ```
 
 Or put it under `servers` in `mcp.json`:
@@ -42,7 +42,7 @@ Or put it under `servers` in `mcp.json`:
 ```json
 {
   "servers": {
-    "elmo": { "type": "http", "url": "https://app.redemptia.example/api/mcp" }
+    "redemptia": { "type": "http", "url": "https://app.redemptia.example/api/mcp" }
   }
 }
 ```
@@ -57,7 +57,7 @@ In `opencode.json`:
 {
   "$schema": "https://opencode.ai/config.json",
   "mcp": {
-    "elmo": {
+    "redemptia": {
       "type": "remote",
       "url": "https://app.redemptia.example/api/mcp",
       "enabled": true
@@ -66,7 +66,7 @@ In `opencode.json`:
 }
 ```
 
-Then `opencode mcp auth elmo`.
+Then `opencode mcp auth redemptia`.
 
 ### Cursor
 
@@ -75,19 +75,19 @@ In `~/.cursor/mcp.json`:
 ```json
 {
   "mcpServers": {
-    "elmo": { "url": "https://app.redemptia.example/api/mcp" }
+    "redemptia": { "url": "https://app.redemptia.example/api/mcp" }
   }
 }
 ```
 
 Cursor shows the server as needing login; sign in from there. Older Cursor releases send a callback
-Elmo can't accept, so if signing in fails, use an API key instead.
+Redemptia can't accept, so if signing in fails, use an API key instead.
 
 ### Codex
 
 ```bash
-codex mcp add elmo --url https://app.redemptia.example/api/mcp
-codex mcp login elmo
+codex mcp add redemptia --url https://app.redemptia.example/api/mcp
+codex mcp login redemptia
 ```
 
 ## Or use an API key
@@ -101,15 +101,15 @@ Send it as a bearer token.
 Claude Code:
 
 ```bash
-claude mcp add --transport http elmo https://app.redemptia.example/api/mcp \
-  --header "Authorization: Bearer elmo_..."
+claude mcp add --transport http redemptia https://app.redemptia.example/api/mcp \
+  --header "Authorization: Bearer redemptia_..."
 ```
 
 Codex, which reads the key from the environment rather than the config file:
 
 ```bash
-codex mcp add elmo --url https://app.redemptia.example/api/mcp \
-  --bearer-token-env-var ELMO_API_KEY
+codex mcp add redemptia --url https://app.redemptia.example/api/mcp \
+  --bearer-token-env-var REDEMPTIA_API_KEY
 ```
 
 Cursor, in `~/.cursor/mcp.json`:
@@ -117,9 +117,9 @@ Cursor, in `~/.cursor/mcp.json`:
 ```json
 {
   "mcpServers": {
-    "elmo": {
+    "redemptia": {
       "url": "https://app.redemptia.example/api/mcp",
-      "headers": { "Authorization": "Bearer elmo_..." }
+      "headers": { "Authorization": "Bearer redemptia_..." }
     }
   }
 }
@@ -130,10 +130,10 @@ VS Code, in `mcp.json`:
 ```json
 {
   "servers": {
-    "elmo": {
+    "redemptia": {
       "type": "http",
       "url": "https://app.redemptia.example/api/mcp",
-      "headers": { "Authorization": "Bearer elmo_..." }
+      "headers": { "Authorization": "Bearer redemptia_..." }
     }
   }
 }
@@ -145,11 +145,11 @@ OpenCode, in `opencode.json`:
 {
   "$schema": "https://opencode.ai/config.json",
   "mcp": {
-    "elmo": {
+    "redemptia": {
       "type": "remote",
       "url": "https://app.redemptia.example/api/mcp",
       "enabled": true,
-      "headers": { "Authorization": "Bearer elmo_..." }
+      "headers": { "Authorization": "Bearer redemptia_..." }
     }
   }
 }
@@ -170,7 +170,7 @@ be configured server-side through the `ADMIN_API_KEYS` environment variable.
 
 ## Try
 
-> What is the visibility and share of voice for each tagged prompt in Elmo for `<brand>`?
+> What is the visibility and share of voice for each tagged prompt in Redemptia for `<brand>`?
 
 > What are some AEO opportunities for my `<brand>`?
 

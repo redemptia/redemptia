@@ -3,7 +3,7 @@ import { bookDemoUrl, cloudAppUrl, demoSiteUrl, type ReferralSource } from "@wor
 import { ArrowRight, ArrowUpRight, Check } from "lucide-react";
 import { externalRel } from "@/lib/external-link";
 
-export const ISSUES_URL = "https://github.com/elmohq/elmo/issues";
+export const ISSUES_URL = "https://github.com/redemptia/redemptia/issues";
 const BOOK_URL = bookDemoUrl("marketing-cta");
 
 const INCLUDED = ["Self-serve", "Unlimited seats", "API and MCP access"];

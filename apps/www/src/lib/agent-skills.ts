@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
-import elmoAiVisibilityTracking from "@/content/skills/elmo-ai-visibility-tracking.md?raw";
+import redemptiaAiVisibilityTracking from "@/content/skills/redemptia-ai-visibility-tracking.md?raw";
 
-const SKILLS = [{ name: "elmo-ai-visibility-tracking", text: elmoAiVisibilityTracking }] as const;
+const SKILLS = [{ name: "redemptia-ai-visibility-tracking", text: redemptiaAiVisibilityTracking }] as const;
 
 const INDEX_SCHEMA = "https://schemas.agentskills.io/discovery/0.2.0/schema.json";
 

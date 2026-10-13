@@ -98,7 +98,7 @@ async function seedApiKeys(client: pg.Client): Promise<void> {
          id, name, start, prefix, key, reference_id, enabled,
          rate_limit_enabled, rate_limit_time_window, rate_limit_max,
          request_count, expires_at, permissions, metadata, created_at, updated_at
-       ) VALUES ($1, $2, $3, 'elmo', $4, $5, $6, true, 60000, 1000, 0, $7, $8, $9, NOW(), NOW())`,
+       ) VALUES ($1, $2, $3, 'redemptia', $4, $5, $6, true, 60000, 1000, 0, $7, $8, $9, NOW(), NOW())`,
       [
         `e2e-apikey-${index + 1}`,
         key.name,

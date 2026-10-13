@@ -238,7 +238,7 @@ export function EmailPasswordLogin({
 	return (
 		<AuthSplitLayout
 			title="Welcome back"
-			subtitle={isCloud ? "Check in on your AI visibility." : "Sign in to your Elmo instance."}
+			subtitle={isCloud ? "Check in on your AI visibility." : "Sign in to your Redemptia instance."}
 			pitch={<SalesPanel variant={isCloud ? "cloud" : "self-hosted"} source={source} />}
 			footer={<SalesFooterLinks source={source} />}
 		>

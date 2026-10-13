@@ -54,7 +54,7 @@ export async function withDb<T>(fn: (client: pg.Client) => Promise<T>): Promise<
 
 /**
  * BETTER_AUTH_SECRET as the running containers see it: the CLI generates it
- * into e2e/.elmo/.env, and the env var wins if a run overrides it.
+ * into e2e/.redemptia/.env, and the env var wins if a run overrides it.
  */
 function getBetterAuthSecret(): string {
   const fromEnv = process.env.BETTER_AUTH_SECRET;
@@ -66,7 +66,7 @@ function getBetterAuthSecret(): string {
   } catch {
     throw new Error(
       `Cannot read BETTER_AUTH_SECRET: ${GENERATED_ENV_PATH} is missing. ` +
-        `Run the elmo init step first, or set BETTER_AUTH_SECRET.`,
+        `Run the redemptia init step first, or set BETTER_AUTH_SECRET.`,
     );
   }
 

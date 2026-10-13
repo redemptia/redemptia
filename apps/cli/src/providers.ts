@@ -313,7 +313,7 @@ export async function finalizeScrapeTargets(
 	const deduped = dedupeTargets(targets);
 
 	if (!deduped) {
-		p.log.warn("No SCRAPE_TARGETS configured. Elmo will not run scheduled checks until you set them.");
+		p.log.warn("No SCRAPE_TARGETS configured. Redemptia will not run scheduled checks until you set them.");
 		p.log.info(`Reference: ${link(pc.cyan(PROVIDERS_DOCS_URL), PROVIDERS_DOCS_URL)}`);
 
 		const addManual = await p.confirm({

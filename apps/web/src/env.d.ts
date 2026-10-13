@@ -24,6 +24,7 @@ interface ImportMetaEnv {
 	readonly VITE_PLAUSIBLE_DOMAIN?: string;
 	readonly VITE_CLARITY_PROJECT_ID?: string;
 	readonly VITE_POSTHOG_KEY?: string;
+	readonly VITE_CRISP_WEBSITE_ID?: string;
 
 	// Sentry
 	readonly VITE_SENTRY_DSN?: string;
@@ -45,6 +46,7 @@ declare global {
 			readonly DATABASE_POOL_MAX?: string;
 			readonly ENRICHMENT_DAILY_CAP_USD?: string;
 			readonly ENRICHMENT_RETENTION_DAYS?: string;
+			readonly POSTHOG_KEY?: string;
 			readonly SENTIMENT_API_KEY?: string;
 			readonly SENTIMENT_BASE_URL?: string;
 			readonly SENTIMENT_MODEL?: string;

@@ -1,16 +1,16 @@
 ---
-name: elmo-ai-visibility-tracking
-description: Measure and improve how AI answer engines describe and cite a brand, using an Elmo deployment over MCP or its REST API. Use when asked about AI visibility, answer engine optimization (AEO), generative engine optimization (GEO), share of voice in AI answers, or which sources ChatGPT, Perplexity, Gemini, Copilot, Grok, or Google AI Overviews cite about a company.
+name: redemptia-ai-visibility-tracking
+description: Measure and improve how AI answer engines describe and cite a brand, using an Redemptia deployment over MCP or its REST API. Use when asked about AI visibility, answer engine optimization (AEO), generative engine optimization (GEO), share of voice in AI answers, or which sources ChatGPT, Perplexity, Gemini, Copilot, Grok, or Google AI Overviews cite about a company.
 ---
 
-# Elmo AI Visibility Tracking
+# Redemptia AI Visibility Tracking
 
-[Elmo](https://redemptia.example) runs a set of prompts across the major AI answer engines on a
+[Redemptia](https://redemptia.example) runs a set of prompts across the major AI answer engines on a
 schedule and records what came back: whether the brand appeared, which competitors appeared
 alongside it, which pages the models cited, and which web searches they ran to get there. This
 skill is how to read that data and turn it into a plan.
 
-You need access to an Elmo deployment. Cloud is `https://app.redemptia.example`; a self-hosted instance
+You need access to an Redemptia deployment. Cloud is `https://app.redemptia.example`; a self-hosted instance
 serves the same endpoints on its own address, so substitute it throughout.
 
 ## Connecting
@@ -18,11 +18,11 @@ serves the same endpoints on its own address, so substitute it throughout.
 **MCP (preferred).** The endpoint is `/api/mcp`:
 
 ```bash
-claude mcp add --transport http elmo https://app.redemptia.example/api/mcp
+claude mcp add --transport http redemptia https://app.redemptia.example/api/mcp
 ```
 
 Signing in from the client opens a browser and the connection then acts as that user. For a client
-that cannot open a browser, send an organization API key as `Authorization: Bearer elmo_…`. Keys
+that cannot open a browser, send an organization API key as `Authorization: Bearer redemptia_…`. Keys
 are issued from the dashboard, scoped read or read-write, and may be narrowed to a subset of
 brands. Call `whoami` to see what the current connection actually holds — `tools/list` is filtered
 to it, so a missing tool means a missing scope, not a missing feature.
@@ -74,7 +74,7 @@ in that order:
    what is there.
 4. **`get_query_fanout`** — the web searches the models actually ran. These are frequently not the
    prompt's wording, and they are the phrasings worth optimizing for.
-5. **`get_opportunities`** — Elmo's own stored report of what to write, what to fix, and what the
+5. **`get_opportunities`** — Redemptia's own stored report of what to write, what to fix, and what the
    risks are. Check its `status` field: it says whether there was enough data to write one at all.
 
 Tracking a new question is `create_prompts`; `update_prompt` enables, disables, or edits an
@@ -96,4 +96,4 @@ existing one. Both need the `write` scope.
 - <https://redemptia.example/llms.txt> — index of everything published here
 - <https://redemptia.example/docs/mcp.md> — full MCP setup, including self-hosted and other clients
 - <https://redemptia.example/docs/user-guide.md> — what each metric means and how it is computed
-- <https://github.com/elmohq/elmo> — source, MIT licensed
+- <https://github.com/redemptia/redemptia> — source, MIT licensed

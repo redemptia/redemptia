@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SITE_URL } from "@/lib/seo";
 
-
 const CONTENT_SIGNAL = "search=yes, ai-input=yes, ai-train=yes";
 
 export const Route = createFileRoute("/robots.txt")({

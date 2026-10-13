@@ -7,7 +7,7 @@ const DEFAULT_LOOKBACK_DAYS = 7;
 const DEFAULT_MAX_CANDIDATES = 60;
 const REQUEST_TIMEOUT_MS = 30_000;
 const OXYLABS_TIMEOUT_MS = 180_000;
-const USER_AGENT = "Elmo editorial research bot (+https://redemptia.example/)";
+const USER_AGENT = "Redemptia editorial research bot (+https://redemptia.example/)";
 
 const NEWS_QUERIES = [
 	'"answer engine optimization" OR "generative engine optimization"',

@@ -31,7 +31,7 @@ const ONE_PIXEL_PNG =
 	"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
 
 describe("Open Graph card", () => {
-	it("renders the default Elmo card without a title or description", async () => {
+	it("renders the default Redemptia card without a title or description", async () => {
 		await expect(renderCard({ appName: DEFAULT_APP_NAME, url: "https://redemptia.example" })).resolves.toEqual({
 			width: OG_WIDTH,
 			height: OG_HEIGHT,

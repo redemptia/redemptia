@@ -20,7 +20,7 @@ import { useMDXComponents } from "@/components/mdx";
 import { Navbar } from "@/components/navbar";
 import type { LoaderData } from "@/routes/docs/$";
 
-const REPO = "elmohq/elmo";
+const REPO = "redemptia/redemptia";
 const BRANCH = "main";
 
 // /docs/foo → /docs/foo.md  (/docs index → /docs.md). The same markdown the

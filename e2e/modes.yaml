@@ -22,27 +22,27 @@
 # it that mode. Which database it uses, and so which migrate it waits on, is
 # part of that difference and stays per service.
 x-mode: &mode
-  image: elmo-e2e-web
+  image: redemptia-e2e-web
   env_file:
     # Relative to the project directory, which is where the first file in
-    # COMPOSE_FILE lives — the generated .elmo/elmo.yaml, beside this .env.
+    # COMPOSE_FILE lives — the generated .redemptia/redemptia.yaml, beside this .env.
     - path: .env
       required: true
 
 # Reached over the compose network rather than the published port, so these are
 # not the URLs e2e/fixtures.ts hands the specs.
-x-cloud-database: &cloud-database postgres://postgres:postgres@postgres:5432/elmo_cloud
-x-whitelabel-database: &whitelabel-database postgres://postgres:postgres@postgres:5432/elmo_whitelabel
+x-cloud-database: &cloud-database postgres://postgres:postgres@postgres:5432/redemptia_cloud
+x-whitelabel-database: &whitelabel-database postgres://postgres:postgres@postgres:5432/redemptia_whitelabel
 
 services:
   # The services below carry no build of their own, so `docker compose build`
   # still builds each image exactly once; naming them here is what lets the
   # others run them.
   web:
-    image: elmo-e2e-web
+    image: redemptia-e2e-web
 
   db-migrate:
-    image: elmo-e2e-migrate
+    image: redemptia-e2e-migrate
 
   # Postgres creates only the database POSTGRES_DB names. The rest are made
   # here rather than by an entrypoint init script, which runs only when the data
@@ -58,14 +58,14 @@ services:
     command:
       - |
         set -e
-        for db in elmo_cloud elmo_whitelabel; do
+        for db in redemptia_cloud redemptia_whitelabel; do
           psql -h postgres -U postgres -d postgres -tAc \
             "SELECT 1 FROM pg_database WHERE datname = '$$db'" | grep -q 1 \
             || createdb -h postgres -U postgres "$$db"
         done
 
   db-migrate-cloud:
-    image: elmo-e2e-migrate
+    image: redemptia-e2e-migrate
     environment:
       DATABASE_URL: *cloud-database
     depends_on:
@@ -73,7 +73,7 @@ services:
         condition: service_completed_successfully
 
   db-migrate-whitelabel:
-    image: elmo-e2e-migrate
+    image: redemptia-e2e-migrate
     environment:
       DATABASE_URL: *whitelabel-database
     depends_on:
@@ -104,7 +104,7 @@ services:
       STRIPE_SECRET_KEY: sk_test_e2e_placeholder
       STRIPE_WEBHOOK_SECRET: whsec_e2e_placeholder
       RESEND_API_KEY: re_e2e_placeholder
-      RESEND_FROM_EMAIL: Elmo E2E <e2e@example.test>
+      RESEND_FROM_EMAIL: Redemptia E2E <e2e@example.test>
       GOOGLE_CLIENT_ID: e2e-google-client-id
       GOOGLE_CLIENT_SECRET: e2e-google-client-secret
 

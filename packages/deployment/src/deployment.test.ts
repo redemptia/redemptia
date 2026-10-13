@@ -10,7 +10,7 @@ const WHITELABEL_ENV = {
 };
 
 describe("branding", () => {
-	it("falls back to the Elmo defaults when nothing is configured", () => {
+	it("falls back to the Redemptia defaults when nothing is configured", () => {
 		expect(buildDeployment("local", {}).branding).toEqual({
 			name: DEFAULT_APP_NAME,
 			icon: DEFAULT_APP_ICON,
@@ -51,15 +51,15 @@ describe("branding", () => {
 		});
 	});
 
-	it("ignores VITE_APP_* overrides in cloud, which ships the Elmo defaults", () => {
+	it("ignores VITE_APP_* overrides in cloud, which ships the Redemptia defaults", () => {
 		const { branding } = buildDeployment("cloud", {
 			VITE_APP_NAME: "Should Be Ignored",
 			VITE_APP_ICON: "https://cdn.example.com/ignored.png",
-			APP_URL: "https://app.elmo.com/",
+			APP_URL: "https://app.redemptia.com/",
 		});
 		expect(branding.name).toBe(DEFAULT_APP_NAME);
 		expect(branding.icon).toBe(DEFAULT_APP_ICON);
-		expect(branding.url).toBe("https://app.elmo.com/");
+		expect(branding.url).toBe("https://app.redemptia.com/");
 	});
 
 	it("expands the whitelabel onboarding redirect template per brand", () => {

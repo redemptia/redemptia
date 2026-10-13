@@ -86,7 +86,7 @@ test.describe("Whitelabel sign-in is SSO only", () => {
 });
 
 test.describe("Whitelabel branding", () => {
-  test("the partner name and icon replace the Elmo wordmark", async ({ page }) => {
+  test("the partner name and icon replace the Redemptia wordmark", async ({ page }) => {
     await page.goto(`${brandUrl()}`);
 
     await expect(page.getByText(WHITELABEL.appName).first()).toBeVisible({ timeout: 30_000 });
@@ -94,15 +94,15 @@ test.describe("Whitelabel branding", () => {
       "src",
       WHITELABEL.appIcon,
     );
-    await expect(page.getByText("elmo", { exact: true })).toHaveCount(0);
+    await expect(page.getByText("redemptia", { exact: true })).toHaveCount(0);
   });
 
-  test("Elmo's version and project links are hidden", async ({ page }) => {
+  test("Redemptia's version and project links are hidden", async ({ page }) => {
     await page.goto(`${brandUrl()}`);
     await expect(page.locator(`a[href="${brandUrl()}"][data-sidebar="menu-button"]`)).toBeVisible({
       timeout: 30_000,
     });
-    await expect(page.locator('a[href="https://github.com/elmohq/elmo"]')).toHaveCount(0);
+    await expect(page.locator('a[href="https://github.com/redemptia/redemptia"]')).toHaveCount(0);
     await expect(page.locator('a[href="https://redemptia.example/"]')).toHaveCount(0);
   });
 
