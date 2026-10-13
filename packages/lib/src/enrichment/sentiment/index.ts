@@ -8,6 +8,7 @@ export {
 	sentimentFallbackModels,
 	sentimentModel,
 } from "./availability";
+export { backfillSentiment, type SentimentBackfillOptions, type SentimentBackfillResult } from "./backfill";
 export { type Classifier, type ClassifierResult, sentimentClassifier } from "./classify";
 export { type EvalPrediction, type EvalReport, type GoldenAnswer, loadGoldenSet, scoreSentimentEval } from "./eval";
 export {
