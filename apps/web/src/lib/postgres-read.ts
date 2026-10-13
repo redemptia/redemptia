@@ -1367,6 +1367,11 @@ export async function getResponseMatches(
 	`);
 }
 
+/** Mention analysis older than the retention horizon is purged, so analysis reads start there. */
+function retainedFilter(retainedFrom: string | null): SQL {
+	return retainedFrom ? sql`AND created_at >= ${retainedFrom}::timestamptz` : sql``;
+}
+
 export interface MentionCoverageRow {
 	runs: number;
 	analysed: number;
@@ -1397,6 +1402,7 @@ export async function getMentionProminence(
 	timezone: string,
 	enabledPromptIds: string[],
 	fingerprint: string,
+	retainedFrom: string | null,
 	model?: string,
 ): Promise<{ coverage: MentionCoverageRow; subjects: SubjectProminenceRow[] }> {
 	const rows = await queryPg<MentionCoverageRow & Partial<SubjectProminenceRow>>(sql`
@@ -1404,6 +1410,7 @@ export async function getMentionProminence(
 			SELECT id FROM prompt_runs
 			WHERE brand_id = ${brandId}
 				${dateFilter(fromDate, toDate, timezone)}
+				${retainedFilter(retainedFrom)}
 				${promptIdFilter(enabledPromptIds)}
 				${modelFilter(model)}
 		),
@@ -1504,6 +1511,7 @@ export async function getStanceSummary(
 	enabledPromptIds: string[],
 	fingerprint: string,
 	analyzerVersion: number,
+	retainedFrom: string | null,
 	model?: string,
 ): Promise<{ coverage: StanceCoverageRow; subjects: SubjectStanceRow[]; riskPrompts: RiskPromptRow[] }> {
 	const [row] = await queryPg<StanceCoverageRow & { subjects: SubjectStanceRow[]; risk_prompts: RiskPromptRow[] }>(sql`
@@ -1511,6 +1519,7 @@ export async function getStanceSummary(
 			SELECT id, prompt_id, model, created_at FROM prompt_runs
 			WHERE brand_id = ${brandId}
 				${dateFilter(fromDate, toDate, timezone)}
+				${retainedFilter(retainedFrom)}
 				${promptIdFilter(enabledPromptIds)}
 				${modelFilter(model)}
 		),
