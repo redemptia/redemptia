@@ -29,7 +29,11 @@ NULL-text runs here mean genuine blank answers or extraction failure,
 not provider divergence.
 
 ## Sentiment analyzer (decided 2026-10-13)
-Provider: openai-api. Model: gpt-5-mini (env SENTIMENT_MODEL).
+Provider: openrouter. Model: google/gemini-2.5-flash, falling back to
+google/gemini-2.5-flash-lite (env SENTIMENT_MODEL overrides the primary).
+Switched from openai-api / gpt-5-mini the same day: there is no OpenAI key,
+and OpenRouter reaches Gemini and reports each call's billed cost. It runs
+only when OPENROUTER_API_KEY is set.
 Hard enrichment spend ceiling: $2 per organization per day.
 This is separate from SCRAPE_TARGETS: scrape targets decide what text we
 capture, the analyzer decides what scores it.
