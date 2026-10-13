@@ -301,13 +301,6 @@ export function CompetitorComparison({ competitor }: { competitor: Competitor })
 								use it wherever you want.
 							</p>
 						</div>
-						<div className="rounded-md border border-zinc-200 bg-white p-5">
-							<h3 className="font-semibold text-zinc-950">Built to last</h3>
-							<p className="mt-2 text-sm text-zinc-600">
-								Bootstrapped and sustainable. No investors pushing towards dark patterns. We'll outlast the companies
-								taking too much VC money.
-							</p>
-						</div>
 					</div>
 				</div>
 			</section>

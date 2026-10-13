@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { SITE_URL } from "@/lib/seo";
 import { aeoVerticals } from "@/data/aeo-verticals";
 import { aiSearchEngines } from "@/data/ai-search-engines";
 import { glossaryTerms } from "@/data/glossary";
-import { blogSource } from "@/lib/blog";
 import {
 	CATEGORY_SLUGS,
 	comparePairSlug,
@@ -17,10 +17,8 @@ import {
 	indexedCompetitors,
 	isLowDR,
 } from "@/lib/competitors";
-import { listLegalPages } from "@/lib/legal";
 import { source } from "@/lib/source";
 
-const SITE_URL = "https://www.elmohq.com";
 
 interface SitemapEntry {
 	path: string;
@@ -40,18 +38,13 @@ const staticPages: SitemapEntry[] = [
 	{ path: "/generative-engine-optimization", changefreq: "monthly", priority: 0.9 },
 	{ path: "/features", changefreq: "monthly", priority: 0.8 },
 	{ path: "/pricing", changefreq: "monthly", priority: 0.8 },
-	{ path: "/off-site-aeo", changefreq: "monthly", priority: 0.8 },
 	{ path: "/changelog", changefreq: "weekly", priority: 0.7 },
 	{ path: "/roadmap", changefreq: "weekly", priority: 0.7 },
 	{ path: "/docs", changefreq: "weekly", priority: 0.9 },
-	{ path: "/blog", changefreq: "weekly", priority: 0.7 },
-	{ path: "/statistics", changefreq: "weekly", priority: 0.8 },
 	{ path: "/ai-visibility-tools", changefreq: "weekly", priority: 0.8 },
-	{ path: "/vision", changefreq: "monthly", priority: 0.6 },
 	{ path: "/brand", changefreq: "monthly", priority: 0.5 },
 	{ path: "/status", changefreq: "daily", priority: 0.5 },
 	{ path: "/support", changefreq: "monthly", priority: 0.5 },
-	{ path: "/legal", changefreq: "yearly", priority: 0.3 },
 ];
 
 export const Route = createFileRoute("/sitemap.xml")({
@@ -62,21 +55,6 @@ export const Route = createFileRoute("/sitemap.xml")({
 					path: page.url,
 					changefreq: "weekly",
 					priority: 0.7,
-				}));
-
-				const legalPages: SitemapEntry[] = listLegalPages().map((page) => ({
-					path: `/legal/${page.slug}`,
-					changefreq: "yearly",
-					priority: 0.3,
-					lastmod: page.updated,
-				}));
-
-				const blogPages: SitemapEntry[] = blogSource.getPages().map((page) => ({
-					path: page.url,
-					changefreq: "monthly",
-					priority: 0.7,
-					// Real content date from frontmatter (schema normalizes to YYYY-MM-DD).
-					lastmod: page.data.updated ?? page.data.date,
 				}));
 
 				const comparisonPages: SitemapEntry[] = competitors
@@ -151,8 +129,6 @@ export const Route = createFileRoute("/sitemap.xml")({
 				const allPages: SitemapEntry[] = [
 					...staticPages,
 					...docsPages,
-					...legalPages,
-					...blogPages,
 					...comparisonPages,
 					...directorySubPages,
 					...glossaryPages,

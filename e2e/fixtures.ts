@@ -284,7 +284,7 @@ export const CLOUD_SIGNUP = {
 
 /** The shared credentials a demo deployment advertises on its login page. */
 export const DEMO_CREDENTIALS = {
-  email: "demo@elmohq.com",
+  email: "demo@redemptia.example",
   password: "demo",
 } as const;
 

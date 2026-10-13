@@ -14,8 +14,8 @@ declare global {
 
 const CRISP_SCRIPT_URL = "https://client.crisp.chat/l.js";
 
-const DEMO_WALKTHROUGH_URL = "https://cal.com/jrhizor/elmo";
-const SELF_HOST_DOCS_URL = "https://www.elmohq.com/docs/getting-started";
+const QUESTIONS_URL = "https://github.com/elmohq/elmo/issues";
+const SELF_HOST_DOCS_URL = "https://redemptia.example/docs/getting-started";
 
 const DEMO_GREETING =
 	"👋 You're in the Elmo demo — it's read-only sample data, so click around freely. Ask me anything as you go.";
@@ -24,7 +24,7 @@ const DEMO_GREETING =
 // left the last option off screen.
 const DEMO_NEXT_STEPS = [
 	"Whenever you're ready:",
-	`• [Book a walkthrough](${DEMO_WALKTHROUGH_URL}) — 30 minutes on your own brand's data`,
+	`• [Ask a question](${QUESTIONS_URL}) — open an issue on GitHub`,
 	`• [Start with Elmo Cloud](${CLOUD_SIGNUP_URL}) — the managed version, nothing to deploy`,
 	`• [Self-host it free](${SELF_HOST_DOCS_URL}) — open source, running in about five minutes`,
 ].join("\n");

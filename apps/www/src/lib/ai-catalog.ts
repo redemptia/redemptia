@@ -24,13 +24,13 @@ export const aiCatalog = {
 	specVersion: "1.0",
 	host: {
 		displayName: SITE_NAME,
-		identifier: "elmohq.com",
+		identifier: "redemptia.example",
 		documentationUrl: canonicalUrl("/docs"),
 		logoUrl: canonicalUrl("/brand/icons/elmo-icon-512.png"),
 	},
 	entries: [
 		{
-			identifier: "urn:air:elmohq.com:mcp:elmo",
+			identifier: "urn:air:redemptia.example:mcp:elmo",
 			displayName: `${SITE_NAME} MCP server`,
 			type: "application/mcp-server-card+json",
 			data: mcpServerCard,

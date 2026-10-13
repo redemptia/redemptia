@@ -268,18 +268,9 @@ function BrandPage() {
 				<div className="rounded-md border border-dashed border-zinc-300 bg-zinc-50 p-8 text-center">
 					<h3 className="text-lg font-semibold text-zinc-950">Need something else?</h3>
 					<p className="mx-auto mt-2 max-w-md text-sm text-zinc-600">
-						If you need assets in a different format or size, or have questions about brand usage, reach out on Discord
-						or open a GitHub issue.
+						If you need assets in a different format or size, or have questions about brand usage, open a GitHub issue.
 					</p>
 					<div className="mt-4 flex flex-wrap items-center justify-center gap-3">
-						<a
-							href="https://discord.gg/s24nubCtKz"
-							target="_blank"
-							rel="noopener noreferrer"
-							className={buttonVariants({ variant: "outline", size: "sm" })}
-						>
-							Ask on Discord
-						</a>
 						<a
 							href="https://github.com/elmohq/elmo/issues/new"
 							target="_blank"

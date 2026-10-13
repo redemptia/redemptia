@@ -1,7 +1,7 @@
 {
   "mcpServers": {
     "elmo": {
-      "url": "https://app.elmohq.com/api/mcp"
+      "url": "https://app.redemptia.example/api/mcp"
     }
   }
 }

@@ -6,7 +6,7 @@ import { setMockRouteContext } from "./_mocks/tanstack-router";
 
 const ApiSettingsPage = (Route as unknown as { options: { component: ComponentType } }).options.component;
 
-function load(appName = "Elmo", appUrl = "https://app.elmohq.com/", readOnly = false) {
+function load(appName = "Elmo", appUrl = "https://app.redemptia.example/", readOnly = false) {
 	setMockRouteContext({ clientConfig: { branding: { name: appName, url: appUrl }, features: { readOnly } } });
 }
 
@@ -61,7 +61,7 @@ export const Whitelabel: Story = {
 
 export const ReadOnlyDeployment: Story = {
 	render: () => {
-		load("Elmo", "https://app.elmohq.com/", true);
+		load("Elmo", "https://app.redemptia.example/", true);
 		return <ApiSettingsPage />;
 	},
 	play: async ({ canvasElement }) => {

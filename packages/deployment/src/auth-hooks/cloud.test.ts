@@ -81,8 +81,8 @@ describe("signup allowlist", () => {
 	});
 
 	it("admits any address at an allowed domain", async () => {
-		await expect(signUp("anyone@elmohq.com", "@elmohq.com")).resolves.toBeUndefined();
-		await expect(signUp("anyone@gmail.com", "@elmohq.com")).rejects.toThrow();
+		await expect(signUp("anyone@redemptia.example", "@redemptia.example")).resolves.toBeUndefined();
+		await expect(signUp("anyone@gmail.com", "@redemptia.example")).rejects.toThrow();
 	});
 
 	it("matches case-insensitively", async () => {
@@ -90,12 +90,12 @@ describe("signup allowlist", () => {
 	});
 
 	it("does not let a domain entry match a lookalike domain", async () => {
-		await expect(signUp("x@evil-elmohq.com", "@elmohq.com")).rejects.toThrow();
-		await expect(signUp("x@elmohq.com.evil.com", "@elmohq.com")).rejects.toThrow();
+		await expect(signUp("x@evil-redemptia.example", "@redemptia.example")).rejects.toThrow();
+		await expect(signUp("x@redemptia.example.evil.com", "@redemptia.example")).rejects.toThrow();
 	});
 
 	it("opens signup to everyone when '*' is present", async () => {
-		await expect(signUp("anyone@anywhere.com", "@elmohq.com,*")).resolves.toBeUndefined();
+		await expect(signUp("anyone@anywhere.com", "@redemptia.example,*")).resolves.toBeUndefined();
 	});
 
 	it("ignores blank entries", async () => {
@@ -104,7 +104,7 @@ describe("signup allowlist", () => {
 	});
 
 	it("admits an address with no domain only when listed exactly", async () => {
-		await expect(signUp("not-an-email", "@elmohq.com")).rejects.toThrow();
+		await expect(signUp("not-an-email", "@redemptia.example")).rejects.toThrow();
 		await expect(signUp("not-an-email", "not-an-email")).resolves.toBeUndefined();
 	});
 });

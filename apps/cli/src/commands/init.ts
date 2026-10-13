@@ -21,7 +21,7 @@ import {
 	providerSpec,
 	type RecommendedScraper,
 } from "../providers.js";
-import { submitNewsletterSignup, trackCliEvent } from "../telemetry.js";
+import { submitNewsletterSignup, telemetryKey, trackCliEvent } from "../telemetry.js";
 import { assertNotCancelled, generateSecret, link, log, printBanner } from "../util.js";
 
 export type InitOptions = {
@@ -34,7 +34,7 @@ const DEFAULT_APP_NAME = "Elmo";
 const DEFAULT_APP_ICON = "/icons/elmo-icon.svg";
 const DEFAULT_APP_PORT = 1515;
 const LOCAL_DATABASE_URL = "postgres://postgres:postgres@postgres:5432/elmo";
-const TELEMETRY_DOC_URL = "https://elmohq.com/docs/developer-guide/telemetry";
+const TELEMETRY_DOC_URL = "https://redemptia.example/docs/developer-guide/telemetry";
 const CLOUD_PRICING_URL = cloudPricingUrl("cli");
 
 /**
@@ -357,47 +357,52 @@ export async function runInit(options: InitOptions, version: string): Promise<vo
 	// ── AI providers ─────────────────────────────────────────────────────
 	const setupMode = await configureProvidersInteractive(env);
 
-	// ── Telemetry ───────────────────────────────────────────────────────
-	p.note(
-		[
-			"Elmo is open source and maintained by a small team. Telemetry",
-			"from both the CLI and your local deployment (web + worker)",
-			"tells us things like which CLI versions are still in use, where",
-			"`elmo init` drops off, which providers people pick, and whether",
-			"new features actually get used. Without it we are flying blind",
-			"on what to fix or build next.",
-			"",
-			pc.bold("What we send:"),
-			"  • deployment ID (random UUID stored as DEPLOYMENT_ID in your .env)",
-			"  • CLI/app version, OS, arch, Node version, deployment mode",
-			"  • command/event names + non-secret options (e.g. postgres mode)",
-			"  • feature counts (prompts edited, brands created — never the names or text)",
-			"  • IP address (recorded on each event by PostHog, used for geolocation)",
-			"",
-			pc.bold("What we never send:"),
-			"  API keys, .env contents, brand names, prompt text, and scraped responses.",
-			"",
-			`Full breakdown: ${link(pc.cyan(TELEMETRY_DOC_URL), TELEMETRY_DOC_URL)}`,
-			"Toggle later by editing DISABLE_TELEMETRY in .env (`elmo edit env`).",
-		].join("\n"),
-		"Telemetry",
-	);
+	// ── Telemetry and product updates ───────────────────────────────────
+	// Only asked when this CLI has somewhere to send them (POSTHOG_KEY).
+	let email: string | undefined;
+	if (telemetryKey()) {
+		// ── Telemetry ───────────────────────────────────────────────────────
+		p.note(
+			[
+				"Elmo is open source and maintained by a small team. Telemetry",
+				"from both the CLI and your local deployment (web + worker)",
+				"tells us things like which CLI versions are still in use, where",
+				"`elmo init` drops off, which providers people pick, and whether",
+				"new features actually get used. Without it we are flying blind",
+				"on what to fix or build next.",
+				"",
+				pc.bold("What we send:"),
+				"  • deployment ID (random UUID stored as DEPLOYMENT_ID in your .env)",
+				"  • CLI/app version, OS, arch, Node version, deployment mode",
+				"  • command/event names + non-secret options (e.g. postgres mode)",
+				"  • feature counts (prompts edited, brands created — never the names or text)",
+				"  • IP address (recorded on each event by PostHog, used for geolocation)",
+				"",
+				pc.bold("What we never send:"),
+				"  API keys, .env contents, brand names, prompt text, and scraped responses.",
+				"",
+				`Full breakdown: ${link(pc.cyan(TELEMETRY_DOC_URL), TELEMETRY_DOC_URL)}`,
+				"Toggle later by editing DISABLE_TELEMETRY in .env (`elmo edit env`).",
+			].join("\n"),
+			"Telemetry",
+		);
 
-	const telemetryEnabled = await p.confirm({
-		message: "Share telemetry?",
-		initialValue: true,
-	});
-	assertNotCancelled(telemetryEnabled);
-	if (!telemetryEnabled) {
-		env.DISABLE_TELEMETRY = "1";
+		const telemetryEnabled = await p.confirm({
+			message: "Share telemetry?",
+			initialValue: true,
+		});
+		assertNotCancelled(telemetryEnabled);
+		if (!telemetryEnabled) {
+			env.DISABLE_TELEMETRY = "1";
+		}
+
+		// ── Product updates ─────────────────────────────────────────────────
+		const updatesEmail = await p.text({
+			message: "Enter your work email to receive product updates (optional)",
+			placeholder: "you@example.com",
+		});
+		email = p.isCancel(updatesEmail) ? undefined : updatesEmail || undefined;
 	}
-
-	// ── Product updates ─────────────────────────────────────────────────
-	const updatesEmail = await p.text({
-		message: "Enter your work email to receive product updates (optional)",
-		placeholder: "you@example.com",
-	});
-	const email = p.isCancel(updatesEmail) ? undefined : updatesEmail || undefined;
 
 	// ── Access ──────────────────────────────────────────────────────────
 	const access = await p.select({

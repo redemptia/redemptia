@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Community } from "@/components/community";
 import { Footer } from "@/components/footer";
 import { Closing } from "@/components/home/closing";
 import { Faq } from "@/components/home/faq";
@@ -8,7 +7,6 @@ import { HowItWorks } from "@/components/home/how-it-works";
 import { LogoStrip } from "@/components/home/logos";
 import { ModelCoverage } from "@/components/home/models";
 import { Pricing } from "@/components/home/pricing";
-import { Reviews } from "@/components/home/reviews";
 import { SelfHost } from "@/components/home/self-host";
 import { HOME_FONT_CLASS, HomeStyles } from "@/components/home/styles";
 import { WhySwitch } from "@/components/home/why-switch";
@@ -49,13 +47,11 @@ function HomePage() {
 				<Hero />
 				<LogoStrip />
 				<ModelCoverage />
-				<Reviews />
 				<HowItWorks />
 				<WhySwitch />
 				<Pricing />
 				<Faq items={HOME_FAQS} />
 				<SelfHost />
-				<Community />
 				<Closing />
 			</main>
 			<Footer />

@@ -5,7 +5,7 @@ open a PR directly. For anything larger, please open an issue first so
 the maintainers can agree on the approach before you start work.
 
 Setup, commands, architecture, and the contribution workflow live in the
-[Developer Guide](https://www.elmohq.com/docs/developer-guide).
+[Developer Guide](https://redemptia.example/docs/developer-guide).
 
 ## License
 
@@ -17,17 +17,15 @@ same terms.
 
 By participating in this project you agree to abide by our
 [Code of Conduct](CODE_OF_CONDUCT.md). Report violations to
-[conduct@elmohq.com](mailto:conduct@elmohq.com).
+[a GitHub issue](https://github.com/redemptia/redemptia/issues).
 
 ## Reporting Security Issues
 
 Please do not open a public issue for security vulnerabilities. Email
-[security@elmohq.com](mailto:security@elmohq.com) instead — see
+[GitHub private vulnerability reporting](https://github.com/redemptia/redemptia/security/advisories/new) instead — see
 [`SECURITY.md`](SECURITY.md) for details.
 
 ## Questions?
 
-- [Discord](https://discord.gg/s24nubCtKz) — fastest way to ask questions.
 - [GitHub Issues](https://github.com/elmohq/elmo/issues) — for bug reports
   and feature requests.
-- [Schedule a call](https://cal.com/jrhizor/elmo) — for anything else.

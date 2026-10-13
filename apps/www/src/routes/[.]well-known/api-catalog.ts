@@ -2,8 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { CLOUD_APP_URL } from "@workspace/config/referrals";
 import { canonicalUrl } from "@/lib/seo";
 
-const STATUS_URL = "https://status.elmohq.com/";
-
 const catalog = {
 	linkset: [
 		{
@@ -27,7 +25,6 @@ const catalog = {
 					title: "Elmo API reference (markdown)",
 				},
 			],
-			status: [{ href: STATUS_URL, type: "text/html", title: "Elmo status" }],
 		},
 		{
 			anchor: `${CLOUD_APP_URL}/api/mcp`,

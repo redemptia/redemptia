@@ -18,7 +18,6 @@ const navigationLinks = [
 	{ href: "/pricing", label: "Pricing" },
 	{ href: "/changelog", label: "Changelog" },
 	{ href: "/roadmap", label: "Roadmap" },
-	{ href: "/vision", label: "Vision" },
 	{ href: "/docs", label: "Docs" },
 ];
 

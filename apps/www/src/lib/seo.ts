@@ -1,6 +1,7 @@
+import { MARKETING_SITE_URL } from "@workspace/config/referrals";
 import { getMarketingOgImage } from "./og";
 
-export const SITE_URL = "https://www.elmohq.com";
+export const SITE_URL = MARKETING_SITE_URL;
 export const SITE_NAME = "Elmo";
 // Fallback description for pages without their own, and the description on the
 // WebSite/Organization/SoftwareApplication entities. Spells out "answer engine
@@ -75,34 +76,10 @@ export function organizationJsonLd() {
 	return jsonLd({
 		"@type": "Organization",
 		name: SITE_NAME,
-		// "Elmo" collides with several unrelated products and a Sesame Street
-		// character, so spell out the alternate names and what we actually do —
-		// the signals search engines use to tell entities apart.
-		alternateName: ["ElmoHQ", "Elmo AEO"],
 		description: SITE_DESCRIPTION,
 		url: SITE_URL,
 		logo: SITE_LOGO_URL,
-		sameAs: [
-			"https://github.com/elmohq/elmo",
-			"https://hub.docker.com/u/elmohq",
-			"https://www.npmjs.com/package/@elmohq/cli",
-			"https://stackshare.io/elmo-mp4ocwtq",
-			"https://x.com/tryelmo",
-			"https://www.linkedin.com/company/elmohq",
-			"https://discord.gg/s24nubCtKz",
-			"https://www.producthunt.com/products/elmo",
-			"https://www.crunchbase.com/organization/elmo-14db",
-			"https://www.g2.com/products/blue-whale-software-llc-elmo/reviews",
-			"https://alternativeto.net/software/elmo/",
-			"https://www.saashub.com/elmohq",
-			"https://peerpush.com/p/elmo",
-			"https://devhunt.org/tool/elmo",
-		],
-		parentOrganization: {
-			"@type": "Organization",
-			name: "Blue Whale Software, LLC",
-			url: "https://bluewhale.dev",
-		},
+		sameAs: ["https://github.com/redemptia/redemptia"],
 	});
 }
 

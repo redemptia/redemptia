@@ -341,7 +341,7 @@ function YouTubeThumbnail() {
 						letterSpacing: 1,
 					}}
 				>
-					elmohq.com
+					redemptia.example
 				</div>
 			</div>
 		</div>

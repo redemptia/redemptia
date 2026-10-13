@@ -11,9 +11,8 @@ type: software
 authors:
   - given-names: Jared
     family-names: Rhizor
-    email: jared@elmohq.com
 repository-code: https://github.com/elmohq/elmo
-url: https://www.elmohq.com/
+url: https://redemptia.example/
 license: MIT
 keywords:
   - answer-engine-optimization

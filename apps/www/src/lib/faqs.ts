@@ -98,36 +98,6 @@ export const PRICING_FAQS: FaqItem[] = [
 	},
 ];
 
-// Off-Site AEO service FAQ. Rendered on "/off-site-aeo" and emitted as FAQPage
-// JSON-LD from the same route.
-export const OFFSITE_FAQS: FaqItem[] = [
-	{
-		question: "How does the off-site AEO service work?",
-		answer:
-			"It starts with a call where we review how AI answer engines currently talk about you and pick the prompts and gaps to target. Within 30 days, that month's posts are planned, written, humanized, and live on high-authority sites, and you get a report tying each placement to the issue it targets. We then keep publishing for you every month, adjusting the targets as your visibility shifts.",
-	},
-	{
-		question: "Are the articles AI-generated?",
-		answer:
-			"Yes, and we're upfront about it. We draft with AI, then it is reworked until it lands under a 25% AI-detection score on both ZeroGPT and Pangram before it goes live. The result reads like human writing, and it lives on sites the models cite.",
-	},
-	{
-		question: "Do you offer refunds?",
-		answer:
-			"No. All plans are non-refundable. We commission and place real editorial inventory on third-party sites as soon as your month begins, so those costs are committed up front. You can cancel future months at any time before that cycle's work starts.",
-	},
-	{
-		question: "How is this different from buying backlinks?",
-		answer:
-			"It's a similar process. Many backlink services offer low-quality placements with high spam scores and no traffic. They also make you write the content yourself — or generate it, which is easy to detect. We do neither: the content is useful for AEO, it only goes on high-quality sites, and it's humanized.",
-	},
-	{
-		question: "Will this help my traditional SEO too?",
-		answer:
-			"These all provide dofollow links on high-DR domains with actual traffic, so your search rankings should benefit as well. But the primary goal is giving AI answer engines more reasons to mention you.",
-	},
-];
-
 // AI Visibility Tool Directory FAQ.
 export const DIRECTORY_FAQS: FaqItem[] = [
 	{

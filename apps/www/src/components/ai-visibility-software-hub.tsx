@@ -60,11 +60,7 @@ export function AiVisibilitySoftwareHub() {
 							<p>
 								Instead of tracking rankings on a results page, it samples the answers themselves — running a defined
 								set of prompts across multiple AI engines on a schedule and recording what comes back: whether your
-								brand is mentioned, whether it's{" "}
-								<a className={LINK} href="/blog/ai-citations">
-									cited with a link
-								</a>
-								, how it's described, and how often competitors appear instead. Good tools roll those signals into a
+								brand is mentioned, whether it's cited with a link, how it's described, and how often competitors appear instead. Good tools roll those signals into a
 								share-of-voice metric and point you to the gaps worth closing.
 							</p>
 						</div>
@@ -138,9 +134,9 @@ export function AiVisibilitySoftwareHub() {
 							<p>
 								That matters in a market full of opaque scoring and inflated pricing. With Elmo you own your data and
 								avoid vendor lock-in: the self-hosted core is free, and managed cloud hosting is there if you would
-								rather not run it. To see how it compares with the rest of the field, read our roundup of the{" "}
-								<a className={LINK} href="/blog/best-ai-visibility-tools">
-									best AI visibility tools
+								rather not run it. To see how it compares with the rest of the field, browse the{" "}
+								<a className={LINK} href="/ai-visibility-tools">
+									tool directory
 								</a>{" "}
 								or learn{" "}
 								<a className={LINK} href="/answer-engine-optimization">

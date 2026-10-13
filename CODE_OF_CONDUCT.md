@@ -28,7 +28,7 @@ The Elmo repository maintainers are responsible for enforcing this Code of Condu
 
 ## Reporting
 
-If you experience or witness behavior that violates this Code of Conduct, please report it by emailing [conduct@elmohq.com](mailto:conduct@elmohq.com).
+If you experience or witness behavior that violates this Code of Conduct, please report it by emailing [a GitHub issue](https://github.com/redemptia/redemptia/issues).
 
 ## Attribution
 

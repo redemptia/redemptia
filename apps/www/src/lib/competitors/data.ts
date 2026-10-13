@@ -1339,36 +1339,6 @@ export const competitors: Competitor[] = [
 		],
 	},
 	{
-		slug: "getcito",
-		name: "GetCito",
-		domain: "getcito.com",
-		url: "https://getcito.com/",
-		tagline: "A fork of Elmo — if you are considering GetCito, use Elmo instead",
-		description:
-			"If you are considering GetCito, use Elmo instead: GetCito is a fork of Elmo. It launched in November 2025 as its own Next.js and Firebase application, then on July 10, 2026 replaced that codebase with Elmo's — 847 files, +131,716/-50,931 lines — in a single pull request. Its feature set was Elmo's as of the fork date, and it has shipped less since — 17 commits to Elmo's 98 in the following month — so it is falling further behind rather than diverging into something competitive.",
-		category: "open-source",
-		ahrefsDR: 34,
-		ahrefsTraffic: 34,
-		status: "active",
-		features: {
-			multiLlmTracking: true,
-			visibilityScore: true,
-			citationAnalytics: true,
-			brandMentionTracking: true,
-			geographicTracking: true,
-			siteAudits: true,
-			openSource: true,
-			whiteLabelAgency: true,
-		},
-		pricing: { hasFree: true, hasEnterprise: true },
-		highlights: [
-			"If you are considering GetCito, use Elmo instead — GetCito is a fork of it",
-			"Codebase replaced with Elmo's on July 10, 2026",
-			"Ships less than the project it forked — 17 commits to Elmo's 98 in the first month after",
-		],
-		notes: "Fork of Elmo's codebase since July 2026.",
-	},
-	{
 		slug: "meridian",
 		name: "Meridian",
 		domain: "trymeridian.com",
@@ -6239,7 +6209,6 @@ const aeoPopularityRanking: string[] = [
 	"llmwatcher", // Polish-language tracker with full response history; DR 2.4
 	"lorelight", // Shutting down — public postmortem
 	"jarts", // Acquired and shut down May 2026 — persona-based tracking, entity in liquidation
-	"getcito", // Fork of Elmo's codebase since Jul 2026
 	"geo-aeo-tracker", // Open-source self-hosted AEO dashboard, 80 GitHub stars
 	"canonry", // Open-source self-hosted AEO platform, server-log ingestion + MCP, 52 stars
 	"gego", // GPL-3.0 self-hosted GEO tracker, Docker + CLI + REST API, Ollama support

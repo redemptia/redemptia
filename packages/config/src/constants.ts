@@ -18,14 +18,11 @@ export const DEFAULT_APP_URL = "http://localhost:3000/";
  * Per-provider anchors are appended to it, so it has to stay the page itself
  * rather than the docs index.
  */
-export const PROVIDERS_DOCS_URL = "https://www.elmohq.com/docs/user-guide/providers";
+export const PROVIDERS_DOCS_URL = "https://redemptia.example/docs/user-guide/providers";
 
 /** The public docs, for the hosted product. In the app itself the API and MCP
  * pages document the deployment the viewer is signed in to. */
-export const API_DOCS_URL = "https://www.elmohq.com/docs/api";
-
-/** Public identifier for the support chat, shared by the app and the marketing site. */
-export const CRISP_WEBSITE_ID = "2f79a110-4e29-41a8-b45d-4993df6ff487";
+export const API_DOCS_URL = "https://redemptia.example/docs/api";
 
 /**
  * Elmo brand constants — used for icon generation, manifest, and the brand kit.

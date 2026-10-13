@@ -9,7 +9,7 @@ you are running an older version, please upgrade before reporting an issue.
 
 **Please do not open a public GitHub issue for security vulnerabilities.**
 
-Email [security@elmohq.com](mailto:security@elmohq.com) with:
+Email [GitHub private vulnerability reporting](https://github.com/redemptia/redemptia/security/advisories/new) with:
 
 - A description of the issue and its impact
 - Steps to reproduce (proof-of-concept code is helpful)

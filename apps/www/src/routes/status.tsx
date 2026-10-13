@@ -1060,19 +1060,6 @@ function StatusPage() {
 					</p>
 				</div>
 
-				{/* Elmo Cloud status pointer */}
-				<div className="mb-8 flex flex-wrap items-center gap-x-1.5 gap-y-1 rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-600">
-					<span>Looking for Elmo Cloud's status?</span>
-					<a
-						href="https://status.elmohq.com/"
-						target="_blank"
-						rel={externalRel("https://status.elmohq.com/")}
-						className="font-medium text-blue-600 underline underline-offset-2 hover:text-blue-700"
-					>
-						status.elmohq.com
-					</a>
-				</div>
-
 				{/* At-a-glance matrix — all providers, independent of the filters below */}
 				<StatusMatrix data={data} />
 

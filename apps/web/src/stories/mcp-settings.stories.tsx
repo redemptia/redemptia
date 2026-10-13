@@ -7,7 +7,7 @@ import { setMockLoaderData, setMockRouteContext } from "./_mocks/tanstack-router
 
 const McpSettingsPage = (Route as unknown as { options: { component: ComponentType } }).options.component;
 
-function load(page: Partial<McpPageData>, appName = "Elmo", appUrl = "https://app.elmohq.com/") {
+function load(page: Partial<McpPageData>, appName = "Elmo", appUrl = "https://app.redemptia.example/") {
 	const readOnly = page.readOnlyDeployment ?? false;
 	setMockMcpPage(page);
 	setMockRouteContext({

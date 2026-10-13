@@ -36,7 +36,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
 
 const BRAND_COLOR = "#2563eb";
-const SITE_URL = "https://www.elmohq.com";
+const SITE_URL = "https://redemptia.example";
 const OUTPUT_ZIP = resolve(__dirname, "../elmo-brand-kit.zip");
 
 // ---------------------------------------------------------------------------

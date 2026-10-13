@@ -239,11 +239,6 @@ const AEO: Pillar = {
 			description: "Short definitions for every term in this guide.",
 		},
 		{
-			label: "AEO vs SEO",
-			href: "/blog/aeo-vs-seo",
-			description: "A longer treatment of where the two disciplines actually part ways.",
-		},
-		{
 			label: "AEO by industry",
 			href: "/aeo-for",
 			description: "What the work looks like for SaaS, ecommerce, agencies, and other verticals.",
@@ -433,11 +428,6 @@ const GEO: Pillar = {
 			label: "AEO glossary",
 			href: "/glossary",
 			description: "Short definitions for every term in this guide.",
-		},
-		{
-			label: "Where AI citations come from",
-			href: "/blog/where-ai-citations-come-from",
-			description: "Citation data on which sources engines actually pull from.",
 		},
 		{
 			label: "AI search engines",

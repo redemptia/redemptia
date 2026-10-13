@@ -8,7 +8,6 @@ import type { QueryClient } from "@tanstack/react-query";
 import { createRootRouteWithContext, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
 import { DEFAULT_APP_ICON, ELMO_THEME_COLOR } from "@workspace/config/constants";
 import type { MissingEnvVar } from "@workspace/config/env";
-import { legalUrl } from "@workspace/config/legal";
 import type { DeploymentMode } from "@workspace/config/types";
 import { CookieConsentBanner } from "@workspace/ui/consent/cookie-consent-banner";
 import { isConsentRequired } from "@workspace/ui/lib/cookie-consent";
@@ -193,7 +192,7 @@ function RootComponent() {
 			<body className="font-sans antialiased">
 				<Outlet />
 				{asksForConsent && consentRequired !== null && (
-					<CookieConsentBanner consentRequired={consentRequired} policyHref={legalUrl("cookies")} />
+					<CookieConsentBanner consentRequired={consentRequired} />
 				)}
 				<TanStackDevtools plugins={[queryDevtools]} />
 				<Scripts />
