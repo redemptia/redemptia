@@ -7,7 +7,11 @@ import {
 	MENTION_RECOMPUTE_QUEUE_OPTIONS,
 	MENTION_RECOMPUTE_QUEUE_POLICY,
 	PROMPT_JOB_OPTIONS,
+	SENTIMENT_QUEUE,
+	SENTIMENT_QUEUE_OPTIONS,
+	SENTIMENT_SWEEP_QUEUE,
 } from "@workspace/lib/constants";
+import { sentimentAvailable } from "@workspace/lib/enrichment/sentiment";
 import { getProvider, validateScrapeTargets } from "@workspace/lib/providers";
 import { startCredentialRefresh } from "@workspace/lib/secrets";
 import { getBoss } from "./boss";
@@ -88,6 +92,16 @@ async function main() {
 		});
 	}
 	console.log("Queues created");
+
+	if (sentimentAvailable(getDeploymentFeatures())) {
+		await boss.createQueue(SENTIMENT_QUEUE, SENTIMENT_QUEUE_OPTIONS);
+		await boss.updateQueue(SENTIMENT_QUEUE, SENTIMENT_QUEUE_OPTIONS);
+		await boss.createQueue(SENTIMENT_SWEEP_QUEUE, { retryLimit: 0, expireInSeconds: 10 * 60 });
+		await boss.schedule(SENTIMENT_SWEEP_QUEUE, "17 * * * *", {}, { tz: "UTC" });
+		console.log("Scheduled sentiment sweep (hourly)");
+	} else {
+		console.log("Sentiment analyzer off: enrichment disabled or OPENROUTER_API_KEY unset");
+	}
 
 	await boss.schedule("schedule-maintenance", "*/5 * * * *", { source: "scheduled" }, { tz: "UTC" });
 	console.log("Scheduled maintenance job (every 5 minutes)");

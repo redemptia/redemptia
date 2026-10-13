@@ -44,16 +44,18 @@ export function estimateRunCostUsd(provider: string | null, webSearchEnabled: bo
 
 /**
  * Real per-token prices, unlike the coarse per-event placeholders above: these
- * price the sentiment analyzer's calls from their measured token counts, and the
- * enrichment spend ceiling enforces against the result. They are list prices in
- * a public repo on purpose, as the one number that ceiling must get right.
+ * price a sentiment call from its token counts when the provider doesn't report
+ * the call's billed cost (OpenRouter normally does, and that figure wins). The
+ * enrichment spend ceiling enforces against the result, so they are list prices
+ * in a public repo on purpose, as the one number that ceiling must get right.
  *
- * gpt-5-mini, USD per million tokens. UNVERIFIED: set at roughly twice the list
- * price last known, so the ceiling errs strict. An underestimate here would let
- * real spend run past the cap; an overestimate only stops it early. Confirm
- * against current OpenAI pricing and lower it then, never raise past real.
+ * google/gemini-2.5-flash via OpenRouter, USD per million tokens, which also
+ * covers its cheaper flash-lite fallback. UNVERIFIED: set at roughly twice the
+ * list price last known, so the ceiling errs strict. An underestimate here would
+ * let real spend run past the cap; an overestimate only stops it early. Confirm
+ * against current pricing and lower it then, never below real.
  */
-export const SENTIMENT_MODEL_PRICE_USD_PER_MTOK = { input: 0.5, output: 4 } as const;
+export const SENTIMENT_MODEL_PRICE_USD_PER_MTOK = { input: 0.6, output: 5 } as const;
 
 export interface TokenUsage {
 	inputTokens: number;

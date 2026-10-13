@@ -44,6 +44,7 @@ declare global {
 			readonly DATABASE_URL: string;
 			readonly DATABASE_POOL_MAX?: string;
 			readonly ENRICHMENT_DAILY_CAP_USD?: string;
+			readonly SENTIMENT_MODEL?: string;
 			readonly APP_URL?: string;
 			readonly SCRAPE_TARGETS?: string;
 			readonly OPENAI_API_KEY: string;

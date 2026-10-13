@@ -31,6 +31,7 @@
 		"./mentions": "./src/mentions.ts",
 		"./enrichment": "./src/enrichment/index.ts",
 		"./enrichment/write": "./src/enrichment/write.ts",
+		"./enrichment/sentiment": "./src/enrichment/sentiment/index.ts",
 		"./enrichment/reconcile": "./src/enrichment/reconcile.ts",
 		"./tag-utils": "./src/tag-utils.ts",
 		"./bulk-prompts": "./src/bulk-prompts.ts",

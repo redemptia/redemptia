@@ -10,10 +10,19 @@ export interface StructuredResearchCall<T> {
 	providerOptions?: GenerateTextArgs["providerOptions"];
 }
 
-export async function structuredResearch<T>(
+export async function structuredResearch<T>(model: LanguageModel, call: StructuredResearchCall<T>): Promise<T> {
+	return (await structuredResearchWithUsage(model, call)).output;
+}
+
+/**
+ * structuredResearch, plus the tokens the call consumed. Undefined, not zero,
+ * when the SDK reports none: a paid caller must not mistake unreported spend
+ * for free.
+ */
+export async function structuredResearchWithUsage<T>(
 	model: LanguageModel,
 	{ prompt, schema, tools, providerOptions }: StructuredResearchCall<T>,
-): Promise<T> {
+): Promise<{ output: T; usage?: { inputTokens: number; outputTokens: number } }> {
 	const result = await generateText({
 		model,
 		prompt,
@@ -21,7 +30,13 @@ export async function structuredResearch<T>(
 		...(tools ? { tools } : {}),
 		...(providerOptions ? { providerOptions } : {}),
 	});
-	return result.output as T;
+	return {
+		output: result.output as T,
+		usage:
+			result.usage?.inputTokens == null
+				? undefined
+				: { inputTokens: result.usage.inputTokens, outputTokens: result.usage.outputTokens ?? 0 },
+	};
 }
 
 const RESEARCH_SCHEMA_NAME = "research_output";

@@ -104,9 +104,14 @@ export async function runStructuredResearchPrompt<T>(prompt: string, schema: z.Z
 export async function runStructuredCompletionPrompt<T>(
 	prompt: string,
 	schema: z.ZodType<T>,
-	options: { model?: string } = {},
+	options: { model?: string; provider?: string; fallbackModels?: string[] } = {},
 ): Promise<StructuredResearchResult<T>> {
-	const provider = resolveResearchProvider();
+	// A named provider is used as is, because a model id only means something in
+	// its own provider's namespace: "gpt-5-mini" sent to Anthropic would fail.
+	const provider = options.provider ? getProvider(options.provider) : resolveResearchProvider();
+	if (options.provider && !provider.isConfigured()) {
+		throw new Error(`Provider "${provider.id}" is not configured`);
+	}
 	if (!provider.runStructuredResearch) {
 		throw new Error(`Provider "${provider.id}" does not implement structured research`);
 	}
@@ -115,5 +120,6 @@ export async function runStructuredCompletionPrompt<T>(
 		schema,
 		webSearch: false,
 		...(options.model ? { model: options.model } : {}),
+		...(options.fallbackModels?.length ? { fallbackModels: options.fallbackModels } : {}),
 	});
 }
