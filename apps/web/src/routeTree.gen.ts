@@ -64,6 +64,7 @@ import { Route as ApiV1BrandsBrandIdMentionProminenceRouteImport } from './route
 import { Route as ApiV1BrandsBrandIdOpportunitiesRouteImport } from './routes/api/v1/brands/$brandId/opportunities'
 import { Route as ApiV1BrandsBrandIdPromptPerformanceRouteImport } from './routes/api/v1/brands/$brandId/prompt-performance'
 import { Route as ApiV1BrandsBrandIdQueryFanoutRouteImport } from './routes/api/v1/brands/$brandId/query-fanout'
+import { Route as ApiV1BrandsBrandIdSentimentRouteImport } from './routes/api/v1/brands/$brandId/sentiment'
 import { Route as ApiV1OrganizationsOrganizationIdBillingRouteImport } from './routes/api/v1/organizations/$organizationId/billing'
 import { Route as ApiV1PromptsPromptIdSnapshotRouteImport } from './routes/api/v1/prompts/$promptId/snapshot'
 import { Route as AuthedAppOrgOrgBrandBrandRouteImport } from './routes/_authed/app/org/$org/brand/$brand'
@@ -386,6 +387,12 @@ const ApiV1BrandsBrandIdQueryFanoutRoute =
     path: '/query-fanout',
     getParentRoute: () => ApiV1BrandsBrandIdRoute,
   } as any)
+const ApiV1BrandsBrandIdSentimentRoute =
+  ApiV1BrandsBrandIdSentimentRouteImport.update({
+    id: '/sentiment',
+    path: '/sentiment',
+    getParentRoute: () => ApiV1BrandsBrandIdRoute,
+  } as any)
 const ApiV1OrganizationsOrganizationIdBillingRoute =
   ApiV1OrganizationsOrganizationIdBillingRouteImport.update({
     id: '/billing',
@@ -638,6 +645,7 @@ export interface FileRoutesByFullPath {
   '/api/v1/brands/$brandId/opportunities': typeof ApiV1BrandsBrandIdOpportunitiesRoute
   '/api/v1/brands/$brandId/prompt-performance': typeof ApiV1BrandsBrandIdPromptPerformanceRoute
   '/api/v1/brands/$brandId/query-fanout': typeof ApiV1BrandsBrandIdQueryFanoutRoute
+  '/api/v1/brands/$brandId/sentiment': typeof ApiV1BrandsBrandIdSentimentRoute
   '/api/v1/organizations/$organizationId/billing': typeof ApiV1OrganizationsOrganizationIdBillingRoute
   '/api/v1/prompts/$promptId/snapshot': typeof ApiV1PromptsPromptIdSnapshotRoute
   '/app/org/$org/': typeof AuthedAppOrgOrgIndexRoute
@@ -722,6 +730,7 @@ export interface FileRoutesByTo {
   '/api/v1/brands/$brandId/opportunities': typeof ApiV1BrandsBrandIdOpportunitiesRoute
   '/api/v1/brands/$brandId/prompt-performance': typeof ApiV1BrandsBrandIdPromptPerformanceRoute
   '/api/v1/brands/$brandId/query-fanout': typeof ApiV1BrandsBrandIdQueryFanoutRoute
+  '/api/v1/brands/$brandId/sentiment': typeof ApiV1BrandsBrandIdSentimentRoute
   '/api/v1/organizations/$organizationId/billing': typeof ApiV1OrganizationsOrganizationIdBillingRoute
   '/api/v1/prompts/$promptId/snapshot': typeof ApiV1PromptsPromptIdSnapshotRoute
   '/app/org/$org': typeof AuthedAppOrgOrgIndexRoute
@@ -812,6 +821,7 @@ export interface FileRoutesById {
   '/api/v1/brands/$brandId/opportunities': typeof ApiV1BrandsBrandIdOpportunitiesRoute
   '/api/v1/brands/$brandId/prompt-performance': typeof ApiV1BrandsBrandIdPromptPerformanceRoute
   '/api/v1/brands/$brandId/query-fanout': typeof ApiV1BrandsBrandIdQueryFanoutRoute
+  '/api/v1/brands/$brandId/sentiment': typeof ApiV1BrandsBrandIdSentimentRoute
   '/api/v1/organizations/$organizationId/billing': typeof ApiV1OrganizationsOrganizationIdBillingRoute
   '/api/v1/prompts/$promptId/snapshot': typeof ApiV1PromptsPromptIdSnapshotRoute
   '/_authed/app/org/$org/': typeof AuthedAppOrgOrgIndexRoute
@@ -903,6 +913,7 @@ export interface FileRouteTypes {
     | '/api/v1/brands/$brandId/opportunities'
     | '/api/v1/brands/$brandId/prompt-performance'
     | '/api/v1/brands/$brandId/query-fanout'
+    | '/api/v1/brands/$brandId/sentiment'
     | '/api/v1/organizations/$organizationId/billing'
     | '/api/v1/prompts/$promptId/snapshot'
     | '/app/org/$org/'
@@ -987,6 +998,7 @@ export interface FileRouteTypes {
     | '/api/v1/brands/$brandId/opportunities'
     | '/api/v1/brands/$brandId/prompt-performance'
     | '/api/v1/brands/$brandId/query-fanout'
+    | '/api/v1/brands/$brandId/sentiment'
     | '/api/v1/organizations/$organizationId/billing'
     | '/api/v1/prompts/$promptId/snapshot'
     | '/app/org/$org'
@@ -1076,6 +1088,7 @@ export interface FileRouteTypes {
     | '/api/v1/brands/$brandId/opportunities'
     | '/api/v1/brands/$brandId/prompt-performance'
     | '/api/v1/brands/$brandId/query-fanout'
+    | '/api/v1/brands/$brandId/sentiment'
     | '/api/v1/organizations/$organizationId/billing'
     | '/api/v1/prompts/$promptId/snapshot'
     | '/_authed/app/org/$org/'
@@ -1537,6 +1550,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiV1BrandsBrandIdQueryFanoutRouteImport
       parentRoute: typeof ApiV1BrandsBrandIdRoute
     }
+    '/api/v1/brands/$brandId/sentiment': {
+      id: '/api/v1/brands/$brandId/sentiment'
+      path: '/sentiment'
+      fullPath: '/api/v1/brands/$brandId/sentiment'
+      preLoaderRoute: typeof ApiV1BrandsBrandIdSentimentRouteImport
+      parentRoute: typeof ApiV1BrandsBrandIdRoute
+    }
     '/api/v1/organizations/$organizationId/billing': {
       id: '/api/v1/organizations/$organizationId/billing'
       path: '/billing'
@@ -1951,6 +1971,7 @@ interface ApiV1BrandsBrandIdRouteChildren {
   ApiV1BrandsBrandIdOpportunitiesRoute: typeof ApiV1BrandsBrandIdOpportunitiesRoute
   ApiV1BrandsBrandIdPromptPerformanceRoute: typeof ApiV1BrandsBrandIdPromptPerformanceRoute
   ApiV1BrandsBrandIdQueryFanoutRoute: typeof ApiV1BrandsBrandIdQueryFanoutRoute
+  ApiV1BrandsBrandIdSentimentRoute: typeof ApiV1BrandsBrandIdSentimentRoute
   ApiV1BrandsBrandIdCitationsDomainsRoute: typeof ApiV1BrandsBrandIdCitationsDomainsRoute
   ApiV1BrandsBrandIdCitationsUrlsRoute: typeof ApiV1BrandsBrandIdCitationsUrlsRoute
   ApiV1BrandsBrandIdTagsIndexRoute: typeof ApiV1BrandsBrandIdTagsIndexRoute
@@ -1964,6 +1985,7 @@ const ApiV1BrandsBrandIdRouteChildren: ApiV1BrandsBrandIdRouteChildren = {
   ApiV1BrandsBrandIdPromptPerformanceRoute:
     ApiV1BrandsBrandIdPromptPerformanceRoute,
   ApiV1BrandsBrandIdQueryFanoutRoute: ApiV1BrandsBrandIdQueryFanoutRoute,
+  ApiV1BrandsBrandIdSentimentRoute: ApiV1BrandsBrandIdSentimentRoute,
   ApiV1BrandsBrandIdCitationsDomainsRoute:
     ApiV1BrandsBrandIdCitationsDomainsRoute,
   ApiV1BrandsBrandIdCitationsUrlsRoute: ApiV1BrandsBrandIdCitationsUrlsRoute,
