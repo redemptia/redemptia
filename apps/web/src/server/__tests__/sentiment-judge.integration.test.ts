@@ -1,11 +1,18 @@
 import { randomUUID } from "node:crypto";
 import { db } from "@workspace/lib/db/db";
-import { runMentionAnalyses, runSubjectMentions, stanceJudgements, usageEvents } from "@workspace/lib/db/schema";
+import {
+	organizationSettings,
+	runMentionAnalyses,
+	runSubjectMentions,
+	stanceJudgements,
+	subscription,
+	usageEvents,
+} from "@workspace/lib/db/schema";
 import { reconcileRunAnalyses } from "@workspace/lib/enrichment/reconcile";
 import { analyzeSentimentBatch, type Classifier } from "@workspace/lib/enrichment/sentiment";
 import { insertRunText } from "@workspace/lib/run-texts";
 import { eq, sql } from "drizzle-orm";
-import { afterAll, beforeEach, describe, expect, it } from "vitest";
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createBrand, createCompetitor, createPrompt, createRun, deleteBrand } from "@/test/integration/stats-fixtures";
 
 const DAY = "2026-10-01";
@@ -15,6 +22,7 @@ const brandIds: string[] = [];
 let SHARED = "";
 let OTHER = "";
 beforeEach(() => {
+	vi.stubEnv("DEPLOYMENT_MODE", "local");
 	const nonce = randomUUID();
 	SHARED = `Acme is the clear pick for most teams this year, while Globex is capable but expensive for small budgets. (${nonce})`;
 	OTHER = `Globex works well for enterprises that need deep integrations and dedicated support from a vendor. (${nonce})`;
@@ -77,8 +85,14 @@ async function hashesOf(brandId: string) {
 	return rows.map((r) => r.content_hash);
 }
 
+afterEach(() => {
+	vi.unstubAllEnvs();
+});
+
 afterAll(async () => {
 	for (const id of brandIds) {
+		await db.delete(subscription).where(eq(subscription.referenceId, id));
+		await db.delete(organizationSettings).where(eq(organizationSettings.organizationId, id));
 		await db.delete(stanceJudgements).where(sql`${stanceJudgements.contentHash} IN (
 			SELECT rt.content_hash FROM run_texts rt JOIN prompt_runs pr ON pr.id = rt.prompt_run_id WHERE pr.brand_id = ${id})`);
 		await db.delete(usageEvents).where(eq(usageEvents.organizationId, id));
@@ -163,6 +177,27 @@ describe("analyzeSentimentBatch", () => {
 		});
 		const fake = fakeClassifier();
 		expect(await judge(batch, fake.classify)).toMatchObject({ calls: 0, stoppedAtCeiling: true });
+	});
+
+	it("makes no call for an org whose plan doesn't include sentiment", async () => {
+		vi.stubEnv("DEPLOYMENT_MODE", "cloud");
+		const { brandId, batch } = await brandWithAnswers([SHARED]);
+		await db.insert(subscription).values({ id: randomUUID(), plan: "starter", referenceId: brandId, status: "active" });
+		const fake = fakeClassifier();
+		expect(await judge(batch, fake.classify)).toMatchObject({ calls: 0, entitled: false });
+		expect(fake.sent).toHaveLength(0);
+		expect(await judgementsFor(await hashesOf(brandId))).toEqual([]);
+	});
+
+	it("judges for a Starter org whose overrides turn sentiment on", async () => {
+		vi.stubEnv("DEPLOYMENT_MODE", "cloud");
+		const { brandId, batch } = await brandWithAnswers([OTHER]);
+		await db.insert(subscription).values({ id: randomUUID(), plan: "starter", referenceId: brandId, status: "active" });
+		await db
+			.insert(organizationSettings)
+			.values({ organizationId: brandId, entitlementOverrides: { sentimentAnalysis: true } });
+		const fake = fakeClassifier();
+		expect(await judge(batch, fake.classify)).toMatchObject({ calls: 1, entitled: true });
 	});
 
 	it("records each paid call's billed cost and tokens in the same transaction as its judgements", async () => {

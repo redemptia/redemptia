@@ -101,6 +101,7 @@ export function PlanFeatureTable() {
 				<Row label="Sampling" cell={(plan) => `${plan.standardRunsPerDay}×/day`} />
 				<Row label="Seats" cell={() => "Unlimited"} />
 				<Row label="API access" cell={() => true} />
+				<Row label="Sentiment" cell={(plan) => plan.sentimentAnalysis} />
 
 				<PlatformSection tier="scraped" />
 				<PlatformSection tier="api" />

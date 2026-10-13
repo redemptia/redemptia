@@ -161,7 +161,7 @@
 					},
 					"code": {
 						"type": "string",
-						"description": "Stable machine-readable code. Deliberately not an enum: new values are added without a version bump, so treat an unrecognized one as its HTTP status implies. Currently: `unauthorized`, `insufficient_scope`, `forbidden`, `not_found`, `validation_error`, `conflict`, `rate_limited`, `method_not_allowed`, `read_only`, `no_active_plan`, `brand_limit`, `prompt_limit`, `model_not_in_plan`, `model_picks_exceeded`, `premium_not_in_plan`, `premium_pool_exhausted`, `cadence_faster_than_plan`, `internal_error`."
+						"description": "Stable machine-readable code. Deliberately not an enum: new values are added without a version bump, so treat an unrecognized one as its HTTP status implies. Currently: `unauthorized`, `insufficient_scope`, `forbidden`, `not_found`, `validation_error`, `conflict`, `rate_limited`, `method_not_allowed`, `read_only`, `no_active_plan`, `brand_limit`, `prompt_limit`, `model_not_in_plan`, `model_picks_exceeded`, `premium_not_in_plan`, `premium_pool_exhausted`, `cadence_faster_than_plan`, `sentiment_not_in_plan`, `internal_error`."
 					}
 				},
 				"required": ["error"]
@@ -2884,7 +2884,7 @@
 		"/brands/{brandId}/sentiment": {
 			"get": {
 				"summary": "Get sentiment",
-				"description": "How AI answers treat the brand and each competitor, from stored model judgements of one analyzer version (`analyzerVersion`).\n\nEvery stance figure is over judged mentions only: a mention not yet judged is counted in `coverage.mentions` and nowhere else, never as neutral. Runs whose answer has no text are counted in `coverage.blank` and left out of every figure. `riskPrompts` lists the prompts whose answers disrecommend the brand or use it as the foil for a competitor, each with the answers' own words as evidence. `analysisEnabled` is false when this deployment isn't judging new answers; stored judgements are still returned.",
+				"description": "How AI answers treat the brand and each competitor, from stored model judgements of one analyzer version (`analyzerVersion`).\n\nEvery stance figure is over judged mentions only: a mention not yet judged is counted in `coverage.mentions` and nowhere else, never as neutral. Runs whose answer has no text are counted in `coverage.blank` and left out of every figure. `riskPrompts` lists the prompts whose answers disrecommend the brand or use it as the foil for a competitor, each with the answers' own words as evidence. `analysisEnabled` is false when this deployment isn't judging new answers; stored judgements are still returned.\n\nSentiment is on Basic plans and above: for an organization whose plan doesn't include it, this returns 403 with code `sentiment_not_in_plan`. Mention prominence and rank are on every plan.",
 				"operationId": "getBrandSentiment",
 				"tags": ["Analytics"],
 				"x-elmo-scopes": ["read"],
