@@ -1415,9 +1415,14 @@
 							},
 							"analysed": {
 								"type": "integer"
+							},
+							"retainedFrom": {
+								"type": ["string", "null"],
+								"format": "date-time",
+								"description": "Where stored mention analysis starts when the deployment purges older analysis (ENRICHMENT_RETENTION_DAYS); runs before it aren't counted, so a window reaching past it covers less than it asks for. Null when everything is kept."
 							}
 						},
-						"required": ["runs", "analysed"]
+						"required": ["runs", "analysed", "retainedFrom"]
 					},
 					"subjects": {
 						"type": "array",
@@ -1502,9 +1507,14 @@
 							"judged": {
 								"type": "integer",
 								"description": "Of those, the mentions with a judgement."
+							},
+							"retainedFrom": {
+								"type": ["string", "null"],
+								"format": "date-time",
+								"description": "Where stored mention analysis starts when the deployment purges older analysis (ENRICHMENT_RETENTION_DAYS); runs before it aren't counted, so a window reaching past it covers less than it asks for. Null when everything is kept."
 							}
 						},
-						"required": ["runs", "blank", "analysed", "mentions", "judged"]
+						"required": ["runs", "blank", "analysed", "mentions", "judged", "retainedFrom"]
 					},
 					"subjects": {
 						"type": "array",

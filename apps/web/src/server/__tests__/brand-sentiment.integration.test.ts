@@ -97,7 +97,7 @@ afterAll(async () => {
 describe("getBrandSentiment", () => {
 	it("keeps blank answers out of every denominator and counts unjudged mentions apart", async () => {
 		const { coverage } = await getBrandSentiment(brandId, WINDOW);
-		expect(coverage).toEqual({ runs: 6, blank: 1, analysed: 5, mentions: 10, judged: 8 });
+		expect(coverage).toEqual({ runs: 6, blank: 1, analysed: 5, mentions: 10, judged: 8, retainedFrom: null });
 	});
 
 	it("reads only finished judgements of the current analyzer version", async () => {

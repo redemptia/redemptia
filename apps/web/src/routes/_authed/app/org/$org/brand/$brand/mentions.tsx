@@ -13,6 +13,7 @@ import { TooltipProvider } from "@workspace/ui/components/tooltip";
 import { ColHead } from "@/components/col-head";
 import { ALL_MODELS_VALUE, FilterBar } from "@/components/filter-bar";
 import { FilterSection, PageHeader } from "@/components/page-header";
+import { RetentionNote } from "@/components/retention-note";
 import { useBrandId } from "@/hooks/use-brand-id";
 import { useBrand } from "@/hooks/use-brands";
 import { useListFilters } from "@/hooks/use-list-filters";
@@ -50,6 +51,7 @@ function Coverage({ coverage }: { coverage: BrandMentionProminence["coverage"] }
 				{complete
 					? "Every run in this window is counted below."
 					: "Only analysed runs are counted below. The rest are not analysed yet, which is not the same as not mentioning anyone, and they are left out rather than counted as zero. Coverage drops after you edit your brand or competitors and climbs back as they are re-analysed, so it can rise while you watch; this page checks again every 30 seconds."}
+				<RetentionNote retainedFrom={coverage.retainedFrom} />
 			</AlertDescription>
 		</Alert>
 	);

@@ -33,6 +33,7 @@
 		"./enrichment/write": "./src/enrichment/write.ts",
 		"./enrichment/sentiment": "./src/enrichment/sentiment/index.ts",
 		"./enrichment/reconcile": "./src/enrichment/reconcile.ts",
+		"./enrichment/retention": "./src/enrichment/retention.ts",
 		"./tag-utils": "./src/tag-utils.ts",
 		"./bulk-prompts": "./src/bulk-prompts.ts",
 		"./website-excerpt": "./src/website-excerpt.ts",
