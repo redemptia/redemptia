@@ -37,7 +37,14 @@ const buttonBase =
  * isn't required the banner stays hidden until something dispatches
  * CONSENT_OPEN_EVENT, which is what a "Cookie preferences" link does.
  */
-export function CookieConsentBanner({ consentRequired, policyHref }: { consentRequired: boolean; policyHref: string }) {
+/** `policyHref` links the operator's cookie policy, when it has one. */
+export function CookieConsentBanner({
+	consentRequired,
+	policyHref,
+}: {
+	consentRequired: boolean;
+	policyHref?: string;
+}) {
 	const [open, setOpen] = useState(false);
 	const [choice, setChoice] = useState<CookieConsent>(REJECT_ALL);
 	const [expanded, setExpanded] = useState(false);
@@ -72,11 +79,16 @@ export function CookieConsentBanner({ consentRequired, policyHref }: { consentRe
 		>
 			<div className="rounded-lg border bg-popover p-4 text-popover-foreground shadow-lg">
 				<p className="text-[13px] leading-relaxed">
-					We'd like to set analytics and advertising cookies to see how people find Elmo. Essential cookies are always
-					on.{" "}
-					<a href={policyHref} className="underline underline-offset-2 hover:text-primary">
-						Cookie Policy
-					</a>
+					We'd like to set analytics and advertising cookies to see how people find Redemptia. Essential cookies are
+					always on.
+					{policyHref && (
+						<>
+							{" "}
+							<a href={policyHref} className="underline underline-offset-2 hover:text-primary">
+								Cookie Policy
+							</a>
+						</>
+					)}
 				</p>
 
 				{expanded && (

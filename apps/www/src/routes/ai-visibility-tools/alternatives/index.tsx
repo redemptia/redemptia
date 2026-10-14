@@ -1,13 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { DirectoryBackLink, DirectoryHero, DirectorySection, ElmoCta } from "@/components/directory-shell";
+import { DirectoryBackLink, DirectoryHero, DirectorySection, RedemptiaCta } from "@/components/directory-shell";
 import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
 import { CATEGORY_LABELS, indexableCategories, indexedCompetitors, toolsInCategory } from "@/lib/competitors";
 import { breadcrumbJsonLd, canonicalUrl, itemListJsonLd, ogMeta } from "@/lib/seo";
 
-const title = "AI Visibility Tool Alternatives · Elmo";
+const title = "AI Visibility Tool Alternatives · Redemptia";
 const description =
-	"Find open-source and self-hosted alternatives to the AI visibility tools you're evaluating. Each guide compares the closest options, with Elmo as the free, auditable pick.";
+	"Find open-source and self-hosted alternatives to the AI visibility tools you're evaluating. Each guide compares the closest options, with Redemptia as the free, auditable pick.";
 
 const items = indexedCompetitors.map((c) => ({
 	name: `${c.name} alternatives`,
@@ -71,7 +71,7 @@ function AlternativesHub() {
 						</ul>
 					</DirectorySection>
 				))}
-				<ElmoCta />
+				<RedemptiaCta />
 			</main>
 			<Footer />
 		</div>

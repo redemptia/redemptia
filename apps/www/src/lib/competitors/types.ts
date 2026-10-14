@@ -62,13 +62,13 @@ export interface Competitor {
 	highlights?: string[];
 	notes?: string;
 	/**
-	 * Why people tell us they leave this tool, and what Elmo does about it.
+	 * Why people tell us they leave this tool, and what Redemptia does about it.
 	 * Hand-written and set only for the handful of tools with real "alternatives"
 	 * search demand — everything else falls back to the generated copy. Frame
 	 * `reasons` as reported user sentiment, not as claims of fact about a rival.
 	 */
 	switching?: {
-		reasons: { headline: string; detail: string; elmo: string }[];
+		reasons: { headline: string; detail: string; redemptia: string }[];
 	};
 }
 
@@ -220,7 +220,7 @@ export function getFeatureDescription(key: FeatureKey): string {
 	return "";
 }
 
-export const ELMO_FEATURES: Record<FeatureKey, boolean> = {
+export const REDEMPTIA_FEATURES: Record<FeatureKey, boolean> = {
 	multiLlmTracking: true,
 	visibilityScore: true,
 	citationAnalytics: true,

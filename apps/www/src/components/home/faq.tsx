@@ -1,6 +1,6 @@
 import { Plus } from "lucide-react";
 import type { FaqItem } from "@/lib/faqs";
-import { DISCORD_INVITE_URL } from "./closing";
+import { ISSUES_URL } from "./closing";
 import { SectionHeading } from "./ui";
 
 /** Answers live inside closed <details>, so they stay in the DOM for crawlers and the FAQPage JSON-LD. */
@@ -11,14 +11,14 @@ export function Faq({ items }: { items: FaqItem[] }) {
 				<div className="lg:sticky lg:top-24 lg:col-span-4 lg:self-start">
 					<SectionHeading title="Frequently asked questions" />
 					<p className="mt-4 text-pretty text-sm/6 text-zinc-600">
-						Something we didn't cover? Ask the maintainers directly on{" "}
+						Something we didn't cover? Ask the maintainers in a{" "}
 						<a
-							href={DISCORD_INVITE_URL}
+							href={ISSUES_URL}
 							target="_blank"
 							rel="noopener noreferrer"
 							className="font-medium text-zinc-950 underline decoration-zinc-300 underline-offset-4 hover:decoration-zinc-950"
 						>
-							Discord
+							GitHub issue
 						</a>
 						.
 					</p>

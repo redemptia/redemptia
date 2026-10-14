@@ -1,7 +1,7 @@
 /**
  * CLI Driver for E2E Tests
  *
- * Drives `elmo init --dev` through a real PTY by wrapping the CLI in
+ * Drives `redemptia init --dev` through a real PTY by wrapping the CLI in
  * script(1). script(1) is preinstalled on Ubuntu (util-linux) and macOS
  * (BSD), so we avoid native addons / node-gyp / prebuild-binary forks.
  *
@@ -9,10 +9,10 @@
  * to the child's stdin, so we exercise the same interactive wizard a
  * human user would see.
  *
- * The CLI writes config to `~/.elmo`. To redirect that to a test-local
+ * The CLI writes config to `~/.redemptia`. To redirect that to a test-local
  * directory without polluting the runner's real home, we set HOME on the
  * child process so `os.homedir()` resolves to the parent of <config-dir>.
- * The supplied <config-dir> must therefore end in `.elmo`.
+ * The supplied <config-dir> must therefore end in `.redemptia`.
  *
  * Usage: tsx cli-driver.ts <config-dir> <repo-root>
  */
@@ -27,8 +27,8 @@ if (!configDir || !repoRoot) {
 	process.exit(1);
 }
 
-if (path.basename(configDir) !== ".elmo") {
-	console.error(`config-dir must end in ".elmo" (got ${configDir})`);
+if (path.basename(configDir) !== ".redemptia") {
+	console.error(`config-dir must end in ".redemptia" (got ${configDir})`);
 	process.exit(1);
 }
 
@@ -233,17 +233,11 @@ async function main(): Promise<void> {
 	await waitFor("Edit SCRAPE_TARGETS before saving?");
 	await send(ENTER);
 
-	// Telemetry opt-in (default Yes) → No
-	await waitFor("Share telemetry?");
-	await send(ARROW_LEFT);
-	await send(ENTER);
-
-	// Product updates email (optional)
-	await waitFor("email to receive product updates");
-	await send(ENTER);
+	// No telemetry or product-updates prompts: init asks them only when the CLI
+	// has a PostHog key, and CI sets none.
 
 	// Access mode select — default "On this machine (localhost)"
-	await waitFor("How will you access Elmo?");
+	await waitFor("How will you access Redemptia?");
 	await send(ENTER);
 
 	// Web app port (default 1515) → accept default

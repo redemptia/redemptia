@@ -121,7 +121,7 @@ export const getOpportunities = defineTool({
 	name: "get_opportunities",
 	title: "Get the latest opportunities report",
 	description:
-		"The most recent stored opportunities report for a brand: what to write, what to fix, and the risks Elmo found. `status` says whether there was enough data to write one.",
+		"The most recent stored opportunities report for a brand: what to write, what to fix, and the risks Redemptia found. `status` says whether there was enough data to write one.",
 	scopes: ["read"],
 	readOnly: true,
 	input: { brandId: brandIdArg },

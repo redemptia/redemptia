@@ -7,7 +7,7 @@ import { jwt } from "better-auth/plugins";
 import { describe, expect, it } from "vitest";
 import { nativeClientRegistrationDefault } from "./native-client-registration";
 
-const BASE_URL = "https://elmo.test";
+const BASE_URL = "https://redemptia.test";
 const CLIENT_ID_URL = "https://client.example.com/oauth/client.json";
 
 const metadataDocument = {

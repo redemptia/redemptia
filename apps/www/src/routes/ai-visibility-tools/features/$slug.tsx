@@ -1,5 +1,5 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
-import { DirectoryBackLink, DirectoryHero, DirectorySection, ElmoCta } from "@/components/directory-shell";
+import { DirectoryBackLink, DirectoryHero, DirectorySection, RedemptiaCta } from "@/components/directory-shell";
 import { Faq } from "@/components/faq";
 import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
@@ -35,11 +35,11 @@ export const Route = createFileRoute("/ai-visibility-tools/features/$slug")({
 		if (!loaderData) return {};
 		const { tools, label, term, faqs } = loaderData;
 		const title = !term
-			? `AI Visibility Tools with ${label} · Elmo`
+			? `AI Visibility Tools with ${label} · Redemptia`
 			: tools.length <= 25
-				? `${tools.length} Best ${term} (2026) · Elmo`
-				: `${term} Compared: ${tools.length} Tools (2026) · Elmo`;
-		const description = `${tools.length} AI visibility tools with ${label.toLowerCase()}, compared on engine coverage, pricing, and export — including Elmo, the open-source option.`;
+				? `${tools.length} Best ${term} (2026) · Redemptia`
+				: `${term} Compared: ${tools.length} Tools (2026) · Redemptia`;
+		const description = `${tools.length} AI visibility tools with ${label.toLowerCase()}, compared on engine coverage, pricing, and export — including Redemptia, the open-source option.`;
 		const path = `/ai-visibility-tools/features/${params.slug}`;
 		return {
 			meta: [{ title }, { name: "description", content: description }, ...ogMeta({ title, description, path })],
@@ -77,7 +77,7 @@ function FeaturePage() {
 					<ToolGrid competitors={tools} />
 				</DirectorySection>
 				<Faq items={getFeatureFaqs(featureKey, tools)} eyebrow="/ FAQ" />
-				<ElmoCta />
+				<RedemptiaCta />
 			</main>
 			<Footer />
 		</div>

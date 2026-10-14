@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getRedis } from "./redis";
 
-const CACHE_KEY = "gh:releases:elmohq/elmo";
+const CACHE_KEY = "gh:releases:redemptia/redemptia";
 const TTL_SECONDS = 60 * 60;
 const ERROR_TTL_SECONDS = 60;
 
@@ -20,9 +20,9 @@ export const getGitHubReleases = createServerFn({ method: "GET" }).handler(async
 		const cached = await getRedis().get<ReleaseEntry[]>(CACHE_KEY);
 		if (Array.isArray(cached)) return cached;
 
-		const res = await fetch("https://api.github.com/repos/elmohq/elmo/releases?per_page=50", {
+		const res = await fetch("https://api.github.com/repos/redemptia/redemptia/releases?per_page=50", {
 			headers: {
-				"User-Agent": "elmo-www",
+				"User-Agent": "redemptia-www",
 				Accept: "application/vnd.github+json",
 			},
 		});

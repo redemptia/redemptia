@@ -68,7 +68,7 @@ describe("anthropic-api run", () => {
 
 describe("anthropic-api web search handling", () => {
 	const searchBlocks = [
-		{ type: "server_tool_use", id: "srv_1", name: "web_search", input: { query: "elmo aeo" } },
+		{ type: "server_tool_use", id: "srv_1", name: "web_search", input: { query: "redemptia aeo" } },
 		{
 			type: "web_search_tool_result",
 			tool_use_id: "srv_1",
@@ -89,7 +89,7 @@ describe("anthropic-api web search handling", () => {
 
 		const res = await anthropicApi.run("claude", "prompt", { webSearch: true, version: "claude-sonnet-5" });
 
-		expect(res.webQueries).toEqual(["elmo aeo"]);
+		expect(res.webQueries).toEqual(["redemptia aeo"]);
 	});
 
 	it("drops the fetched page text from what it stores but keeps url and title", async () => {
@@ -122,7 +122,7 @@ describe("anthropic-api web search handling", () => {
 		const res = await run;
 
 		expect(anthropicClient.create).toHaveBeenCalledTimes(2);
-		expect(res.webQueries).toEqual(["elmo aeo"]);
+		expect(res.webQueries).toEqual(["redemptia aeo"]);
 		vi.useRealTimers();
 	});
 });

@@ -21,11 +21,11 @@ describe("referral links", () => {
 	});
 
 	it("points each destination at its own page", () => {
-		expect(marketingUrl("/docs", "cloud-signin")).toBe("https://www.elmohq.com/docs?ref=cloud-signin");
-		expect(cloudAppUrl("marketing-cta")).toBe("https://app.elmohq.com/?ref=marketing-cta");
-		expect(cloudSignupUrl("cloud-signin")).toBe("https://app.elmohq.com/auth/register?ref=cloud-signin");
-		expect(cloudPricingUrl("cloud-signin")).toBe("https://www.elmohq.com/pricing?ref=cloud-signin");
-		expect(bookDemoUrl("cloud-signin")).toBe("https://cal.com/jrhizor/elmo?ref=cloud-signin");
-		expect(demoSiteUrl("cloud-signin")).toBe("https://demo.elmohq.com/?ref=cloud-signin");
+		expect(marketingUrl("/docs", "cloud-signin")).toBe("https://redemptia.example/docs?ref=cloud-signin");
+		expect(cloudAppUrl("marketing-cta")).toBe("https://app.redemptia.example/?ref=marketing-cta");
+		expect(cloudSignupUrl("cloud-signin")).toBe("https://app.redemptia.example/auth/register?ref=cloud-signin");
+		expect(cloudPricingUrl("cloud-signin")).toBe("https://redemptia.example/pricing?ref=cloud-signin");
+		expect(bookDemoUrl("cloud-signin")).toBe("https://github.com/redemptia/redemptia/issues?ref=cloud-signin");
+		expect(demoSiteUrl("cloud-signin")).toBe("https://demo.redemptia.example/?ref=cloud-signin");
 	});
 });

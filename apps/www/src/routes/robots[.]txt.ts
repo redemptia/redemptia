@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-
-const SITE_URL = "https://www.elmohq.com";
+import { SITE_URL } from "@/lib/seo";
 
 const CONTENT_SIGNAL = "search=yes, ai-input=yes, ai-train=yes";
 

@@ -81,15 +81,15 @@ export const CUSTOMER_QUOTES = {
 		quote: "Simple and much more cost effective than Profound.",
 		author: "Nolan",
 		company: "Speakeasy",
-		companyUrl: "https://www.speakeasy.com/?ref=elmo",
+		companyUrl: "https://www.speakeasy.com/",
 		mark: <SpeakeasyLockup />,
 	},
 	tradesites: {
 		quote:
-			"We were looking for an affordable way to track our visibility in AI search, and Elmo was a great fit. They were incredibly responsive and quickly added the integration we needed.",
+			"We were looking for an affordable way to track our visibility in AI search, and Redemptia was a great fit. They were incredibly responsive and quickly added the integration we needed.",
 		author: "James",
 		company: "TradeSites",
-		companyUrl: "https://www.tradesites.ai/?ref=elmo",
+		companyUrl: "https://www.tradesites.ai/",
 		mark: <TradeSitesWordmark />,
 	},
 } satisfies Record<string, CustomerQuote>;

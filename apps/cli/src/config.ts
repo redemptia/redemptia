@@ -11,18 +11,18 @@ export type DirOption = {
 	dir?: string;
 };
 
-export const CONFIG_HOME = path.join(os.homedir(), ".elmo");
+export const CONFIG_HOME = path.join(os.homedir(), ".redemptia");
 
 export async function resolveConfigDir(explicitDir?: string): Promise<string> {
 	const resolved = explicitDir ? path.resolve(process.cwd(), explicitDir) : CONFIG_HOME;
-	const composePath = path.join(resolved, "elmo.yaml");
+	const composePath = path.join(resolved, "redemptia.yaml");
 	if (!(await fileExists(composePath))) {
 		if (explicitDir) {
 			throw new Error(
-				`Config directory does not contain elmo.yaml: ${resolved}\nRun \`elmo init --dir ${explicitDir}\` to create it.`,
+				`Config directory does not contain redemptia.yaml: ${resolved}\nRun \`redemptia init --dir ${explicitDir}\` to create it.`,
 			);
 		}
-		throw new Error(`No config found at ${resolved}. Run \`elmo init\` to create one, or specify --dir.`);
+		throw new Error(`No config found at ${resolved}. Run \`redemptia init\` to create one, or specify --dir.`);
 	}
 	return resolved;
 }
@@ -38,7 +38,7 @@ export async function writeConfigFiles(
 	},
 ): Promise<void> {
 	const envPath = path.join(configDir, ".env");
-	const composePath = path.join(configDir, "elmo.yaml");
+	const composePath = path.join(configDir, "redemptia.yaml");
 
 	await ensureDir(configDir);
 	await fs.writeFile(envPath, buildEnvFile(initConfig.env, initConfig.version), "utf8");
@@ -69,7 +69,7 @@ function formatEnvValue(value: string): string {
 	return value;
 }
 
-// Reads the version recorded in a `# Rendered by elmo <version> on ...` header.
+// Reads the version recorded in a `# Rendered by redemptia <version> on ...` header.
 export async function readRenderedVersion(filePath: string): Promise<string | null> {
 	try {
 		return parseRenderedVersion(await fs.readFile(filePath, "utf8"));

@@ -94,7 +94,7 @@ export function OverviewPageGraphic({ wide = false }: { wide?: boolean } = {}) {
 	return (
 		<Screenshot
 			src="/screenshots/overview.png"
-			alt="Elmo dashboard overview showing AI visibility and share of voice scores with 30-day trend charts"
+			alt="Redemptia dashboard overview showing AI visibility and share of voice scores with 30-day trend charts"
 			aspect={wide ? "aspect-[12/5]" : "aspect-[5/3]"}
 		/>
 	);

@@ -1,5 +1,5 @@
 /**
- * Keeps the three lists that describe "what Elmo can track" honest about each
+ * Keeps the three lists that describe "what Redemptia can track" honest about each
  * other: the models we give display metadata to, the provider/model combos the
  * scheduled status workflow exercises, and the providers we actually ship.
  *

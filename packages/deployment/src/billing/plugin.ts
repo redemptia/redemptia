@@ -1,6 +1,6 @@
 /**
  * The @better-auth/stripe server plugin, configured for org-scoped
- * subscriptions on the Elmo Cloud plan catalog.
+ * subscriptions on the Redemptia Cloud plan catalog.
  *
  * Injected into the shared auth factory via CreateAuthOptions.extraPlugins in
  * cloud mode only — no other deployment mode constructs it, so no Stripe

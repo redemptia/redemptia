@@ -17,7 +17,7 @@ async function connect(baseURL: string, token: string) {
   const transport = new StreamableHTTPClientTransport(new URL(MCP_PATH, baseURL), {
     requestInit: { headers: { Authorization: `Bearer ${token}` } },
   });
-  const client = new Client({ name: "elmo-e2e", version: "1.0.0" });
+  const client = new Client({ name: "redemptia-e2e", version: "1.0.0" });
   await client.connect(transport);
   return client;
 }
@@ -33,7 +33,7 @@ test.describe("MCP", () => {
   test("the official client can connect, list tools, and read a brand's numbers", async ({ baseURL, request }) => {
     const client = await connect(baseURL!, API_KEYS.orgFull.token);
 
-    expect(client.getServerVersion()).toMatchObject({ name: "elmo" });
+    expect(client.getServerVersion()).toMatchObject({ name: "redemptia" });
     expect(client.getInstructions()).toContain("list_brands");
 
     const { tools } = await client.listTools();
@@ -178,7 +178,7 @@ test.describe("MCP", () => {
     const discovery = await (await anonymous.get("/.well-known/oauth-authorization-server")).json();
     await page.goto(`${new URL(discovery.authorization_endpoint).pathname}?${query}`);
     await expect(page).toHaveURL(/\/auth\/authorize\?/);
-    await expect(page.getByText("Connect to Elmo")).toBeVisible();
+    await expect(page.getByText("Connect to Redemptia")).toBeVisible();
     await expect(page.getByText("Playwright MCP Client").first()).toBeVisible();
     await expect(page.getByText("127.0.0.1:41999")).toBeVisible();
 

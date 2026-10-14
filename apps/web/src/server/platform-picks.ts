@@ -77,7 +77,7 @@ export type ModelPickerState = {
 	 */
 	costBasis: { enabledPrompts: number; runsPerDay: number; replication: number } | null;
 	/**
-	 * Self-hosted only: platforms Elmo can track that this instance has not
+	 * Self-hosted only: platforms Redemptia can track that this instance has not
 	 * configured, with the providers that can serve each and where to read how.
 	 * Empty in cloud and whitelabel, where SCRAPE_TARGETS is the operator's
 	 * concern rather than the viewer's.

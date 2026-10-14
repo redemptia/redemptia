@@ -1,6 +1,6 @@
 /**
  * No POST to regenerate: producing a report spends provider budget with nothing
- * metering it per call. Elmo decides when one is stale.
+ * metering it per call. Redemptia decides when one is stale.
  */
 import { createFileRoute } from "@tanstack/react-router";
 import { createApiHandler, withMethodGuard } from "@/lib/api/handler";

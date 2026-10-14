@@ -48,7 +48,7 @@ export interface Keyring {
  *  rotation can be completed without re-entering every secret. Domain-separated
  *  so it can never double as a plain hash of the key in another context. */
 export function keyId(key: Uint8Array): string {
-	return createHash("sha256").update("elmo-secret-key-id\0").update(key).digest("hex").slice(0, 16);
+	return createHash("sha256").update("redemptia-secret-key-id\0").update(key).digest("hex").slice(0, 16);
 }
 
 export async function encryptSecret(

@@ -14,7 +14,7 @@ async function main() {
 	const program = new Command();
 
 	program
-		.name("elmo")
+		.name("redemptia")
 		.version(version)
 		.option("--dir <path>", "Config directory")
 		.configureHelp({ showGlobalOptions: true })
@@ -25,7 +25,7 @@ async function main() {
 
 	program
 		.command("init")
-		.description("set up local Elmo instance")
+		.description("set up local Redemptia instance")
 		.option("--dev", "Use local build context (repo only)")
 		.option("--docker-dir <path>", "Path to Docker build context (dev mode)")
 		.action(async (_opts: object, cmd: Command) => {
@@ -34,7 +34,7 @@ async function main() {
 
 	program
 		.command("compose")
-		.description("run Docker Compose commands using your Elmo config")
+		.description("run Docker Compose commands using your Redemptia config")
 		.allowUnknownOption(true)
 		.argument("[args...]", "Arguments passed to Docker Compose")
 		.action(async (args: string[], _opts: object, cmd: Command) => {
@@ -51,7 +51,7 @@ async function main() {
 
 	program
 		.command("upgrade")
-		.description("upgrade your Elmo deployment to this CLI's version")
+		.description("upgrade your Redemptia deployment to this CLI's version")
 		.option("--yes", "skip confirmation prompts")
 		.action(async (_opts: object, cmd: Command) => {
 			await runUpgrade(cmd.optsWithGlobals<UpgradeOptions>(), version);

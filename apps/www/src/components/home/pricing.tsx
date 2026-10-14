@@ -70,7 +70,7 @@ function OtherOption({ name, body, action }: { name: string; body: string; actio
 	);
 }
 
-/** Self-hosting, custom contracts, and white label: the ways to run Elmo that aren't a self-serve cloud tier. */
+/** Self-hosting, custom contracts, and white label: the ways to run Redemptia that aren't a self-serve cloud tier. */
 export function OtherPlans({ className = "" }: { className?: string }) {
 	return (
 		<div className={`grid gap-4 md:grid-cols-3 ${className}`}>

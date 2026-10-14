@@ -12,10 +12,10 @@
 
   <rect width="1100" height="360" rx="16" fill="#fafaf9" stroke="#e4e4e7" stroke-width="1"/>
 
-  <!-- ELMO subgraph -->
+  <!-- REDEMPTIA subgraph -->
   <rect x="220" y="20" width="440" height="320" rx="14" fill="#ffffff"
         stroke="#e4e4e7" stroke-width="1" filter="url(#shCard)"/>
-  <text x="240" y="48" fill="#71717a" font-size="11" font-weight="600" letter-spacing="3.5">ELMO</text>
+  <text x="240" y="48" fill="#71717a" font-size="11" font-weight="600" letter-spacing="3.5">REDEMPTIA</text>
 
   <!-- LLM APIs group -->
   <rect x="720" y="30" width="360" height="140" rx="14" fill="#ffffff"
@@ -31,7 +31,7 @@
   <!-- User → Web Server -->
   <line x1="150" y1="100" x2="236" y2="100" stroke="#a1a1aa" stroke-width="2"/>
   <polygon points="250,100 236,95 236,105" fill="#a1a1aa"/>
-  <!-- Postgres ↔ Elmo S-curve -->
+  <!-- Postgres ↔ Redemptia S-curve -->
   <path d="M 162 260 C 190 260, 190 195, 204 195" stroke="#a1a1aa" stroke-width="2" fill="none"/>
   <polygon points="148,260 162,255 162,265" fill="#a1a1aa"/>
   <polygon points="218,195 204,190 204,200" fill="#a1a1aa"/>

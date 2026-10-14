@@ -3,9 +3,9 @@ import { Check, ExternalLink, X } from "lucide-react";
 import {
 	CATEGORY_LABELS,
 	type Competitor,
-	ELMO_FEATURES,
 	FEATURE_CATEGORIES,
 	type FeatureKey,
+	REDEMPTIA_FEATURES,
 } from "@/lib/competitors";
 
 function Cell({ on, highlight }: { on: boolean; highlight?: boolean }) {
@@ -42,19 +42,19 @@ function ToolSummary({ tool }: { tool: Competitor }) {
 }
 
 export function MultiComparison({ tools }: { tools: Competitor[] }) {
-	const heading = `${tools.map((t) => t.name).join(" vs ")} vs Elmo`;
-	const columnCount = tools.length + 2; // feature label + tools + Elmo
+	const heading = `${tools.map((t) => t.name).join(" vs ")} vs Redemptia`;
+	const columnCount = tools.length + 2; // feature label + tools + Redemptia
 
 	return (
 		<>
-			{/* Tool summaries, plus Elmo */}
+			{/* Tool summaries, plus Redemptia */}
 			<section className="border-b border-zinc-200 bg-zinc-50 py-8">
 				<div className="mx-auto grid max-w-6xl gap-8 px-4 sm:grid-cols-2 lg:grid-cols-3 md:px-6">
 					{tools.map((tool) => (
 						<ToolSummary key={tool.slug} tool={tool} />
 					))}
 					<div>
-						<h3 className="mb-1 text-lg font-semibold text-zinc-950">Elmo</h3>
+						<h3 className="mb-1 text-lg font-semibold text-zinc-950">Redemptia</h3>
 						<div className="mt-2 flex flex-wrap gap-2">
 							<Badge variant="secondary">Open Source</Badge>
 							<Badge variant="secondary">Self-Hosted</Badge>
@@ -82,7 +82,7 @@ export function MultiComparison({ tools }: { tools: Competitor[] }) {
 											{tool.name}
 										</th>
 									))}
-									<th className="w-28 px-3 py-3 text-center font-semibold text-zinc-950">Elmo</th>
+									<th className="w-28 px-3 py-3 text-center font-semibold text-zinc-950">Redemptia</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -97,14 +97,14 @@ export function MultiComparison({ tools }: { tools: Competitor[] }) {
 									</tr>,
 									...Object.entries(cat.features).map(([featureKey, featureDef]) => {
 										const k = featureKey as FeatureKey;
-										const elmo = ELMO_FEATURES[k] ?? false;
+										const redemptia = REDEMPTIA_FEATURES[k] ?? false;
 										return (
 											<tr key={featureKey} className="border-b border-dashed border-zinc-200 last:border-solid">
 												<td className="py-3 pr-4 text-sm text-zinc-600">{featureDef.label}</td>
 												{tools.map((tool) => (
 													<Cell key={tool.slug} on={tool.features[k] ?? false} />
 												))}
-												<Cell on={elmo} highlight={elmo} />
+												<Cell on={redemptia} highlight={redemptia} />
 											</tr>
 										);
 									}),

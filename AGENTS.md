@@ -2,12 +2,12 @@
 
 ## What this is
 
-Elmo is an open-source AI visibility platform (Answer Engine Optimization): it tracks how AI answer engines like ChatGPT, Claude, Perplexity, Gemini, and Google AI Overviews mention, cite, and describe brands. It is a **pnpm + Turborepo monorepo** on **Node.js 24** (enforced via `engines`), **TypeScript**, and **PostgreSQL**.
+Redemptia is an open-source AI visibility platform (Answer Engine Optimization): it tracks how AI answer engines like ChatGPT, Claude, Perplexity, Gemini, and Google AI Overviews mention, cite, and describe brands. It is a **pnpm + Turborepo monorepo** on **Node.js 24** (enforced via `engines`), **TypeScript**, and **PostgreSQL**.
 
 - `apps/web` — product dashboard (TanStack Start + Vite, port 3000)
 - `apps/worker` — pg-boss background jobs (AI evaluations, citation tracking, reports)
-- `apps/www` — marketing site, docs, and blog (port 3001)
-- `apps/cli` — `@elmohq/cli`, the Docker Compose deployment CLI
+- `apps/www` — marketing site and docs (port 3001)
+- `apps/cli` — `@redemptia/cli`, the Docker Compose deployment CLI
 - `packages/lib` — shared logic and the Drizzle schema/migrations
 - `packages/ui` — shared shadcn-based UI components
 - `packages/docs` — user-facing docs content (MDX), rendered by `apps/www`

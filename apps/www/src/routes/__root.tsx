@@ -72,8 +72,8 @@ export const Route = createRootRoute({
 				href: titanOneFont,
 				crossOrigin: "anonymous",
 			},
-			{ rel: "icon", type: "image/svg+xml", href: "/icons/elmo-icon.svg" },
-			{ rel: "icon", type: "image/png", sizes: "96x96", href: "/icons/elmo-icon-96.png" },
+			{ rel: "icon", type: "image/svg+xml", href: "/icons/redemptia-icon.svg" },
+			{ rel: "icon", type: "image/png", sizes: "96x96", href: "/icons/redemptia-icon-96.png" },
 			{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
 			{ rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
 			{ rel: "manifest", href: "/site.webmanifest" },
@@ -85,7 +85,7 @@ export const Route = createRootRoute({
 			{
 				src: "/api/plausible/js/script",
 				defer: true,
-				"data-domain": "elmohq.com",
+				"data-domain": "redemptia.example",
 				"data-api": "/api/plausible/event",
 			},
 		],
@@ -113,9 +113,7 @@ function RootComponent() {
 	return (
 		<RootDocument>
 			<Outlet />
-			{consentRequired !== null && (
-				<CookieConsentBanner consentRequired={consentRequired} policyHref="/legal/cookies" />
-			)}
+			{consentRequired !== null && <CookieConsentBanner consentRequired={consentRequired} />}
 		</RootDocument>
 	);
 }

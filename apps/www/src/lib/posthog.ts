@@ -2,8 +2,9 @@ import { onAnalyticsConsent } from "@workspace/ui/lib/cookie-consent";
 import type { PostHog } from "posthog-js";
 import { afterPageIdle } from "./idle";
 
-const POSTHOG_KEY = "phc_Jhx9LnI9cTDFHpQmpOzJSDTW127qD9pFU65KRnYym6z";
-const POSTHOG_HOST = "https://var.elmohq.com";
+// The site operator's own project, set at build time; with none, nothing loads.
+const POSTHOG_KEY: string | undefined = import.meta.env.VITE_POSTHOG_KEY || undefined;
+const POSTHOG_HOST = "https://us.i.posthog.com";
 
 // posthog-js is ~60KB gzipped and sets cookies, so it is imported dynamically
 // and only once analytics consent is in effect. Visitors who decline never
@@ -26,7 +27,7 @@ function load(): Promise<void> {
 	loading ??= afterPageIdle()
 		.then(() => import("posthog-js"))
 		.then(({ default: posthog }) => {
-			posthog.init(POSTHOG_KEY, {
+			posthog.init(POSTHOG_KEY as string, {
 				api_host: POSTHOG_HOST,
 				capture_pageview: true,
 				capture_pageleave: true,
@@ -74,6 +75,7 @@ function sync(): void {
  * answer for the rest of the session. Returns an unsubscribe.
  */
 export function initAnalytics(consentRequired: boolean): () => void {
+	if (!POSTHOG_KEY) return () => {};
 	return onAnalyticsConsent(consentRequired, (answer) => {
 		allowed = answer;
 		if (answer) {

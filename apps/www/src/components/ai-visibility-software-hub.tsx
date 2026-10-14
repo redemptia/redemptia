@@ -60,12 +60,9 @@ export function AiVisibilitySoftwareHub() {
 							<p>
 								Instead of tracking rankings on a results page, it samples the answers themselves — running a defined
 								set of prompts across multiple AI engines on a schedule and recording what comes back: whether your
-								brand is mentioned, whether it's{" "}
-								<a className={LINK} href="/blog/ai-citations">
-									cited with a link
-								</a>
-								, how it's described, and how often competitors appear instead. Good tools roll those signals into a
-								share-of-voice metric and point you to the gaps worth closing.
+								brand is mentioned, whether it's cited with a link, how it's described, and how often competitors appear
+								instead. Good tools roll those signals into a share-of-voice metric and point you to the gaps worth
+								closing.
 							</p>
 						</div>
 					</div>
@@ -122,25 +119,25 @@ export function AiVisibilitySoftwareHub() {
 				</div>
 			</section>
 
-			{/* Elmo's approach */}
+			{/* Redemptia's approach */}
 			<section className="border-b border-zinc-200 bg-zinc-50 py-12 lg:py-20">
 				<div className="mx-auto max-w-6xl px-4 md:px-6">
 					<div className="max-w-3xl">
-						<Eyebrow num="04" label="ELMO'S APPROACH" />
-						<h2 className="font-heading mt-3 text-3xl text-zinc-950 md:text-4xl">Elmo's approach</h2>
+						<Eyebrow num="04" label="REDEMPTIA'S APPROACH" />
+						<h2 className="font-heading mt-3 text-3xl text-zinc-950 md:text-4xl">Redemptia's approach</h2>
 						<div className="mt-8 space-y-6 text-[1.0625rem] leading-relaxed text-zinc-600">
 							<p>
-								Elmo is open-source AI visibility software you can self-host. It tracks mentions, citations, and
+								Redemptia is open-source AI visibility software you can self-host. It tracks mentions, citations, and
 								competitor share across ChatGPT, Claude, Gemini, Grok, Perplexity, Copilot, and Google AI Mode and AI
 								Overviews — and because it's released under the MIT license, you can read exactly how every metric is
 								collected and computed.
 							</p>
 							<p>
-								That matters in a market full of opaque scoring and inflated pricing. With Elmo you own your data and
-								avoid vendor lock-in: the self-hosted core is free, and managed cloud hosting is there if you would
-								rather not run it. To see how it compares with the rest of the field, read our roundup of the{" "}
-								<a className={LINK} href="/blog/best-ai-visibility-tools">
-									best AI visibility tools
+								That matters in a market full of opaque scoring and inflated pricing. With Redemptia you own your data
+								and avoid vendor lock-in: the self-hosted core is free, and managed cloud hosting is there if you would
+								rather not run it. To see how it compares with the rest of the field, browse the{" "}
+								<a className={LINK} href="/ai-visibility-tools">
+									tool directory
 								</a>{" "}
 								or learn{" "}
 								<a className={LINK} href="/answer-engine-optimization">
@@ -155,7 +152,7 @@ export function AiVisibilitySoftwareHub() {
 								<ArrowRight className="size-3.5" />
 							</Link>
 							<a
-								href="https://github.com/elmohq/elmo"
+								href="https://github.com/redemptia/redemptia"
 								target="_blank"
 								rel="noopener noreferrer"
 								className={buttonVariants({ variant: "outline", size: "sm" })}

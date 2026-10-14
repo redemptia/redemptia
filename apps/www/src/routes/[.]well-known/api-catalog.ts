@@ -2,8 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { CLOUD_APP_URL } from "@workspace/config/referrals";
 import { canonicalUrl } from "@/lib/seo";
 
-const STATUS_URL = "https://status.elmohq.com/";
-
 const catalog = {
 	linkset: [
 		{
@@ -12,22 +10,21 @@ const catalog = {
 				{
 					href: canonicalUrl("/api/openapi.json"),
 					type: "application/vnd.oai.openapi+json;version=3.1",
-					title: "Elmo API — OpenAPI description",
+					title: "Redemptia API — OpenAPI description",
 				},
 			],
 			"service-doc": [
 				{
 					href: canonicalUrl("/docs/api"),
 					type: "text/html",
-					title: "Elmo API reference",
+					title: "Redemptia API reference",
 				},
 				{
 					href: canonicalUrl("/docs/api.md"),
 					type: "text/markdown",
-					title: "Elmo API reference (markdown)",
+					title: "Redemptia API reference (markdown)",
 				},
 			],
-			status: [{ href: STATUS_URL, type: "text/html", title: "Elmo status" }],
 		},
 		{
 			anchor: `${CLOUD_APP_URL}/api/mcp`,
@@ -35,15 +32,14 @@ const catalog = {
 				{
 					href: canonicalUrl("/docs/api/mcp"),
 					type: "text/html",
-					title: "Elmo MCP server",
+					title: "Redemptia MCP server",
 				},
 				{
 					href: canonicalUrl("/docs/api/mcp.md"),
 					type: "text/markdown",
-					title: "Elmo MCP server (markdown)",
+					title: "Redemptia MCP server (markdown)",
 				},
 			],
-			status: [{ href: STATUS_URL, type: "text/html", title: "Elmo status" }],
 		},
 	],
 };

@@ -10,21 +10,21 @@ interface Step {
 const STEPS: Step[] = [
 	{
 		title: "Add your brand",
-		body: "Point Elmo at your site. It suggests the prompts your buyers ask and the competitors to track against.",
+		body: "Point Redemptia at your site. It suggests the prompts your buyers ask and the competitors to track against.",
 		src: "/screenshots/prompt-settings.png",
-		alt: "Elmo prompts settings listing the buyer prompts tracked for Nike, each tagged by topic",
+		alt: "Redemptia prompts settings listing the buyer prompts tracked for Nike, each tagged by topic",
 	},
 	{
 		title: "See where you stand",
 		body: "Visibility, share of voice, and the sources AI cites, sampled up to 4× daily from the real apps.",
 		src: "/screenshots/visibility.png",
-		alt: "Elmo visibility page showing per-prompt visibility over time against competitors",
+		alt: "Redemptia visibility page showing per-prompt visibility over time against competitors",
 	},
 	{
 		title: "Know what to fix",
-		body: "Opportunities ranked by impact. Elmo keeps you updated, so you always know what to do next.",
+		body: "Opportunities ranked by impact. Redemptia keeps you updated, so you always know what to do next.",
 		src: "/screenshots/opportunities.png",
-		alt: "Elmo opportunities page with prioritized recommendations for content and sources",
+		alt: "Redemptia opportunities page with prioritized recommendations for content and sources",
 	},
 ];
 
@@ -57,7 +57,7 @@ export function HowItWorks() {
 			<div className="mx-auto max-w-6xl px-4 py-20 md:px-6 lg:py-28">
 				<SectionHeading
 					title="From zero to a plan in one afternoon."
-					lede="No sales call, no bloat. Elmo sets up your tracking and tells you what to change."
+					lede="No sales call, no bloat. Redemptia sets up your tracking and tells you what to change."
 				/>
 				<ol className="mt-12 grid gap-5 md:grid-cols-3">
 					{STEPS.map((step, i) => (

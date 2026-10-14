@@ -1,11 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getRedis } from "./redis";
 
-const CACHE_KEY = "gh:roadmap:elmohq/elmo";
+const CACHE_KEY = "gh:roadmap:redemptia/redemptia";
 const TTL_SECONDS = 60 * 60;
 const ERROR_TTL_SECONDS = 60;
 
-const REPO = "elmohq/elmo";
+const REPO = "redemptia/redemptia";
 const API_BASE = `https://api.github.com/repos/${REPO}`;
 
 export interface RoadmapIssue {
@@ -47,7 +47,7 @@ const AREA_LABELS: Record<string, string> = {
 
 const headers: Record<string, string> = {
 	Accept: "application/vnd.github+json",
-	"User-Agent": "elmo-www",
+	"User-Agent": "redemptia-www",
 };
 if (process.env.GITHUB_TOKEN) {
 	headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;

@@ -1,7 +1,7 @@
 /**
  * Everything here is a fact about *this* deployment — the endpoint, the tools
  * actually registered, whether writes are served at all — so a whitelabel or
- * air-gapped instance never has to send anybody to elmohq.com to connect.
+ * air-gapped instance never has to send anybody to redemptia.example to connect.
  */
 import { createFileRoute } from "@tanstack/react-router";
 import { DEFAULT_APP_NAME, MCP_PATH } from "@workspace/config/constants";

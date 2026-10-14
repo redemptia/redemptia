@@ -41,7 +41,7 @@ export function setMockApiKeys(page: Partial<ApiKeysPageData>) {
 export const listApiKeysFn = async () => _page;
 
 export const createApiKeyFn = async () => ({
-	key: "elmo_5f3b9c1d84a24e7fbc2a6d0e91f7c3b8",
+	key: "redemptia_5f3b9c1d84a24e7fbc2a6d0e91f7c3b8",
 	summary: _page.keys[0] ?? null,
 });
 

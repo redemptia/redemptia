@@ -54,9 +54,9 @@ Facts and rules established across PRs, kept here so they reach whoever opens th
 
 ### The gate (before every push)
 `pnpm lint && pnpm turbo check-types test`, then `pnpm -C apps/web test:integration` with `TEST_DATABASE_URL` pointing at a database whose name ends in `_test`.
-- **Baseline:** 1,442 unit tests plus 4 expected failures, and 131 integration tests, all green.
+- **Baseline:** 1,472 unit tests plus 4 expected failures, and 150 integration tests, all green.
 - **CI** is 5 checks.
-- **CI sets no `DEPLOYMENT_MODE`.** An integration test that reaches deployment or entitlement code (`getDeploymentFeatures`, `getOrgEntitlements`) must `vi.stubEnv("DEPLOYMENT_MODE", …)`. A local `.env` hides the failure, so it shows up only in CI.
+- **CI sets no `DEPLOYMENT_MODE`.** An integration test that reaches deployment or entitlement code (`getDeploymentFeatures`, `getOrgEntitlements`) must `vi.stubEnv("DEPLOYMENT_MODE", …)`, and before anything it starts (pg-boss creates the recompute queue only if enrichment is on when it starts). A local `.env` hides the failure, so it shows up only in CI. To reproduce one, move both `.env` files aside and run the file alone against a fresh `_test` database: another file can create shared state, such as a queue, that masks it.
 - **Known flaky tests:**
   - `e2e/tests/shared/api-keys.spec.ts` (brand multi-select vs the Create click) and `e2e/tests/shared/overview.spec.ts` (sidebar links) can flake. `failOnFlakyTests` makes a flake red.
   - Re-run once. If it recurs, fix it: it may be an app bug.
@@ -68,12 +68,16 @@ Facts and rules established across PRs, kept here so they reach whoever opens th
 - acting on a contradicted fact below.
 
 ### Facts
+- **Three elmo names are never renamed.** Renaming any of them breaks live deployments or drops the lock:
+  - `ELMO_ENCRYPTION_KEY` (and its rotation sibling `ELMO_ENCRYPTION_KEY_OLD`) is the env var every deployment's stored secrets are encrypted under.
+  - The `x-elmo-*` OpenAPI extensions (`x-elmo-scopes`, `x-elmo-admin-only`) are part of the published spec; the route-conformance test and the Bruno suite read them.
+  - `QUOTA_LOCK_CLASS` (`0x656c6d6f`, "elmo" in hex) is the advisory-lock class `withQuotaLock` takes; every process must use the same value.
 - **Tenancy is application code only.** RLS is inert: the tables call `.enableRLS()` with no policies, and the app connects as table owner.
   - Cross-brand list cores (`listPrompts`, `listCompetitors`, `listBrands`) take `scope: SQL | undefined` as a required key (#23).
   - Brand-scoped analytics cores take a brand id the edge has already gated.
   - Dashboard server functions gate with `requireBrandSession`, and that gate has no test (#21).
 - **Migrations (drizzle 0.45.2).** The only gate is the journal `when` against the newest applied migration; filenames and `idx` don't matter, and skipped migrations are silent.
-  - Ours are 0100–0104; the next is 0105. Upstream is at 0023.
+  - Ours are 0100–0107; the next is 0108. Upstream is at 0023.
   - Everything runs in one transaction, so no `CREATE INDEX CONCURRENTLY`.
   - Never run `drizzle-kit push`.
 - **Four raw-SQL indexes on `prompt_runs` are invisible to drizzle and the drift check:** `idx_prompt_runs_brand_analytics`, `idx_prompt_runs_prompt_analytics`, `idx_prompt_runs_admin`, `prompt_runs_web_search_model_group_created_at_idx`. Don't duplicate them. Drizzle 0.45 can't express `INCLUDE`.

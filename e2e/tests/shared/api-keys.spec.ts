@@ -47,7 +47,7 @@ test.describe("API keys", () => {
     const issued = page.locator("[data-slot=card]").filter({ hasText: "Key Created" });
     await expect(issued).toBeVisible({ timeout: 30_000 });
     const key = (await issued.locator("code").innerText()).trim();
-    expect(key).toMatch(/^elmo_[A-Za-z]+$/);
+    expect(key).toMatch(/^redemptia_[A-Za-z]+$/);
     await expect(page.getByText(name)).toBeVisible();
 
     const auth = { Authorization: `Bearer ${key}` };

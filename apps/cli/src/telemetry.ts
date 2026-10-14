@@ -3,8 +3,15 @@ import path from "node:path";
 import { parse } from "dotenv";
 import { PostHog } from "posthog-node";
 
-const POSTHOG_PUBLIC_KEY = "phc_Jhx9LnI9cTDFHpQmpOzJSDTW127qD9pFU65KRnYym6z";
 const POSTHOG_HOST = "https://us.i.posthog.com";
+
+/**
+ * The PostHog project CLI events go to: the operator's own, from POSTHOG_KEY.
+ * Without one the CLI sends nothing and doesn't ask about telemetry at all.
+ */
+export function telemetryKey(): string | undefined {
+	return process.env.POSTHOG_KEY?.trim() || undefined;
+}
 
 function envDisabled(): boolean {
 	return Boolean(process.env.DISABLE_TELEMETRY);
@@ -30,12 +37,13 @@ export async function trackCliEvent(
 	properties?: Record<string, string | number | boolean | undefined>,
 	personProperties?: Record<string, string | number | boolean | undefined>,
 ): Promise<void> {
-	if (await isTelemetryDisabled(configDir)) return;
+	const key = telemetryKey();
+	if (!key || (await isTelemetryDisabled(configDir))) return;
 	const distinctId = await readEnvKey(configDir, "DEPLOYMENT_ID");
 	if (!distinctId) return;
 
 	try {
-		const client = new PostHog(POSTHOG_PUBLIC_KEY, { host: POSTHOG_HOST });
+		const client = new PostHog(key, { host: POSTHOG_HOST });
 		client.capture({
 			distinctId,
 			event: eventName,
@@ -57,11 +65,13 @@ export async function trackCliEvent(
 // telemetry is off the event is keyed off the email itself, so it is never
 // linked back to the anonymous deployment UUID.
 export async function submitNewsletterSignup(configDir: string, email: string): Promise<void> {
+	const key = telemetryKey();
+	if (!key) return;
 	try {
 		const disabled = await isTelemetryDisabled(configDir);
 		const deploymentId = disabled ? null : await readEnvKey(configDir, "DEPLOYMENT_ID");
 		const distinctId = deploymentId ?? email;
-		const client = new PostHog(POSTHOG_PUBLIC_KEY, { host: POSTHOG_HOST });
+		const client = new PostHog(key, { host: POSTHOG_HOST });
 		client.capture({
 			distinctId,
 			event: "newsletter_signup",

@@ -533,7 +533,7 @@ function CustomPlanCallout() {
 			</div>
 			<a
 				className={buttonVariants({ variant: "outline", size: "sm" })}
-				href="mailto:hello@elmohq.com?subject=Elmo%20Cloud%20custom%20plan"
+				href="https://github.com/redemptia/redemptia/issues"
 			>
 				Talk to us
 				<IconArrowUpRight className="h-4 w-4" />

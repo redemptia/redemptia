@@ -3,16 +3,19 @@
  *
  * Each one carries a `ref` naming the surface it was clicked from, so the
  * marketing site can tell a self-hosted operator who arrived from the sign-in
- * page apart from one who arrived from `elmo init` — the two want different
+ * page apart from one who arrived from `redemptia init` — the two want different
  * things and convert at very different rates.
  */
 
-export const MARKETING_SITE_URL = "https://www.elmohq.com";
-export const CLOUD_APP_URL = "https://app.elmohq.com";
-/** Where a demo is booked. Not on our domain, but ours, and tagged the same way. */
-const BOOK_DEMO_URL = "https://cal.com/jrhizor/elmo";
+// Placeholders on the reserved .example domain until Redemptia has its own:
+// every link to the marketing site, the cloud app and the demo instance is
+// built from these three, so going live means changing them here.
+export const MARKETING_SITE_URL = "https://redemptia.example";
+export const CLOUD_APP_URL = "https://app.redemptia.example";
 /** The read-only instance anyone can poke at without an account. */
-const DEMO_SITE_URL = "https://demo.elmohq.com";
+const DEMO_SITE_URL = "https://demo.redemptia.example";
+/** Where to ask for a walkthrough: there's no booking page, so it's the issue tracker. */
+const BOOK_DEMO_URL = "https://github.com/redemptia/redemptia/issues";
 
 /**
  * Where a link back to us was clicked. A closed set rather than free-form

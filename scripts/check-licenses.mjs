@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
 /**
- * License compliance checker for the Elmo monorepo.
+ * License compliance checker for the Redemptia monorepo.
  *
  * Ensures every dependency uses a license compatible with distributing
- * Elmo itself under MIT. Runs `pnpm licenses list --json` and validates
+ * Redemptia itself under MIT. Runs `pnpm licenses list --json` and validates
  * the output against an allow-list of SPDX identifiers plus a set of
  * per-package exceptions for known-safe outliers. The allow-list is
  * limited to permissive licenses so that nothing we ship pulls in
@@ -20,9 +20,9 @@ import { execSync } from "node:child_process";
 // ── Allowed SPDX license identifiers ────────────────────────────────
 // Permissive licenses compatible with MIT redistribution, plus MPL-2.0.
 // MPL-2.0 is file-level copyleft: used as an unmodified dependency it places no
-// obligations on Elmo's own MIT-licensed code (e.g. lightningcss for CSS).
+// obligations on Redemptia's own MIT-licensed code (e.g. lightningcss for CSS).
 // Strong copyleft (GPL/LGPL/AGPL) is intentionally NOT added — its terms would
-// conflict with shipping Elmo under MIT.
+// conflict with shipping Redemptia under MIT.
 const ALLOWED_LICENSES = new Set([
   "MIT",
   "MIT-0",
@@ -58,7 +58,7 @@ const ALLOWED_LICENSES = new Set([
 // Packages whose licenses are NOT in the allow-list above but are
 // acceptable for documented reasons. Keep this list small and justified.
 const PACKAGE_EXCEPTIONS = new Map([
-  // Sentry CLI – build-time tooling only, never distributed with Elmo.
+  // Sentry CLI – build-time tooling only, never distributed with Redemptia.
   // FSL-1.1-MIT converts to MIT after two years.
   ["@sentry/cli", "FSL-1.1-MIT"],
   ["@sentry/cli-darwin", "FSL-1.1-MIT"],

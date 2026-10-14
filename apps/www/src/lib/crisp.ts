@@ -1,4 +1,6 @@
-import { CRISP_WEBSITE_ID } from "@workspace/config/constants";
+// The site operator's own Crisp inbox, set at build time; with none, no chat loads.
+const CRISP_WEBSITE_ID: string | undefined = import.meta.env.VITE_CRISP_WEBSITE_ID || undefined;
+
 import { afterPageIdle } from "./idle";
 
 type CrispCommand = unknown[];
@@ -15,7 +17,7 @@ const CRISP_SCRIPT_URL = "https://client.crisp.chat/l.js";
 let initialized = false;
 
 export function initCrisp(): void {
-	if (initialized || typeof window === "undefined") return;
+	if (initialized || typeof window === "undefined" || !CRISP_WEBSITE_ID) return;
 	initialized = true;
 
 	window.$crisp = [];

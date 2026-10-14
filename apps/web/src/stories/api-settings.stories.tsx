@@ -6,7 +6,7 @@ import { setMockRouteContext } from "./_mocks/tanstack-router";
 
 const ApiSettingsPage = (Route as unknown as { options: { component: ComponentType } }).options.component;
 
-function load(appName = "Elmo", appUrl = "https://app.elmohq.com/", readOnly = false) {
+function load(appName = "Redemptia", appUrl = "https://app.redemptia.example/", readOnly = false) {
 	setMockRouteContext({ clientConfig: { branding: { name: appName, url: appUrl }, features: { readOnly } } });
 }
 
@@ -55,13 +55,13 @@ export const Whitelabel: Story = {
 		const canvas = within(canvasElement);
 		await expect(await canvas.findByText("Programmatic interface for Acme Visibility.")).toBeVisible();
 		// Nothing on the page names the vendor.
-		await expect(canvas.queryByText(/elmo/i)).toBeNull();
+		await expect(canvas.queryByText(/redemptia/i)).toBeNull();
 	},
 };
 
 export const ReadOnlyDeployment: Story = {
 	render: () => {
-		load("Elmo", "https://app.elmohq.com/", true);
+		load("Redemptia", "https://app.redemptia.example/", true);
 		return <ApiSettingsPage />;
 	},
 	play: async ({ canvasElement }) => {

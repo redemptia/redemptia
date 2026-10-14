@@ -4,7 +4,7 @@ import { Navbar } from "@/components/navbar";
 import { aiSearchEngines } from "@/data/ai-search-engines";
 import { breadcrumbJsonLd, canonicalUrl, itemListJsonLd, ogMeta } from "@/lib/seo";
 
-const title = "How to Show Up in AI Search Engines · Elmo";
+const title = "How to Show Up in AI Search Engines · Redemptia";
 const description =
 	"Practical guides to appearing in AI search: how engines like ChatGPT, Perplexity, and Google AI Overviews choose what to cite — and how to become one of their sources.";
 

@@ -14,10 +14,10 @@ import { resetMockAuthClient, setMockSsoError } from "./_mocks/auth-client";
 import { type ClientConfig, setMockClientConfig } from "./_mocks/config-client";
 import { setMockRouteContext } from "./_mocks/tanstack-router";
 
-const elmoConfig: ClientConfig = {
+const redemptiaConfig: ClientConfig = {
 	mode: "local",
 	features: { readOnly: false, showOptimizeButton: false, canCreateBrands: true },
-	branding: { name: "Elmo", chartColors: DEFAULT_CHART_COLORS.map((c) => c) },
+	branding: { name: "Redemptia", chartColors: DEFAULT_CHART_COLORS.map((c) => c) },
 	analytics: {},
 	defaultDelayHours: 24,
 	canRegister: true,
@@ -57,8 +57,8 @@ export default {
 	decorators: [
 		(Story) => {
 			resetMockAuthClient();
-			setMockClientConfig(elmoConfig);
-			setMockRouteContext({ clientConfig: elmoConfig });
+			setMockClientConfig(redemptiaConfig);
+			setMockRouteContext({ clientConfig: redemptiaConfig });
 			return <Shell>{<Story />}</Shell>;
 		},
 	],

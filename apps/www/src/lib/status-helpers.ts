@@ -65,14 +65,14 @@ export function formatProvider(provider: string) {
 // Affiliate sign-up links for the third-party providers, keyed by provider id
 // or matrix category. `sid` tags the source for the programs that support it.
 const PROVIDER_AFFILIATE_URLS: Record<string, string> = {
-	cloro: "https://cloro.dev?fpr=elmo&fp_sid=status",
-	brightdata: "https://get.brightdata.com/elmo?sid=status",
-	oxylabs: "https://oxylabs.go2cloud.org/aff_c?offer_id=7&aff_id=2263&url_id=32",
-	searchapi: "https://www.searchapi.io/?via=elmo",
-	olostep: "https://olostep.com/?ref=elmo",
-	dataforseo: "https://try.dataforseo.com/elmo",
-	"dataforseo-api": "https://try.dataforseo.com/elmo",
-	"dataforseo-scraper": "https://try.dataforseo.com/elmo",
+	cloro: "https://cloro.dev/",
+	brightdata: "https://brightdata.com/",
+	oxylabs: "https://oxylabs.io/",
+	searchapi: "https://www.searchapi.io/",
+	olostep: "https://olostep.com/",
+	dataforseo: "https://dataforseo.com/",
+	"dataforseo-api": "https://dataforseo.com/",
+	"dataforseo-scraper": "https://dataforseo.com/",
 };
 
 export function providerAffiliateUrl(provider: string): string | undefined {
@@ -110,7 +110,7 @@ const SCRAPE_ONLY_MODELS = new Set(["google-ai-mode", "google-ai-overview", "cop
 
 // Which models each provider category has a collector for. A model missing from
 // a category's set can't be reached through it — a hard capability gap, not
-// merely something Elmo hasn't wired up yet. Mirrors the provider registries in
+// merely something Redemptia hasn't wired up yet. Mirrors the provider registries in
 // @workspace/lib. Categories absent here (direct-api, openrouter) reach any
 // model that exposes an inference endpoint.
 const PROVIDER_MODELS: Record<string, Set<string>> = {
@@ -123,15 +123,15 @@ const PROVIDER_MODELS: Record<string, Set<string>> = {
 	// Gemini from the LLM Scraper API — all four scrape a live surface. There is
 	// no Perplexity scraper on either.
 	"dataforseo-scraper": new Set(["google-ai-mode", "google-ai-overview", "chatgpt", "gemini"]),
-	// Claude is reachable via LLM Responses but Elmo doesn't track it there.
+	// Claude is reachable via LLM Responses but Redemptia doesn't track it there.
 	"dataforseo-api": new Set(["chatgpt", "perplexity", "gemini", "claude"]),
 };
 
 export type CellAvailability = "tracked" | "untracked" | "unavailable";
 
 // Classify a model × provider-category combination independent of run data:
-// "tracked" when Elmo runs it, "unavailable" when the combination can't exist,
-// "untracked" when it could exist but Elmo doesn't currently run it.
+// "tracked" when Redemptia runs it, "unavailable" when the combination can't exist,
+// "untracked" when it could exist but Redemptia doesn't currently run it.
 function cellAvailability(model: string, provider: string, hasTarget: boolean): CellAvailability {
 	if (hasTarget) return "tracked";
 	// Categories with a fixed collector list reach only those surfaces.

@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import * as p from "@clack/prompts";
 
-const ELMO_ASCII = [
+const REDEMPTIA_ASCII = [
 	"",
 	"      ▄▄                ",
 	"      ██                ",
@@ -15,7 +15,7 @@ export function printBanner(): void {
 	// text-blue-600 ≈ #2563EB → RGB(37, 99, 235)
 	const blue = "\x1b[38;2;37;99;235m";
 	const reset = "\x1b[0m";
-	console.log(`${blue}${ELMO_ASCII}${reset}`);
+	console.log(`${blue}${REDEMPTIA_ASCII}${reset}`);
 }
 
 export const log = {

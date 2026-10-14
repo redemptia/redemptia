@@ -9,13 +9,13 @@ import type { Principal } from "@/lib/auth/api-auth";
 import { type McpTool, toolsFor } from "./tools";
 
 export const MCP_SERVER_INFO = {
-	name: "elmo",
-	title: "Elmo AI visibility",
+	name: "redemptia",
+	title: "Redemptia AI visibility",
 	version: __APP_VERSION__,
 } as const;
 
 const INSTRUCTIONS = [
-	"Elmo tracks how AI models — ChatGPT, Claude, Perplexity, Gemini, Google AI Overviews — mention and cite brands.",
+	"Redemptia tracks how AI models — ChatGPT, Claude, Perplexity, Gemini, Google AI Overviews — mention and cite brands.",
 	"",
 	"Start with list_brands to find a brand id; every other brand tool takes one.",
 	"get_analytics answers 'how is this brand doing'; get_citations and get_query_fanout answer 'why', and are where an",

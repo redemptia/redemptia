@@ -4,7 +4,7 @@ import { Navbar } from "@/components/navbar";
 import { GLOSSARY_GROUPS, glossaryTerms } from "@/data/glossary";
 import { breadcrumbJsonLd, canonicalUrl, definedTermSetJsonLd, ogMeta } from "@/lib/seo";
 
-const title = "AI Search & AEO Glossary · Elmo";
+const title = "AI Search & AEO Glossary · Redemptia";
 const description =
 	"A plain-English glossary of AI search and answer engine optimization terms: AEO, GEO, LLMO, AI Overviews, citations, share of voice, RAG, and more.";
 

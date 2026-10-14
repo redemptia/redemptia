@@ -7,8 +7,9 @@ import { getGitHubReleases, type ReleaseEntry } from "@/lib/github-releases";
 import { extractCompareUrl, ReleaseMarkdown } from "@/lib/release-markdown";
 import { breadcrumbJsonLd, canonicalUrl, ogMeta } from "@/lib/seo";
 
-const title = "Changelog · Elmo";
-const description = "See what's new in Elmo. Track recent releases, improvements, bug fixes, and completed features.";
+const title = "Changelog · Redemptia";
+const description =
+	"See what's new in Redemptia. Track recent releases, improvements, bug fixes, and completed features.";
 
 export const Route = createFileRoute("/changelog")({
 	head: () => ({
@@ -142,11 +143,11 @@ function ChangelogPage() {
 					<p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">/ CHANGELOG</p>
 					<h1 className="mt-4 text-4xl font-semibold tracking-tight text-zinc-950 lg:text-5xl">Changelog</h1>
 					<p className="mt-5 max-w-[58ch] text-pretty text-lg text-zinc-600">
-						Latest releases, completed work, and improvements shipped to Elmo.
+						Latest releases, completed work, and improvements shipped to Redemptia.
 					</p>
 					<div className="mt-6">
 						<a
-							href="https://github.com/elmohq/elmo/releases"
+							href="https://github.com/redemptia/redemptia/releases"
 							target="_blank"
 							rel="noopener noreferrer"
 							className="inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500 hover:text-zinc-950"

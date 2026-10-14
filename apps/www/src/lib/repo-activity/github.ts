@@ -27,7 +27,7 @@ const WEEK_SECONDS = 7 * 24 * 60 * 60;
 function ghHeaders(token: string | undefined): Record<string, string> {
 	const headers: Record<string, string> = {
 		Accept: "application/vnd.github+json",
-		"User-Agent": "elmo-www",
+		"User-Agent": "redemptia-www",
 	};
 	if (token) headers.Authorization = `Bearer ${token}`;
 	return headers;
@@ -102,7 +102,7 @@ function toBase64(bytes: Uint8Array): string {
 async function fetchAvatar(url: string): Promise<string | null> {
 	try {
 		const sized = `${url}${url.includes("?") ? "&" : "?"}s=48`;
-		const res = await fetch(sized, { headers: { "User-Agent": "elmo-www" } });
+		const res = await fetch(sized, { headers: { "User-Agent": "redemptia-www" } });
 		if (!res.ok) return null;
 		const contentType = res.headers.get("content-type") ?? "image/png";
 		const bytes = new Uint8Array(await res.arrayBuffer());

@@ -56,7 +56,7 @@ describe("installed ai SDK contract: openai-api run()", () => {
 			doGenerate: async () =>
 				generated({
 					content: [
-						{ type: "text", text: "Elmo tracks AI visibility." },
+						{ type: "text", text: "Redemptia tracks AI visibility." },
 						{
 							type: "source",
 							sourceType: "url",
@@ -75,7 +75,7 @@ describe("installed ai SDK contract: openai-api run()", () => {
 							type: "tool-result",
 							toolCallId: "t1",
 							toolName: "web_search",
-							result: { action: { type: "search", query: "elmo aeo" } },
+							result: { action: { type: "search", query: "redemptia aeo" } },
 						},
 					],
 				}),
@@ -83,18 +83,18 @@ describe("installed ai SDK contract: openai-api run()", () => {
 
 		const res = await openaiApi.run("chatgpt", "prompt", { webSearch: true, version: "gpt-5-mini" });
 
-		expect(res.textContent).toBe("Elmo tracks AI visibility.");
+		expect(res.textContent).toBe("Redemptia tracks AI visibility.");
 		expect(res.citations).toEqual([
 			{ url: "https://example.com/a", title: "Example A", domain: "example.com", citationIndex: 0 },
 		]);
-		expect(res.webQueries).toEqual(["elmo aeo"]);
+		expect(res.webQueries).toEqual(["redemptia aeo"]);
 	});
 });
 
 describe("installed ai SDK contract: Output.object", () => {
 	it("populates result.output with the parsed, schema-validated object", async () => {
 		const schema = z.object({ brand: z.string(), competitors: z.array(z.string()) });
-		const payload = { brand: "Elmo", competitors: ["a", "b"] };
+		const payload = { brand: "Redemptia", competitors: ["a", "b"] };
 
 		model.current = new MockLanguageModelV4({
 			doGenerate: async () => generated({ content: [{ type: "text", text: JSON.stringify(payload) }] }),
@@ -132,7 +132,7 @@ const anthropicResponse: Anthropic.Messages.Message = {
 			id: "srv_1",
 			caller: { type: "direct" },
 			name: "web_search",
-			input: { query: "elmo aeo" },
+			input: { query: "redemptia aeo" },
 		},
 		{
 			type: "web_search_tool_result",
@@ -150,7 +150,7 @@ const anthropicResponse: Anthropic.Messages.Message = {
 		},
 		{
 			type: "text",
-			text: "Elmo tracks AI visibility.",
+			text: "Redemptia tracks AI visibility.",
 			citations: [
 				{
 					type: "web_search_result_location",
@@ -170,8 +170,8 @@ describe("installed @anthropic-ai/sdk contract: anthropic-api run()", () => {
 
 		const res = await anthropicApi.run("claude", "prompt", { webSearch: true, version: "claude-sonnet-5" });
 
-		expect(res.textContent).toBe("Elmo tracks AI visibility.");
-		expect(res.webQueries).toEqual(["elmo aeo"]);
+		expect(res.textContent).toBe("Redemptia tracks AI visibility.");
+		expect(res.webQueries).toEqual(["redemptia aeo"]);
 		expect(res.citations.map((c) => c.url)).toEqual(["https://example.com/b", "https://example.com/a"]);
 	});
 
@@ -188,7 +188,7 @@ describe("installed @anthropic-ai/sdk contract: anthropic-api run()", () => {
 		anthropicClient.create.mockResolvedValue(anthropicResponse);
 		const res = await anthropicApi.run("claude", "prompt", { webSearch: true, version: "claude-sonnet-5" });
 
-		expect(extractTextFromAnthropic(res.rawOutput)).toBe("Elmo tracks AI visibility.");
+		expect(extractTextFromAnthropic(res.rawOutput)).toBe("Redemptia tracks AI visibility.");
 		expect(extractCitationsFromAnthropic(res.rawOutput).map((c) => c.url)).toEqual([
 			"https://example.com/b",
 			"https://example.com/a",
@@ -200,11 +200,11 @@ describe("installed ai SDK contract: anthropic Output.object", () => {
 	it("populates result.output with the parsed object", async () => {
 		const schema = z.object({ brand: z.string() });
 		model.current = new MockLanguageModelV4({
-			doGenerate: async () => generated({ content: [{ type: "text", text: JSON.stringify({ brand: "Elmo" }) }] }),
+			doGenerate: async () => generated({ content: [{ type: "text", text: JSON.stringify({ brand: "Redemptia" }) }] }),
 		});
 
 		const res = await anthropicApi.runStructuredResearch!({ prompt: "p", schema, webSearch: false });
-		expect(res.object).toEqual({ brand: "Elmo" });
+		expect(res.object).toEqual({ brand: "Redemptia" });
 	});
 });
 

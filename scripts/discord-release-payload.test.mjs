@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 const SCRIPT = fileURLToPath(
   new URL("discord-release-payload.mjs", import.meta.url),
 );
-const REPO = "elmohq/elmo";
+const REPO = "redemptia/redemptia";
 const workDir = mkdtempSync(join(tmpdir(), "discord-release-payload-"));
 
 /** Run the script the way the release workflow does, and parse what it posts. */

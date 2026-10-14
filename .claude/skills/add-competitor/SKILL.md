@@ -150,4 +150,4 @@ After completing all steps, tell the user:
 - The category and ahrefsDR
 - Which features you marked as true
 - Whether the screenshot uploaded successfully
-- The URL where the comparison page will be: `/ai-visibility-tools/elmo-vs-<slug>`
+- The URL where the comparison page will be: `/ai-visibility-tools/redemptia-vs-<slug>`

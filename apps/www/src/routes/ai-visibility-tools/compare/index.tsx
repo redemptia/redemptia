@@ -1,13 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { DirectoryBackLink, DirectoryHero, DirectorySection, ElmoCta } from "@/components/directory-shell";
+import { DirectoryBackLink, DirectoryHero, DirectorySection, RedemptiaCta } from "@/components/directory-shell";
 import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
 import { comparePairSlug, comparePairs, compareSetSlug, compareSets } from "@/lib/competitors";
 import { breadcrumbJsonLd, canonicalUrl, itemListJsonLd, ogMeta } from "@/lib/seo";
 
-const title = "Compare AI Visibility Tools Head-to-Head · Elmo";
+const title = "Compare AI Visibility Tools Head-to-Head · Redemptia";
 const description =
-	"Head-to-head comparisons of the leading AI visibility platforms and SEO suites — Profound, Peec AI, Ahrefs Brand Radar, HubSpot AEO, Semrush, Scrunch, and more — feature by feature, with Elmo as the free, open-source alternative.";
+	"Head-to-head comparisons of the leading AI visibility platforms and SEO suites — Profound, Peec AI, Ahrefs Brand Radar, HubSpot AEO, Semrush, Scrunch, and more — feature by feature, with Redemptia as the free, open-source alternative.";
 
 const setItems = compareSets.map((tools) => ({
 	name: tools.map((t) => t.name).join(" vs "),
@@ -51,7 +51,7 @@ function CompareHub() {
 				<DirectoryHero
 					eyebrow="Compare"
 					title="AI visibility tools, head-to-head"
-					lead="Weighing the AI visibility tools against each other? These side-by-side breakdowns compare tracking, analytics, and pricing across the funded AEO platforms and the SEO suites that added AI search monitoring, and show where an open-source tool like Elmo fits in."
+					lead="Weighing the AI visibility tools against each other? These side-by-side breakdowns compare tracking, analytics, and pricing across the funded AEO platforms and the SEO suites that added AI search monitoring, and show where an open-source tool like Redemptia fits in."
 				/>
 				<DirectorySection title="Compare several at once">
 					<ul className="grid gap-3 sm:grid-cols-2">
@@ -81,7 +81,7 @@ function CompareHub() {
 						))}
 					</ul>
 				</DirectorySection>
-				<ElmoCta />
+				<RedemptiaCta />
 			</main>
 			<Footer />
 		</div>

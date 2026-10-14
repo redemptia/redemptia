@@ -12,7 +12,6 @@
 		"./entitlements": "./src/entitlements.ts",
 		"./env": "./src/env.ts",
 		"./env-registry": "./src/env-registry.ts",
-		"./legal": "./src/legal.ts",
 		"./model-filter": "./src/model-filter.ts",
 		"./models": "./src/models.ts",
 		"./plans": "./src/plans.ts",

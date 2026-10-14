@@ -1,6 +1,6 @@
 ---
 title: Development Setup
-description: Set up a local development environment for contributing to Elmo.
+description: Set up a local development environment for contributing to Redemptia.
 ---
 
 ## Prerequisites
@@ -13,8 +13,8 @@ description: Set up a local development environment for contributing to Elmo.
 ## Clone and Install
 
 ```bash
-git clone https://github.com/elmohq/elmo.git
-cd elmo
+git clone https://github.com/redemptia/redemptia.git
+cd redemptia
 pnpm install
 ```
 
@@ -73,18 +73,18 @@ For a setup closer to production, use the CLI in dev mode:
 
 ```bash
 # Build from local source instead of pulling images
-elmo init --dev
+redemptia init --dev
 
 # Rebuild after code changes
-elmo compose build
-elmo compose up -d
+redemptia compose build
+redemptia compose up -d
 ```
 
 The Docker build uses a multi-stage `docker/Dockerfile` with separate targets for `web` and `worker`.
 
 ## Component Stories
 
-Elmo uses Storybook for component development in isolation:
+Redemptia uses Storybook for component development in isolation:
 
 ```bash
 pnpm --filter @workspace/web storybook

@@ -1,7 +1,0 @@
-{
-  "mcpServers": {
-    "elmo": {
-      "url": "https://app.elmohq.com/api/mcp"
-    }
-  }
-}

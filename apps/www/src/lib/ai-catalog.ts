@@ -3,13 +3,13 @@ import { canonicalUrl, SITE_NAME } from "@/lib/seo";
 
 const mcpServerCard = {
 	$schema: "https://static.modelcontextprotocol.io/schemas/v1/server-card.schema.json",
-	name: "com.elmohq/elmo",
+	name: "com.redemptia/redemptia",
 	version: __APP_VERSION__,
 	title: `${SITE_NAME} AI visibility`,
 	description: "Read AI visibility data — brands, prompts, citations, competitors — and manage prompts.",
 	websiteUrl: canonicalUrl("/docs/api/mcp"),
 	repository: {
-		url: "https://github.com/elmohq/elmo",
+		url: "https://github.com/redemptia/redemptia",
 		source: "github",
 	},
 	remotes: [
@@ -24,13 +24,13 @@ export const aiCatalog = {
 	specVersion: "1.0",
 	host: {
 		displayName: SITE_NAME,
-		identifier: "elmohq.com",
+		identifier: "redemptia.example",
 		documentationUrl: canonicalUrl("/docs"),
-		logoUrl: canonicalUrl("/brand/icons/elmo-icon-512.png"),
+		logoUrl: canonicalUrl("/brand/icons/redemptia-icon-512.png"),
 	},
 	entries: [
 		{
-			identifier: "urn:air:elmohq.com:mcp:elmo",
+			identifier: "urn:air:redemptia.example:mcp:redemptia",
 			displayName: `${SITE_NAME} MCP server`,
 			type: "application/mcp-server-card+json",
 			data: mcpServerCard,

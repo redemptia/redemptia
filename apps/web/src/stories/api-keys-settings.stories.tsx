@@ -17,7 +17,7 @@ const KEYS: ApiKeysPageData["keys"] = [
 	{
 		id: "key-1",
 		name: "Reporting pipeline",
-		start: "elmo_9f2c",
+		start: "redemptia_9f2c",
 		scopes: ["read", "write"],
 		brandIds: null,
 		enabled: true,
@@ -28,7 +28,7 @@ const KEYS: ApiKeysPageData["keys"] = [
 	{
 		id: "key-2",
 		name: "Claude Code (MCP)",
-		start: "elmo_41ba",
+		start: "redemptia_41ba",
 		scopes: ["read"],
 		brandIds: ["brand-1"],
 		enabled: true,
@@ -39,7 +39,7 @@ const KEYS: ApiKeysPageData["keys"] = [
 	{
 		id: "key-3",
 		name: "Old dashboard export",
-		start: "elmo_7dd0",
+		start: "redemptia_7dd0",
 		scopes: ["read"],
 		brandIds: ["brand-2", "brand-3"],
 		enabled: false,
@@ -50,7 +50,7 @@ const KEYS: ApiKeysPageData["keys"] = [
 	{
 		id: "key-4",
 		name: "Spring campaign",
-		start: "elmo_c33a",
+		start: "redemptia_c33a",
 		scopes: ["read", "write"],
 		brandIds: null,
 		enabled: true,
@@ -213,7 +213,7 @@ export const KeyJustCreated: Story = {
 		await userEvent.type(await dialog.findByLabelText("Name"), "Nightly export");
 		await userEvent.click(await dialog.findByRole("button", { name: "Create" }));
 		await expect(await canvas.findByText("Key Created")).toBeVisible();
-		await expect(await canvas.findByText("elmo_5f3b9c1d84a24e7fbc2a6d0e91f7c3b8")).toBeVisible();
+		await expect(await canvas.findByText("redemptia_5f3b9c1d84a24e7fbc2a6d0e91f7c3b8")).toBeVisible();
 	},
 };
 

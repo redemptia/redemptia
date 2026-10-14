@@ -1,5 +1,5 @@
-// AUTO-EXTRACTED from apps/www/public/icons/elmo-icon.svg (Titan One 400, woff2).
-// Embedded as a data URI so the "elmo" wordmark renders with the real brand
+// AUTO-EXTRACTED from apps/www/public/icons/redemptia-icon.svg (Titan One 400, woff2).
+// Embedded as a data URI so the "redemptia" wordmark renders with the real brand
 // display face inside the standalone SVG (GitHub renders README SVGs as <img>,
 // which loads data: fonts but blocks external URLs). Kept in one place so the
 // route and the sample generator share the exact same bytes.

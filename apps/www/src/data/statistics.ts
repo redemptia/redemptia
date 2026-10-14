@@ -81,7 +81,7 @@ export const stats: Stat[] = [
 		value: "-86%",
 		claim:
 			"Reddit's share of ChatGPT Search citations in August 2026. It also barely registers in Google's AI Overviews.",
-		source: "Elmo tracking",
+		source: "Redemptia tracking",
 		slug: "reddit-ai-citations",
 		group: "How engines behave",
 	},
@@ -89,7 +89,7 @@ export const stats: Stat[] = [
 		value: "-90%",
 		claim:
 			"Reddit's citation share in the ChatGPT UI fell by more than 90%, landing near the level API web search already returned.",
-		source: "Elmo tracking",
+		source: "Redemptia tracking",
 		slug: "chatgpt-ui-reddit-citations-api",
 		group: "How engines behave",
 	},
@@ -188,7 +188,7 @@ export const stats: Stat[] = [
 		value: "churn",
 		claim:
 			"The domains AI cites change more between runs than most measurement assumes, and how much depends on what you ask.",
-		source: "Elmo tracking",
+		source: "Redemptia tracking",
 		slug: "citation-volatility",
 		group: "What the numbers mean",
 	},

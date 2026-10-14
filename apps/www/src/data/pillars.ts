@@ -31,7 +31,7 @@ const AEO: Pillar = {
 	slug: "answer-engine-optimization",
 	eyebrow: "Guide",
 	h1: "Answer Engine Optimization (AEO)",
-	metaTitle: "Answer Engine Optimization (AEO): The Complete Guide · Elmo",
+	metaTitle: "Answer Engine Optimization (AEO): The Complete Guide · Redemptia",
 	description:
 		"What answer engine optimization is, how AEO differs from SEO, how AI answer engines decide what to cite, what to measure, and how to run it — a practical guide from an open-source AEO platform.",
 	lead: "SEO got you ranked. AEO gets you quoted. Here is what answer engine optimization actually is, how it works, and how to run it without guessing.",
@@ -163,11 +163,11 @@ const AEO: Pillar = {
 			body: [
 				"An AEO tool does one core job: run your prompts across the engines on a schedule, and record what came back. Everything else — dashboards, alerts, competitor tracking, reporting — is built on that log.",
 				"The differences that matter when choosing one are which engines are covered and how, how many runs per prompt you get (sampling noise is the whole problem), whether you can see the raw answer rather than a score, and whether the methodology behind the score is inspectable.",
-				"That last point is why Elmo is open source. A visibility score is a number somebody chose how to calculate. When two tools disagree about your brand — and they routinely do — the only way to know which is right is to read how each one counts. Elmo can be self-hosted, and the counting is in the repository.",
+				"That last point is why Redemptia is open source. A visibility score is a number somebody chose how to calculate. When two tools disagree about your brand — and they routinely do — the only way to know which is right is to read how each one counts. Redemptia can be self-hosted, and the counting is in the repository.",
 			],
 			callout: {
 				heading: "Try it without installing anything",
-				text: "Elmo's directory of AI visibility tools compares the options in this category, including the open-source and self-hosted ones. It is the same comparison an answer engine would assemble, written by people who build in the category.",
+				text: "Redemptia's directory of AI visibility tools compares the options in this category, including the open-source and self-hosted ones. It is the same comparison an answer engine would assemble, written by people who build in the category.",
 			},
 		},
 		{
@@ -239,11 +239,6 @@ const AEO: Pillar = {
 			description: "Short definitions for every term in this guide.",
 		},
 		{
-			label: "AEO vs SEO",
-			href: "/blog/aeo-vs-seo",
-			description: "A longer treatment of where the two disciplines actually part ways.",
-		},
-		{
 			label: "AEO by industry",
 			href: "/aeo-for",
 			description: "What the work looks like for SaaS, ecommerce, agencies, and other verticals.",
@@ -255,7 +250,7 @@ const GEO: Pillar = {
 	slug: "generative-engine-optimization",
 	eyebrow: "Guide",
 	h1: "Generative Engine Optimization (GEO)",
-	metaTitle: "Generative Engine Optimization (GEO): The Complete Guide · Elmo",
+	metaTitle: "Generative Engine Optimization (GEO): The Complete Guide · Redemptia",
 	description:
 		"What generative engine optimization means, how GEO differs from SEO and AEO, what the research says actually works, and how to measure it — a practical guide from an open-source GEO platform.",
 	lead: "Generative engines write the answer instead of listing the links. GEO is the work of being in that answer — and of knowing, with numbers, whether you are.",
@@ -368,11 +363,11 @@ const GEO: Pillar = {
 			body: [
 				"The category is crowded and young. Most tools do the same core job — schedule prompts, run them across engines, log what came back — and differ in engine coverage, sampling depth, and how much of the raw data they let you see.",
 				"Two questions cut through the marketing. How many times is each prompt actually run, and can you read the answer behind the score? A tool that samples thinly will report movement that is not there, and a tool that hides the raw output cannot be checked when it does.",
-				"Elmo is open source for exactly this reason. Self-host it, read the code that computes the score, and verify the methodology rather than trusting it.",
+				"Redemptia is open source for exactly this reason. Self-host it, read the code that computes the score, and verify the methodology rather than trusting it.",
 			],
 			callout: {
 				heading: "Compare the options",
-				text: "Elmo maintains an open directory of every GEO and AI visibility tool in the category, including the self-hostable ones, with an honest account of what each does.",
+				text: "Redemptia maintains an open directory of every GEO and AI visibility tool in the category, including the self-hostable ones, with an honest account of what each does.",
 			},
 		},
 	],
@@ -433,11 +428,6 @@ const GEO: Pillar = {
 			label: "AEO glossary",
 			href: "/glossary",
 			description: "Short definitions for every term in this guide.",
-		},
-		{
-			label: "Where AI citations come from",
-			href: "/blog/where-ai-citations-come-from",
-			description: "Citation data on which sources engines actually pull from.",
 		},
 		{
 			label: "AI search engines",

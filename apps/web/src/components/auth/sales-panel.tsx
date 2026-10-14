@@ -3,7 +3,7 @@
  *
  * Sign-in is the highest-intent page either deployment has, so it carries the
  * argument for the product rather than just a card on an empty background: what
- * Elmo does, which engines it reaches, and — for a self-hosted instance — that
+ * Redemptia does, which engines it reaches, and — for a self-hosted instance — that
  * a managed option exists.
  *
  * Demo and whitelabel deliberately never see this. A demo visitor has already
@@ -26,10 +26,10 @@ import { buttonVariants } from "@workspace/ui/components/button";
 import { cn } from "@workspace/ui/lib/utils";
 import type { ReactNode } from "react";
 
-/** Everything Elmo reaches, named — the coverage claim is the product. */
+/** Everything Redemptia reaches, named — the coverage claim is the product. */
 const ENGINES = [...platformTierMembers("scraped"), ...platformTierMembers("api")];
 
-const GITHUB_URL = "https://github.com/elmohq/elmo";
+const GITHUB_URL = "https://github.com/redemptia/redemptia";
 
 /** The comparison the pricing rests on, kept in step with what a plan actually samples. */
 const RUNS_PER_DAY = PLANS.basic.standardRunsPerDay;
@@ -145,14 +145,14 @@ const demoOffer = (source: ReferralSource): Offer => ({
 });
 
 const cloudOffer = (source: ReferralSource): Offer => ({
-	label: "Try Elmo Cloud",
+	label: "Try Redemptia Cloud",
 	href: cloudSignupUrl(source),
 	icon: IconCloud,
 });
 
 /**
  * The secondary ask, in whichever form the deployment calls for: a way to see
- * Elmo before signing up, or the managed option for someone already running it.
+ * Redemptia before signing up, or the managed option for someone already running it.
  *
  * One way out, not a menu. The question and its answer are a single exchange,
  * so they share a line — the question anchored left, the answer right — and

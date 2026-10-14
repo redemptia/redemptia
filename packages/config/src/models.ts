@@ -1,5 +1,5 @@
 /**
- * Display metadata for the models Elmo can track: the label a customer sees and
+ * Display metadata for the models Redemptia can track: the label a customer sees and
  * which brand logo represents it.
  *
  * Lives in config rather than with the providers because the model *names* do

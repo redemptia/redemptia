@@ -1,10 +1,10 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import {
 	DirectoryBackLink,
-	DirectoryElmoBanner,
 	DirectoryHero,
+	DirectoryRedemptiaBanner,
 	DirectorySection,
-	ElmoCta,
+	RedemptiaCta,
 } from "@/components/directory-shell";
 import { Faq } from "@/components/faq";
 import { Footer } from "@/components/footer";
@@ -31,8 +31,8 @@ export const Route = createFileRoute("/ai-visibility-tools/alternatives/$slug")(
 	head: ({ params, loaderData }) => {
 		if (!loaderData) return {};
 		const { competitor: c, faqs } = loaderData;
-		const title = `${c.name} Alternatives | Open-Source AI Visibility · Elmo`;
-		const description = `The best ${c.name} alternatives for AI visibility tracking, including Elmo — the open-source, self-hosted option you can run for free.`;
+		const title = `${c.name} Alternatives | Open-Source AI Visibility · Redemptia`;
+		const description = `The best ${c.name} alternatives for AI visibility tracking, including Redemptia — the open-source, self-hosted option you can run for free.`;
 		const path = `/ai-visibility-tools/alternatives/${params.slug}`;
 		return {
 			meta: [{ title }, { name: "description", content: description }, ...ogMeta({ title, description, path })],
@@ -66,8 +66,8 @@ function AlternativesPage() {
 					lead={getAlternativesVerdict(competitor)}
 				/>
 
-				<DirectoryElmoBanner
-					pitch="Elmo tracks how ChatGPT, Claude, Perplexity, Gemini, and Google AI Overviews mention and cite your brand. It is open source, so you self-host it for free, keep your data in-house, and verify exactly how each metric is calculated. No per-seat pricing, no black-box scores, no lock-in."
+				<DirectoryRedemptiaBanner
+					pitch="Redemptia tracks how ChatGPT, Claude, Perplexity, Gemini, and Google AI Overviews mention and cite your brand. It is open source, so you self-host it for free, keep your data in-house, and verify exactly how each metric is calculated. No per-seat pricing, no black-box scores, no lock-in."
 					comparison={{
 						slug: getComparisonSlug(competitor),
 						name: competitor.name,
@@ -77,16 +77,18 @@ function AlternativesPage() {
 				{competitor.switching ? (
 					<DirectorySection title={`Why teams leave ${competitor.name}`}>
 						<p className="mb-8 max-w-3xl leading-relaxed text-zinc-600">
-							What people tell us when they move to Elmo, and what we do differently. {competitor.name} is a capable
-							product with real customers, so take this as the case for a different set of tradeoffs rather than a
-							verdict on the tool.
+							What people tell us when they move to Redemptia, and what we do differently. {competitor.name} is a
+							capable product with real customers, so take this as the case for a different set of tradeoffs rather than
+							a verdict on the tool.
 						</p>
 						<div className="max-w-3xl space-y-8">
 							{competitor.switching.reasons.map((reason) => (
 								<div key={reason.headline}>
 									<h3 className="font-heading mb-2 text-lg text-zinc-950">{reason.headline}</h3>
 									<p className="leading-relaxed text-zinc-600">{reason.detail}</p>
-									<p className="mt-3 border-l-2 border-zinc-200 pl-4 leading-relaxed text-zinc-700">{reason.elmo}</p>
+									<p className="mt-3 border-l-2 border-zinc-200 pl-4 leading-relaxed text-zinc-700">
+										{reason.redemptia}
+									</p>
 								</div>
 							))}
 						</div>
@@ -98,7 +100,7 @@ function AlternativesPage() {
 				</DirectorySection>
 
 				<Faq items={getAlternativesFaqs(competitor, alternatives)} eyebrow="/ FAQ" />
-				<ElmoCta />
+				<RedemptiaCta />
 			</main>
 			<Footer />
 		</div>

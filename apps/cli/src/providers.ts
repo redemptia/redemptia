@@ -5,14 +5,12 @@ import pc from "picocolors";
 import type { EnvMap } from "./config.js";
 import { assertNotCancelled, link } from "./util.js";
 
-// The affiliate links carry a sub-ID (`fp_sid` for Cloro, `sid` for BrightData), so referrals are attributable
-// per surface: `cli` here, `docs` and `blog` on the links in packages/docs.
-const CLORO_AFFILIATE = "https://cloro.dev?fpr=elmo&fp_sid=cli";
-const BRIGHTDATA_AFFILIATE = "https://get.brightdata.com/elmo?sid=cli";
-const OXYLABS_AFFILIATE = "https://oxylabs.go2cloud.org/aff_c?offer_id=7&aff_id=2263&url_id=32";
-const SEARCHAPI_AFFILIATE = "https://www.searchapi.io/?via=elmo";
-const OLOSTEP_AFFILIATE = "https://olostep.com/?ref=elmo";
-const DATAFORSEO_AFFILIATE = "https://try.dataforseo.com/elmo";
+const CLORO_URL = "https://cloro.dev/";
+const BRIGHTDATA_URL = "https://brightdata.com/";
+const OXYLABS_URL = "https://oxylabs.io/";
+const SEARCHAPI_URL = "https://www.searchapi.io/";
+const OLOSTEP_URL = "https://olostep.com/";
+const DATAFORSEO_URL = "https://dataforseo.com/";
 
 export type RecommendedScraper = "cloro" | "brightdata" | "oxylabs" | "searchapi" | "olostep" | "dataforseo";
 export type DirectApiProvider = "openrouter" | "anthropic" | "openai" | "mistral";
@@ -161,7 +159,7 @@ export const PROVIDER_PROMPTS: ProviderSpec[] = [
 		label: "Cloro",
 		costHint: "most reliable, every surface — ~$0.65/mo per prompt, $30/mo min",
 		confirmDefault: true,
-		signup: { message: "Sign up and create an API key", url: CLORO_AFFILIATE },
+		signup: { message: "Sign up and create an API key", url: CLORO_URL },
 		credentials: [{ envKey: "CLORO_API_KEY", message: "Cloro API key", secret: true, validate: required }],
 		picker: scraperPicker("Cloro", "cloro", CLORO_MODELS),
 	},
@@ -171,7 +169,7 @@ export const PROVIDER_PROMPTS: ProviderSpec[] = [
 		label: "BrightData",
 		costHint: "pay-as-you-go, cheaper but slower — ~$0.45/mo per prompt",
 		confirmDefault: false,
-		signup: { message: "Sign up and generate an API token", url: BRIGHTDATA_AFFILIATE },
+		signup: { message: "Sign up and generate an API token", url: BRIGHTDATA_URL },
 		credentials: [
 			{ envKey: "BRIGHTDATA_API_TOKEN", message: "BrightData API token", secret: true, validate: required },
 		],
@@ -183,7 +181,7 @@ export const PROVIDER_PROMPTS: ProviderSpec[] = [
 		label: "Oxylabs",
 		costHint: "cheapest per run, no Gemini/Copilot — $49/mo min",
 		confirmDefault: false,
-		signup: { message: "Sign up and create Web Scraper API credentials", url: OXYLABS_AFFILIATE },
+		signup: { message: "Sign up and create Web Scraper API credentials", url: OXYLABS_URL },
 		credentials: [
 			{ envKey: "OXYLABS_USERNAME", message: "Oxylabs username", secret: false, validate: required },
 			{ envKey: "OXYLABS_PASSWORD", message: "Oxylabs password", secret: true, validate: required },
@@ -196,7 +194,7 @@ export const PROVIDER_PROMPTS: ProviderSpec[] = [
 		label: "SearchApi",
 		costHint: "flat per-search, every surface — ~$1.20/mo per prompt, $40/mo min",
 		confirmDefault: false,
-		signup: { message: "Sign up and copy your API key", url: SEARCHAPI_AFFILIATE },
+		signup: { message: "Sign up and copy your API key", url: SEARCHAPI_URL },
 		credentials: [{ envKey: "SEARCHAPI_API_KEY", message: "SearchApi API key", secret: true, validate: required }],
 		picker: scraperPicker("SearchApi", "searchapi", SEARCHAPI_MODELS),
 	},
@@ -206,7 +204,7 @@ export const PROVIDER_PROMPTS: ProviderSpec[] = [
 		label: "Olostep",
 		costHint: "premium, built for high volume — ~$2.25/mo per prompt",
 		confirmDefault: false,
-		signup: { message: "Grab an API key", url: OLOSTEP_AFFILIATE },
+		signup: { message: "Grab an API key", url: OLOSTEP_URL },
 		credentials: [{ envKey: "OLOSTEP_API_KEY", message: "Olostep API key", secret: true, validate: required }],
 		picker: scraperPicker("Olostep", "olostep", OLOSTEP_MODELS),
 	},
@@ -216,7 +214,7 @@ export const PROVIDER_PROMPTS: ProviderSpec[] = [
 		label: "DataForSEO",
 		costHint: "pay-as-you-go, scrapers + direct APIs — ~$1.20/mo per prompt",
 		confirmDefault: false,
-		signup: { message: "Sign up", url: DATAFORSEO_AFFILIATE },
+		signup: { message: "Sign up", url: DATAFORSEO_URL },
 		credentials: [
 			{ envKey: "DATAFORSEO_LOGIN", message: "DataForSEO login", secret: false, validate: required },
 			{ envKey: "DATAFORSEO_PASSWORD", message: "DataForSEO password", secret: true, validate: required },
@@ -315,7 +313,7 @@ export async function finalizeScrapeTargets(
 	const deduped = dedupeTargets(targets);
 
 	if (!deduped) {
-		p.log.warn("No SCRAPE_TARGETS configured. Elmo will not run scheduled checks until you set them.");
+		p.log.warn("No SCRAPE_TARGETS configured. Redemptia will not run scheduled checks until you set them.");
 		p.log.info(`Reference: ${link(pc.cyan(PROVIDERS_DOCS_URL), PROVIDERS_DOCS_URL)}`);
 
 		const addManual = await p.confirm({

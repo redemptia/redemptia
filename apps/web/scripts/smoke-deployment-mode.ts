@@ -6,7 +6,7 @@
  *   2. factory resolution — getDeployment() returns the expected mode
  *   3. auth initialization — createAuth() constructs with the mode's options
  *
- * This guards the elmo-cloud build-out: open-source, demo, and whitelabel
+ * This guards the redemptia-cloud build-out: open-source, demo, and whitelabel
  * deployments must keep booting unchanged while cloud lands (issue #8).
  *
  * Runs the real shared-package boot path via tsx — no build, no live DB.

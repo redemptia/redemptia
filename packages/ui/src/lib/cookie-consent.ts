@@ -11,15 +11,15 @@ export interface CookieConsent {
 	marketing: boolean;
 }
 
-const CONSENT_STORAGE_KEY = "elmo.cookie-consent";
+const CONSENT_STORAGE_KEY = "redemptia.cookie-consent";
 
 /** Bump when the categories change, so a stored answer is re-asked rather than misread. */
 const CONSENT_VERSION = 1;
 
 /** Fired on this window whenever the stored answer changes. */
-const CONSENT_CHANGE_EVENT = "elmo:consent-change";
+const CONSENT_CHANGE_EVENT = "redemptia:consent-change";
 /** Fired by the footer link to reopen the banner. */
-export const CONSENT_OPEN_EVENT = "elmo:consent-open";
+export const CONSENT_OPEN_EVENT = "redemptia:consent-open";
 
 export const ACCEPT_ALL: CookieConsent = { analytics: true, marketing: true };
 export const REJECT_ALL: CookieConsent = { analytics: false, marketing: false };

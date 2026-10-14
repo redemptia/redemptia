@@ -1,18 +1,18 @@
 ---
 title: Architecture
-description: How the Elmo monorepo is structured and how the pieces fit together.
+description: How the Redemptia monorepo is structured and how the pieces fit together.
 ---
 
 ## Monorepo Structure
 
-Elmo is a pnpm monorepo managed by Turborepo. The codebase is split into **apps** (deployable) and **packages** (shared libraries).
+Redemptia is a pnpm monorepo managed by Turborepo. The codebase is split into **apps** (deployable) and **packages** (shared libraries).
 
 ```
 .
 ├── apps/
 │   ├── web/          # Main dashboard (TanStack Start)
 │   ├── worker/       # Background job runner (pg-boss)
-│   ├── cli/          # @elmohq/cli npm package
+│   ├── cli/          # @redemptia/cli npm package
 │   └── www/          # Marketing site (this site)
 │
 ├── packages/

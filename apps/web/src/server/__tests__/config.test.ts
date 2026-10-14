@@ -4,14 +4,23 @@ import { resolveCrispWebsiteId } from "../config";
 afterEach(() => vi.unstubAllEnvs());
 
 describe("resolveCrispWebsiteId", () => {
-	it.each(["cloud", "demo"])("returns a website ID in %s mode", (mode) => {
+	it.each(["cloud", "demo"])("returns the configured website ID in %s mode", (mode) => {
 		vi.stubEnv("DEPLOYMENT_MODE", mode);
+		vi.stubEnv("VITE_CRISP_WEBSITE_ID", "operator-inbox");
 
-		expect(resolveCrispWebsiteId()).toBeTruthy();
+		expect(resolveCrispWebsiteId()).toBe("operator-inbox");
+	});
+
+	it("returns nothing when no inbox is configured, so no chat loads", () => {
+		vi.stubEnv("DEPLOYMENT_MODE", "cloud");
+		vi.stubEnv("VITE_CRISP_WEBSITE_ID", "");
+
+		expect(resolveCrispWebsiteId()).toBeUndefined();
 	});
 
 	it.each(["local", "whitelabel"])("returns nothing in %s mode", (mode) => {
 		vi.stubEnv("DEPLOYMENT_MODE", mode);
+		vi.stubEnv("VITE_CRISP_WEBSITE_ID", "operator-inbox");
 
 		expect(resolveCrispWebsiteId()).toBeUndefined();
 	});

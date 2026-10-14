@@ -35,7 +35,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: elmo
+          POSTGRES_DB: redemptia
         ports:
           - 5432:5432
         options: >-
@@ -47,7 +47,7 @@ jobs:
     env:
       # Used by the migration steps below. The boot smoke ignores this and
       # supplies its own dummy env per mode (it never connects to a DB).
-      DATABASE_URL: postgres://postgres:postgres@localhost:5432/elmo
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/redemptia
 
     steps:
       - name: Checkout

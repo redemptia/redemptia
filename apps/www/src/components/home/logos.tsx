@@ -11,20 +11,20 @@ interface Customer {
 const customers: Customer[] = [
 	{
 		name: "Fermat Commerce",
-		url: "https://www.fermatcommerce.com/?ref=elmo",
+		url: "https://www.fermatcommerce.com/",
 		nofollow: true,
 		linkClass: "flex h-6 items-center text-zinc-500 transition-colors hover:text-[#0d3b25]",
 		render: () => <FermatWordmark />,
 	},
 	{
 		name: "Speakeasy",
-		url: "https://www.speakeasy.com/?ref=elmo",
+		url: "https://www.speakeasy.com/",
 		linkClass: "flex h-6 items-center text-zinc-500 transition-colors hover:text-zinc-950",
 		render: () => <SpeakeasyLockup />,
 	},
 	{
 		name: "TradeSites",
-		url: "https://www.tradesites.ai/?ref=elmo",
+		url: "https://www.tradesites.ai/",
 		linkClass: "group/ts flex h-6 items-center",
 		render: () => (
 			<TradeSitesWordmark className="grayscale transition-[filter] duration-150 group-hover/ts:grayscale-0" />
@@ -32,7 +32,7 @@ const customers: Customer[] = [
 	},
 	{
 		name: "Record Ranks",
-		url: "https://recordranks.com/?ref=elmo",
+		url: "https://recordranks.com/",
 		linkClass: "group/rr flex h-6 items-center",
 		render: () => (
 			<img
@@ -47,7 +47,7 @@ const customers: Customer[] = [
 	},
 	{
 		name: "AskHotel",
-		url: "https://askhotel.ai/?ref=elmo",
+		url: "https://askhotel.ai/",
 		linkClass: "group/ah flex h-6 items-center",
 		render: () => (
 			<img
@@ -62,7 +62,7 @@ const customers: Customer[] = [
 	},
 	{
 		name: "AISearch Global",
-		url: "https://aisearch.global/?ref=elmo",
+		url: "https://aisearch.global/",
 		linkClass: "group/asg flex h-6 items-center",
 		render: () => (
 			<img

@@ -2,14 +2,14 @@
 
 ## Supported Versions
 
-We apply security fixes only to the **latest released version** of Elmo. If
+We apply security fixes only to the **latest released version** of Redemptia. If
 you are running an older version, please upgrade before reporting an issue.
 
 ## Reporting a Vulnerability
 
 **Please do not open a public GitHub issue for security vulnerabilities.**
 
-Email [security@elmohq.com](mailto:security@elmohq.com) with:
+Email [GitHub private vulnerability reporting](https://github.com/redemptia/redemptia/security/advisories/new) with:
 
 - A description of the issue and its impact
 - Steps to reproduce (proof-of-concept code is helpful)

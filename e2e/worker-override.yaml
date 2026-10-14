@@ -1,4 +1,4 @@
-# Compose override layered on top of the generated .elmo/elmo.yaml so the E2E
+# Compose override layered on top of the generated .redemptia/redemptia.yaml so the E2E
 # worker processes jobs without any paid API calls: SCRAPE_TARGETS points at the
 # no-network `stub` provider, so a submitted job records a prompt_run without
 # reaching out to any LLM API. Worker-only — the web service keeps the real

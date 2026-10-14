@@ -1,14 +1,15 @@
+import { MARKETING_SITE_URL } from "@workspace/config/referrals";
 import { getMarketingOgImage } from "./og";
 
-export const SITE_URL = "https://www.elmohq.com";
-export const SITE_NAME = "Elmo";
+export const SITE_URL = MARKETING_SITE_URL;
+export const SITE_NAME = "Redemptia";
 // Fallback description for pages without their own, and the description on the
 // WebSite/Organization/SoftwareApplication entities. Spells out "answer engine
 // optimization" because answer engines expand the acronym when they search, and
 // carries no pricing so it stays true wherever it is reused.
 export const SITE_DESCRIPTION =
 	"Open-source answer engine optimization (AEO) platform: track how AI answers mention and cite your brand.";
-const SITE_LOGO_URL = `${SITE_URL}/brand/icons/elmo-icon-512.png`;
+const SITE_LOGO_URL = `${SITE_URL}/brand/icons/redemptia-icon-512.png`;
 
 export function canonicalUrl(path: string): string {
 	return `${SITE_URL}${path}`;
@@ -75,34 +76,10 @@ export function organizationJsonLd() {
 	return jsonLd({
 		"@type": "Organization",
 		name: SITE_NAME,
-		// "Elmo" collides with several unrelated products and a Sesame Street
-		// character, so spell out the alternate names and what we actually do —
-		// the signals search engines use to tell entities apart.
-		alternateName: ["ElmoHQ", "Elmo AEO"],
 		description: SITE_DESCRIPTION,
 		url: SITE_URL,
 		logo: SITE_LOGO_URL,
-		sameAs: [
-			"https://github.com/elmohq/elmo",
-			"https://hub.docker.com/u/elmohq",
-			"https://www.npmjs.com/package/@elmohq/cli",
-			"https://stackshare.io/elmo-mp4ocwtq",
-			"https://x.com/tryelmo",
-			"https://www.linkedin.com/company/elmohq",
-			"https://discord.gg/s24nubCtKz",
-			"https://www.producthunt.com/products/elmo",
-			"https://www.crunchbase.com/organization/elmo-14db",
-			"https://www.g2.com/products/blue-whale-software-llc-elmo/reviews",
-			"https://alternativeto.net/software/elmo/",
-			"https://www.saashub.com/elmohq",
-			"https://peerpush.com/p/elmo",
-			"https://devhunt.org/tool/elmo",
-		],
-		parentOrganization: {
-			"@type": "Organization",
-			name: "Blue Whale Software, LLC",
-			url: "https://bluewhale.dev",
-		},
+		sameAs: ["https://github.com/redemptia/redemptia"],
 	});
 }
 
@@ -224,15 +201,15 @@ export function itemListJsonLd(items: { name: string; path?: string; url?: strin
 	});
 }
 
-/** Elmo's entry for a comparison ItemList (always the open-source option). */
-export const ELMO_LISTING = { name: SITE_NAME, url: SITE_URL };
+/** Redemptia's entry for a comparison ItemList (always the open-source option). */
+export const REDEMPTIA_LISTING = { name: SITE_NAME, url: SITE_URL };
 
 /**
  * ItemList of the software products weighed on a comparison page, each as a
  * SoftwareApplication. Honest structured data for "X vs Y" and "X vs Y vs Z"
  * pages: it names the tools compared so answer engines can parse the matchup,
  * without asserting prices or ratings we don't have for other vendors. Pair it
- * with softwareApplicationJsonLd() so Elmo's free offer is stated explicitly.
+ * with softwareApplicationJsonLd() so Redemptia's free offer is stated explicitly.
  */
 export function comparisonJsonLd(tools: { name: string; url?: string }[]) {
 	return jsonLd({

@@ -19,7 +19,7 @@ const PNG_MAGIC = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 test.describe("OG Image - /api/og", () => {
   test("renders a PNG for a titled page", async ({ request }) => {
     const response = await request.get(
-      `/api/og?title=Elmo&description=AI%20Search%20Optimization`,
+      `/api/og?title=Redemptia&description=AI%20Search%20Optimization`,
     );
 
     expect(response.status()).toBe(200);

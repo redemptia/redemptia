@@ -126,7 +126,7 @@ async function signIn(request: APIRequestContext): Promise<boolean> {
 /**
  * Whitelabel has no password login at all — real users arrive through Auth0.
  * Standing up an OIDC provider for CI would test the identity provider more
- * than it tests Elmo, so the session is minted directly and injected. The SSO
+ * than it tests Redemptia, so the session is minted directly and injected. The SSO
  * entry point itself is covered by the whitelabel specs.
  */
 async function authenticateWithSeededSession(page: Page, baseURL: string, userId: string): Promise<void> {
