@@ -1,6 +1,6 @@
 ---
 name: redemptia-ai-visibility-tracking
-description: Measure and improve how AI answer engines describe and cite a brand, using an Redemptia deployment over MCP or its REST API. Use when asked about AI visibility, answer engine optimization (AEO), generative engine optimization (GEO), share of voice in AI answers, or which sources ChatGPT, Perplexity, Gemini, Copilot, Grok, or Google AI Overviews cite about a company.
+description: Measure and improve how AI answer engines describe and cite a brand, using a Redemptia deployment over MCP or its REST API. Use when asked about AI visibility, answer engine optimization (AEO), generative engine optimization (GEO), share of voice in AI answers, or which sources ChatGPT, Perplexity, Gemini, Copilot, Grok, or Google AI Overviews cite about a company.
 ---
 
 # Redemptia AI Visibility Tracking
@@ -10,7 +10,7 @@ schedule and records what came back: whether the brand appeared, which competito
 alongside it, which pages the models cited, and which web searches they ran to get there. This
 skill is how to read that data and turn it into a plan.
 
-You need access to an Redemptia deployment. Cloud is `https://app.redemptia.example`; a self-hosted instance
+You need access to a Redemptia deployment. Cloud is `https://app.redemptia.example`; a self-hosted instance
 serves the same endpoints on its own address, so substitute it throughout.
 
 ## Connecting

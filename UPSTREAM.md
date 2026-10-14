@@ -3,6 +3,31 @@
 Redemptia is an independent product built from the [elmohq/elmo](https://github.com/elmohq/elmo) codebase (MIT).
 elmo is tracked as a read-only `upstream` remote, and this file records every intentional divergence from it.
 
+## Origin
+
+Redemptia started as a **clone** of elmohq/elmo, not a GitHub fork: the repository was cloned at elmo commit
+[`39d4700d`](https://github.com/elmohq/elmo/commit/39d4700d87b3e8785894907a6d1e9b3d94b4271a) (2 October 2026,
+"switch DataForSEO links to the affiliate program", #850), its `origin` remote was repointed to
+`github.com/redemptia/redemptia`, and elmo was added back as `upstream` with pushing disabled. GitHub holds no fork
+relationship between the two repositories; changes move one way, by cherry-picking from `upstream`.
+
+The code is MIT on both sides. `LICENSE.md` keeps elmo's copyright notice next to Redemptia's, as the license
+requires, and `CITATION.cff` credits elmo as the work Redemptia derives from.
+
+What has diverged since, in brief (the table below has every change and why):
+
+- **Measurement.** Answer text is stored per run (`run_texts`); mention prominence and rank are computed and
+  stored; a capped, paid sentiment analyzer judges each mentioned brand's stance, served on a Sentiment page, the
+  REST API and MCP, and gated to Basic plans and above.
+- **Spend and storage.** Enrichment has its own daily spend ceiling, separate from the scraper's; stored mention
+  analysis can be aged out with `ENRICHMENT_RETENTION_DAYS`.
+- **Data integrity.** Competitor ids survive saves, and names are unique ignoring case; cross-tenant list reads must
+  name their scope.
+- **Identity.** The product is renamed Redemptia (`ELMO_ENCRYPTION_KEY`, the `x-elmo-*` OpenAPI extensions and
+  `QUOTA_LOCK_CLASS` keep their names, so deployments and locks are unaffected). Nothing is sent to elmo's services:
+  telemetry, support chat and newsletter signups run only with the operator's own keys, affiliate codes are gone,
+  and elmo's blog, legal pages, marketing claims and contribution licence agreement are removed.
+
 ## Divergences
 
 | Change | Upstream files touched | Why we diverge |
@@ -23,6 +48,7 @@ elmo is tracked as a read-only `upstream` remote, and this file records every in
 | The CLA and the upstream marketing automation are removed: `CLA.md`, `.github/contributors.txt`, `.github/workflows/cla-check.yaml` and `.github/workflows/daily-blog-draft.yaml` are deleted, and CONTRIBUTING.md keeps only the MIT license terms. | `CLA.md`, `.github/contributors.txt`, `.github/workflows/cla-check.yaml`, `.github/workflows/daily-blog-draft.yaml`, `CONTRIBUTING.md` | The CLA grants rights to upstream's company and its check fails every PR here, since we're not in its registry. The blog workflow drafts posts for upstream's marketing site. **When cherry-picking:** drop any upstream change to these files. |
 | Enrichment gets its own spend ceiling: `isOrgOverEnrichmentCeiling` and `enrichmentDailyCapUsd` in `packages/lib/src/usage/ceiling.ts`, a per-org cap on `sentiment-analysis` cost over a rolling 24 h (`ENRICHMENT_DAILY_CAP_USD`, default $2). `usage_events` gains `input_tokens` and `output_tokens` (migration `0105_usage_event_tokens`). The usage-event writer moves out of `process-prompt.ts` into `packages/lib/src/usage/events.ts`, with the type union widened to `sentiment-analysis`. The lib writer throws; the scraper wraps it as best effort, as before. | `apps/worker/src/jobs/process-prompt.ts` (`recordUsageEvent` replaced by `recordScraperUsageEvent` over the lib writer), `packages/lib/src/db/schema.ts`, `packages/lib/src/usage/cost.ts` (gpt-5-mini per-token price), `packages/lib/package.json`, `packages/config/src/env-registry.ts`, `turbo.json` | Closes #9: nothing capped enrichment spend once the scraper ceiling stopped counting it. Token counts are stored so cost can be re-derived when a price changes. **When cherry-picking:** an upstream change to `recordUsageEvent` in process-prompt applies to `recordScraperUsageEvent`, and a new upstream event type must join `SCRAPER_USAGE_EVENT_TYPES` or get its own ceiling. |
 | A paid sentiment analyzer judges each mentioned subject's stance. The judgements live in `stance_judgements` (migration `0106_stance_judgements`), cached by `(content_hash, lower(btrim(subject_name)), analyzer_version)` and claimed before each call. The job is `analyze-sentiment`, fed by an hourly `sentiment-sweep`. It's capped by the enrichment ceiling, and registered only when `sentimentAvailable` holds (enrichment feature on and `SENTIMENT_API_KEY` set). The analyzer calls an OpenAI-compatible endpoint of its own (`SENTIMENT_BASE_URL`, Gemini by default) through `structuredResearchWithUsage`, never the openai-api provider, so it doesn't share the scraper's key. Structured calls can now report token usage and billed cost, route to fallback models, and be pinned to a named provider. `structuredResearchWithUsage` bills thinking tokens that a provider counts only in `total_tokens` (Gemini's compatible endpoint) as output. | `packages/lib/src/providers/types.ts` (`usage`, `servedModel`, `fallbackModels`), `packages/lib/src/providers/registry/ai-sdk.ts` (`structuredResearchWithUsage`; `structuredResearch` wraps it unchanged), `openai-api.ts` (returns usage), `openrouter.ts` (`usage: { include: true }`, `models` fallback, usage and served model in the result), `packages/lib/src/onboarding/llm.ts` (`runStructuredCompletionPrompt` takes `provider` and `fallbackModels`), `apps/worker/src/index.ts`, `apps/worker/src/handlers.ts`, `packages/lib/src/db/schema.ts`, `packages/lib/src/constants.ts`, `packages/lib/src/usage/cost.ts`, `packages/config/src/env-registry.ts`, `turbo.json` | Phase 2: stance labels, stored and capped. Paid results are keyed by content, never by competitor id, so a dashboard rename (#24) or a case variant (#12) doesn't re-buy them. **When cherry-picking:** keep `usage`, `servedModel` and `fallbackModels` on the structured-research types, keep `usage: { include: true }` in OpenRouter's body, and make a new provider's `runStructuredResearch` report usage if it may ever serve the analyzer. |
+| The product is renamed Redemptia, and nothing points at or reports to elmo: telemetry (PostHog), support chat (Crisp) and the CLI newsletter run only with the operator's own keys (`VITE_POSTHOG_KEY`, `POSTHOG_KEY`, `VITE_CRISP_WEBSITE_ID`); affiliate and referral codes are dropped; elmo's blog posts, legal pages, reviews, GetCito comparison, GitHub statistics, vision and consulting pages are deleted; marketing, cloud and demo URLs are `redemptia.example` placeholders set in `packages/config/src/referrals.ts`. | Most of the repository: product copy, `apps/www`, `packages/docs`, package names (`@redemptia/cli`), icons and assets, `packages/config/src/referrals.ts`, the PostHog and Crisp loaders in `apps/web`, `apps/www`, `apps/worker` and `apps/cli` | elmo's identity, keys and claims belong to elmo. `ELMO_ENCRYPTION_KEY` (and `_OLD`), the `x-elmo-*` OpenAPI extensions and `QUOTA_LOCK_CLASS` are kept, because renaming them breaks live deployments or the quota lock. **When cherry-picking:** expect conflicts on almost any user-facing string; keep Redemptia's names and never reintroduce a hardcoded elmo key, URL, email or affiliate code. |
 
 **`DATABASE_URL` unset (from the pool-size change).** `db.ts` now builds a pool even when `DATABASE_URL` is unset; upstream built none. A query then tries pg's defaults (localhost) instead of failing on an undefined client. Nothing stops a web process from starting without it either: `assertRequiredEnv` is only called from `apps/worker/src/index.ts`. The web app only checks per request, rendering the missing-env page from `getEnvValidationState`, while its server functions and API routes keep running against that pool.
 

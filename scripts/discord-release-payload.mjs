@@ -62,7 +62,7 @@ function truncate(text, max) {
  * GitHub renders a bare pull request URL as `#123` and Discord does not, which
  * leaves every bullet trailing 40 characters of noise. Webhook messages honour
  * `[text](url)`, so shorten them the same way — but only for this repository,
- * since `#123` in an Redemptia announcement reads as an Redemptia pull request.
+ * since `#123` in a Redemptia announcement reads as a Redemptia pull request.
  */
 function maskPullLinks(line) {
   return line.replace(

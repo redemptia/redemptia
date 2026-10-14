@@ -1,31 +1,21 @@
 # Contributing to Redemptia
 
-Thanks for your interest in contributing! For minor fixes, feel free to
-open a PR directly. For anything larger, please open an issue first so
-the maintainers can agree on the approach before you start work.
+Thanks for your interest. For small fixes, open a pull request directly. For anything larger, open an issue first so the approach can be agreed before you start.
 
-Setup, commands, architecture, and the contribution workflow live in the
-[Developer Guide](https://redemptia.example/docs/developer-guide).
+[AGENTS.md](AGENTS.md) has the commands, layout and conventions, and the [development setup](packages/docs/content/docs/developer-guide/development-setup.mdx) gets a local copy running. Before opening a pull request, run `pnpm lint` and `pnpm turbo check-types test`; CI runs the integration and end-to-end suites as well.
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE.md). By
-contributing, you agree that your contributions will be licensed under the
-same terms.
+Redemptia is licensed under the [MIT License](LICENSE.md). By contributing, you agree that your contributions are licensed under the same terms. There is no contributor license agreement.
 
 ## Code of Conduct
 
-By participating in this project you agree to abide by our
-[Code of Conduct](CODE_OF_CONDUCT.md). Report violations to
-[a GitHub issue](https://github.com/redemptia/redemptia/issues).
+By participating you agree to the [Code of Conduct](CODE_OF_CONDUCT.md).
 
-## Reporting Security Issues
+## Security issues
 
-Please do not open a public issue for security vulnerabilities. Email
-[GitHub private vulnerability reporting](https://github.com/redemptia/redemptia/security/advisories/new) instead — see
-[`SECURITY.md`](SECURITY.md) for details.
+Don't open a public issue for a vulnerability; see [SECURITY.md](SECURITY.md).
 
-## Questions?
+## Questions
 
-- [GitHub Issues](https://github.com/redemptia/redemptia/issues) — for bug reports
-  and feature requests.
+Open a [GitHub issue](https://github.com/redemptia/redemptia/issues).
