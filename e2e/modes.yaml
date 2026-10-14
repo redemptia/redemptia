@@ -97,6 +97,9 @@ services:
       DEPLOYMENT_MODE: cloud
       APP_URL: http://localhost:1516
       VITE_APP_URL: http://localhost:1516
+      # Support chat loads only with an inbox configured. Any ID will do: the
+      # suite aborts every request to Crisp (e2e/test.ts).
+      VITE_CRISP_WEBSITE_ID: e2e-crisp-inbox
       # Admits the E2E user plus the two domains e2e/tests/cloud uses. The
       # disposable domain is allowlisted on purpose, so the disposable-address
       # rejection is reached rather than masked by the invite-only gate.
@@ -149,3 +152,6 @@ services:
       DEPLOYMENT_MODE: demo
       APP_URL: http://localhost:1518
       VITE_APP_URL: http://localhost:1518
+      # Support chat loads only with an inbox configured. Any ID will do: the
+      # suite aborts every request to Crisp (e2e/test.ts).
+      VITE_CRISP_WEBSITE_ID: e2e-crisp-inbox
