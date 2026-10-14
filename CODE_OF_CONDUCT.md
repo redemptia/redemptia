@@ -28,7 +28,7 @@ The Redemptia repository maintainers are responsible for enforcing this Code of 
 
 ## Reporting
 
-If you experience or witness behavior that violates this Code of Conduct, please report it by emailing [a GitHub issue](https://github.com/redemptia/redemptia/issues).
+If you experience or witness behavior that violates this Code of Conduct, report it to the repository maintainer, [@susheelram333](https://github.com/susheelram333), on GitHub. Reports are handled privately; don't post them in a public issue.
 
 ## Attribution
 

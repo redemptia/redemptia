@@ -9,10 +9,9 @@ abstract: >-
   answers.
 type: software
 authors:
-  - given-names: Jared
-    family-names: Rhizor
+  - given-names: Susheel Ram
+    family-names: Janpally
 repository-code: https://github.com/redemptia/redemptia
-url: https://redemptia.example/
 license: MIT
 keywords:
   - answer-engine-optimization
@@ -21,3 +20,12 @@ keywords:
   - ai-visibility
   - brand-monitoring
   - seo
+references:
+  - type: software
+    title: Elmo
+    abstract: The open-source AI visibility platform Redemptia was cloned from.
+    authors:
+      - given-names: Jared
+        family-names: Rhizor
+    repository-code: https://github.com/elmohq/elmo
+    license: MIT
