@@ -11,7 +11,7 @@ Redemptia supports several deployment modes, controlled by the `DEPLOYMENT_MODE`
 |------|-------------|
 | `local` | Single-org, email/password auth. Best for individual use. **(default)** |
 | `demo` | Read-only mode for showcasing Redemptia without allowing changes. |
-| `cloud` | Managed hosting. [Sign up for Redemptia Cloud](https://app.redemptia.example/auth/register). |
+| `cloud` | Managed hosting. [Sign up for Redemptia Cloud](https://app.redemptia.in/auth/register). |
 
 ## Environment Variables
 
@@ -93,9 +93,9 @@ redemptia compose up -d
 
 ## Serving Redemptia from a Domain
 
-`redemptia init` asks how you'll access Redemptia. Choose **From a domain** and enter it (for example `redemptia.example.com`, which becomes `https://redemptia.example.com`), then point your reverse proxy at the port you pick. Sign-in is only accepted from the configured URL.
+`redemptia init` asks how you'll access Redemptia. Choose **From a domain** and enter it (for example `redemptia.in.com`, which becomes `https://redemptia.in.com`), then point your reverse proxy at the port you pick. Sign-in is only accepted from the configured URL.
 
-To change it later, run `redemptia edit env`, set both `APP_URL` and `VITE_APP_URL` to the new URL (for example `https://redemptia.example.com`), then restart with `redemptia compose up -d`. Redemptia must be served from the root of its domain, not a subpath.
+To change it later, run `redemptia edit env`, set both `APP_URL` and `VITE_APP_URL` to the new URL (for example `https://redemptia.in.com`), then restart with `redemptia compose up -d`. Redemptia must be served from the root of its domain, not a subpath.
 
 ## Using an External Database
 

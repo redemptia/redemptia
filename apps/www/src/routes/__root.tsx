@@ -85,7 +85,7 @@ export const Route = createRootRoute({
 			{
 				src: "/api/plausible/js/script",
 				defer: true,
-				"data-domain": "redemptia.example",
+				"data-domain": "redemptia.in",
 				"data-api": "/api/plausible/event",
 			},
 		],

@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { deploymentOpenApiSpec } from "../openapi";
 
-const REDEMPTIA = { name: "Redemptia", url: "https://app.redemptia.example" };
+const REDEMPTIA = { name: "Redemptia", url: "https://app.redemptia.in" };
 const AGENCY = { name: "Acme Visibility", url: "https://visibility.acme.com" };
 
 describe("deploymentOpenApiSpec", () => {
 	it("answers with the host the spec was fetched from", () => {
-		const spec = deploymentOpenApiSpec(REDEMPTIA, "https://app.redemptia.example");
+		const spec = deploymentOpenApiSpec(REDEMPTIA, "https://app.redemptia.in");
 
-		expect(spec.servers).toEqual([{ url: "https://app.redemptia.example/api/v1", description: "Redemptia API" }]);
+		expect(spec.servers).toEqual([{ url: "https://app.redemptia.in/api/v1", description: "Redemptia API" }]);
 	});
 
 	it("does not leak the vendor into a whitelabel deployment", () => {
@@ -32,14 +32,14 @@ describe("deploymentOpenApiSpec", () => {
 	// request landed, and a stale one must not send callers somewhere they
 	// cannot reach.
 	it("takes the server from the request even when the configured URL differs", () => {
-		const spec = deploymentOpenApiSpec(REDEMPTIA, "https://staging.redemptia.example");
+		const spec = deploymentOpenApiSpec(REDEMPTIA, "https://staging.redemptia.in");
 
-		expect(spec.servers?.[0].url).toBe("https://staging.redemptia.example/api/v1");
+		expect(spec.servers?.[0].url).toBe("https://staging.redemptia.in/api/v1");
 		expect(spec.info.contact).toEqual(REDEMPTIA);
 	});
 
 	it("leaves the operations alone", () => {
-		const spec = deploymentOpenApiSpec(REDEMPTIA, "https://app.redemptia.example");
+		const spec = deploymentOpenApiSpec(REDEMPTIA, "https://app.redemptia.in");
 
 		expect(Object.keys(spec.paths as object)).toContain("/brands");
 	});

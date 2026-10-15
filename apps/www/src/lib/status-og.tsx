@@ -75,7 +75,7 @@ export function renderStatusOgImage(data: TargetStatus[]) {
 		);
 
 	return (
-		<OgFrame accentColors={ACCENT_COLORS} footer="redemptia.example/status">
+		<OgFrame accentColors={ACCENT_COLORS} footer="redemptia.in/status">
 			<OgHeader appName={DEFAULT_APP_NAME} label="AI Provider Status" />
 
 			<div style={{ display: "flex", flexDirection: "column", marginTop: 40 }}>

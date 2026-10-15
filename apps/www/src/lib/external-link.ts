@@ -1,8 +1,8 @@
 // Domains we own or co-own. Outbound links to these keep the Referer header —
 // rel="noopener" only, never "noreferrer" — so the destination's analytics can
 // attribute the visit back to this site. Every other external link gets the
-// full rel="noopener noreferrer". Subdomains count (e.g. demo.redemptia.example).
-const OWNED_DOMAINS = ["redemptia.example"];
+// full rel="noopener noreferrer". Subdomains count (e.g. demo.redemptia.in).
+const OWNED_DOMAINS = ["redemptia.in"];
 
 function isOwnedHost(hostname: string): boolean {
 	return OWNED_DOMAINS.some((domain) => hostname === domain || hostname.endsWith(`.${domain}`));

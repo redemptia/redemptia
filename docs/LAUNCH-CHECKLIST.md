@@ -13,10 +13,7 @@ These stop Redemptia taking a real customer's data, whatever else is ready.
 ## Before public launch
 
 - **Turn on private vulnerability reporting** (repository Settings → Code security). SECURITY.md and the support page send reporters there, and it is off (`{"enabled":false}` on 14 October 2026).
-- **Choose a domain** and replace the `redemptia.example` placeholders:
-  - marketing, cloud-app and demo URLs in `packages/config/src/referrals.ts` (www's own site URL reads from it);
-  - the two docs URLs in `packages/config/src/constants.ts`;
-  - the `redemptia.example` links in READMEs and docs.
+- **Point DNS for `redemptia.in`** (domain bought 15 October 2026) at the deployments. Every link now uses it: the marketing site on `redemptia.in`, the cloud app on `app.redemptia.in`, the demo on `demo.redemptia.in`, all set in `packages/config/src/referrals.ts`; docs links use `redemptia.in/docs`.
 - **A private contact address for Code of Conduct reports.** They go to the maintainer's GitHub handle today.
 - **Re-capture the product screenshots** in `apps/www/public/screenshots/`. All 9 still show elmo's logo and `demo@elmohq.com`.
 - **Set production `SCRAPE_TARGETS`** to `openai-api,searchapi`, as decided in CLAUDE.md, with those providers' keys.

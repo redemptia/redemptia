@@ -86,7 +86,7 @@ describe("the demo next steps", () => {
 		expect(linked).toEqual([
 			"https://github.com/redemptia/redemptia/issues",
 			CLOUD_SIGNUP_URL,
-			"https://redemptia.example/docs/getting-started",
+			"https://redemptia.in/docs/getting-started",
 		]);
 	});
 
@@ -133,7 +133,7 @@ describe("session identity", () => {
 		["identified before load", true],
 	])("leaves demo visitors anonymous (%s)", async (_label, identifyFirst) => {
 		const { initCrisp, identifyCrispUser } = await loadCrisp();
-		const demoUser = { id: "demo", email: "demo@redemptia.example", name: "Demo User" };
+		const demoUser = { id: "demo", email: "demo@redemptia.in", name: "Demo User" };
 
 		if (identifyFirst) {
 			identifyCrispUser(demoUser);

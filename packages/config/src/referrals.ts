@@ -7,13 +7,12 @@
  * things and convert at very different rates.
  */
 
-// Placeholders on the reserved .example domain until Redemptia has its own:
-// every link to the marketing site, the cloud app and the demo instance is
-// built from these three, so going live means changing them here.
-export const MARKETING_SITE_URL = "https://redemptia.example";
-export const CLOUD_APP_URL = "https://app.redemptia.example";
+// Every link to the marketing site, the cloud app and the demo instance is
+// built from these three, so a move to another host changes only them.
+export const MARKETING_SITE_URL = "https://redemptia.in";
+export const CLOUD_APP_URL = "https://app.redemptia.in";
 /** The read-only instance anyone can poke at without an account. */
-const DEMO_SITE_URL = "https://demo.redemptia.example";
+const DEMO_SITE_URL = "https://demo.redemptia.in";
 /** Where to ask for a walkthrough: there's no booking page, so it's the issue tracker. */
 const BOOK_DEMO_URL = "https://github.com/redemptia/redemptia/issues";
 

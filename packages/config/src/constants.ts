@@ -18,11 +18,11 @@ export const DEFAULT_APP_URL = "http://localhost:3000/";
  * Per-provider anchors are appended to it, so it has to stay the page itself
  * rather than the docs index.
  */
-export const PROVIDERS_DOCS_URL = "https://redemptia.example/docs/user-guide/providers";
+export const PROVIDERS_DOCS_URL = "https://redemptia.in/docs/user-guide/providers";
 
 /** The public docs, for the hosted product. In the app itself the API and MCP
  * pages document the deployment the viewer is signed in to. */
-export const API_DOCS_URL = "https://redemptia.example/docs/api";
+export const API_DOCS_URL = "https://redemptia.in/docs/api";
 
 /**
  * Redemptia brand constants — used for icon generation, manifest, and the brand kit.

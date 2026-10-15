@@ -1,7 +1,7 @@
 {
   "mcpServers": {
     "redemptia": {
-      "url": "https://app.redemptia.example/api/mcp"
+      "url": "https://app.redemptia.in/api/mcp"
     }
   }
 }
