@@ -15,7 +15,7 @@ declare global {
 const CRISP_SCRIPT_URL = "https://client.crisp.chat/l.js";
 
 const QUESTIONS_URL = "https://github.com/redemptia/redemptia/issues";
-const SELF_HOST_DOCS_URL = "https://redemptia.example/docs/getting-started";
+const SELF_HOST_DOCS_URL = "https://redemptia.in/docs/getting-started";
 
 const DEMO_GREETING =
 	"👋 You're in the Redemptia demo — it's read-only sample data, so click around freely. Ask me anything as you go.";

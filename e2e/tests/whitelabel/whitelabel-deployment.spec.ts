@@ -103,7 +103,7 @@ test.describe("Whitelabel branding", () => {
       timeout: 30_000,
     });
     await expect(page.locator('a[href="https://github.com/redemptia/redemptia"]')).toHaveCount(0);
-    await expect(page.locator('a[href="https://redemptia.example/"]')).toHaveCount(0);
+    await expect(page.locator('a[href="https://redemptia.in/"]')).toHaveCount(0);
   });
 
   test("the web manifest carries the partner icon", async ({ request }) => {

@@ -35,7 +35,7 @@ const DEFAULT_APP_NAME = "Redemptia";
 const DEFAULT_APP_ICON = "/icons/redemptia-icon.svg";
 const DEFAULT_APP_PORT = 1515;
 const LOCAL_DATABASE_URL = "postgres://postgres:postgres@postgres:5432/redemptia";
-const TELEMETRY_DOC_URL = "https://redemptia.example/docs/developer-guide/telemetry";
+const TELEMETRY_DOC_URL = "https://redemptia.in/docs/developer-guide/telemetry";
 const CLOUD_PRICING_URL = cloudPricingUrl("cli");
 
 /**
@@ -132,7 +132,7 @@ function toPublicUrl(value: string): URL | undefined {
 function validatePublicUrl(value: string | undefined): string | undefined {
 	if (!value) return "Required";
 	const url = toPublicUrl(value.trim());
-	if (!url?.hostname.includes(".")) return "Enter a domain, e.g. redemptia.example.com";
+	if (!url?.hostname.includes(".")) return "Enter a domain, e.g. redemptia.in.com";
 	// Auth trusts only this origin, so Redemptia can't be served from a subpath.
 	if (url.pathname !== "/") return "Must not include a path";
 	return undefined;
@@ -427,7 +427,7 @@ export async function runInit(options: InitOptions, version: string): Promise<vo
 	if (access === "public") {
 		const domain = await p.text({
 			message: "Domain",
-			placeholder: "redemptia.example.com",
+			placeholder: "redemptia.in.com",
 			validate: validatePublicUrl,
 		});
 		assertNotCancelled(domain);

@@ -24,13 +24,13 @@ export const aiCatalog = {
 	specVersion: "1.0",
 	host: {
 		displayName: SITE_NAME,
-		identifier: "redemptia.example",
+		identifier: "redemptia.in",
 		documentationUrl: canonicalUrl("/docs"),
 		logoUrl: canonicalUrl("/brand/icons/redemptia-icon-512.png"),
 	},
 	entries: [
 		{
-			identifier: "urn:air:redemptia.example:mcp:redemptia",
+			identifier: "urn:air:redemptia.in:mcp:redemptia",
 			displayName: `${SITE_NAME} MCP server`,
 			type: "application/mcp-server-card+json",
 			data: mcpServerCard,

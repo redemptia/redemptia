@@ -21,11 +21,11 @@ describe("referral links", () => {
 	});
 
 	it("points each destination at its own page", () => {
-		expect(marketingUrl("/docs", "cloud-signin")).toBe("https://redemptia.example/docs?ref=cloud-signin");
-		expect(cloudAppUrl("marketing-cta")).toBe("https://app.redemptia.example/?ref=marketing-cta");
-		expect(cloudSignupUrl("cloud-signin")).toBe("https://app.redemptia.example/auth/register?ref=cloud-signin");
-		expect(cloudPricingUrl("cloud-signin")).toBe("https://redemptia.example/pricing?ref=cloud-signin");
+		expect(marketingUrl("/docs", "cloud-signin")).toBe("https://redemptia.in/docs?ref=cloud-signin");
+		expect(cloudAppUrl("marketing-cta")).toBe("https://app.redemptia.in/?ref=marketing-cta");
+		expect(cloudSignupUrl("cloud-signin")).toBe("https://app.redemptia.in/auth/register?ref=cloud-signin");
+		expect(cloudPricingUrl("cloud-signin")).toBe("https://redemptia.in/pricing?ref=cloud-signin");
 		expect(bookDemoUrl("cloud-signin")).toBe("https://github.com/redemptia/redemptia/issues?ref=cloud-signin");
-		expect(demoSiteUrl("cloud-signin")).toBe("https://demo.redemptia.example/?ref=cloud-signin");
+		expect(demoSiteUrl("cloud-signin")).toBe("https://demo.redemptia.in/?ref=cloud-signin");
 	});
 });

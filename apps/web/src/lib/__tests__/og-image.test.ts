@@ -32,7 +32,7 @@ const ONE_PIXEL_PNG =
 
 describe("Open Graph card", () => {
 	it("renders the default Redemptia card without a title or description", async () => {
-		await expect(renderCard({ appName: DEFAULT_APP_NAME, url: "https://redemptia.example" })).resolves.toEqual({
+		await expect(renderCard({ appName: DEFAULT_APP_NAME, url: "https://redemptia.in" })).resolves.toEqual({
 			width: OG_WIDTH,
 			height: OG_HEIGHT,
 		});
@@ -43,7 +43,7 @@ describe("Open Graph card", () => {
 			"How to Track Your Brand's Visibility in ChatGPT, Claude, Perplexity, Gemini, and Google AI Overviews ".repeat(4);
 		const description = "A step-by-step guide to measuring where your brand shows up in AI answers. ".repeat(10);
 		await expect(
-			renderCard({ appName: DEFAULT_APP_NAME, title, description, label: "Blog", url: "https://redemptia.example" }),
+			renderCard({ appName: DEFAULT_APP_NAME, title, description, label: "Blog", url: "https://redemptia.in" }),
 		).resolves.toEqual({ width: OG_WIDTH, height: OG_HEIGHT });
 	});
 

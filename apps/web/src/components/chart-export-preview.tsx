@@ -47,7 +47,7 @@ export function ChartExportPreview({
 	const isWhitelabel = branding.isWhitelabel && branding.name !== DEFAULT_APP_NAME;
 	const domain = isWhitelabel
 		? branding.parentUrl?.replace(/^https?:\/\//, "").replace(/\/$/, "") || ""
-		: "redemptia.example";
+		: "redemptia.in";
 	const hasCustomIcon = branding.icon && branding.icon !== DEFAULT_APP_ICON;
 
 	return (

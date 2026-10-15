@@ -36,7 +36,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
 
 const BRAND_COLOR = "#2563eb";
-const SITE_URL = "https://redemptia.example";
+const SITE_URL = "https://redemptia.in";
 const OUTPUT_ZIP = resolve(__dirname, "../redemptia-brand-kit.zip");
 /** The letter the square icons draw; the logos spell out the name. */
 const GLYPH = "r";

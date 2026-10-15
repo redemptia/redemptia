@@ -7,8 +7,8 @@ Redemptia serves a [Model Context Protocol](https://modelcontextprotocol.io) end
 AI client can read your visibility data and manage prompts without you copying numbers between
 windows.
 
-On cloud that is `https://app.redemptia.example/api/mcp`. A self-hosted instance serves the same endpoint on
-its own address, so swap `app.redemptia.example` for yours in everything below.
+On cloud that is `https://app.redemptia.in/api/mcp`. A self-hosted instance serves the same endpoint on
+its own address, so swap `app.redemptia.in` for yours in everything below.
 
 Every deployment also documents its own connection at **Settings → MCP** in the organization's settings
 sidebar: the endpoint on that instance's own address, snippets for the common clients, and the tools
@@ -26,7 +26,7 @@ register first, on cloud or on your own instance.
 ### Claude Code
 
 ```bash
-claude mcp add --transport http redemptia https://app.redemptia.example/api/mcp
+claude mcp add --transport http redemptia https://app.redemptia.in/api/mcp
 ```
 
 Then run `/mcp` and choose **Authenticate**.
@@ -34,7 +34,7 @@ Then run `/mcp` and choose **Authenticate**.
 ### VS Code
 
 ```bash
-code --add-mcp '{"name":"redemptia","type":"http","url":"https://app.redemptia.example/api/mcp"}'
+code --add-mcp '{"name":"redemptia","type":"http","url":"https://app.redemptia.in/api/mcp"}'
 ```
 
 Or put it under `servers` in `mcp.json`:
@@ -42,7 +42,7 @@ Or put it under `servers` in `mcp.json`:
 ```json
 {
   "servers": {
-    "redemptia": { "type": "http", "url": "https://app.redemptia.example/api/mcp" }
+    "redemptia": { "type": "http", "url": "https://app.redemptia.in/api/mcp" }
   }
 }
 ```
@@ -59,7 +59,7 @@ In `opencode.json`:
   "mcp": {
     "redemptia": {
       "type": "remote",
-      "url": "https://app.redemptia.example/api/mcp",
+      "url": "https://app.redemptia.in/api/mcp",
       "enabled": true
     }
   }
@@ -75,7 +75,7 @@ In `~/.cursor/mcp.json`:
 ```json
 {
   "mcpServers": {
-    "redemptia": { "url": "https://app.redemptia.example/api/mcp" }
+    "redemptia": { "url": "https://app.redemptia.in/api/mcp" }
   }
 }
 ```
@@ -86,7 +86,7 @@ Redemptia can't accept, so if signing in fails, use an API key instead.
 ### Codex
 
 ```bash
-codex mcp add redemptia --url https://app.redemptia.example/api/mcp
+codex mcp add redemptia --url https://app.redemptia.in/api/mcp
 codex mcp login redemptia
 ```
 
@@ -101,14 +101,14 @@ Send it as a bearer token.
 Claude Code:
 
 ```bash
-claude mcp add --transport http redemptia https://app.redemptia.example/api/mcp \
+claude mcp add --transport http redemptia https://app.redemptia.in/api/mcp \
   --header "Authorization: Bearer redemptia_..."
 ```
 
 Codex, which reads the key from the environment rather than the config file:
 
 ```bash
-codex mcp add redemptia --url https://app.redemptia.example/api/mcp \
+codex mcp add redemptia --url https://app.redemptia.in/api/mcp \
   --bearer-token-env-var REDEMPTIA_API_KEY
 ```
 
@@ -118,7 +118,7 @@ Cursor, in `~/.cursor/mcp.json`:
 {
   "mcpServers": {
     "redemptia": {
-      "url": "https://app.redemptia.example/api/mcp",
+      "url": "https://app.redemptia.in/api/mcp",
       "headers": { "Authorization": "Bearer redemptia_..." }
     }
   }
@@ -132,7 +132,7 @@ VS Code, in `mcp.json`:
   "servers": {
     "redemptia": {
       "type": "http",
-      "url": "https://app.redemptia.example/api/mcp",
+      "url": "https://app.redemptia.in/api/mcp",
       "headers": { "Authorization": "Bearer redemptia_..." }
     }
   }
@@ -147,7 +147,7 @@ OpenCode, in `opencode.json`:
   "mcp": {
     "redemptia": {
       "type": "remote",
-      "url": "https://app.redemptia.example/api/mcp",
+      "url": "https://app.redemptia.in/api/mcp",
       "enabled": true,
       "headers": { "Authorization": "Bearer redemptia_..." }
     }

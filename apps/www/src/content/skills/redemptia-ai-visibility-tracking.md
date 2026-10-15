@@ -5,12 +5,12 @@ description: Measure and improve how AI answer engines describe and cite a brand
 
 # Redemptia AI Visibility Tracking
 
-[Redemptia](https://redemptia.example) runs a set of prompts across the major AI answer engines on a
+[Redemptia](https://redemptia.in) runs a set of prompts across the major AI answer engines on a
 schedule and records what came back: whether the brand appeared, which competitors appeared
 alongside it, which pages the models cited, and which web searches they ran to get there. This
 skill is how to read that data and turn it into a plan.
 
-You need access to a Redemptia deployment. Cloud is `https://app.redemptia.example`; a self-hosted instance
+You need access to a Redemptia deployment. Cloud is `https://app.redemptia.in`; a self-hosted instance
 serves the same endpoints on its own address, so substitute it throughout.
 
 ## Connecting
@@ -18,7 +18,7 @@ serves the same endpoints on its own address, so substitute it throughout.
 **MCP (preferred).** The endpoint is `/api/mcp`:
 
 ```bash
-claude mcp add --transport http redemptia https://app.redemptia.example/api/mcp
+claude mcp add --transport http redemptia https://app.redemptia.in/api/mcp
 ```
 
 Signing in from the client opens a browser and the connection then acts as that user. For a client
@@ -28,8 +28,8 @@ brands. Call `whoami` to see what the current connection actually holds — `too
 to it, so a missing tool means a missing scope, not a missing feature.
 
 **REST.** Base URL `/api/v1`, same Bearer token. The OpenAPI description is at
-<https://redemptia.example/api/openapi.json> and the reference at
-<https://redemptia.example/docs/api.md>.
+<https://redemptia.in/api/openapi.json> and the reference at
+<https://redemptia.in/docs/api.md>.
 
 ## Reading a brand
 
@@ -93,7 +93,7 @@ existing one. Both need the `write` scope.
 
 ## Further reading
 
-- <https://redemptia.example/llms.txt> — index of everything published here
-- <https://redemptia.example/docs/mcp.md> — full MCP setup, including self-hosted and other clients
-- <https://redemptia.example/docs/user-guide.md> — what each metric means and how it is computed
+- <https://redemptia.in/llms.txt> — index of everything published here
+- <https://redemptia.in/docs/mcp.md> — full MCP setup, including self-hosted and other clients
+- <https://redemptia.in/docs/user-guide.md> — what each metric means and how it is computed
 - <https://github.com/redemptia/redemptia> — source, MIT licensed
