@@ -58,7 +58,7 @@ export default defineConfig({
 					// `/repo-activity.svg` only ever reads cache. Every 15 min stays
 					// well under GitHub's 30/min Search API limit (~14 search calls
 					// per refresh).
-					crons: [{ path: "/api/repo-activity/refresh", schedule: "*/15 * * * *" }],
+					crons: [],
 				},
 			},
 		}),
