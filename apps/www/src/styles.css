@@ -121,6 +121,11 @@
 	font-family: var(--font-titan-one);
 }
 
+/* Vertical stripes, white and the old grid lines' grey, 48px each. */
+@utility bg-stripes {
+	background-image: repeating-linear-gradient(to right, #ffffff 0 48px, #f5f5f5 48px 96px);
+}
+
 @utility font-heading {
 	font-weight: 600;
 	letter-spacing: -0.025em;
