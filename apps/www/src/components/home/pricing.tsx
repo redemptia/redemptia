@@ -108,7 +108,7 @@ export function OtherPlans({ className = "" }: { className?: string }) {
 
 export function Pricing() {
 	return (
-		<section id="pricing" className="border-t border-zinc-200/80 bg-white">
+		<section id="pricing" className="border-t border-zinc-200/80">
 			<div className="mx-auto max-w-6xl px-4 py-20 md:px-6 lg:py-28">
 				<SectionHeading
 					align="center"

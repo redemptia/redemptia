@@ -16,10 +16,7 @@ export function NotFound() {
 			<Navbar />
 			<main>
 				<section className="relative border-b border-zinc-200 bg-white">
-					<div
-						aria-hidden="true"
-						className="pointer-events-none absolute inset-0 [background-image:linear-gradient(to_right,rgb(0_0_0/0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgb(0_0_0/0.04)_1px,transparent_1px)] [background-size:48px_48px] [mask-image:linear-gradient(to_bottom,black,transparent_85%)]"
-					/>
+					<div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-stripes" />
 					<div className="relative mx-auto max-w-6xl px-4 py-20 md:px-6 lg:py-28">
 						<div className="mx-auto max-w-2xl text-center">
 							<p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-600 tabular-nums">

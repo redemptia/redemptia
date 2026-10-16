@@ -40,7 +40,7 @@ export const Route = createFileRoute("/")({
 
 function HomePage() {
 	return (
-		<div className={`${HOME_FONT_CLASS} min-h-screen bg-white antialiased`}>
+		<div className={`${HOME_FONT_CLASS} min-h-screen bg-white bg-stripes antialiased`}>
 			<HomeStyles />
 			<Navbar />
 			<main>

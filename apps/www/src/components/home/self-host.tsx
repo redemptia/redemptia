@@ -14,7 +14,7 @@ const LINK = "group inline-flex items-center gap-1 text-[15px] font-medium text-
 
 export function SelfHost() {
 	return (
-		<section className="border-t border-zinc-200/80 bg-white">
+		<section className="border-t border-zinc-200/80">
 			<div className="mx-auto max-w-6xl px-4 py-20 md:px-6 lg:py-28">
 				<SectionHeading align="center" title="Self-host for free." />
 				<div className="mx-auto mt-12 max-w-2xl">

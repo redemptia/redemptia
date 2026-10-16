@@ -55,7 +55,7 @@ const cols: { heading: string; links: FooterLink[] }[] = [
 
 export function Footer() {
 	return (
-		<footer className="relative overflow-hidden border-t border-zinc-200/80 bg-white">
+		<footer className="relative overflow-hidden border-t border-zinc-200/80">
 			<div className="mx-auto max-w-6xl px-4 pt-16 md:px-6">
 				<div className="grid grid-cols-2 gap-10 py-16 sm:grid-cols-3 lg:grid-cols-5">
 					{cols.map((col) => (
