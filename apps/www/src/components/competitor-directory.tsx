@@ -169,7 +169,9 @@ function FeatureMatrix({ competitors: items }: { competitors: Competitor[] }) {
 					])}
 					<tr className="border-t-2 border-zinc-200">
 						<td className={`${stickyCell} py-2 pr-4 text-xs font-semibold text-zinc-950`}>Popularity</td>
-						<td className="border-x border-zinc-200 bg-brand-50 px-2 py-2 text-center text-xs text-brand-600">need ♥︎</td>
+						<td className="border-x border-zinc-200 bg-brand-50 px-2 py-2 text-center text-xs text-brand-600">
+							need ♥︎
+						</td>
 						{items.map((c) => (
 							<td key={c.slug} className="px-2 py-2 text-center text-xs tabular-nums text-zinc-600">
 								{c.slug === "elmo" ? "♥︎" : getPopularityGrade(c)}
