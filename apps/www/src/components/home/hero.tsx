@@ -58,7 +58,6 @@ export function Hero() {
 
 	return (
 		<section className="relative overflow-hidden">
-
 			<div className="relative mx-auto max-w-6xl px-4 pb-20 pt-14 md:px-6 md:pt-20 lg:pb-28">
 				<div className="mx-auto flex max-w-3xl flex-col items-center text-center">
 					<a
