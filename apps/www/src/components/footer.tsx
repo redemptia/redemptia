@@ -115,10 +115,9 @@ export function Footer() {
 					</div>
 				</div>
 			</div>
-			{/* Deliberately oversized and cropped by the page edge. */}
 			<Link
 				to="/"
-				className="-mb-[0.14em] block translate-y-[0.1em] select-none text-center font-titan-one text-[clamp(7rem,30vw,24rem)] lowercase leading-[0.8] tracking-[-0.02em] text-brand-600"
+				className="block select-none pb-[0.1em] text-center font-titan-one text-[clamp(4rem,18vw,12rem)] lowercase leading-[0.8] tracking-[-0.02em] text-brand-600"
 			>
 				redemptia
 			</Link>
