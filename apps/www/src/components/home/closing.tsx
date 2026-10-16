@@ -18,7 +18,11 @@ export function Closing({ from = "marketing-closing" }: { from?: ReferralSource 
 	const cloudUrl = cloudAppUrl(from);
 	const demoUrl = demoSiteUrl(from);
 	return (
-		<section className="relative overflow-hidden border-t border-zinc-200/80">
+		<section className="relative overflow-hidden border-t border-zinc-200/80 bg-white">
+			<div
+				aria-hidden="true"
+				className="pointer-events-none absolute inset-0 bg-stripes [mask-image:linear-gradient(to_top,black,transparent_85%)]"
+			/>
 			<div className="relative mx-auto flex max-w-3xl flex-col items-center px-4 py-20 text-center md:px-6 lg:py-28">
 				<h2 className="text-[2.5rem] font-semibold leading-[1.05] tracking-[-0.03em] text-balance text-zinc-950 md:text-[3.5rem]">
 					Start winning AI search today.

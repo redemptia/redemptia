@@ -53,7 +53,7 @@ function Crop({ src, alt }: { src: string; alt: string }) {
 
 export function HowItWorks() {
 	return (
-		<section className="border-t border-zinc-200/80">
+		<section className="border-t border-zinc-200/80 bg-white">
 			<div className="mx-auto max-w-6xl px-4 py-20 md:px-6 lg:py-28">
 				<SectionHeading
 					title="From zero to a plan in one afternoon."
