@@ -57,7 +57,12 @@ export function Hero() {
 	const [videoOpen, setVideoOpen] = useState(false);
 
 	return (
-		<section className="relative overflow-hidden">
+		<section className="relative overflow-hidden bg-white">
+			<div
+				aria-hidden="true"
+				className="pointer-events-none absolute inset-0 bg-stripes [mask-image:linear-gradient(to_bottom,black,transparent_85%)]"
+			/>
+
 			<div className="relative mx-auto max-w-6xl px-4 pb-20 pt-14 md:px-6 md:pt-20 lg:pb-28">
 				<div className="mx-auto flex max-w-3xl flex-col items-center text-center">
 					<a
