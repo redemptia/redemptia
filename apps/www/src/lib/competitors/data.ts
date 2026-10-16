@@ -6032,6 +6032,42 @@ export const competitors: Competitor[] = [
 			"Deliberate retro-web design, visitor counter included",
 		],
 	},
+	{
+		slug: "elmo",
+		name: "Elmo",
+		domain: "elmohq.com",
+		url: "https://www.elmohq.com",
+		tagline: "AI Visibility platform for brands",
+		description: "AI-powered visibility optimization platform with white-label agency support.",
+		category: "open-source",
+		ahrefsDR: 0,
+		status: "active",
+		features: {
+			multiLlmTracking: true,
+			visibilityScore: true,
+			citationAnalytics: true,
+			competitorBenchmarking: true,
+			brandMentionTracking: true,
+			promptVolumeEstimates: false,
+			sentimentAnalysis: false,
+			crawlerAnalytics: false,
+			geographicTracking: false,
+			socialMediaTracking: false,
+			shoppingTracking: false,
+			multiLanguage: false,
+			actionRecommendations: false,
+			contentGapAnalysis: false,
+			siteAudits: false,
+			keywordResearch: false,
+			emailAlerts: false,
+			dataExportApi: true,
+			biConnectors: false,
+			whiteLabelAgency: true,
+			openSource: true,
+			contentGeneration: false,
+		},
+		pricing: { hasFree: true, hasEnterprise: true },
+	},
 ];
 
 export function getCompetitorBySlug(slug: string): Competitor | undefined {
@@ -6064,6 +6100,7 @@ export function getComparisonSlug(competitor: Competitor): string {
 const aeoPopularityRanking: string[] = [
 	// --- Tier A: Category leaders with major funding, customers, and recognition ---
 	"profound", // Category leader: G2 AEO Leader, enterprise (MongoDB, Figma, Zapier, Ramp), Fortune/WSJ/NYT
+	"elmo", // Established open-source AEO tracker
 	"peec-ai", // $21M Series A (Singular), 1,300+ brands onboarded, fastest-growing pure-play
 	"airops", // $40M Series B / $225M val (Greylock), Ramp/Chime/Wiz/Carta, repositioned as AI-search platform
 	"scrunch", // $19M (Mayfield/Decibel), G2 category leader, broadest engine coverage, SOC2+HIPAA
