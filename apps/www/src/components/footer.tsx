@@ -117,7 +117,7 @@ export function Footer() {
 			</div>
 			<Link
 				to="/"
-				className="block select-none pb-[0.1em] text-center font-titan-one text-[clamp(4rem,18vw,12rem)] lowercase leading-[0.8] tracking-[-0.02em] text-brand-600"
+				className="block select-none pb-[0.15em] text-center font-titan-one text-[clamp(2.5rem,15vw,12rem)] lowercase leading-none tracking-[-0.02em] text-brand-600"
 			>
 				redemptia
 			</Link>
