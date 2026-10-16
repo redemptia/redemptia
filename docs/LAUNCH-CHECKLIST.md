@@ -16,6 +16,7 @@ These stop Redemptia taking a real customer's data, whatever else is ready.
 - **Point DNS for `redemptia.in`** (domain bought 15 October 2026) at the deployments. Every link now uses it: the marketing site on `redemptia.in`, the cloud app on `app.redemptia.in`, the demo on `demo.redemptia.in`, all set in `packages/config/src/referrals.ts`; docs links use `redemptia.in/docs`.
 - **A private contact address for Code of Conduct reports.** They go to the maintainer's GitHub handle today.
 - **Re-capture the product screenshots** in `apps/www/public/screenshots/`. All 9 still show elmo's logo and `demo@elmohq.com`.
+- **Replace the homepage walkthrough video.** The Mux playback ID in `apps/www/src/components/home/hero.tsx` plays elmo's recording of its own UI.
 - **Set production `SCRAPE_TARGETS`** to `openai-api,searchapi`, as decided in CLAUDE.md, with those providers' keys.
 - **Optional, and off unless set:** your own PostHog key (`VITE_POSTHOG_KEY`, `POSTHOG_KEY`) and Crisp inbox (`VITE_CRISP_WEBSITE_ID`). With none set, nothing is sent anywhere.
 

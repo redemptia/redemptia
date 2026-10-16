@@ -107,7 +107,7 @@ function PagePoster() {
 					top: -180,
 				}}
 			>
-				e
+				r
 			</div>
 
 			{/* top: category tag, flush-left with the headline below */}
