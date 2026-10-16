@@ -82,7 +82,7 @@ function GlossaryTermPage() {
 										<li key={link.href}>
 											<a
 												href={link.href}
-												className="inline-flex items-center gap-1 text-sm font-medium text-blue-700 hover:text-blue-900"
+												className="inline-flex items-center gap-1 text-sm font-medium text-brand-700 hover:text-brand-900"
 											>
 												{link.label}
 												<ArrowRight className="h-3.5 w-3.5" />
@@ -122,7 +122,7 @@ function GlossaryTermPage() {
 						<div className="mt-6 flex flex-wrap justify-center gap-3">
 							<Link
 								{...SELF_HOST_LINK}
-								className="inline-flex h-9 items-center rounded-md bg-blue-600 px-4 text-sm font-medium text-white hover:bg-blue-700"
+								className="inline-flex h-9 items-center rounded-md bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
 							>
 								Get started
 							</Link>

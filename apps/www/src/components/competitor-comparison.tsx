@@ -23,16 +23,16 @@ function FeatureRow({ label, redemptia, competitor }: { label: string; redemptia
 	return (
 		<tr className="border-b border-dashed border-zinc-200 last:border-solid">
 			<td className="py-3 pr-4 text-sm text-zinc-600">{label}</td>
-			<td className={`px-4 py-3 text-center ${redemptiaWins ? "bg-blue-50" : ""}`}>
+			<td className={`px-4 py-3 text-center ${redemptiaWins ? "bg-brand-50" : ""}`}>
 				{redemptia ? (
-					<Check className="mx-auto h-4 w-4 text-blue-600" />
+					<Check className="mx-auto h-4 w-4 text-brand-600" />
 				) : (
 					<X className="mx-auto h-4 w-4 text-zinc-300" />
 				)}
 			</td>
-			<td className={`px-4 py-3 text-center ${competitorWins ? "bg-blue-50" : ""}`}>
+			<td className={`px-4 py-3 text-center ${competitorWins ? "bg-brand-50" : ""}`}>
 				{competitor ? (
-					<Check className="mx-auto h-4 w-4 text-blue-600" />
+					<Check className="mx-auto h-4 w-4 text-brand-600" />
 				) : (
 					<X className="mx-auto h-4 w-4 text-zinc-300" />
 				)}
@@ -180,7 +180,7 @@ export function CompetitorComparison({ competitor }: { competitor: Competitor })
 						<ul className="mt-4 space-y-2">
 							{competitor.highlights.map((h) => (
 								<li key={h} className="flex items-start gap-2 text-sm text-zinc-600">
-									<Check className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" />
+									<Check className="mt-0.5 h-4 w-4 shrink-0 text-brand-600" />
 									{h}
 								</li>
 							))}
@@ -240,7 +240,7 @@ export function CompetitorComparison({ competitor }: { competitor: Competitor })
 								<ul className="space-y-2">
 									{redemptiaOnlyFeatures.map((f) => (
 										<li key={f} className="flex items-center gap-2 text-sm text-zinc-600">
-											<Check className="h-3.5 w-3.5 shrink-0 text-blue-600" />
+											<Check className="h-3.5 w-3.5 shrink-0 text-brand-600" />
 											{f}
 										</li>
 									))}

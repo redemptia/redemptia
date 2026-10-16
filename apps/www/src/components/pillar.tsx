@@ -6,7 +6,7 @@ export function PillarBody({ pillar }: { pillar: Pillar }) {
 		<section className="border-b border-zinc-200 bg-white py-12">
 			<div className="mx-auto max-w-6xl px-4 md:px-6">
 				<div className="max-w-3xl">
-					<div className="rounded-md border border-blue-200 bg-blue-50/40 p-6">
+					<div className="rounded-md border border-brand-200 bg-brand-50/40 p-6">
 						<h2 className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">In short</h2>
 						<p className="mt-3 text-lg leading-relaxed text-zinc-800">{pillar.definition}</p>
 					</div>
@@ -38,7 +38,7 @@ export function PillarBody({ pillar }: { pillar: Pillar }) {
 								<ol className="mt-6 space-y-5">
 									{section.steps.map((step, i) => (
 										<li key={step.name} className="flex gap-4">
-											<span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-600 font-mono text-xs text-white tabular-nums">
+											<span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-600 font-mono text-xs text-white tabular-nums">
 												{i + 1}
 											</span>
 											<div>

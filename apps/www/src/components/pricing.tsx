@@ -79,7 +79,7 @@ function CloudPlans() {
 							<div className="mt-auto pt-6">
 								<a
 									href={cloudAppUrl(`marketing-pricing-${key}`)}
-									className="inline-flex w-full h-9 items-center justify-center gap-1.5 rounded-md bg-blue-600 px-4 pt-0 text-sm font-medium leading-none text-white hover:bg-blue-700"
+									className="inline-flex w-full h-9 items-center justify-center gap-1.5 rounded-md bg-brand-600 px-4 pt-0 text-sm font-medium leading-none text-white hover:bg-brand-700"
 								>
 									Get {plan.name}
 									<ArrowRight className="size-3.5" />

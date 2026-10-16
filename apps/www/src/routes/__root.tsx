@@ -47,7 +47,7 @@ export const Route = createRootRoute({
 			{ name: "twitter:title", content: ROOT_TITLE },
 			{ name: "twitter:description", content: SITE_DESCRIPTION },
 			{ name: "twitter:image", content: ROOT_OG_IMAGE },
-			{ name: "theme-color", content: "#2563eb" },
+			{ name: "theme-color", content: "#7042cf" },
 			{ name: "apple-mobile-web-app-title", content: SITE_NAME },
 		],
 		links: [

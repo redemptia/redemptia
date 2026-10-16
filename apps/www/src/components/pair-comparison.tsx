@@ -10,8 +10,8 @@ import {
 
 function Cell({ on, highlight }: { on: boolean; highlight?: boolean }) {
 	return (
-		<td className={`px-4 py-3 text-center ${highlight ? "bg-blue-50" : ""}`}>
-			{on ? <Check className="mx-auto h-4 w-4 text-blue-600" /> : <X className="mx-auto h-4 w-4 text-zinc-300" />}
+		<td className={`px-4 py-3 text-center ${highlight ? "bg-brand-50" : ""}`}>
+			{on ? <Check className="mx-auto h-4 w-4 text-brand-600" /> : <X className="mx-auto h-4 w-4 text-zinc-300" />}
 		</td>
 	);
 }

@@ -27,9 +27,9 @@ export function Faq({ items }: { items: FaqItem[] }) {
 					<div className="divide-y divide-zinc-200 border-y border-zinc-200">
 						{items.map((item) => (
 							<details key={item.question} className="group">
-								<summary className="flex cursor-pointer list-none items-start justify-between gap-6 py-5 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 [&::-webkit-details-marker]:hidden">
+								<summary className="flex cursor-pointer list-none items-start justify-between gap-6 py-5 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 [&::-webkit-details-marker]:hidden">
 									<h3 className="text-base font-medium text-zinc-950">{item.question}</h3>
-									<span className="mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full text-zinc-400 ring-1 ring-zinc-200 transition group-open:rotate-45 group-open:bg-blue-600 group-open:text-white group-open:ring-blue-600">
+									<span className="mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full text-zinc-400 ring-1 ring-zinc-200 transition group-open:rotate-45 group-open:bg-brand-600 group-open:text-white group-open:ring-brand-600">
 										<Plus className="size-3" strokeWidth={2.5} aria-hidden="true" />
 									</span>
 								</summary>

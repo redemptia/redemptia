@@ -7,7 +7,7 @@ export function ProviderCTA({ href, name, children }: { href: string; name: stri
 			href={href}
 			target="_blank"
 			rel="sponsored nofollow noopener noreferrer"
-			className="not-prose my-6 inline-flex h-10 items-center gap-2 rounded-md bg-blue-600 px-4 text-sm font-medium leading-none text-white no-underline ring-1 ring-blue-600 hover:bg-blue-700"
+			className="not-prose my-6 inline-flex h-10 items-center gap-2 rounded-md bg-brand-600 px-4 text-sm font-medium leading-none text-white no-underline ring-1 ring-brand-600 hover:bg-brand-700"
 		>
 			{children ?? `Get started with ${name}`}
 			<span aria-hidden="true">→</span>

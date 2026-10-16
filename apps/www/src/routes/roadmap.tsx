@@ -70,9 +70,9 @@ function HighlightCard({ highlight }: { highlight: UpcomingHighlight }) {
 			href={highlight.url}
 			target="_blank"
 			rel="noopener noreferrer"
-			className="group flex h-full flex-col gap-3 rounded-md border border-zinc-200 bg-white p-5 transition-colors hover:border-blue-300 hover:bg-blue-50/30"
+			className="group flex h-full flex-col gap-3 rounded-md border border-zinc-200 bg-white p-5 transition-colors hover:border-brand-300 hover:bg-brand-50/30"
 		>
-			<h3 className="text-lg font-semibold leading-snug tracking-tight text-zinc-950 group-hover:text-blue-700">
+			<h3 className="text-lg font-semibold leading-snug tracking-tight text-zinc-950 group-hover:text-brand-700">
 				{highlight.title}
 			</h3>
 			<p className="text-sm text-pretty text-zinc-600">{highlight.description}</p>
@@ -82,7 +82,7 @@ function HighlightCard({ highlight }: { highlight: UpcomingHighlight }) {
 				) : (
 					<span />
 				)}
-				<ArrowUpRight className="size-4 text-zinc-400 transition-colors group-hover:text-blue-600" />
+				<ArrowUpRight className="size-4 text-zinc-400 transition-colors group-hover:text-brand-600" />
 			</div>
 		</a>
 	);
@@ -113,7 +113,7 @@ function IssueRow({ issue }: { issue: GitHubRoadmapIssue }) {
 				className="group flex items-center gap-3 rounded-md border border-zinc-200 bg-white px-4 py-3 transition-colors hover:bg-zinc-50"
 			>
 				<div className="min-w-0 flex-1">
-					<span className="text-sm font-medium text-zinc-900 group-hover:text-blue-700">{issue.title}</span>
+					<span className="text-sm font-medium text-zinc-900 group-hover:text-brand-700">{issue.title}</span>
 					<div className="mt-1 flex flex-wrap items-center gap-1.5">
 						<span className="font-mono text-[11px] tabular-nums text-zinc-500">#{issue.number}</span>
 						{issue.labels.map((label) => (
@@ -137,7 +137,7 @@ function IssueRow({ issue }: { issue: GitHubRoadmapIssue }) {
 						)}
 					</div>
 				)}
-				<ArrowUpRight className="size-4 shrink-0 text-zinc-400 transition-colors group-hover:text-blue-700" />
+				<ArrowUpRight className="size-4 shrink-0 text-zinc-400 transition-colors group-hover:text-brand-700" />
 			</a>
 		</li>
 	);
@@ -165,7 +165,7 @@ function RoadmapPage() {
 								href={PROJECT_BOARD_URL}
 								target="_blank"
 								rel="noopener noreferrer"
-								className="inline-flex h-8 items-center gap-1.5 rounded-md bg-blue-600 px-3 text-sm font-medium leading-none text-white ring-1 ring-blue-600 hover:bg-blue-700"
+								className="inline-flex h-8 items-center gap-1.5 rounded-md bg-brand-600 px-3 text-sm font-medium leading-none text-white ring-1 ring-brand-600 hover:bg-brand-700"
 							>
 								<GitHubGlyph className="size-3.5" />
 								View Roadmap on GitHub
@@ -189,7 +189,7 @@ function RoadmapPage() {
 					<section className="border-b border-zinc-200 bg-zinc-50/40">
 						<div className="mx-auto max-w-6xl px-4 py-12 md:px-6 lg:py-16">
 							<div className="mb-8">
-								<p className="font-mono text-[11px] uppercase tracking-[0.18em] text-blue-600">/ ON DECK</p>
+								<p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-600">/ ON DECK</p>
 								<h2 className="mt-2 text-2xl font-semibold tracking-tight text-zinc-950">Upcoming Features</h2>
 							</div>
 							<ul className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 lg:grid-cols-4">

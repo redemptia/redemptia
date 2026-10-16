@@ -65,7 +65,7 @@ function ResourceLink({ href, label, detail }: { href: string; label: string; de
 			className="group flex items-start justify-between gap-4 rounded-md border border-zinc-200 bg-white p-4 transition-colors hover:bg-zinc-50"
 		>
 			<div>
-				<p className="text-sm font-medium text-zinc-950 group-hover:text-blue-600">{label}</p>
+				<p className="text-sm font-medium text-zinc-950 group-hover:text-brand-600">{label}</p>
 				<p className="mt-1 text-xs text-zinc-500">{detail}</p>
 			</div>
 			{external && <ArrowUpRight className="size-4 shrink-0 text-zinc-400" />}

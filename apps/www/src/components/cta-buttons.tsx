@@ -4,7 +4,7 @@ import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { externalRel } from "@/lib/external-link";
 
 const PRIMARY_CLS =
-	"inline-flex h-8 items-center gap-1.5 rounded-md bg-blue-600 px-3 text-sm font-medium leading-none text-white ring-1 ring-blue-600 hover:bg-blue-700";
+	"inline-flex h-8 items-center gap-1.5 rounded-md bg-brand-600 px-3 text-sm font-medium leading-none text-white ring-1 ring-brand-600 hover:bg-brand-700";
 const GHOST_CLS =
 	"inline-flex h-8 items-center gap-1.5 rounded-md bg-white px-3 text-sm font-medium leading-none text-zinc-900 ring-1 ring-zinc-200 hover:bg-zinc-50 hover:ring-zinc-300";
 

@@ -93,7 +93,7 @@ function EnginePage() {
 						<ol className="mt-6 space-y-5">
 							{engine.steps.map((step, i) => (
 								<li key={step.name} className="flex gap-4">
-									<span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-600 font-mono text-xs text-white tabular-nums">
+									<span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-600 font-mono text-xs text-white tabular-nums">
 										{i + 1}
 									</span>
 									<div>
@@ -110,7 +110,7 @@ function EnginePage() {
 							<div className="mt-4">
 								<Link
 									{...SELF_HOST_LINK}
-									className="inline-flex h-9 items-center rounded-md bg-blue-600 px-4 text-sm font-medium text-white hover:bg-blue-700"
+									className="inline-flex h-9 items-center rounded-md bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
 								>
 									Start tracking with Redemptia
 								</Link>

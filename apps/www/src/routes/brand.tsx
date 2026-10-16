@@ -24,7 +24,7 @@ export const Route = createFileRoute("/brand")({
 	component: BrandPage,
 });
 
-const BRAND_COLOR = "#2563eb";
+const BRAND_COLOR = "#7042cf";
 
 interface BrandAsset {
 	label: string;
@@ -205,7 +205,7 @@ function BrandPage() {
 				<section className="mb-16">
 					<h2 className="mb-6 text-xl font-semibold text-zinc-950">Colors</h2>
 					<div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
-						<ColorSwatch color={BRAND_COLOR} label="Brand Blue" value="#2563eb" />
+						<ColorSwatch color={BRAND_COLOR} label="Brand Purple" value="#7042cf" />
 						<ColorSwatch color="#f4d35e" label="Accent Yellow" value="#f4d35e" />
 						<ColorSwatch color="#ee964b" label="Accent Orange" value="#ee964b" />
 						<ColorSwatch color="#f95738" label="Accent Red" value="#f95738" />
@@ -248,8 +248,8 @@ function BrandPage() {
 							rel="noopener noreferrer"
 							className="group rounded-md border border-zinc-200 bg-white p-6 transition-colors hover:bg-zinc-50"
 						>
-							<p className="font-titan-one text-4xl lowercase text-blue-600">redemptia</p>
-							<p className="mt-3 text-sm font-medium text-zinc-950 group-hover:text-blue-600">Titan One</p>
+							<p className="font-titan-one text-4xl lowercase text-brand-600">redemptia</p>
+							<p className="mt-3 text-sm font-medium text-zinc-950 group-hover:text-brand-600">Titan One</p>
 							<p className="text-xs text-zinc-500">Used for the logo wordmark and icon glyph</p>
 						</a>
 						<a
@@ -259,7 +259,7 @@ function BrandPage() {
 							className="group rounded-md border border-zinc-200 bg-white p-6 transition-colors hover:bg-zinc-50"
 						>
 							<p className="text-4xl font-semibold tracking-tight text-zinc-950">Geist Sans</p>
-							<p className="mt-3 text-sm font-medium text-zinc-950 group-hover:text-blue-600">Geist Sans</p>
+							<p className="mt-3 text-sm font-medium text-zinc-950 group-hover:text-brand-600">Geist Sans</p>
 							<p className="text-xs text-zinc-500">Used for body text, headings, and UI elements</p>
 						</a>
 					</div>

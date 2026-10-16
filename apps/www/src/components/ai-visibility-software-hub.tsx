@@ -2,11 +2,11 @@ import { Link } from "@tanstack/react-router";
 import { buttonVariants } from "@workspace/ui/components/button";
 import { ArrowRight } from "lucide-react";
 
-const LINK = "font-medium text-blue-700 underline underline-offset-2 hover:text-blue-900";
+const LINK = "font-medium text-brand-700 underline underline-offset-2 hover:text-brand-900";
 
 function Eyebrow({ num, label }: { num: string; label: string }) {
 	return (
-		<p className="font-mono text-[11px] uppercase tracking-[0.18em] text-blue-600 tabular-nums">
+		<p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-600 tabular-nums">
 			{num} <span className="text-zinc-500">— {label}</span>
 		</p>
 	);

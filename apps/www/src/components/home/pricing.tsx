@@ -24,12 +24,12 @@ function TierCard({ planKey }: { planKey: PlanKey }) {
 	return (
 		<a
 			href={cloudAppUrl(`marketing-plan-${planKey}`)}
-			className={`group flex flex-col p-6 transition hover:shadow-[0_0_0_1px_rgb(37_99_235/0.45),0_16px_40px_-20px_rgb(37_99_235/0.35)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 ${CARD}`}
+			className={`group flex flex-col p-6 transition hover:shadow-[0_0_0_1px_rgb(112_66_207/0.45),0_16px_40px_-20px_rgb(112_66_207/0.35)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 ${CARD}`}
 		>
 			<span className="flex items-center justify-between text-base font-semibold text-zinc-950">
 				{plan.name}
 				<ArrowRight
-					className="size-4 text-zinc-300 transition group-hover:translate-x-0.5 group-hover:text-blue-600"
+					className="size-4 text-zinc-300 transition group-hover:translate-x-0.5 group-hover:text-brand-600"
 					aria-hidden="true"
 				/>
 			</span>
@@ -43,7 +43,7 @@ function TierCard({ planKey }: { planKey: PlanKey }) {
 				{planLines(plan).map((line) => (
 					<li key={line.text} className={`flex items-start gap-2 ${line.included ? "text-zinc-700" : "text-zinc-500"}`}>
 						{line.included ? (
-							<Check className="mt-0.5 size-4 shrink-0 text-blue-600" strokeWidth={2.5} aria-hidden="true" />
+							<Check className="mt-0.5 size-4 shrink-0 text-brand-600" strokeWidth={2.5} aria-hidden="true" />
 						) : (
 							<Minus className="mt-0.5 size-4 shrink-0 text-zinc-300" strokeWidth={2.5} aria-hidden="true" />
 						)}
@@ -55,10 +55,10 @@ function TierCard({ planKey }: { planKey: PlanKey }) {
 	);
 }
 
-const LINK = "group inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700";
+const LINK = "group inline-flex items-center gap-1 text-sm font-medium text-brand-600 hover:text-brand-700";
 // The shared contact form renders a full-width button; here it should read as a quiet link.
 const FORM_AS_LINK =
-	"[&_button]:!h-auto [&_button]:!w-auto [&_button]:!bg-transparent [&_button]:!p-0 [&_button]:!text-sm [&_button]:!font-medium [&_button]:!text-blue-600 [&_button]:hover:!text-blue-700";
+	"[&_button]:!h-auto [&_button]:!w-auto [&_button]:!bg-transparent [&_button]:!p-0 [&_button]:!text-sm [&_button]:!font-medium [&_button]:!text-brand-600 [&_button]:hover:!text-brand-700";
 
 function OtherOption({ name, body, action }: { name: string; body: string; action: React.ReactNode }) {
 	return (

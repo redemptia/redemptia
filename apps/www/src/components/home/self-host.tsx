@@ -10,7 +10,7 @@ const POINTS = [
 	{ title: "Track Anything", body: "BYOK to track any AI model." },
 ];
 
-const LINK = "group inline-flex items-center gap-1 text-[15px] font-medium text-blue-600 hover:text-blue-700";
+const LINK = "group inline-flex items-center gap-1 text-[15px] font-medium text-brand-600 hover:text-brand-700";
 
 export function SelfHost() {
 	return (

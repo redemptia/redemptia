@@ -16,7 +16,7 @@ import {
 } from "@/lib/competitors";
 
 function FeatureIcon({ has }: { has: boolean }) {
-	return has ? <Check className="mx-auto h-4 w-4 text-blue-600" /> : <X className="mx-auto h-4 w-4 text-zinc-300" />;
+	return has ? <Check className="mx-auto h-4 w-4 text-brand-600" /> : <X className="mx-auto h-4 w-4 text-zinc-300" />;
 }
 
 const visibleCompetitors = sortedCompetitors.filter((c) => c.status !== "shutting-down" && c.category !== "other");
@@ -134,7 +134,7 @@ function FeatureMatrix({ competitors: items }: { competitors: Competitor[] }) {
 				<thead>
 					<tr className="border-b border-zinc-200">
 						<th className={`${stickyCell} py-3 pr-4 text-left font-semibold text-zinc-950`}>Feature</th>
-						<th className="border-x border-zinc-200 bg-blue-50 px-2 py-3 text-center font-semibold text-zinc-950">
+						<th className="border-x border-zinc-200 bg-brand-50 px-2 py-3 text-center font-semibold text-zinc-950">
 							Redemptia
 						</th>
 						{items.map((c) => (
@@ -159,7 +159,7 @@ function FeatureMatrix({ competitors: items }: { competitors: Competitor[] }) {
 								<td className={`${stickyCell} py-2 pr-4 text-xs text-zinc-600`}>
 									{getFeatureLabel(featureKey as FeatureKey)}
 								</td>
-								<td className="border-x border-zinc-200 bg-blue-50 px-2 py-2">
+								<td className="border-x border-zinc-200 bg-brand-50 px-2 py-2">
 									<FeatureIcon has={REDEMPTIA_FEATURES[featureKey as FeatureKey] ?? false} />
 								</td>
 								{items.map((c) => (
@@ -172,7 +172,7 @@ function FeatureMatrix({ competitors: items }: { competitors: Competitor[] }) {
 					])}
 					<tr className="border-t-2 border-zinc-200">
 						<td className={`${stickyCell} py-2 pr-4 text-xs font-semibold text-zinc-950`}>Popularity</td>
-						<td className="border-x border-zinc-200 bg-blue-50 px-2 py-2 text-center text-xs text-blue-600">♥︎</td>
+						<td className="border-x border-zinc-200 bg-brand-50 px-2 py-2 text-center text-xs text-brand-600">♥︎</td>
 						{items.map((c) => (
 							<td key={c.slug} className="px-2 py-2 text-center text-xs tabular-nums text-zinc-600">
 								{getPopularityGrade(c)}

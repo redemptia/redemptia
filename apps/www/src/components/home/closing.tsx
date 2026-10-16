@@ -9,7 +9,7 @@ const BOOK_URL = bookDemoUrl("marketing-cta");
 const INCLUDED = ["Self-serve", "Unlimited seats", "API and MCP access"];
 
 const BUTTON =
-	"inline-flex h-12 items-center justify-center gap-2 rounded-lg px-6 text-base font-medium leading-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600";
+	"inline-flex h-12 items-center justify-center gap-2 rounded-lg px-6 text-base font-medium leading-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600";
 const QUIET = "font-medium text-zinc-800 underline decoration-zinc-300 underline-offset-4 hover:decoration-zinc-800";
 
 /** The last push on the page is for the cloud; self-hosting has its own section above. */
@@ -31,7 +31,7 @@ export function Closing({ from = "marketing-closing" }: { from?: ReferralSource 
 					Start tracking your brand in minutes. Plans start at ${CLOUD_ENTRY_PRICE_USD}/mo.
 				</p>
 				<div className="mt-9 flex w-full flex-col items-stretch justify-center gap-3 sm:w-auto sm:flex-row sm:items-center">
-					<a href={cloudUrl} className={`${BUTTON} bg-blue-600 text-white hover:bg-blue-700`}>
+					<a href={cloudUrl} className={`${BUTTON} bg-brand-600 text-white hover:bg-brand-700`}>
 						Get started
 						<ArrowRight className="size-4" aria-hidden="true" />
 					</a>
@@ -48,7 +48,7 @@ export function Closing({ from = "marketing-closing" }: { from?: ReferralSource 
 				<ul className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-zinc-600">
 					{INCLUDED.map((item) => (
 						<li key={item} className="inline-flex items-center gap-1.5">
-							<Check className="size-4 text-blue-600" strokeWidth={2.5} aria-hidden="true" />
+							<Check className="size-4 text-brand-600" strokeWidth={2.5} aria-hidden="true" />
 							{item}
 						</li>
 					))}

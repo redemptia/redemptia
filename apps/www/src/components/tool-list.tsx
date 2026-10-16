@@ -25,7 +25,7 @@ function ToolCard({ competitor }: { competitor: Competitor }) {
 				<Link
 					to="/ai-visibility-tools/$slug"
 					params={{ slug: getComparisonSlug(competitor) }}
-					className="inline-flex items-center gap-1 text-sm font-medium text-blue-700 hover:text-blue-900"
+					className="inline-flex items-center gap-1 text-sm font-medium text-brand-700 hover:text-brand-900"
 				>
 					Compare with Redemptia
 					<ArrowRight className="h-3.5 w-3.5" />

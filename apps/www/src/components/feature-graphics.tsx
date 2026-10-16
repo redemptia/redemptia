@@ -3,7 +3,7 @@
 //
 // Most sit next to their feature as a real product screenshot (see the
 // Screenshot helper below); the closing trends graphic is a schematic SVG.
-// Both share one language: zinc + blue palette, dotted grid backdrop, mono
+// Both share one language: zinc + brand-purple palette, dotted grid backdrop, mono
 // labels, sharp corners.
 // ---------------------------------------------------------------------------
 
@@ -229,8 +229,8 @@ export function VisibilityTrendGraphic() {
 						</div>
 					</div>
 					<div className="flex flex-col items-end gap-1 font-mono text-[9px] uppercase tracking-[0.15em]">
-						<span className="inline-flex items-center gap-1 text-blue-700">
-							<span className="inline-block h-0.5 w-3 rounded-full bg-blue-600" />
+						<span className="inline-flex items-center gap-1 text-brand-700">
+							<span className="inline-block h-0.5 w-3 rounded-full bg-brand-600" />
 							YOUR BRAND
 						</span>
 						<span className="inline-flex items-center gap-1 text-zinc-500">
@@ -249,8 +249,8 @@ export function VisibilityTrendGraphic() {
 					>
 						<defs>
 							<linearGradient id="trend-fill" x1="0" y1="0" x2="0" y2="1">
-								<stop offset="0%" stopColor="#2563eb" stopOpacity="0.22" />
-								<stop offset="100%" stopColor="#2563eb" stopOpacity="0" />
+								<stop offset="0%" stopColor="#7042cf" stopOpacity="0.22" />
+								<stop offset="100%" stopColor="#7042cf" stopOpacity="0" />
 							</linearGradient>
 						</defs>
 						{[0, 1, 2, 3].map((i) => (
@@ -278,7 +278,7 @@ export function VisibilityTrendGraphic() {
 						<path
 							d={b.line}
 							fill="none"
-							stroke="#2563eb"
+							stroke="#7042cf"
 							strokeWidth="1.5"
 							strokeLinecap="round"
 							strokeLinejoin="round"
@@ -289,7 +289,7 @@ export function VisibilityTrendGraphic() {
 							y1={last.y}
 							x2={last.x}
 							y2={h}
-							stroke="#2563eb"
+							stroke="#7042cf"
 							strokeWidth="0.75"
 							strokeDasharray="2 2"
 							opacity="0.5"
@@ -299,7 +299,7 @@ export function VisibilityTrendGraphic() {
 							cx={last.x}
 							cy={last.y}
 							r="3.5"
-							fill="#2563eb"
+							fill="#7042cf"
 							stroke="white"
 							strokeWidth="1.5"
 							vectorEffect="non-scaling-stroke"
