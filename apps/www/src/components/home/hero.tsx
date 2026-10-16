@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { cloudAppUrl, demoSiteUrl } from "@workspace/config/referrals";
 import { Dialog, DialogContent, DialogTitle } from "@workspace/ui/components/dialog";
 import { ArrowRight, ArrowUpRight, Play } from "lucide-react";
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense } from "react";
 import { externalRel } from "@/lib/external-link";
 import { SELF_HOST_LINK } from "@/lib/self-host-link";
 import { ProductDemo } from "./product-demo";
@@ -54,8 +54,6 @@ function WalkthroughDialog({ open, onOpenChange }: { open: boolean; onOpenChange
 }
 
 export function Hero() {
-	const [videoOpen, setVideoOpen] = useState(false);
-
 	return (
 		<section className="relative overflow-hidden bg-white">
 			<div
@@ -110,8 +108,8 @@ export function Hero() {
 						</span>
 						<button
 							type="button"
-							onClick={() => setVideoOpen(true)}
-							className={`${QUIET} inline-flex items-center gap-1.5`}
+							disabled
+							className={`${QUIET} inline-flex cursor-not-allowed items-center gap-1.5 opacity-50`}
 						>
 							<Play className="size-3 fill-current" aria-hidden="true" />
 							Watch the walkthrough
@@ -123,7 +121,6 @@ export function Hero() {
 					<ProductDemo />
 				</div>
 			</div>
-			<WalkthroughDialog open={videoOpen} onOpenChange={setVideoOpen} />
 		</section>
 	);
 }
