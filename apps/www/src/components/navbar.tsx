@@ -125,7 +125,7 @@ export function Navbar() {
 					</a>
 					<a
 						href={CLOUD_URL}
-						className="inline-flex h-8 items-center gap-1.5 rounded-md bg-blue-600 px-3 text-sm font-medium leading-none text-white ring-1 ring-blue-600 hover:bg-blue-700"
+						className="inline-flex h-8 items-center gap-1.5 rounded-md bg-brand-600 px-3 text-sm font-medium leading-none text-white ring-1 ring-brand-600 hover:bg-brand-700"
 					>
 						Sign up
 						<ArrowRight className="size-3.5" />

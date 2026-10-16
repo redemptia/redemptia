@@ -84,7 +84,7 @@ function Cursor({ y, clicking }: { y: number; clicking: boolean }) {
 			style={{ left: `${CURSOR_X * 100}%`, top: `${y * 100}%`, transitionDuration: `${MOVE_MS}ms` }}
 		>
 			<span
-				className="absolute -left-3 -top-3 size-6 rounded-full bg-blue-500/30 transition-[transform,opacity] duration-300"
+				className="absolute -left-3 -top-3 size-6 rounded-full bg-brand-500/30 transition-[transform,opacity] duration-300"
 				style={{ transform: `scale(${clicking ? 1 : 0.2})`, opacity: clicking ? 1 : 0 }}
 			/>
 			<svg
@@ -160,19 +160,19 @@ export function ProductDemo() {
 
 	return (
 		<div ref={ref} className="mx-auto max-w-4xl">
-			<div className="overflow-hidden rounded-xl bg-white shadow-[0_0_0_1px_rgb(24_24_27/0.08),0_2px_4px_rgb(24_24_27/0.04),0_32px_64px_-24px_rgb(37_99_235/0.28)]">
+			<div className="overflow-hidden rounded-xl bg-white shadow-[0_0_0_1px_rgb(24_24_27/0.08),0_2px_4px_rgb(24_24_27/0.04),0_32px_64px_-24px_rgb(112_66_207/0.28)]">
 				<a
 					href={DEMO_URL}
 					target="_blank"
 					rel={externalRel(DEMO_URL)}
-					className="group flex h-10 items-center gap-3 border-b border-zinc-200/80 bg-zinc-50/80 px-3.5 transition-colors hover:bg-blue-50 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-600"
+					className="group flex h-10 items-center gap-3 border-b border-zinc-200/80 bg-zinc-50/80 px-3.5 transition-colors hover:bg-brand-50 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand-600"
 				>
 					<span aria-hidden="true" className="flex gap-1.5">
 						<span className="size-2.5 rounded-full bg-zinc-300" />
 						<span className="size-2.5 rounded-full bg-zinc-300" />
 						<span className="size-2.5 rounded-full bg-zinc-300" />
 					</span>
-					<span className="mx-auto inline-flex min-w-0 items-center gap-1.5 text-sm font-medium text-blue-600 group-hover:text-blue-700">
+					<span className="mx-auto inline-flex min-w-0 items-center gap-1.5 text-sm font-medium text-brand-600 group-hover:text-brand-700">
 						<span className="truncate">View the Live Demo</span>
 						<ArrowUpRight
 							className="size-4 shrink-0 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
@@ -212,7 +212,7 @@ export function ProductDemo() {
 							>
 								<span
 									className={`block h-1.5 rounded-full transition-all duration-300 ${
-										i === index ? "w-5 bg-blue-600" : "w-1.5 bg-zinc-300 group-hover:bg-zinc-400"
+										i === index ? "w-5 bg-brand-600" : "w-1.5 bg-zinc-300 group-hover:bg-zinc-400"
 									}`}
 								/>
 							</button>

@@ -52,7 +52,7 @@ export function DirectoryRedemptiaBanner({
 	return (
 		<section className="border-b border-zinc-200 bg-zinc-50 py-10">
 			<div className="mx-auto max-w-6xl px-4 md:px-6">
-				<div className="rounded-md border border-blue-200 bg-blue-50/40 p-6">
+				<div className="rounded-md border border-brand-200 bg-brand-50/40 p-6">
 					<h2 className="font-heading text-xl text-zinc-950">Redemptia: the open-source alternative</h2>
 					<p className="mt-2 max-w-3xl text-sm leading-relaxed text-zinc-600">{pitch}</p>
 					<div className="mt-4 flex flex-wrap gap-3">

@@ -98,7 +98,7 @@ function VerticalPage() {
 							<ol className="mt-6 space-y-5">
 								{vertical.plays.map((play, i) => (
 									<li key={play.name} className="flex gap-4">
-										<span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-600 font-mono text-xs text-white tabular-nums">
+										<span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-600 font-mono text-xs text-white tabular-nums">
 											{i + 1}
 										</span>
 										<div>
@@ -109,7 +109,7 @@ function VerticalPage() {
 								))}
 							</ol>
 
-							<div className="mt-12 rounded-md border border-blue-200 bg-blue-50/40 p-6">
+							<div className="mt-12 rounded-md border border-brand-200 bg-brand-50/40 p-6">
 								<h2 className="font-heading text-xl text-zinc-950">Where Redemptia fits</h2>
 								<p className="mt-2 leading-relaxed text-zinc-600">{vertical.redemptiaFit}</p>
 							</div>

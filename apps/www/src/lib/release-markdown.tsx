@@ -24,7 +24,7 @@ const components: Components = {
 			href={href ?? "#"}
 			target="_blank"
 			rel="noopener noreferrer"
-			className="text-blue-700 underline decoration-blue-300 underline-offset-2 hover:decoration-blue-700"
+			className="text-brand-700 underline decoration-brand-300 underline-offset-2 hover:decoration-brand-700"
 		>
 			{children}
 		</a>

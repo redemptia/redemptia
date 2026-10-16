@@ -46,7 +46,7 @@ export function ExampleTag({ children }: { children: React.ReactNode }) {
 export function BrowserFrame({ children, className = "" }: { children: React.ReactNode; className?: string }) {
 	return (
 		<div
-			className={`overflow-hidden rounded-xl bg-white shadow-[0_0_0_1px_rgb(24_24_27/0.08),0_2px_4px_rgb(24_24_27/0.04),0_24px_48px_-16px_rgb(37_99_235/0.16)] ${className}`}
+			className={`overflow-hidden rounded-xl bg-white shadow-[0_0_0_1px_rgb(24_24_27/0.08),0_2px_4px_rgb(24_24_27/0.04),0_24px_48px_-16px_rgb(112_66_207/0.16)] ${className}`}
 		>
 			<div
 				aria-hidden="true"

@@ -12,7 +12,7 @@ export const THEME = {
 	text: "#0f172a",
 	muted: "#64748b",
 	faint: "#94a3b8",
-	brand: "#2563eb",
+	brand: "#7042cf",
 	track: "#eef2f7",
 	open: "#3ca951",
 	closed: "#a463f2",

@@ -64,7 +64,7 @@ function GlossaryIndex() {
 									{terms.map((t) => (
 										<div key={t.slug} className="rounded-md border border-zinc-200 bg-white p-5">
 											<dt>
-												<a href={`/glossary/${t.slug}`} className="font-semibold text-zinc-950 hover:text-blue-700">
+												<a href={`/glossary/${t.slug}`} className="font-semibold text-zinc-950 hover:text-brand-700">
 													{t.term}
 												</a>
 												{t.aka && t.aka.length > 0 && (

@@ -116,7 +116,7 @@ function IssueRow({ issue }: { issue: ChangelogIssue }) {
 				className="group flex items-center gap-3 rounded-md border border-zinc-200 bg-white px-4 py-3 transition-colors hover:bg-zinc-50"
 			>
 				<div className="min-w-0 flex-1">
-					<span className="text-sm font-medium text-zinc-900 group-hover:text-blue-700">{issue.title}</span>
+					<span className="text-sm font-medium text-zinc-900 group-hover:text-brand-700">{issue.title}</span>
 					<div className="mt-1 flex flex-wrap items-center gap-1.5">
 						<span className="font-mono text-[11px] tabular-nums text-zinc-500">#{issue.number}</span>
 						{issue.labels.map((label) => (
@@ -124,7 +124,7 @@ function IssueRow({ issue }: { issue: ChangelogIssue }) {
 						))}
 					</div>
 				</div>
-				<ArrowUpRight className="size-4 shrink-0 text-zinc-400 transition-colors group-hover:text-blue-700" />
+				<ArrowUpRight className="size-4 shrink-0 text-zinc-400 transition-colors group-hover:text-brand-700" />
 			</a>
 		</li>
 	);

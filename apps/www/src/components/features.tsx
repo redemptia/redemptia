@@ -108,7 +108,7 @@ export function Features({ as: Heading = "h2" }: { as?: "h1" | "h2" } = {}) {
 						<div key={f.num} className="grid gap-6 lg:grid-cols-12 lg:gap-12">
 							<div className="lg:col-span-5">
 								<p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">
-									<span className="text-blue-600 tabular-nums">{f.num}</span>
+									<span className="text-brand-600 tabular-nums">{f.num}</span>
 									<span className="mx-2 text-zinc-300">/</span>
 									{f.eyebrow}
 								</p>

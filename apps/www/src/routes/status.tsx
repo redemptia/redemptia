@@ -807,7 +807,7 @@ function UntrackedTip({ model, provider }: { model: string; provider: string }) 
 				href={href}
 				target="_blank"
 				rel={externalRel(href)}
-				className="mt-2 inline-flex items-center gap-1 font-medium text-blue-600 underline underline-offset-2 hover:text-blue-700"
+				className="mt-2 inline-flex items-center gap-1 font-medium text-brand-600 underline underline-offset-2 hover:text-brand-700"
 			>
 				Request it on GitHub
 				<ArrowUpRight className="size-3" />

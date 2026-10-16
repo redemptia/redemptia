@@ -45,7 +45,7 @@ const fonts = [
 	},
 ];
 
-const BRAND_BLUE = "#2563eb";
+const BRAND_PURPLE = "#7042cf";
 const ZINC_50 = "#fafafa";
 const ZINC_200 = "#e4e4e7";
 const ZINC_400 = "#a1a1aa";
@@ -84,16 +84,16 @@ function PagePoster() {
 					backgroundSize: "44px 44px",
 				}}
 			/>
-			{/* soft brand-blue wash in the upper-right corner */}
+			{/* soft brand-purple wash in the upper-right corner */}
 			<div
 				style={{
 					display: "flex",
 					position: "absolute",
 					inset: 0,
-					backgroundImage: "radial-gradient(ellipse 80% 70% at 85% 10%, rgba(37,99,235,0.14) 0%, transparent 65%)",
+					backgroundImage: "radial-gradient(ellipse 80% 70% at 85% 10%, rgba(112,66,207,0.14) 0%, transparent 65%)",
 				}}
 			/>
-			{/* ghost "e" — same watermark device the OG image uses, blue at low
+			{/* ghost "e" — same watermark device the OG image uses, purple at low
 			    opacity so it reads as a brand mark, not a letter */}
 			<div
 				style={{
@@ -101,7 +101,7 @@ function PagePoster() {
 					position: "absolute",
 					fontFamily: "Titan One",
 					fontSize: 900,
-					color: "rgba(37,99,235,0.07)",
+					color: "rgba(112,66,207,0.07)",
 					lineHeight: 1,
 					right: -120,
 					top: -180,
@@ -154,7 +154,7 @@ function PagePoster() {
 						fontFamily: "Geist Sans",
 						fontWeight: 600,
 						fontSize: 140,
-						color: BRAND_BLUE,
+						color: BRAND_PURPLE,
 						lineHeight: 0.95,
 						letterSpacing: -5,
 					}}
@@ -167,9 +167,9 @@ function PagePoster() {
 }
 
 // ---------------------------------------------------------------------------
-// YouTube variant — white field, brand-blue wordmark, "Open-source AEO" as
+// YouTube variant — white field, brand-purple wordmark, "Open-source AEO" as
 // the dominant headline. Echoes the hero section: white background, faint
-// dot grid, Geist semibold, sparing blue accent.
+// dot grid, Geist semibold, sparing purple accent.
 // ---------------------------------------------------------------------------
 
 function YouTubeThumbnail() {
@@ -200,7 +200,7 @@ function YouTubeThumbnail() {
 					display: "flex",
 					position: "absolute",
 					inset: 0,
-					backgroundImage: "radial-gradient(ellipse 70% 60% at 100% 100%, rgba(37,99,235,0.18) 0%, transparent 60%)",
+					backgroundImage: "radial-gradient(ellipse 70% 60% at 100% 100%, rgba(112,66,207,0.18) 0%, transparent 60%)",
 				}}
 			/>
 
@@ -217,7 +217,7 @@ function YouTubeThumbnail() {
 						display: "flex",
 						fontFamily: "Titan One",
 						fontSize: 88,
-						color: BRAND_BLUE,
+						color: BRAND_PURPLE,
 						lineHeight: 1,
 					}}
 				>
@@ -240,7 +240,7 @@ function YouTubeThumbnail() {
 							width: 10,
 							height: 10,
 							borderRadius: 999,
-							backgroundColor: BRAND_BLUE,
+							backgroundColor: BRAND_PURPLE,
 						}}
 					/>
 					<div
@@ -286,7 +286,7 @@ function YouTubeThumbnail() {
 						fontFamily: "Geist Sans",
 						fontWeight: 700,
 						fontSize: 168,
-						color: BRAND_BLUE,
+						color: BRAND_PURPLE,
 						lineHeight: 1.0,
 						letterSpacing: -6,
 					}}
@@ -315,7 +315,7 @@ function YouTubeThumbnail() {
 							display: "flex",
 							width: 6,
 							height: 32,
-							backgroundColor: BRAND_BLUE,
+							backgroundColor: BRAND_PURPLE,
 							borderRadius: 2,
 						}}
 					/>

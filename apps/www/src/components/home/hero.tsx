@@ -16,9 +16,9 @@ const DEMO_URL = demoSiteUrl("marketing-hero");
 
 // One size and box model for both buttons, so they sit on the same line.
 const BUTTON =
-	"inline-flex h-12 items-center justify-center gap-2 rounded-lg px-6 text-base font-medium leading-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600";
+	"inline-flex h-12 items-center justify-center gap-2 rounded-lg px-6 text-base font-medium leading-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600";
 const QUIET =
-	"rounded-sm font-medium text-zinc-600 underline decoration-zinc-300 underline-offset-4 hover:text-zinc-950 hover:decoration-zinc-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600";
+	"rounded-sm font-medium text-zinc-600 underline decoration-zinc-300 underline-offset-4 hover:text-zinc-950 hover:decoration-zinc-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600";
 
 function WalkthroughDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
 	return (
@@ -37,7 +37,7 @@ function WalkthroughDialog({ open, onOpenChange }: { open: boolean; onOpenChange
 							// anyone has answered the consent banner. Playback QoE still reports;
 							// only cross-visit viewer recognition goes away.
 							disableCookies
-							accentColor="#2563eb"
+							accentColor="#7042cf"
 							poster="/demo-poster.png"
 							autoPlay
 							metadata={{
@@ -87,7 +87,7 @@ export function Hero() {
 						recommended.
 					</p>
 					<div className="mt-9 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
-						<a href={CLOUD_URL} className={`${BUTTON} bg-blue-600 text-white hover:bg-blue-700`}>
+						<a href={CLOUD_URL} className={`${BUTTON} bg-brand-600 text-white hover:bg-brand-700`}>
 							Get started
 							<ArrowRight className="size-4" aria-hidden="true" />
 						</a>

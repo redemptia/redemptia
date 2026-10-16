@@ -96,7 +96,7 @@ export function LogoStrip() {
 								href={c.url}
 								target="_blank"
 								rel={c.nofollow ? "nofollow noopener noreferrer" : "noopener noreferrer"}
-								className={`${c.linkClass} rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600`}
+								className={`${c.linkClass} rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-600`}
 								aria-label={c.name}
 							>
 								{c.render()}

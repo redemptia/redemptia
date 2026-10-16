@@ -43,7 +43,7 @@ export function QuickstartBlock({ size = "md" }: { size?: "md" | "lg" }) {
 				<div className="flex gap-3">
 					<span className="text-zinc-500 select-none">$</span>
 					<span>
-						npm install -g <span className="text-blue-400">@redemptia/cli</span>
+						npm install -g <span className="text-brand-400">@redemptia/cli</span>
 					</span>
 				</div>
 				<div className="flex gap-3">

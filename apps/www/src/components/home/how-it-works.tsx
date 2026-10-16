@@ -35,7 +35,7 @@ const STEPS: Step[] = [
  */
 function Crop({ src, alt }: { src: string; alt: string }) {
 	return (
-		<div className="relative aspect-[16/10] overflow-hidden rounded-t-2xl border-b border-zinc-200/80 bg-gradient-to-br from-blue-50 to-zinc-50">
+		<div className="relative aspect-[16/10] overflow-hidden rounded-t-2xl border-b border-zinc-200/80 bg-gradient-to-br from-brand-50 to-zinc-50">
 			<div className="absolute bottom-0 left-6 right-0 top-6 overflow-hidden rounded-tl-xl bg-white shadow-[0_0_0_1px_rgb(24_24_27/0.08),0_12px_32px_-12px_rgb(24_24_27/0.18)]">
 				<img
 					src={src}
@@ -65,7 +65,7 @@ export function HowItWorks() {
 							<Crop src={step.src} alt={step.alt} />
 							<div className="p-6">
 								<p className="flex items-center gap-2.5 text-lg font-semibold tracking-[-0.015em] text-zinc-950">
-									<span className="inline-flex size-6 items-center justify-center rounded-full bg-blue-600 text-xs font-semibold text-white tabular-nums">
+									<span className="inline-flex size-6 items-center justify-center rounded-full bg-brand-600 text-xs font-semibold text-white tabular-nums">
 										{i + 1}
 									</span>
 									{step.title}

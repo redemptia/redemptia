@@ -22,7 +22,7 @@ export function NotFound() {
 					/>
 					<div className="relative mx-auto max-w-6xl px-4 py-20 md:px-6 lg:py-28">
 						<div className="mx-auto max-w-2xl text-center">
-							<p className="font-mono text-[11px] uppercase tracking-[0.18em] text-blue-600 tabular-nums">
+							<p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-600 tabular-nums">
 								404 — <span className="text-zinc-500">PAGE NOT FOUND</span>
 							</p>
 							<h1 className="font-heading mt-5 text-balance text-5xl leading-[1.05] tracking-tight text-zinc-950 sm:text-6xl lg:text-[4.25rem] lg:leading-[1.0]">
@@ -34,7 +34,7 @@ export function NotFound() {
 							<div className="mt-8 flex flex-wrap items-center justify-center gap-2">
 								<Link
 									to="/"
-									className="inline-flex h-8 items-center gap-1.5 rounded-md bg-blue-600 px-3 text-sm font-medium leading-none text-white ring-1 ring-blue-600 hover:bg-blue-700"
+									className="inline-flex h-8 items-center gap-1.5 rounded-md bg-brand-600 px-3 text-sm font-medium leading-none text-white ring-1 ring-brand-600 hover:bg-brand-700"
 								>
 									<Home className="size-3.5" />
 									Back to home

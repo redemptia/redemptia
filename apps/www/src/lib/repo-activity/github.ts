@@ -153,7 +153,7 @@ async function fetchAreaLabels(token: string | undefined): Promise<LabelSlice[]>
 		.catch(() => [] as string[]);
 	const names = discovered.length > 0 ? discovered : AREA_LABEL_ORDER;
 
-	// Canonical labels first (stable colours — Core stays brand blue), then any extras.
+	// Canonical labels first (stable colours — Core stays brand purple), then any extras.
 	const ordered = [
 		...AREA_LABEL_ORDER.filter((k) => names.includes(k)),
 		...names.filter((n) => !AREA_LABEL_ORDER.includes(n)).sort(),

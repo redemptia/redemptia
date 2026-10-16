@@ -32,7 +32,7 @@ import pngToIco from "png-to-ico";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
 
-const BRAND_COLOR = "#2563eb";
+const BRAND_COLOR = "#7042cf";
 const PUBLIC_DIR = resolve(__dirname, "../public");
 const ICONS_DIR = resolve(PUBLIC_DIR, "icons");
 
@@ -49,7 +49,7 @@ function fontFaceRule(base64: string): string {
 function buildStandardSvg(fontBase64: string): string {
 	return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
   <style>${fontFaceRule(fontBase64)}</style>
-  <text x="50%" y="93.5%" font-family="'Titan One', sans-serif" font-size="190" font-weight="400" fill="${BRAND_COLOR}" text-anchor="middle">e</text>
+  <text x="50%" y="93.5%" font-family="'Titan One', sans-serif" font-size="190" font-weight="400" fill="${BRAND_COLOR}" text-anchor="middle">r</text>
 </svg>`;
 }
 
@@ -57,7 +57,7 @@ function buildMaskableSvg(fontBase64: string): string {
 	return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
   <style>${fontFaceRule(fontBase64)}</style>
   <rect width="128" height="128" fill="#ffffff"/>
-  <text x="50%" y="78%" font-family="'Titan One', sans-serif" font-size="120" font-weight="400" fill="${BRAND_COLOR}" text-anchor="middle">e</text>
+  <text x="50%" y="78%" font-family="'Titan One', sans-serif" font-size="120" font-weight="400" fill="${BRAND_COLOR}" text-anchor="middle">r</text>
 </svg>`;
 }
 
@@ -84,7 +84,7 @@ function StandardIcon({ bg, size }: { bg?: string; size: number }) {
 					marginTop: -Math.round(size * 0.28),
 				}}
 			>
-				e
+				r
 			</div>
 		</div>
 	);
@@ -102,7 +102,7 @@ function MaskableIcon({ size }: { size: number }) {
 					marginTop: -Math.round(size * 0.18),
 				}}
 			>
-				e
+				r
 			</div>
 		</div>
 	);
