@@ -4,7 +4,6 @@ import { Closing } from "@/components/home/closing";
 import { Faq } from "@/components/home/faq";
 import { Hero } from "@/components/home/hero";
 import { HowItWorks } from "@/components/home/how-it-works";
-import { LogoStrip } from "@/components/home/logos";
 import { ModelCoverage } from "@/components/home/models";
 import { Pricing } from "@/components/home/pricing";
 import { SelfHost } from "@/components/home/self-host";
@@ -45,7 +44,6 @@ function HomePage() {
 			<Navbar />
 			<main>
 				<Hero />
-				<LogoStrip />
 				<ModelCoverage />
 				<HowItWorks />
 				<WhySwitch />
