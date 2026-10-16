@@ -227,7 +227,7 @@ export const REDEMPTIA_FEATURES: Record<FeatureKey, boolean> = {
 	competitorBenchmarking: true,
 	brandMentionTracking: true,
 	promptVolumeEstimates: false,
-	sentimentAnalysis: false,
+	sentimentAnalysis: true,
 	crawlerAnalytics: false,
 	geographicTracking: false,
 	socialMediaTracking: false,
@@ -240,7 +240,7 @@ export const REDEMPTIA_FEATURES: Record<FeatureKey, boolean> = {
 	emailAlerts: false,
 	dataExportApi: true,
 	biConnectors: false,
-	whiteLabelAgency: true,
+	whiteLabelAgency: false,
 	openSource: true,
 	contentGeneration: false,
 };
