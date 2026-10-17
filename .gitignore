@@ -92,3 +92,6 @@ apps/web/storybook-static/
 
 # Machine-local agent instructions
 CLAUDE.local.md
+
+# Planning notes, kept locally only
+/docs/
