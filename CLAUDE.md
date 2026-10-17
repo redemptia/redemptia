@@ -8,7 +8,7 @@ These bind every change in this repo, in addition to AGENTS.md.
 - **Never merge red CI.** Read each check's conclusion before merging; "finished" is not "passed".
 - **V1 rigor.** One self-review per PR plus CI. No second adversarial reviewer and no large-scale benchmarks, unless the PR touches money or can corrupt data.
 - **Revert-prove only tests guarding money, data integrity or tenancy.** For those, revert the fix, show the test fails, restore it, and put that proof in the PR. Ordinary tests just need to pass. A test that passes whether or not the code is right is worse than none: delete it or make it bite.
-- **Known gaps are written down, not fixed.** Anything that isn't money, data loss or a tenancy leak goes into `docs/HANDOFF-PHASE-2.md` §5 or a GitHub issue.
+- **Known gaps are written down, not fixed.** Anything that isn't money, data loss or a tenancy leak goes into a GitHub issue.
 - **The PR budget is hard.** When a phase's budget is spent, ship what exists, record what's left, and stop and report.
 - **Verify, don't assume.** Find code by name, not line number, because line numbers drift. Never cite a file or behaviour you haven't opened. If a claim can't be checked against the source, say "cannot verify".
 - **Investigate, then propose, before coding a design call.** Lay out the options and their honest costs, recommend one, and stop for a decision.
