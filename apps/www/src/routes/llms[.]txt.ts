@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CLOUD_ENTRY_PRICE_USD } from "@workspace/config/plans";
 import { SITE_URL } from "@/lib/seo";
 
 // Curated llms.txt for the marketing site, following the llmstxt.org convention:
@@ -9,13 +8,13 @@ const llmsTxt = `# Redemptia
 
 > Redemptia is an open source, self-hosted AI visibility platform. Track how AI answer engines like ChatGPT, Google AI Overviews, Perplexity, Gemini, Copilot, and Grok talk about your brand — monitor mentions, analyze citations, and benchmark competitors. Because Redemptia is open source and runs on your own infrastructure, your data stays yours and you're never locked in.
 
-Redemptia is Answer Engine Optimization (AEO), also called generative engine optimization (GEO), without the black box. On a schedule, it runs your prompts across every major AI answer engine, then measures how often your brand appears, which competitors show up alongside it, and which sources the models cite. The methodology is documented and every line of code is open, so each number is something you can independently verify. Self-host it for free, or run it as managed cloud hosting from $${CLOUD_ENTRY_PRICE_USD}/month or as a white-label deployment.
+Redemptia is Answer Engine Optimization (AEO), also called generative engine optimization (GEO), without the black box. On a schedule, it runs your prompts across every major AI answer engine, then measures how often your brand appears, which competitors show up alongside it, and which sources the models cite. The methodology is documented and every line of code is open, so each number is something you can independently verify. Self-host it for free, or run it as managed cloud hosting (pricing coming soon) or as a white-label deployment.
 
 ## Product
 
 - [Redemptia](${SITE_URL}/): Know how AI talks about your brand — track visibility across any AI model, monitor mentions, analyze citations, and benchmark competitors.
 - [Features](${SITE_URL}/features): Visibility dashboard, per-prompt and per-model tracking, citation analysis, competitor intelligence, prompt management, response deep-dives, and long-term trends.
-- [Pricing](${SITE_URL}/pricing): Free and open source to self-host, managed cloud from $${CLOUD_ENTRY_PRICE_USD}/month, and white-label available for agencies.
+- [Pricing](${SITE_URL}/pricing): Free and open source to self-host, managed cloud with pricing coming soon, and white-label available for agencies.
 
 ## Documentation
 

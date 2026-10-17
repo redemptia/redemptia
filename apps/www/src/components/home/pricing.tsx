@@ -34,10 +34,7 @@ function TierCard({ planKey }: { planKey: PlanKey }) {
 				/>
 			</span>
 			<span className="mt-2 flex items-baseline gap-1">
-				<span className="text-4xl font-semibold tracking-[-0.035em] text-zinc-950 tabular-nums">
-					${plan.monthlyPriceUsd}
-				</span>
-				<span className="text-sm text-zinc-500">/mo</span>
+				<span className="text-4xl font-semibold tracking-[-0.035em] text-zinc-950">Coming soon</span>
 			</span>
 			<ul className="mt-5 space-y-2.5 text-sm">
 				{planLines(plan).map((line) => (

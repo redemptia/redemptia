@@ -1,4 +1,3 @@
-import { CLOUD_ENTRY_PRICE_USD } from "@workspace/config/plans";
 import { bookDemoUrl, cloudAppUrl, demoSiteUrl, type ReferralSource } from "@workspace/config/referrals";
 import { ArrowRight, ArrowUpRight, Check } from "lucide-react";
 import { externalRel } from "@/lib/external-link";
@@ -28,7 +27,7 @@ export function Closing({ from = "marketing-closing" }: { from?: ReferralSource 
 					Start winning AI search today.
 				</h2>
 				<p className="mt-5 max-w-[52ch] text-pretty text-base/7 text-zinc-600 md:text-lg/8">
-					Start tracking your brand in minutes. Plans start at ${CLOUD_ENTRY_PRICE_USD}/mo.
+					Start tracking your brand in minutes. Cloud pricing coming soon.
 				</p>
 				<div className="mt-9 flex w-full flex-col items-stretch justify-center gap-3 sm:w-auto sm:flex-row sm:items-center">
 					<a href={cloudUrl} className={`${BUTTON} bg-brand-600 text-white hover:bg-brand-700`}>
