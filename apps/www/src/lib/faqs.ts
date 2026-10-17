@@ -35,17 +35,17 @@ export const HOME_FAQS: FaqItem[] = [
 	{
 		question: "How do I track my brand in ChatGPT?",
 		answer:
-			"Add your website to Redemptia and its Prompt Wizard generates the questions your buyers are likely to ask ChatGPT, based on your products, competitors, and personas. Redemptia then runs those prompts in ChatGPT on a schedule and records every answer: whether your brand was mentioned, which competitors were named, and which sources were cited. Every Redemptia Cloud plan includes ChatGPT, starting with the $29/mo Starter plan.",
+			"Add your website to Redemptia and its Prompt Wizard generates the questions your buyers are likely to ask ChatGPT, based on your products, competitors, and personas. Redemptia then runs those prompts in ChatGPT on a schedule and records every answer: whether your brand was mentioned, which competitors were named, and which sources were cited. Every Redemptia Cloud plan includes ChatGPT, starting with the Starter plan.",
 	},
 	{
 		question: "How much does Redemptia cost compared to Profound?",
 		answer:
-			"Redemptia Cloud starts at $29/mo for the Starter plan, which is 1/3 the price of Profound's equivalent plan. The $99/mo Basic plan gives you 4× the data of Profound's equivalent plan. Pro ($299/mo) and Business ($649/mo) add more brands, more prompts, and premium grounded models, and self-hosting Redemptia is free.",
+			"Redemptia Cloud pricing is coming soon. The plans run from Starter and Basic up to Pro and Business, which add more brands, more prompts, and premium grounded models, and self-hosting Redemptia is free.",
 	},
 	{
 		question: "Is Redemptia free?",
 		answer:
-			"Redemptia is free and open source to self-host — there is no license fee and no per-seat pricing. You only pay for your own infrastructure and any AI provider API keys you choose to use. If you'd rather not run it yourself, managed Redemptia Cloud starts at $29/mo, and white-label plans are available for agencies.",
+			"Redemptia is free and open source to self-host — there is no license fee and no per-seat pricing. You only pay for your own infrastructure and any AI provider API keys you choose to use. If you'd rather not run it yourself, managed Redemptia Cloud is coming soon, and white-label plans are available for agencies.",
 	},
 ];
 
@@ -59,7 +59,7 @@ export const PRICING_FAQS: FaqItem[] = [
 	{
 		question: "Is there a hosted or cloud version of Redemptia?",
 		answer:
-			"Yes. Redemptia Cloud is managed hosting for teams that would rather not run their own infrastructure, starting at $29/mo. You can also self-host Redemptia for free, or get in touch about white-label deployments.",
+			"Yes. Redemptia Cloud is managed hosting for teams that would rather not run their own infrastructure; pricing is coming soon. You can also self-host Redemptia for free, or get in touch about white-label deployments.",
 	},
 	{
 		question: "Can agencies white-label Redemptia?",
