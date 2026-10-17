@@ -270,7 +270,7 @@ export function getAlternativesFaqs(c: Competitor, alts: Competitor[]): FaqItem[
 		},
 		{
 			question: `Why switch from ${c.name} to Redemptia?`,
-			answer: `The main reasons are ownership and transparency. With Redemptia you keep your prompts and visibility history in-house, avoid vendor lock-in, and can see exactly how scores are computed. The self-hosted core is free and managed cloud hosting starts at $29 a month.`,
+			answer: `The main reasons are ownership and transparency. With Redemptia you keep your prompts and visibility history in-house, avoid vendor lock-in, and can see exactly how scores are computed. The self-hosted core is free and managed cloud hosting is coming soon, with pricing to follow.`,
 		},
 	];
 }

@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { PLAN_KEYS, PLANS, planPlatformBreakdown } from "@workspace/config/plans";
+import { PLAN_KEYS, PLANS, planPlatformBreakdown, premiumPairings } from "@workspace/config/plans";
 import { cloudAppUrl } from "@workspace/config/referrals";
 import { PlatformTier } from "@workspace/ui/brand/platform-tier";
 import { ArrowRight } from "lucide-react";
@@ -23,6 +23,13 @@ export function Pricing({ as: Heading = "h2" }: { as?: "h1" | "h2" } = {}) {
 	);
 }
 
+// The shared summary quotes the add-on price, which isn't public yet.
+function premiumNote(included: number, addonAvailable: boolean): string {
+	if (included === 0) return "Grounded and cited. Available as an add-on, pricing coming soon.";
+	const base = `Grounded and cited. ${premiumPairings(included)} included, each answered daily.`;
+	return addonAvailable ? `${base} Extra pairings: pricing coming soon.` : base;
+}
+
 function CloudPlans() {
 	return (
 		<div className="mt-12">
@@ -34,12 +41,8 @@ function CloudPlans() {
 						<div key={key} className="flex flex-col bg-white p-5">
 							<h4 className="text-lg font-semibold tracking-tight text-zinc-950">{plan.name}</h4>
 							<div className="mt-2 flex items-baseline gap-1">
-								<span className="text-2xl font-semibold tracking-tight text-zinc-950 tabular-nums">
-									${plan.monthlyPriceUsd}
-								</span>
-								<span className="font-mono text-[10px] uppercase tracking-[0.15em] text-zinc-500">/ mo</span>
+								<span className="text-2xl font-semibold tracking-tight text-zinc-950">Coming soon</span>
 							</div>
-							<p className="mt-1 text-xs text-zinc-500 tabular-nums">${plan.annualPriceUsd}/yr</p>
 
 							<ul className="mt-4 space-y-1.5 text-xs text-zinc-700">
 								<li>
@@ -72,7 +75,9 @@ function CloudPlans() {
 										runsPerDay={breakdown.premium.runsPerDay}
 										models={breakdown.premium.models}
 									/>
-									<p className="mt-1 text-[11px] leading-snug text-zinc-500">{breakdown.premium.summary}</p>
+									<p className="mt-1 text-[11px] leading-snug text-zinc-500">
+										{premiumNote(breakdown.premium.includedSlots, breakdown.premium.addonAvailable)}
+									</p>
 								</div>
 							)}
 
