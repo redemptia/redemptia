@@ -32,9 +32,16 @@ test.describe("API keys", () => {
     await openCreateForm(page, name);
     // A real click, because the failure this guards against was the dialog
     // painting over the open listbox and swallowing them.
-    await page.locator("#key-expiry").click();
-    await page.getByRole("option", { name: "In 30 days", exact: true }).click();
-    await expect(page.locator("#key-expiry")).toContainText("In 30 days");
+    // An option click can be dropped while the list is still opening, leaving
+    // it open on the old value (seen in CI), so pick again until it sticks.
+    const expiry = page.locator("#key-expiry");
+    await expect(async () => {
+      if (!(await expiry.textContent())?.includes("In 30 days")) {
+        if ((await expiry.getAttribute("aria-expanded")) !== "true") await expiry.click();
+        await page.getByRole("option", { name: "In 30 days", exact: true }).click({ timeout: 2_000 });
+      }
+      await expect(expiry).toContainText("In 30 days", { timeout: 1_000 });
+    }).toPass({ timeout: 15_000 });
     await page.getByRole("tab", { name: "Read/Write", exact: true }).click();
     await page.getByRole("tab", { name: "Specific brands", exact: true }).click();
     await page.locator("[data-slot=combobox-chip-input]").click();
