@@ -169,62 +169,6 @@
       "when": 1790972601833,
       "tag": "0023_rate_limit",
       "breakpoints": true
-    },
-    {
-      "idx": 24,
-      "version": "7",
-      "when": 1791348657045,
-      "tag": "0100_usage_events_org_type_created_idx",
-      "breakpoints": true
-    },
-    {
-      "idx": 25,
-      "version": "7",
-      "when": 1791362161998,
-      "tag": "0101_competitors_brand_id_name_unique",
-      "breakpoints": true
-    },
-    {
-      "idx": 26,
-      "version": "7",
-      "when": 1791363974495,
-      "tag": "0102_run_texts",
-      "breakpoints": true
-    },
-    {
-      "idx": 27,
-      "version": "7",
-      "when": 1791366519589,
-      "tag": "0103_run_texts_source",
-      "breakpoints": true
-    },
-    {
-      "idx": 28,
-      "version": "7",
-      "when": 1791742823234,
-      "tag": "0104_run_mention_analysis",
-      "breakpoints": true
-    },
-    {
-      "idx": 29,
-      "version": "7",
-      "when": 1791864883316,
-      "tag": "0105_usage_event_tokens",
-      "breakpoints": true
-    },
-    {
-      "idx": 30,
-      "version": "7",
-      "when": 1791865614540,
-      "tag": "0106_stance_judgements",
-      "breakpoints": true
-    },
-    {
-      "idx": 31,
-      "version": "7",
-      "when": 1791892301454,
-      "tag": "0107_competitors_name_ci_unique",
-      "breakpoints": true
     }
   ]
 }

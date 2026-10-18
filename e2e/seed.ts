@@ -11,9 +11,6 @@
  * Usage: tsx seed.ts
  */
 import { createHash } from "node:crypto";
-import { ANALYZER_VERSION, analyzeRun, brandSubjects, subjectFingerprint } from "@workspace/lib/enrichment";
-import { SENTIMENT_ANALYZER_VERSION } from "@workspace/lib/enrichment/sentiment";
-import { TEXT_EXTRACTOR_VERSION } from "@workspace/lib/text-extraction";
 import pg from "pg";
 import {
   API_KEYS,
@@ -23,13 +20,6 @@ import {
   CAPPED_ORG_ID,
   CAPPED_PROMPT_COUNT,
   COMPETITOR_IDS,
-  MENTIONS_ANALYSED_ANSWERS,
-  MENTIONS_BRAND_ID,
-  MENTIONS_BRAND_NAME,
-  MENTIONS_COMPETITORS,
-  MENTIONS_PROMPT_ID,
-  MENTIONS_STANCES,
-  MENTIONS_UNANALYSED_ANSWERS,
   NIKE_BRAND_ID,
   NIKE_COMPETITOR_IDS,
   NIKE_ORG_ID,
@@ -218,8 +208,6 @@ async function seed(connectionString: string) {
     await client.query("DELETE FROM brand_opportunities");
     await client.query("DELETE FROM citations");
     await client.query("DELETE FROM prompt_runs");
-    // Keyed by answer text, not run, so a cascade from prompt_runs doesn't reach it.
-    await client.query("DELETE FROM stance_judgements");
     await client.query("DELETE FROM prompts");
     await client.query("DELETE FROM competitors");
     await client.query("DELETE FROM reports");
@@ -308,8 +296,6 @@ async function seed(connectionString: string) {
       );
     }
     console.log(`  Created ${competitorData.length} competitors`);
-
-    await seedMentionsBrand(client);
 
     const now = new Date();
     const promptRuns = [
@@ -663,86 +649,3 @@ seedAll().catch((err) => {
   console.error("Seeding failed:", err);
   process.exit(1);
 });
-
-/**
- * The mentions page's brand: runs with answer text, the first ones analysed the
- * way the worker would (same pure analysis, current fingerprint), the rest left
- * not analysed — one with no marker, one with a stale analyzer version.
- */
-async function seedMentionsBrand(client: pg.Client) {
-  const website = "https://northwind.example.com";
-  await client.query(
-    `INSERT INTO brands (id, organization_id, name, website, enabled, onboarded, created_at, updated_at)
-     VALUES ($1, $2, $3, $4, true, true, NOW(), NOW())`,
-    [MENTIONS_BRAND_ID, TEST_BRAND_ID, MENTIONS_BRAND_NAME, website]
-  );
-  for (const c of MENTIONS_COMPETITORS) {
-    await client.query(
-      `INSERT INTO competitors (id, brand_id, name, domains, created_at, updated_at) VALUES ($1, $2, $3, '{}', NOW(), NOW())`,
-      [c.id, MENTIONS_BRAND_ID, c.name]
-    );
-  }
-  await client.query(
-    `INSERT INTO prompts (id, brand_id, value, enabled, tags, system_tags, created_at, updated_at)
-     VALUES ($1, $2, 'best project tracking tools', true, '{}', '{unbranded}', NOW(), NOW())`,
-    [MENTIONS_PROMPT_ID, MENTIONS_BRAND_ID]
-  );
-
-  const subjects = brandSubjects(
-    { id: MENTIONS_BRAND_ID, name: MENTIONS_BRAND_NAME, website, aliases: [], additionalDomains: [] },
-    MENTIONS_COMPETITORS.map((c) => ({ id: c.id, name: c.name, aliases: [], domains: [] }))
-  );
-  const fingerprint = subjectFingerprint(subjects);
-  const answers = [...MENTIONS_ANALYSED_ANSWERS, ...MENTIONS_UNANALYSED_ANSWERS];
-  const createdAt = new Date(Date.now() - 24 * 60 * 60 * 1000);
-
-  for (const [i, text] of answers.entries()) {
-    // The flags the worker would have set from the same text, so this brand's
-    // Visibility and Share of Voice agree with what its answers say.
-    const named = analyzeRun(text, subjects);
-    const { rows } = await client.query<{ id: string }>(
-      `INSERT INTO prompt_runs (prompt_id, brand_id, model, version, web_search_enabled, raw_output, web_queries, brand_mentioned, competitors_mentioned, created_at)
-       VALUES ($1, $2, 'chatgpt', 'gpt-4o', false, '{}', '{}', $3, $4, $5) RETURNING id`,
-      [
-        MENTIONS_PROMPT_ID,
-        MENTIONS_BRAND_ID,
-        named.some((m) => m.subjectKind === "brand"),
-        named.filter((m) => m.subjectKind === "competitor").map((m) => m.subjectName),
-        new Date(createdAt.getTime() + i * 1000),
-      ]
-    );
-    const runId = rows[0].id;
-    await client.query(
-      `INSERT INTO run_texts (prompt_run_id, text, content_hash, answer_length, extractor_version, source)
-       VALUES ($1, $2, $3, $4, $5, 'live')`,
-      [runId, text, createHash("sha256").update(text).digest("hex"), text.length, TEXT_EXTRACTOR_VERSION]
-    );
-    if (i < MENTIONS_ANALYSED_ANSWERS.length) {
-      for (const m of analyzeRun(text, subjects)) {
-        await client.query(
-          `INSERT INTO run_subject_mentions (prompt_run_id, subject_key, subject_kind, subject_name, prompt_id, model, created_at, first_offset, position)
-           SELECT $1, $2, $3, $4, prompt_id, model, created_at, $5, $6 FROM prompt_runs WHERE id = $1`,
-          [runId, m.subjectKey, m.subjectKind, m.subjectName, m.firstOffset, m.position]
-        );
-      }
-      await client.query(
-        `INSERT INTO run_mention_analyses (prompt_run_id, analyzer_version, extractor_version, subject_fingerprint) VALUES ($1, $2, $3, $4)`,
-        [runId, ANALYZER_VERSION, TEXT_EXTRACTOR_VERSION, fingerprint]
-      );
-    } else if (i === answers.length - 1) {
-      await client.query(
-        `INSERT INTO run_mention_analyses (prompt_run_id, analyzer_version, extractor_version, subject_fingerprint) VALUES ($1, 0, $2, $3)`,
-        [runId, TEXT_EXTRACTOR_VERSION, fingerprint]
-      );
-    }
-  }
-  for (const j of MENTIONS_STANCES) {
-    await client.query(
-      `INSERT INTO stance_judgements (content_hash, subject_name, analyzer_version, analyzer_model, status, stance, evidence)
-       VALUES ($1, $2, $3, 'e2e', 'done', $4, $5)`,
-      [createHash("sha256").update(j.answer).digest("hex"), j.subject, SENTIMENT_ANALYZER_VERSION, j.stance, j.evidence]
-    );
-  }
-  console.log("  Created brand:", MENTIONS_BRAND_ID, `(${answers.length} runs, ${MENTIONS_ANALYSED_ANSWERS.length} analysed)`);
-}
-

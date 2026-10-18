@@ -15,7 +15,6 @@
 		"check-types": "tsc --noEmit",
 		"generate-icons": "tsx scripts/generate-brand-icons.tsx",
 		"generate-brand-kit": "tsx scripts/generate-brand-kit.tsx",
-		"prove:mention-pipeline": "tsx --env-file=.env scripts/prove-mention-pipeline.ts",
 		"storybook": "storybook dev -p 6006",
 		"storybook:build": "storybook build"
 	},

@@ -29,31 +29,12 @@ export interface StructuredResearchOptions<T> {
 	 * supplied entirely in the prompt — no tools, no agent loop.
 	 */
 	webSearch?: boolean;
-	/**
-	 * Model id in the provider's own namespace (e.g. "gpt-5-mini" for
-	 * openai-api, "openai/gpt-5-mini" for openrouter). Defaults to the
-	 * provider's research model.
-	 */
-	model?: string;
-	/**
-	 * Models to fall back to, in order, if `model` is unavailable. Only
-	 * providers that route between models (openrouter) honour it.
-	 */
-	fallbackModels?: string[];
 }
 
 export interface StructuredResearchResult<T> {
 	object: T;
 	/** Resolved model id (after any `:online` suffixing etc.). */
 	modelVersion?: string;
-	/**
-	 * Tokens the call consumed, where the provider reports them, and its billed
-	 * cost in USD where the provider reports that too. Paid enrichment caps spend
-	 * from these.
-	 */
-	usage?: { inputTokens: number; outputTokens: number; costUsd?: number };
-	/** The model that actually answered, when a provider can route to a fallback. */
-	servedModel?: string;
 }
 
 /**

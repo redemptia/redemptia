@@ -28,13 +28,6 @@ export interface FeaturesConfig {
 	 */
 	reportGeneration: boolean;
 	/**
-	 * Whether this deployment recomputes a brand's stored mention analysis in the
-	 * background when its subjects change. False in demo: nothing can edit a demo
-	 * brand, and demo shares its database with a deployment whose own worker does
-	 * this. The per-run analysis written when a run is saved is not gated.
-	 */
-	enrichment: boolean;
-	/**
 	 * Whether the deployment owns its own team roster, which gates the team page
 	 * and every membership write. True only in cloud — local is single-user by
 	 * design, whitelabel memberships come from Auth0, demo is read-only.

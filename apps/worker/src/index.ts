@@ -2,18 +2,7 @@ import * as Sentry from "@sentry/node";
 import { assertRequiredEnv } from "@workspace/config/env";
 import { parseScrapeTargets } from "@workspace/config/scrape-targets";
 import { getDeploymentFeatures } from "@workspace/deployment";
-import {
-	ANALYSIS_PURGE_QUEUE,
-	MENTION_RECOMPUTE_QUEUE,
-	MENTION_RECOMPUTE_QUEUE_OPTIONS,
-	MENTION_RECOMPUTE_QUEUE_POLICY,
-	PROMPT_JOB_OPTIONS,
-	SENTIMENT_QUEUE,
-	SENTIMENT_QUEUE_OPTIONS,
-	SENTIMENT_SWEEP_QUEUE,
-} from "@workspace/lib/constants";
-import { retentionDays } from "@workspace/lib/enrichment/retention";
-import { sentimentAvailable } from "@workspace/lib/enrichment/sentiment";
+import { PROMPT_JOB_OPTIONS } from "@workspace/lib/constants";
 import { getProvider, validateScrapeTargets } from "@workspace/lib/providers";
 import { startCredentialRefresh } from "@workspace/lib/secrets";
 import { getBoss } from "./boss";
@@ -72,13 +61,6 @@ async function main() {
 		retryBackoff: false,
 		expireInSeconds: 60 * 15, // 15 minute timeout for onboarding brand analysis
 	});
-	if (getDeploymentFeatures().enrichment) {
-		await boss.createQueue(MENTION_RECOMPUTE_QUEUE, {
-			policy: MENTION_RECOMPUTE_QUEUE_POLICY,
-			...MENTION_RECOMPUTE_QUEUE_OPTIONS,
-		});
-		await boss.updateQueue(MENTION_RECOMPUTE_QUEUE, MENTION_RECOMPUTE_QUEUE_OPTIONS);
-	}
 	await boss.createQueue("schedule-maintenance", {
 		retryLimit: 3,
 		retryDelay: 300, // 5 minutes between retries
@@ -94,29 +76,6 @@ async function main() {
 		});
 	}
 	console.log("Queues created");
-
-	if (sentimentAvailable(getDeploymentFeatures())) {
-		await boss.createQueue(SENTIMENT_QUEUE, SENTIMENT_QUEUE_OPTIONS);
-		await boss.updateQueue(SENTIMENT_QUEUE, SENTIMENT_QUEUE_OPTIONS);
-		await boss.createQueue(SENTIMENT_SWEEP_QUEUE, { retryLimit: 0, expireInSeconds: 10 * 60 });
-		await boss.schedule(SENTIMENT_SWEEP_QUEUE, "17 * * * *", {}, { tz: "UTC" });
-		console.log("Scheduled sentiment sweep (hourly)");
-	} else {
-		console.log("Sentiment analyzer off: enrichment disabled or OPENROUTER_API_KEY unset");
-	}
-
-	if (getDeploymentFeatures().enrichment) {
-		await boss.createQueue(ANALYSIS_PURGE_QUEUE, { retryLimit: 0, expireInSeconds: 60 * 60 });
-		const days = retentionDays();
-		if (days === null) {
-			// A schedule persists in pg-boss, so switching retention off has to remove it.
-			await boss.unschedule(ANALYSIS_PURGE_QUEUE);
-			console.log("Mention analysis retention off: nothing is purged");
-		} else {
-			await boss.schedule(ANALYSIS_PURGE_QUEUE, "43 3 * * *", {}, { tz: "UTC" });
-			console.log(`Scheduled mention analysis purge (daily), keeping ${days} days`);
-		}
-	}
 
 	await boss.schedule("schedule-maintenance", "*/5 * * * *", { source: "scheduled" }, { tz: "UTC" });
 	console.log("Scheduled maintenance job (every 5 minutes)");

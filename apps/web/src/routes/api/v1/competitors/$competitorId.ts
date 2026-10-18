@@ -11,12 +11,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { dedupeAliases, dedupeDomains } from "@workspace/lib/citations/domain-categories";
 import { db } from "@workspace/lib/db/db";
 import { competitors } from "@workspace/lib/db/schema";
-import { isCompetitorNameTaken } from "@workspace/lib/db/unique-names";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { ApiError, createApiHandler, withMethodGuard } from "@/lib/api/handler";
 import { isBrandInScope } from "@/lib/api/scope";
-import { enqueueMentionRecompute } from "@/lib/job-scheduler";
 
 // z.guid(), not z.uuid(): matches the loose 8-4-4-4-12 hex check this API has
 // always used; z.uuid() enforces RFC version bits and rejects existing IDs.
@@ -57,11 +55,6 @@ export const Route = createFileRoute("/api/v1/competitors/$competitorId")({
 				params: competitorParams,
 				body: updateCompetitorBody,
 				scopes: ["write"],
-				mapError: (err) => {
-					if (isCompetitorNameTaken(err)) {
-						return new ApiError(409, "Conflict", "This brand already has a competitor with that name.");
-					}
-				},
 				handle: async ({ params, body, auth }) => {
 					await loadInScope(auth, params.competitorId);
 					const { competitorId } = params;
@@ -87,7 +80,6 @@ export const Route = createFileRoute("/api/v1/competitors/$competitorId")({
 					if (!updated) {
 						throw new ApiError(404, "Not Found", `Competitor with ID '${competitorId}' not found`);
 					}
-					await enqueueMentionRecompute(updated.brandId);
 					return updated;
 				},
 			}),
@@ -101,7 +93,6 @@ export const Route = createFileRoute("/api/v1/competitors/$competitorId")({
 					if (!deleted) {
 						throw new ApiError(404, "Not Found", `Competitor with ID '${params.competitorId}' not found`);
 					}
-					await enqueueMentionRecompute(deleted.brandId);
 					return deleted;
 				},
 			}),

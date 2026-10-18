@@ -164,8 +164,6 @@ export interface PlanDefinition {
 	premiumIncluded: number;
 	/** Whether more premium slots can be purchased. */
 	premiumAddonAvailable: boolean;
-	/** Model-judged stance. Without it a plan still gets mention prominence and rank, which cost nothing to compute. */
-	sentimentAnalysis: boolean;
 }
 
 export const PLANS: Record<PlanKey, PlanDefinition> = {
@@ -181,7 +179,6 @@ export const PLANS: Record<PlanKey, PlanDefinition> = {
 		standardRunsPerDay: 1,
 		premiumIncluded: 0,
 		premiumAddonAvailable: false,
-		sentimentAnalysis: false,
 	},
 	basic: {
 		key: "basic",
@@ -195,7 +192,6 @@ export const PLANS: Record<PlanKey, PlanDefinition> = {
 		standardRunsPerDay: 4,
 		premiumIncluded: 0,
 		premiumAddonAvailable: false,
-		sentimentAnalysis: true,
 	},
 	pro: {
 		key: "pro",
@@ -209,7 +205,6 @@ export const PLANS: Record<PlanKey, PlanDefinition> = {
 		standardRunsPerDay: 4,
 		premiumIncluded: 20,
 		premiumAddonAvailable: true,
-		sentimentAnalysis: true,
 	},
 	business: {
 		key: "business",
@@ -223,7 +218,6 @@ export const PLANS: Record<PlanKey, PlanDefinition> = {
 		standardRunsPerDay: 4,
 		premiumIncluded: 30,
 		premiumAddonAvailable: true,
-		sentimentAnalysis: true,
 	},
 };
 

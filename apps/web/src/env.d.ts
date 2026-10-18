@@ -44,13 +44,7 @@ declare global {
 			readonly DEPLOYMENT_MODE: string;
 			readonly DATABASE_URL: string;
 			readonly DATABASE_POOL_MAX?: string;
-			readonly ENRICHMENT_DAILY_CAP_USD?: string;
-			readonly ENRICHMENT_RETENTION_DAYS?: string;
 			readonly POSTHOG_KEY?: string;
-			readonly SENTIMENT_API_KEY?: string;
-			readonly SENTIMENT_BASE_URL?: string;
-			readonly SENTIMENT_MODEL?: string;
-			readonly SENTIMENT_FALLBACK_MODELS?: string;
 			readonly APP_URL?: string;
 			readonly SCRAPE_TARGETS?: string;
 			readonly OPENAI_API_KEY: string;

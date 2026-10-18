@@ -33,7 +33,6 @@ export type ApiErrorCode =
 	| "premium_not_in_plan"
 	| "premium_pool_exhausted"
 	| "cadence_faster_than_plan"
-	| "sentiment_not_in_plan"
 	| "internal_error";
 
 /** The guards spell codes with hyphens and say "platform"; the wire uses

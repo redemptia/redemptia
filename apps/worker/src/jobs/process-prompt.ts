@@ -11,8 +11,8 @@ import {
 	competitors,
 	promptRuns,
 	prompts,
+	usageEvents,
 } from "@workspace/lib/db/schema";
-import { tryWriteRunAnalysis } from "@workspace/lib/enrichment/write";
 import { getOrgEntitlements } from "@workspace/lib/entitlements";
 import { analyzeMentions } from "@workspace/lib/mentions";
 import { getProvider, type ModelConfig, type Provider } from "@workspace/lib/providers";
@@ -27,11 +27,8 @@ import {
 	slowestIntervalHours,
 	targetKey,
 } from "@workspace/lib/run-policy";
-import { insertRunText } from "@workspace/lib/run-texts";
-import { answerTextOrNull, type Citation, TEXT_EXTRACTOR_VERSION } from "@workspace/lib/text-extraction";
+import type { Citation } from "@workspace/lib/text-extraction";
 import { estimateRunCostUsd } from "@workspace/lib/usage";
-import { isOrgOverDailyCeiling } from "@workspace/lib/usage/ceiling";
-import { recordUsageEvent } from "@workspace/lib/usage/events";
 import { and, eq, gt, sql } from "drizzle-orm";
 import type { Job } from "pg-boss";
 import { getBoss } from "../boss";
@@ -162,6 +159,25 @@ async function getLastRunsByTargetKey(promptId: string, maxIntervalHours: number
 	return lastRunsByTargetKey(rows);
 }
 
+/**
+ * Runaway protection: how many provider attempts the org has recorded in the
+ * last 24h, compared against its plan-derived ceiling before spending more.
+ *
+ * Counts usage_events rather than prompt_runs because a retry storm writes no prompt_runs
+ * rows but burns spend — counting attempts is the stronger meaning for a
+ * safety ceiling. usage_events also has the org_id denormalized and an
+ * index on (organization_id, created_at), so this scan is cheap.
+ */
+async function isOrgOverDailyCeiling(organizationId: string, ceiling: number): Promise<boolean> {
+	const [row] = await db
+		.select({ value: sql<number>`COUNT(*)` })
+		.from(usageEvents)
+		.where(
+			and(eq(usageEvents.organizationId, organizationId), gt(usageEvents.createdAt, sql`now() - interval '24 hours'`)),
+		);
+	return Number(row?.value ?? 0) >= ceiling;
+}
+
 async function savePromptRun(
 	promptId: string,
 	brandId: string,
@@ -173,39 +189,24 @@ async function savePromptRun(
 	webQueries: string[],
 	brandMentioned: boolean,
 	competitorsMentioned: string[],
-	textContent: string,
 ): Promise<{ id: string; createdAt: Date }> {
-	return db.transaction(async (tx) => {
-		const [result] = await tx
-			.insert(promptRuns)
-			.values({
-				promptId,
-				brandId,
-				model,
-				provider,
-				version,
-				webSearchEnabled,
-				rawOutput,
-				webQueries,
-				brandMentioned,
-				competitorsMentioned,
-			})
-			.returning({ id: promptRuns.id, createdAt: promptRuns.createdAt });
-		await insertRunText(tx, result.id, textContent);
-		// The run is paid for, so a failed analysis must not roll it back. The run
-		// is left without a marker, which reads as not analysed.
-		await tryWriteRunAnalysis(
-			tx,
-			{ id: result.id, promptId, model, brandId },
-			answerTextOrNull(textContent),
-			TEXT_EXTRACTOR_VERSION,
-			(error) => {
-				console.error(`Mention analysis failed for run ${result.id}; it is left unanalysed:`, error);
-				Sentry.captureException(error, { tags: { stage: "mention-analysis" } });
-			},
-		);
-		return result;
-	});
+	const [result] = await db
+		.insert(promptRuns)
+		.values({
+			promptId,
+			brandId,
+			model,
+			provider,
+			version,
+			webSearchEnabled,
+			rawOutput,
+			webQueries,
+			brandMentioned,
+			competitorsMentioned,
+		})
+		.returning({ id: promptRuns.id, createdAt: promptRuns.createdAt });
+
+	return result;
 }
 
 async function saveCitations(
@@ -237,8 +238,7 @@ async function saveCitations(
  * Billing-grade attribution: one row per provider call, success
  * or failure. Never fails the run — attribution must not break tracking.
  */
-/** Best effort: scraper events attribute cost, and a lost one shouldn't fail a paid run. */
-async function recordScraperUsageEvent(input: {
+async function recordUsageEvent(input: {
 	organizationId: string;
 	brandId: string;
 	promptId: string;
@@ -246,7 +246,8 @@ async function recordScraperUsageEvent(input: {
 	config: ModelConfig;
 }): Promise<void> {
 	try {
-		await recordUsageEvent({
+		const cost = estimateRunCostUsd(input.config.provider, input.config.webSearch);
+		await db.insert(usageEvents).values({
 			organizationId: input.organizationId,
 			brandId: input.brandId,
 			promptId: input.promptId,
@@ -254,7 +255,8 @@ async function recordScraperUsageEvent(input: {
 			provider: input.config.provider,
 			model: input.config.model,
 			webSearchEnabled: input.config.webSearch,
-			estimatedCostUsd: estimateRunCostUsd(input.config.provider, input.config.webSearch),
+			units: 1,
+			estimatedCostUsd: cost === null ? null : cost.toFixed(6),
 		});
 	} catch (error) {
 		console.error("Failed to record usage event:", error);
@@ -315,12 +317,11 @@ async function runModelIteration({
 			webQueries,
 			brandMentioned,
 			competitorsMentioned,
-			safeTextContent,
 		);
 		console.log(`${logPrefix} Saved prompt run ${promptRunId}`);
 
 		await saveCitations(promptRunId, promptId, brand.id, config.model, extractedCitations, createdAt);
-		await recordScraperUsageEvent({
+		await recordUsageEvent({
 			organizationId: brand.organizationId,
 			brandId: brand.id,
 			promptId,
@@ -337,7 +338,7 @@ async function runModelIteration({
 			scope.setContext("run", { promptId, brandId: brand.id, runIndex });
 			Sentry.captureException(error);
 		});
-		await recordScraperUsageEvent({
+		await recordUsageEvent({
 			organizationId: brand.organizationId,
 			brandId: brand.id,
 			promptId,

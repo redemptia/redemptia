@@ -233,10 +233,6 @@ async function main(): Promise<void> {
 	await waitFor("Edit SCRAPE_TARGETS before saving?");
 	await send(ENTER);
 
-	// Sentiment key (optional) → blank, so the analyzer stays off.
-	await waitFor("Gemini API key for sentiment");
-	await send(ENTER);
-
 	// No telemetry or product-updates prompts: init asks them only when the CLI
 	// has a PostHog key, and CI sets none.
 

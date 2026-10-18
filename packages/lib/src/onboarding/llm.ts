@@ -41,10 +41,9 @@ const ONBOARDING_LLM_TARGET_HELP =
  *   2. First provider in `RESEARCH_PROVIDER_PREFERENCE` that's configured AND
  *      implements `runStructuredResearch`.
  *
- * Each provider falls back to its own `DEFAULT_RESEARCH_MODEL`. A caller can
- * pick a model per call (`runStructuredCompletionPrompt`'s `model` option), but
- * there's no env override: the model segment of `ONBOARDING_LLM_TARGET` is
- * parsed and discarded here.
+ * Each provider supplies its own research model internally — there's no way
+ * to override the model via env or option. Operators who want a different
+ * model edit the provider's `DEFAULT_RESEARCH_MODEL` constant in source.
  */
 export function resolveResearchProvider(env: Record<string, string | undefined> = process.env): Provider {
 	const explicit = env.ONBOARDING_LLM_TARGET?.trim();
@@ -95,31 +94,16 @@ export async function runStructuredResearchPrompt<T>(prompt: string, schema: z.Z
  * provider selection (honors `ONBOARDING_LLM_TARGET` / the preference order),
  * no tools and no agent loop. Use when the prompt already carries all the data.
  *
- * `model` is in the resolved provider's namespace, so a caller passing one is
- * effectively assuming which provider gets picked.
- *
- * Returns the validated object plus the model id actually used
- * (`modelVersion`) so callers can record which model produced the result.
+ * Returns the validated object plus the resolved model id (`modelVersion`) so
+ * callers can record which model produced the result.
  */
 export async function runStructuredCompletionPrompt<T>(
 	prompt: string,
 	schema: z.ZodType<T>,
-	options: { model?: string; provider?: string; fallbackModels?: string[] } = {},
 ): Promise<StructuredResearchResult<T>> {
-	// A named provider is used as is, because a model id only means something in
-	// its own provider's namespace: "gpt-5-mini" sent to Anthropic would fail.
-	const provider = options.provider ? getProvider(options.provider) : resolveResearchProvider();
-	if (options.provider && !provider.isConfigured()) {
-		throw new Error(`Provider "${provider.id}" is not configured`);
-	}
+	const provider = resolveResearchProvider();
 	if (!provider.runStructuredResearch) {
 		throw new Error(`Provider "${provider.id}" does not implement structured research`);
 	}
-	return provider.runStructuredResearch({
-		prompt,
-		schema,
-		webSearch: false,
-		...(options.model ? { model: options.model } : {}),
-		...(options.fallbackModels?.length ? { fallbackModels: options.fallbackModels } : {}),
-	});
+	return provider.runStructuredResearch({ prompt, schema, webSearch: false });
 }

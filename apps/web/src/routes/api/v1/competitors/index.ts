@@ -9,13 +9,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { dedupeAliases, dedupeDomains } from "@workspace/lib/citations/domain-categories";
 import { competitors } from "@workspace/lib/db/schema";
-import { isCompetitorNameTaken } from "@workspace/lib/db/unique-names";
 import { assertCompetitorCap, withQuotaLock } from "@workspace/lib/entitlements";
 import { z } from "zod";
 import { clampedPaging } from "@/lib/api/analytics-range";
-import { ApiError, createApiHandler, withMethodGuard } from "@/lib/api/handler";
+import { createApiHandler, withMethodGuard } from "@/lib/api/handler";
 import { brandScopeCondition, requireBrandInScope } from "@/lib/api/scope";
-import { enqueueMentionRecompute } from "@/lib/job-scheduler";
 import { listCompetitors } from "@/server/competitors-core";
 
 const createCompetitorBody = z.object({
@@ -56,11 +54,6 @@ export const Route = createFileRoute("/api/v1/competitors/")({
 				body: createCompetitorBody,
 				status: 201,
 				scopes: ["write"],
-				mapError: (err) => {
-					if (isCompetitorNameTaken(err)) {
-						return new ApiError(409, "Conflict", "This brand already has a competitor with that name.");
-					}
-				},
 				handle: async ({ body, auth }) => {
 					const { brandId, name, domains, aliases } = body;
 
@@ -68,7 +61,7 @@ export const Route = createFileRoute("/api/v1/competitors/")({
 
 					// Check and insert under one lock: otherwise two requests on a
 					// brand's last competitor slot both pass the check.
-					const created = await withQuotaLock(brand.organizationId, async (tx) => {
+					return await withQuotaLock(brand.organizationId, async (tx) => {
 						await assertCompetitorCap(brandId, 1, tx);
 
 						const [inserted] = await tx
@@ -83,8 +76,6 @@ export const Route = createFileRoute("/api/v1/competitors/")({
 
 						return inserted;
 					});
-					await enqueueMentionRecompute(brandId);
-					return created;
 				},
 			}),
 		}),

@@ -70,7 +70,6 @@ export async function createRun(
 		provider?: string;
 		webSearch?: boolean;
 		webQueries?: string[];
-		rawOutput?: unknown;
 	},
 ): Promise<FixtureRun> {
 	const model = opts.model ?? "chatgpt";
@@ -84,7 +83,7 @@ export async function createRun(
 			provider: opts.provider ?? "brightdata",
 			version: "test",
 			webSearchEnabled: opts.webSearch ?? true,
-			rawOutput: opts.rawOutput ?? {},
+			rawOutput: {},
 			webQueries: opts.webQueries ?? [],
 			brandMentioned: opts.brandMentioned,
 			competitorsMentioned: opts.competitors ?? [],

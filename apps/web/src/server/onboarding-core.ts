@@ -7,8 +7,7 @@ import { db } from "@workspace/lib/db/db";
 import type { DbConnection } from "@workspace/lib/db/db-connection";
 import { ensureOrganization } from "@workspace/lib/db/provisioning";
 import { brands, competitors, prompts } from "@workspace/lib/db/schema";
-import { claimNewBrandSlug, competitorNameKey, findUnusedBrandSlug } from "@workspace/lib/db/unique-names";
-import { touchesSubjects } from "@workspace/lib/enrichment";
+import { claimNewBrandSlug, findUnusedBrandSlug } from "@workspace/lib/db/unique-names";
 import {
 	assertCanAddPrompts,
 	assertCompetitorCap,
@@ -18,7 +17,7 @@ import {
 import { computeSystemTags, sanitizeUserTags } from "@workspace/lib/tag-utils";
 import { count, desc, eq, type SQL } from "drizzle-orm";
 import { z } from "zod";
-import { createMultiplePromptJobSchedulers, enqueueMentionRecompute } from "@/lib/job-scheduler";
+import { createMultiplePromptJobSchedulers } from "@/lib/job-scheduler";
 
 export class BrandConflictError extends Error {
 	constructor(public readonly brandId: string) {
@@ -207,21 +206,15 @@ async function insertCompetitors(args: {
 		where: eq(competitors.brandId, args.brandId),
 	});
 	const existingDomains = new Set(existing.flatMap((c) => c.domains));
-	// A brand can't hold two competitors with one name, so a suggestion that repeats
-	// a name is skipped the same way one that repeats a domain is.
-	const takenNames = new Set(existing.map((c) => competitorNameKey(c.name)));
 
 	const toInsert: Array<{ brandId: string; name: string; domains: string[]; aliases: string[] }> = [];
 	for (const c of args.source) {
 		const cleaned = dedupeDomains(c.domains).filter((d) => d !== args.websiteHost);
 		if (cleaned.length === 0) continue;
 		if (cleaned.some((d) => existingDomains.has(d))) continue;
-		const name = c.name.trim();
-		if (takenNames.has(competitorNameKey(name))) continue;
-		takenNames.add(competitorNameKey(name));
 		toInsert.push({
 			brandId: args.brandId,
-			name,
+			name: c.name.trim(),
 			domains: cleaned,
 			aliases: dedupeAliases(c.aliases),
 		});
@@ -376,7 +369,6 @@ export async function updateBrand(input: UpdateBrandInput): Promise<BrandResult>
 	if (input.enabled !== undefined) patch.enabled = input.enabled;
 
 	await db.update(brands).set(patch).where(eq(brands.id, input.brandId));
-	if (touchesSubjects(patch)) await enqueueMentionRecompute(input.brandId);
 	const refreshed = await db.query.brands.findFirst({ where: eq(brands.id, input.brandId) });
 	return buildBrandResult(refreshed!);
 }
@@ -398,9 +390,8 @@ export async function saveWizardOnboarding(input: WizardOnboardingInput): Promis
 
 	// Both inserts check a usage count first, so they run under one lock: two
 	// saves racing each other must not both spend the same last slot.
-	let competitorsAdded = 0;
 	const wizardPromptIds = await withQuotaLock(existing.organizationId, async (tx) => {
-		competitorsAdded = await insertCompetitors({
+		await insertCompetitors({
 			brandId: input.brandId,
 			websiteHost,
 			source: (input.competitors ?? []).map((c) => ({
@@ -426,7 +417,6 @@ export async function saveWizardOnboarding(input: WizardOnboardingInput): Promis
 		});
 	});
 	await createMultiplePromptJobSchedulers(wizardPromptIds);
-	if (competitorsAdded > 0) await enqueueMentionRecompute(input.brandId);
 
 	const refreshed = await db.query.brands.findFirst({ where: eq(brands.id, input.brandId) });
 	return buildBrandResult(refreshed!);

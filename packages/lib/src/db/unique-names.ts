@@ -100,16 +100,6 @@ async function claimSlug<T>(write: () => Promise<T>, constraint: string, takenMe
 
 // Bound here rather than at each write: a constraint name that doesn't match the
 // index is a mapping that silently never fires.
-/**
- * The form two competitor names must differ in, as the unique index and mention
- * matching compare them: case and surrounding whitespace don't count.
- */
-export const competitorNameKey = (name: string): string => name.trim().toLowerCase();
-
-/** True for a write that would give a brand two competitors with the same name, ignoring case and surrounding whitespace. */
-export const isCompetitorNameTaken = (error: unknown): boolean =>
-	isUniqueViolation(error, "competitors_brand_id_name_unique");
-
 export const claimOrgSlug = <T>(write: () => Promise<T>, takenMessage: string): Promise<T> =>
 	claimSlug(write, "organization_slug_unique", takenMessage);
 
