@@ -47,9 +47,33 @@ Facts and rules established across PRs, kept here so they reach whoever opens th
 - **Compare index shapes on a slice** (~50k runs) to pick a winner. Then measure the winner at realistic volume before quoting a number: a slice misleads on partial indexes and on plans that flip to a seq scan with volume.
 
 ### The gate (before every push)
-`pnpm lint && pnpm turbo check-types test`, then each integration suite with `TEST_DATABASE_URL` pointing at a database whose name ends in `_test`, one package at a time as `build.yaml` runs them (the lib suite truncates tables the others write to): `pnpm -C apps/web test:integration`, `pnpm -C apps/worker test:integration`, `pnpm -C packages/lib test:integration`.
-- **Baseline:** 1,521 unit tests (config 114, cli 32, deployment 52, lib 697, worker 66, web 560) and 116 integration tests (web 56, worker 34, lib 26), all green, no expected failures. A fresh `_test` database applies 31 migrations.
-- **CI** runs 7 checks on every PR (Build, Dependency License Audit, E2E Integration Tests, Scheduling Policy Verification, smoke, Vercel, Vercel Preview Comments), plus Install when `skills/` or its workflow changes. Read the list on the PR rather than trusting a count.
+This map is derived from the pull-request workflows in `.github/workflows/`. `scripts/check-gate-doc.mjs`, run by `pnpm test:scripts` in Build, fails when a PR job or a `build.yaml` command step is missing from it, so re-derive the map in the same PR that changes a workflow. Run local commands with `TYPESAFE_API_KEY=stub SCRAPE_TARGETS=stub:stub ONBOARDING_LLM_TARGET=stub:stub`, and integration commands with `TEST_DATABASE_URL` naming a database that ends in `_test`.
+
+<!-- gate:start -->
+| CI check | Step | Local command |
+|---|---|---|
+| **Build** | Install dependencies | `pnpm install --frozen-lockfile` |
+| | Format and lint | `pnpm lint` |
+| | Lint the OpenAPI document | `pnpm lint:spec` |
+| | Type check | `pnpm turbo check-types` |
+| | Unit tests | `pnpm turbo test` |
+| | Integration tests | `pnpm -C apps/web test:integration`, then `apps/worker`, then `packages/lib`, one at a time because the lib suite truncates tables the others write to, with `TZ=America/Los_Angeles` as CI sets it |
+| | Schema matches the migrations | `DATABASE_URL=postgres://unused pnpm -C packages/lib exec drizzle-kit generate` writes nothing |
+| | Migrations apply on upgrade from the base commit | `node packages/lib/scripts/check-migrations.mjs <base commit's migrations dir> packages/lib/src/db/migrations` against a scratch `_test` database |
+| | Release script tests | `pnpm test:scripts` |
+| | Build | `pnpm build` |
+| | Verify the build left the working tree clean | `git status --porcelain` prints nothing |
+| | Install Playwright browsers | `pnpm -C apps/web exec playwright install chromium` |
+| | Storybook tests | `pnpm -C apps/web test:storybook` (needs that Chromium) |
+| **Dependency License Audit** | | `pnpm license-check` |
+| **E2E Integration Tests** | | CI only: needs Docker (`redemptia init --dev` through `e2e/cli-driver.ts`, then every deployment mode, Playwright and Bruno) |
+| **Scheduling Policy Verification** | | CI only in practice: a throwaway Postgres and a running worker, scripted in `e2e.yaml` |
+| **smoke** | | `pnpm -C apps/web exec tsx scripts/smoke-deployment-mode.ts`, then migrate, seed, re-migrate and `pnpm -C packages/lib exec tsx scripts/verify-membership-dedupe.ts`, as `mode-compat.yaml` does |
+| **Install** (only when `skills/` or its workflow changes) | | `scripts/check-skill-install.sh "$PWD" checkout` |
+| **Vercel**, **Vercel Preview Comments** | | External; no local command |
+<!-- gate:end -->
+
+- **Baseline:** 1,521 unit tests (config 114, cli 32, deployment 52, lib 697, worker 66, web 560), 116 integration tests (web 56, worker 34, lib 26) and 157 Storybook tests, all green, no expected failures. A fresh `_test` database applies 31 migrations.
 - **CI sets no `DEPLOYMENT_MODE`.** An integration test that reaches deployment or entitlement code (`getDeploymentFeatures`, `getOrgEntitlements`) must `vi.stubEnv("DEPLOYMENT_MODE", …)`, and before anything it starts (the worker creates some pg-boss queues, such as `generate-report`, only when a deployment feature is on). A local `.env` hides the failure, so it shows up only in CI. To reproduce one, move both `.env` files aside and run the file alone against a fresh `_test` database: another file can create shared state, such as a queue, that masks it.
 - **Known flaky tests:**
   - `e2e/tests/shared/api-keys.spec.ts` (brand multi-select vs the Create click) and `e2e/tests/shared/overview.spec.ts` (sidebar links) can flake. `failOnFlakyTests` makes a flake red.
@@ -79,7 +103,7 @@ Facts and rules established across PRs, kept here so they reach whoever opens th
   - We are on elmo's 0000–0030 and have none of our own; the next is 0031, which is also elmo's next. Follow the procedure in UPSTREAM.md before adding one or merging elmo's.
   - Everything runs in one transaction, so no `CREATE INDEX CONCURRENTLY`.
   - Never run `drizzle-kit push`.
-- **Four raw-SQL indexes on `prompt_runs` are invisible to drizzle and the drift check:** `idx_prompt_runs_brand_analytics`, `idx_prompt_runs_prompt_analytics`, `idx_prompt_runs_admin` (0003), `prompt_runs_web_search_model_group_created_at_idx` (0000). Don't duplicate them. Drizzle 0.45 can't express `INCLUDE`.
+- **Two raw-SQL indexes on `prompt_runs` are invisible to drizzle and the drift check:** `idx_prompt_runs_admin` (0003) and `prompt_runs_web_search_model_group_created_at_idx` (0000). Don't duplicate them. Drizzle 0.45 can't express `INCLUDE`. 0003 created two more, `idx_prompt_runs_brand_analytics` and `idx_prompt_runs_prompt_analytics`, but 0024 dropped columns they `INCLUDE`, and Postgres dropped the indexes with them, silently (#86). Check what a migrated database has with `pg_indexes`, never only the SQL.
 - **`prompt_runs` is append-only.** A trigger (0024) rejects updates; derived data lives in `run_extractions`, `run_mentions` and `citations`.
 - **Competitor names and ids.**
   - `run_mentions.competitors_mentioned` stores names, not ids, and the rollups are keyed by `competitor_name`.
@@ -97,6 +121,7 @@ Facts and rules established across PRs, kept here so they reach whoever opens th
 - **Entitlement flags live in code.** `entitlementOverridesSchema` is `.strict()`, and a parse failure drops the whole payload, so ship a schema key before any data that uses it.
 
 ### Known gaps
+- #86: 0024 silently dropped two `prompt_runs` analytics indexes; the rollup rebuild's brand filter is unindexed.
 - #85: Jev judging has no spend cap; fix it before any real `TYPESAFE_API_KEY` is set.
 - #78: competitor names aren't unique per brand, and a dashboard save re-creates the list.
 - #80: the cookie banner asks for an Advertising category nothing reads; `packages/ui/src/lib/idle.ts` is unused.
