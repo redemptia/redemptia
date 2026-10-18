@@ -1,5 +1,5 @@
 import { getCredential } from "../../secrets";
-import { type Citation, normalizeCitationTitle, OPENROUTER_RESPONSE_NO_TEXT } from "../../text-extraction";
+import { type Citation, normalizeCitationTitle } from "../../text-extraction";
 import { API_PROVIDER_MAX_OUTPUT_TOKENS, configuredWhen, reportedWebQueries, warnIfOutputCapped } from "../config";
 import type {
 	Provider,
@@ -42,7 +42,7 @@ function extractTextFromOpenRouterResponse(data: any): string {
 	if (chatContent) return chatContent;
 
 	const texts = responsesApiTexts(data?.output);
-	return texts.length > 0 ? texts.join("\n") : OPENROUTER_RESPONSE_NO_TEXT;
+	return texts.length > 0 ? texts.join("\n") : "No text content found in OpenRouter response.";
 }
 
 function extractCitationsFromOpenRouterResponse(data: any): Citation[] {
@@ -85,12 +85,11 @@ export const openrouter: Provider = {
 		prompt,
 		schema,
 		webSearch = true,
-		model = DEFAULT_RESEARCH_MODEL,
 	}: StructuredResearchOptions<T>): Promise<StructuredResearchResult<T>> {
 		// Raw fetch (no AI SDK) so we can attach the OpenRouter `plugins` field
 		// — the AI SDK's OpenAI-compat path doesn't pass it through.
 		const body: Record<string, unknown> = {
-			model,
+			model: DEFAULT_RESEARCH_MODEL,
 			messages: [{ role: "user", content: prompt }],
 			response_format: jsonSchemaResponseFormat(schema),
 		};
@@ -108,14 +107,14 @@ export const openrouter: Provider = {
 		const data: any = await res.json();
 		const content = data?.choices?.[0]?.message?.content;
 		if (typeof content !== "string") {
-			throw new Error(`OpenRouter returned no JSON content (model=${model})`);
+			throw new Error(`OpenRouter returned no JSON content (model=${DEFAULT_RESEARCH_MODEL})`);
 		}
 		return {
 			object: parseSchemaJson(schema, content),
 			// Report the alias we sent, not OpenRouter's resolved version
 			// (e.g. "openai/gpt-5-mini" vs "openai/gpt-5-mini-2025-08-07") —
 			// matches what openai-api and anthropic-api do.
-			modelVersion: model,
+			modelVersion: DEFAULT_RESEARCH_MODEL,
 		};
 	},
 

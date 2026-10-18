@@ -116,9 +116,8 @@ export const openaiApi: Provider = {
 		prompt,
 		schema,
 		webSearch = true,
-		model = DEFAULT_RESEARCH_MODEL,
 	}: StructuredResearchOptions<T>): Promise<StructuredResearchResult<T>> {
-		const object = await structuredResearch(getOpenAIResponsesModel(model), {
+		const object = await structuredResearch(getOpenAIResponsesModel(DEFAULT_RESEARCH_MODEL), {
 			prompt,
 			schema,
 			...(webSearch
@@ -130,6 +129,6 @@ export const openaiApi: Provider = {
 					}
 				: {}),
 		});
-		return { object, modelVersion: model };
+		return { object, modelVersion: DEFAULT_RESEARCH_MODEL };
 	},
 };

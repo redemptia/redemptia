@@ -27,7 +27,6 @@ import {
 	slowestIntervalHours,
 	targetKey,
 } from "@workspace/lib/run-policy";
-import { insertRunText } from "@workspace/lib/run-texts";
 import type { Citation } from "@workspace/lib/text-extraction";
 import { estimateRunCostUsd } from "@workspace/lib/usage";
 import { isOrgOverDailyCeiling } from "@workspace/lib/usage/ceiling";
@@ -172,27 +171,24 @@ async function savePromptRun(
 	webQueries: string[],
 	brandMentioned: boolean,
 	competitorsMentioned: string[],
-	textContent: string,
 ): Promise<{ id: string; createdAt: Date }> {
-	return db.transaction(async (tx) => {
-		const [result] = await tx
-			.insert(promptRuns)
-			.values({
-				promptId,
-				brandId,
-				model,
-				provider,
-				version,
-				webSearchEnabled,
-				rawOutput,
-				webQueries,
-				brandMentioned,
-				competitorsMentioned,
-			})
-			.returning({ id: promptRuns.id, createdAt: promptRuns.createdAt });
-		await insertRunText(tx, result.id, textContent);
-		return result;
-	});
+	const [result] = await db
+		.insert(promptRuns)
+		.values({
+			promptId,
+			brandId,
+			model,
+			provider,
+			version,
+			webSearchEnabled,
+			rawOutput,
+			webQueries,
+			brandMentioned,
+			competitorsMentioned,
+		})
+		.returning({ id: promptRuns.id, createdAt: promptRuns.createdAt });
+
+	return result;
 }
 
 async function saveCitations(
@@ -303,7 +299,6 @@ async function runModelIteration({
 			webQueries,
 			brandMentioned,
 			competitorsMentioned,
-			safeTextContent,
 		);
 		console.log(`${logPrefix} Saved prompt run ${promptRunId}`);
 
