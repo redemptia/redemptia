@@ -103,7 +103,7 @@ This map is derived from the pull-request workflows in `.github/workflows/`. `sc
   - We are on elmo's 0000–0030 and have none of our own; the next is 0031, which is also elmo's next. Follow the procedure in UPSTREAM.md before adding one or merging elmo's.
   - Everything runs in one transaction, so no `CREATE INDEX CONCURRENTLY`.
   - Never run `drizzle-kit push`.
-- **Four raw-SQL indexes on `prompt_runs` are invisible to drizzle and the drift check:** `idx_prompt_runs_brand_analytics`, `idx_prompt_runs_prompt_analytics`, `idx_prompt_runs_admin` (0003), `prompt_runs_web_search_model_group_created_at_idx` (0000). Don't duplicate them. Drizzle 0.45 can't express `INCLUDE`.
+- **Two raw-SQL indexes on `prompt_runs` are invisible to drizzle and the drift check:** `idx_prompt_runs_admin` (0003) and `prompt_runs_web_search_model_group_created_at_idx` (0000). Don't duplicate them. Drizzle 0.45 can't express `INCLUDE`. 0003 created two more, `idx_prompt_runs_brand_analytics` and `idx_prompt_runs_prompt_analytics`, but 0024 dropped columns they `INCLUDE`, and Postgres dropped the indexes with them, silently (#86). Check what a migrated database has with `pg_indexes`, never only the SQL.
 - **`prompt_runs` is append-only.** A trigger (0024) rejects updates; derived data lives in `run_extractions`, `run_mentions` and `citations`.
 - **Competitor names and ids.**
   - `run_mentions.competitors_mentioned` stores names, not ids, and the rollups are keyed by `competitor_name`.
@@ -121,6 +121,7 @@ This map is derived from the pull-request workflows in `.github/workflows/`. `sc
 - **Entitlement flags live in code.** `entitlementOverridesSchema` is `.strict()`, and a parse failure drops the whole payload, so ship a schema key before any data that uses it.
 
 ### Known gaps
+- #86: 0024 silently dropped two `prompt_runs` analytics indexes; the rollup rebuild's brand filter is unindexed.
 - #85: Jev judging has no spend cap; fix it before any real `TYPESAFE_API_KEY` is set.
 - #78: competitor names aren't unique per brand, and a dashboard save re-creates the list.
 - #80: the cookie banner asks for an Advertising category nothing reads; `packages/ui/src/lib/idle.ts` is unused.
