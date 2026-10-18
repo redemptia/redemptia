@@ -206,7 +206,7 @@ async function ensureJudgeKey(configDir: string, context: MigrationContext, nonI
 	// Without this, an unreadable .env would be replaced by one holding only the key.
 	if (!(await fs.stat(path.join(configDir, ".env")).catch(() => null))) {
 		log.error(
-			`Couldn't find ${path.join(configDir, ".env")}; run \`elmo init\` or restore it, then rerun the upgrade.`,
+			`Couldn't find ${path.join(configDir, ".env")}; run \`redemptia init\` or restore it, then rerun the upgrade.`,
 		);
 		process.exit(1);
 	}
