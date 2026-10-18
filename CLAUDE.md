@@ -21,25 +21,19 @@ Engines: openai-api, searchapi
 SCRAPE_TARGETS env value exists yet. This is the intended pair; the
 actual env var gets set at deploy time and must match this line, or
 this line gets updated to match it.)
-Issue #18 does not apply: none of these are Mistral web search,
-DataForSEO LLM Scraper or BrightData chatbot datasets — the only
-providers whose answer text diverges between the live extractor and the
-run_texts backfill. Every run in this mix gets real answer text, so
-NULL-text runs here mean genuine blank answers or extraction failure,
-not provider divergence.
 
-## Sentiment analyzer (decided 2026-10-13)
-Provider: Gemini's OpenAI-compatible endpoint, called directly with the
-analyzer's own SENTIMENT_API_KEY and SENTIMENT_BASE_URL, never the openai-api
-scraper's key. Model: gemini-3.5-flash-lite, falling back to
-gemini-3.1-flash-lite on a 429 or 5xx (env SENTIMENT_MODEL and
-SENTIMENT_FALLBACK_MODELS override). gemini-2.5-flash was the first choice,
-but Google no longer serves it to new keys. The endpoint reports tokens but no
-cost, so calls are priced from tokens. It runs only when SENTIMENT_API_KEY is
-set.
-Hard enrichment spend ceiling: $2 per organization per day.
-This is separate from SCRAPE_TARGETS: scrape targets decide what text we
-capture, the analyzer decides what scores it.
+## Mention and sentiment judging
+Mentions and sentiment are judged by Jev (TypeSafe), with `TYPESAFE_API_KEY`.
+The worker refuses to start without it. `TYPESAFE_API_KEY=stub` judges from cue
+words and calls no one; use it for every local run, test and CI job. Stub
+judgements are stamped as the stub's, so switching a database from `stub` to a
+real key re-judges what the stub judged. A real key
+spends on every answer that names a tracked company (no spend ceiling exists in
+code), and the worker spends on its own: each start re-requests judging for the
+last 30 days of unjudged runs, and history is reprocessed back `REPROCESS_DAYS`
+(default 90) whenever the judge, the extractor or a brand's names or
+competitors change. Setting a real key anywhere is a separate, explicit
+decision. Until runs are judged, the Sentiment page is empty.
 
 ## Shared context
 
@@ -53,10 +47,10 @@ Facts and rules established across PRs, kept here so they reach whoever opens th
 - **Compare index shapes on a slice** (~50k runs) to pick a winner. Then measure the winner at realistic volume before quoting a number: a slice misleads on partial indexes and on plans that flip to a seq scan with volume.
 
 ### The gate (before every push)
-`pnpm lint && pnpm turbo check-types test`, then `pnpm -C apps/web test:integration` with `TEST_DATABASE_URL` pointing at a database whose name ends in `_test`.
-- **Baseline:** 1,472 unit tests plus 4 expected failures, and 150 integration tests, all green.
-- **CI** is 5 checks.
-- **CI sets no `DEPLOYMENT_MODE`.** An integration test that reaches deployment or entitlement code (`getDeploymentFeatures`, `getOrgEntitlements`) must `vi.stubEnv("DEPLOYMENT_MODE", …)`, and before anything it starts (pg-boss creates the recompute queue only if enrichment is on when it starts). A local `.env` hides the failure, so it shows up only in CI. To reproduce one, move both `.env` files aside and run the file alone against a fresh `_test` database: another file can create shared state, such as a queue, that masks it.
+`pnpm lint && pnpm turbo check-types test`, then each integration suite with `TEST_DATABASE_URL` pointing at a database whose name ends in `_test`, one package at a time as `build.yaml` runs them (the lib suite truncates tables the others write to): `pnpm -C apps/web test:integration`, `pnpm -C apps/worker test:integration`, `pnpm -C packages/lib test:integration`.
+- **Baseline:** 1,521 unit tests (config 114, cli 32, deployment 52, lib 697, worker 66, web 560) and 116 integration tests (web 56, worker 34, lib 26), all green, no expected failures. A fresh `_test` database applies 31 migrations.
+- **CI** runs 7 checks on every PR (Build, Dependency License Audit, E2E Integration Tests, Scheduling Policy Verification, smoke, Vercel, Vercel Preview Comments), plus Install when `skills/` or its workflow changes. Read the list on the PR rather than trusting a count.
+- **CI sets no `DEPLOYMENT_MODE`.** An integration test that reaches deployment or entitlement code (`getDeploymentFeatures`, `getOrgEntitlements`) must `vi.stubEnv("DEPLOYMENT_MODE", …)`, and before anything it starts (the worker creates some pg-boss queues, such as `generate-report`, only when a deployment feature is on). A local `.env` hides the failure, so it shows up only in CI. To reproduce one, move both `.env` files aside and run the file alone against a fresh `_test` database: another file can create shared state, such as a queue, that masks it.
 - **Known flaky tests:**
   - `e2e/tests/shared/api-keys.spec.ts` (brand multi-select vs the Create click) and `e2e/tests/shared/overview.spec.ts` (sidebar links) can flake. `failOnFlakyTests` makes a flake red.
   - Re-run once. If it recurs, fix it: it may be an app bug.
@@ -68,40 +62,44 @@ Facts and rules established across PRs, kept here so they reach whoever opens th
 - acting on a contradicted fact below.
 
 ### Facts
-- **Three elmo names are never renamed.** Renaming any of them breaks live deployments or drops the lock:
+- **Five names are never renamed.** Renaming any of them breaks live deployments or splits a lock:
   - `ELMO_ENCRYPTION_KEY` (and its rotation sibling `ELMO_ENCRYPTION_KEY_OLD`) is the env var every deployment's stored secrets are encrypted under.
   - The `x-elmo-*` OpenAPI extensions (`x-elmo-scopes`, `x-elmo-admin-only`) are part of the published spec; the route-conformance test and the Bruno suite read them.
-  - `QUOTA_LOCK_CLASS` (`0x656c6d6f`, "elmo" in hex) is the advisory-lock class `withQuotaLock` takes; every process must use the same value.
+  - These three are every advisory-lock key in the tree. A rename on a running deployment means old and new processes take *different* locks and each believes it holds the lock, so the work runs concurrently instead of failing:
+    - `QUOTA_LOCK_CLASS` (`0x656c6d6f`, "elmo" in hex), the class `withQuotaLock` takes (`packages/lib/src/entitlements/guards.ts`);
+    - `'redemptia-user-memberships'`, the per-user membership sync lock (`packages/lib/src/db/auth-sync.ts`);
+    - `'redemptia-rollups'`, the per-brand rollup rebuild lock (`packages/lib/src/rollups/rebuild.ts`).
+
+    A new advisory lock joins this list in the PR that adds it.
 - **Tenancy is application code only.** RLS is inert: the tables call `.enableRLS()` with no policies, and the app connects as table owner.
   - Cross-brand list cores (`listPrompts`, `listCompetitors`, `listBrands`) take `scope: SQL | undefined` as a required key (#23).
   - Brand-scoped analytics cores take a brand id the edge has already gated.
   - Dashboard server functions gate with `requireBrandSession`, and that gate has no test (#21).
 - **Migrations (drizzle 0.45.2).** The only gate is the journal `when` against the newest applied migration; filenames and `idx` don't matter, and skipped migrations are silent.
-  - Ours are 0100–0107; the next is 0108. Upstream is at 0023.
+  - We are on elmo's 0000–0030 and have none of our own; the next is 0031, which is also elmo's next. Follow the procedure in UPSTREAM.md before adding one or merging elmo's.
   - Everything runs in one transaction, so no `CREATE INDEX CONCURRENTLY`.
   - Never run `drizzle-kit push`.
-- **Four raw-SQL indexes on `prompt_runs` are invisible to drizzle and the drift check:** `idx_prompt_runs_brand_analytics`, `idx_prompt_runs_prompt_analytics`, `idx_prompt_runs_admin`, `prompt_runs_web_search_model_group_created_at_idx`. Don't duplicate them. Drizzle 0.45 can't express `INCLUDE`.
-- **`run_texts`** holds one row per run: text (NULL when extraction produced no answer, or hit one of `EXTRACTION_SENTINELS`), `content_hash`, `answer_length`, `extractor_version`, and `source` (`live` or `backfill`).
-- **Mention analysis lives in two tables:**
-  - `run_subject_mentions`, sparse: one row per run × mentioned subject, storing only `first_offset` and `position`;
-  - `run_mention_analyses`, one marker per run.
-
-  A run is not analysed when its marker is missing or stale (`isStale` in `packages/lib/src/enrichment/reconcile.ts`). The exception: a run whose text is NULL is currently marked analysed with no mentions (#36).
-- **`packages/lib/src/mentions.ts`** is pure: `locateSubject` gives positions, and `mentionsSubject` is defined through it.
+- **Four raw-SQL indexes on `prompt_runs` are invisible to drizzle and the drift check:** `idx_prompt_runs_brand_analytics`, `idx_prompt_runs_prompt_analytics`, `idx_prompt_runs_admin` (0003), `prompt_runs_web_search_model_group_created_at_idx` (0000). Don't duplicate them. Drizzle 0.45 can't express `INCLUDE`.
+- **`prompt_runs` is append-only.** A trigger (0024) rejects updates; derived data lives in `run_extractions`, `run_mentions` and `citations`.
 - **Competitor names and ids.**
-  - `prompt_runs.competitors_mentioned` stores names, not ids.
-  - Competitor ids survive saves that don't rename. A dashboard rename gives the competitor a new id, while the API PATCH keeps it (#24).
-  - Stored mention analysis is re-derived from text under the current names, so a rename re-matches history to the new name whichever path made it.
-- **Matching is case-insensitive** but the competitors unique constraint isn't (#12).
+  - `run_mentions.competitors_mentioned` stores names, not ids, and the rollups are keyed by `competitor_name`.
+  - Saving a brand's competitor list from the dashboard deletes and re-inserts it, so every save mints new ids; the API PATCH keeps the id (#24).
+  - Nothing makes competitor names unique per brand, in any case (#78).
+- **Mention matching is case-insensitive and whole-word** (`wholeWordPattern` in `packages/lib/src/mentions.ts`), but the judge sees names as written: recasing or renaming a brand or competitor changes its `subjectFingerprint` and re-judges that subject's history, which is paid.
 - **No deployment is guaranteed a usable LLM.** Conditional registration uses `getDeploymentFeatures()`.
   - `withQuotaLock` holds a transaction and a per-org advisory lock. No LLM call may happen inside it.
-  - Writers of a brand's mention analysis serialise on `lockBrandAnalysis`. Brand and competitor edits don't take that lock.
 - **pg-boss queues.**
   - `singletonKey` uniqueness is state-scoped. Paid-work idempotency must be a database uniqueness constraint.
   - pg-boss `priority` only orders jobs within one queue.
-  - The mention recompute queue uses the `stately` policy.
 - **Demo mode's `readOnly` is HTTP-only.**
 - **`analytics-core.ts` feeds the dashboard, REST and MCP.**
-- **`openapi.json` is hand-maintained.** A new v1 route needs it updated, then `pnpm lint:spec`.
+- **`openapi.json` is hand-maintained.** A new v1 route needs it updated, then `pnpm lint:spec`. The SDK generator (`hey-api.config.json`) reads it too.
 - **Entitlement flags live in code.** `entitlementOverridesSchema` is `.strict()`, and a parse failure drops the whole payload, so ship a schema key before any data that uses it.
-- **Enrichment has its own spend ceiling** (`isOrgOverEnrichmentCeiling` in `packages/lib/src/usage/ceiling.ts`): a per-org cap on `sentiment-analysis` event cost over a rolling 24 h, `ENRICHMENT_DAILY_CAP_USD` (default $2). Check it before every paid enrichment call. It's independent of the scraper ceiling.
+
+### Known gaps
+- #78: competitor names aren't unique per brand, and a dashboard save re-creates the list.
+- #80: the cookie banner asks for an Advertising category nothing reads; `packages/ui/src/lib/idle.ts` is unused.
+- #21: `requireBrandSession` has no test.
+- #24: a dashboard competitor rename mints a new id; the API rename keeps it.
+- #83: the CLI's Docker Hub images don't exist, and `@redemptia/cli@0.4.4` predates the `TYPESAFE_API_KEY` prompt.
+- #18 is obsolete (the backfill it was about is deleted) and closes with the sentiment issues.
