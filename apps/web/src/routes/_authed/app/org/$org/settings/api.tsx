@@ -6,11 +6,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { DEFAULT_APP_NAME } from "@workspace/config/constants";
 import { Card } from "@workspace/ui/components/card";
 import { Skeleton } from "@workspace/ui/components/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs";
 import { lazy, Suspense, useEffect, useState } from "react";
+import { CodeBlock } from "@/components/code-block";
 import { CopyButton } from "@/components/copy-button";
 import { DemoModeAlert } from "@/components/demo-mode-alert";
 import { useAppOrigin } from "@/hooks/use-app-origin";
-import { useBranding } from "@/hooks/use-deployment-features";
+import { useBranding, useDeploymentMode } from "@/hooks/use-deployment-features";
 import { pageHead } from "@/lib/route-head";
 
 const OPENAPI_PATH = "/api/v1/openapi.json";
@@ -25,6 +27,7 @@ export const Route = createFileRoute("/_authed/app/org/$org/settings/api")({
 
 function ApiSettingsPage() {
 	const appName = useBranding()?.name || DEFAULT_APP_NAME;
+	const mode = useDeploymentMode();
 	const origin = useAppOrigin();
 	const baseUrl = `${origin}/api/v1`;
 
@@ -43,10 +46,79 @@ function ApiSettingsPage() {
 				<CopyButton value={baseUrl} />
 			</div>
 
+			{/* The SDKs carry Redemptia's name, so a whitelabel deployment doesn't advertise them. */}
+			{SDKS_PUBLISHED && mode && mode !== "whitelabel" && <SdkSection baseUrl={baseUrl} />}
+
 			<Card className="overflow-hidden p-0">
 				<ApiReferenceEmbed />
 			</Card>
 		</div>
+	);
+}
+
+// Off until @redemptia/sdk and redemptia-sdk exist on npm and PyPI: an install
+// line for an unpublished name points users at whoever registers it first.
+const SDKS_PUBLISHED = false;
+
+function sdkDocs(baseUrl: string) {
+	const env = `export REDEMPTIA_API_KEY=YOUR_API_KEY\nexport REDEMPTIA_BASE_URL=${baseUrl}`;
+	return [
+		{
+			value: "typescript",
+			label: "TypeScript",
+			install: "npm install @redemptia/sdk",
+			env,
+			usage: `import { Redemptia } from "@redemptia/sdk";
+
+const redemptia = new Redemptia();
+
+for await (const brand of redemptia.brands.list()) {
+  console.log(brand.name);
+}`,
+		},
+		{
+			value: "python",
+			label: "Python",
+			install: "pip install redemptia-sdk",
+			env,
+			usage: `from redemptia_sdk import Redemptia
+
+redemptia = Redemptia()
+
+for brand in redemptia.brands.list():
+    print(brand.name)`,
+		},
+	];
+}
+
+function SdkSection({ baseUrl }: { baseUrl: string }) {
+	const sdks = sdkDocs(baseUrl);
+
+	return (
+		<section className="max-w-4xl space-y-3">
+			<div className="space-y-1">
+				<h2 className="text-lg font-semibold">SDKs</h2>
+				<p className="text-sm text-muted-foreground">
+					Typed clients for this API. Set the base URL — the SDKs can't know which deployment to call.
+				</p>
+			</div>
+			<Tabs defaultValue={sdks[0].value}>
+				<TabsList>
+					{sdks.map((sdk) => (
+						<TabsTrigger key={sdk.value} value={sdk.value}>
+							{sdk.label}
+						</TabsTrigger>
+					))}
+				</TabsList>
+				{sdks.map((sdk) => (
+					<TabsContent key={sdk.value} value={sdk.value} className="space-y-3 pt-2">
+						<CodeBlock code={sdk.install} />
+						<CodeBlock code={sdk.env} />
+						<CodeBlock code={sdk.usage} />
+					</TabsContent>
+				))}
+			</Tabs>
+		</section>
 	);
 }
 

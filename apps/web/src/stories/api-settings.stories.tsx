@@ -6,8 +6,8 @@ import { setMockRouteContext } from "./_mocks/tanstack-router";
 
 const ApiSettingsPage = (Route as unknown as { options: { component: ComponentType } }).options.component;
 
-function load(appName = "Redemptia", appUrl = "https://app.redemptia.in/", readOnly = false) {
-	setMockRouteContext({ clientConfig: { branding: { name: appName, url: appUrl }, features: { readOnly } } });
+function load(mode = "cloud", appName = "Redemptia", appUrl = "https://app.redemptia.in/", readOnly = false) {
+	setMockRouteContext({ clientConfig: { mode, branding: { name: appName, url: appUrl }, features: { readOnly } } });
 }
 
 function Shell({ children }: { children: ReactNode }) {
@@ -43,29 +43,44 @@ export const Reference: Story = {
 		await expect(await canvas.findByText(`${window.location.origin}/api/v1`)).toBeVisible();
 		// The reference reads the instance's own spec rather than a hosted copy.
 		await expect(await canvas.findByTestId("api-reference-mock")).toHaveTextContent("/api/v1/openapi.json");
+		// No install line until the SDKs are published under these names.
+		await expect(canvas.queryByRole("heading", { name: "SDKs" })).toBeNull();
+	},
+};
+
+export const SelfHosted: Story = {
+	render: () => {
+		load("local");
+		return <ApiSettingsPage />;
+	},
+	play: async ({ canvasElement }) => {
+		const canvas = within(canvasElement);
+		await expect(await canvas.findByRole("heading", { name: "API Docs" })).toBeVisible();
+		await expect(canvas.queryByRole("heading", { name: "SDKs" })).toBeNull();
 	},
 };
 
 export const Whitelabel: Story = {
 	render: () => {
-		load("Acme Visibility", "https://visibility.acme.com/");
+		load("whitelabel", "Acme Visibility", "https://visibility.acme.com/");
 		return <ApiSettingsPage />;
 	},
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
 		await expect(await canvas.findByText("Programmatic interface for Acme Visibility.")).toBeVisible();
-		// Nothing on the page names the vendor.
+		// Nothing on the page names the vendor, so the vendor-branded SDKs stay hidden.
 		await expect(canvas.queryByText(/redemptia/i)).toBeNull();
 	},
 };
 
 export const ReadOnlyDeployment: Story = {
 	render: () => {
-		load("Redemptia", "https://app.redemptia.in/", true);
+		load("demo", "Redemptia", "https://app.redemptia.in/", true);
 		return <ApiSettingsPage />;
 	},
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
 		await expect(await canvas.findByText("API access is disabled in demo mode.")).toBeVisible();
+		await expect(canvas.queryByRole("heading", { name: "SDKs" })).toBeNull();
 	},
 };

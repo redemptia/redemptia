@@ -1,0 +1,74 @@
+---
+title: SDKs
+description: Call the Redemptia API from TypeScript or Python.
+---
+
+<Callout type="warn">
+The SDKs below are not published yet. `@redemptia/sdk` and `redemptia-sdk` don't exist on npm or PyPI
+under these names, so don't install them until this note is gone. Until then, call the
+[REST API](/docs/api) directly or use the [MCP server](/docs/api/mcp).
+</Callout>
+
+Redemptia's typed clients for the [REST API](/docs/api) are generated from the same OpenAPI spec the
+API serves, so a new endpoint reaches them without anyone writing it by hand.
+
+| Language | Package |
+| --- | --- |
+| TypeScript | `@redemptia/sdk` |
+| Python | `redemptia-sdk` |
+
+Both read an [API key](/docs/api#authentication) from `REDEMPTIA_API_KEY` and the address to call from
+`REDEMPTIA_BASE_URL`. The base URL has no default you can rely on — every instance serves the API on its
+own address — so always set it. On cloud that is `https://app.redemptia.in/api/v1`; a self-hosted
+instance uses its own `APP_URL` followed by `/api/v1`.
+
+```bash
+export REDEMPTIA_API_KEY=redemptia_...
+export REDEMPTIA_BASE_URL=https://app.redemptia.in/api/v1
+```
+
+Once they are published, every deployment shows both snippets at **Settings → API**, with its own base
+URL filled in.
+
+## TypeScript
+
+```bash
+npm install @redemptia/sdk
+```
+
+```ts
+import { Redemptia } from "@redemptia/sdk";
+
+const redemptia = new Redemptia();
+
+for await (const brand of redemptia.brands.list()) {
+  console.log(brand.name);
+}
+```
+
+Pass `apiKey` and `baseURL` to the constructor instead of setting the environment variables, for
+example to talk to two instances from one process. Node.js 20.19 or later is required.
+
+## Python
+
+```bash
+pip install redemptia-sdk
+```
+
+```python
+from redemptia_sdk import Redemptia
+
+redemptia = Redemptia()
+
+for brand in redemptia.brands.list():
+    print(brand.name)
+```
+
+`AsyncRedemptia` has the same calls for `asyncio`. Pass `api_key` and `base_url` to the constructor
+instead of setting the environment variables. Python 3.10 or later is required.
+
+## Versions
+
+Each SDK is versioned on its own, by what changed in the API rather than by Redemptia's release number:
+a removed or changed endpoint is a major version, a new one a minor version. Each repository's README
+covers pagination, errors, retries, and timeouts in full.

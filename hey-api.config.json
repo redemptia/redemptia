@@ -1,0 +1,41 @@
+{
+  "$schema": "./.hey-api/_config.schema.json",
+  "input": {
+    "path": "./packages/api-spec/src/openapi.json",
+    "declare": [
+      { "scheme": "BearerAuth", "startsWith": "redemptia_" },
+      {
+        "include": {
+          "openapi": {
+            "operations": [
+              "GET /brands/{brandId}/opportunities",
+              "POST /tools/analyze"
+            ]
+          }
+        },
+        "timeout": 600000
+      }
+    ]
+  },
+  "targets": {
+    "typescript": {
+      "package": {
+        "name": "@redemptia/sdk",
+        "destination": ["github", "npm"],
+        "repository": "https://github.com/redemptia/redemptia-sdk-typescript",
+        "homepage": "https://redemptia.in"
+      }
+    },
+    "python": {
+      "package": {
+        "name": "redemptia-sdk",
+        "destination": ["github", "pypi"],
+        "repository": "https://github.com/redemptia/redemptia-sdk-python",
+        "homepage": "https://redemptia.in"
+      }
+    }
+  },
+  "plugins": [
+    { "name": "@hey-api/client", "baseURL": "https://app.redemptia.in/api/v1" }
+  ]
+}
