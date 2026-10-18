@@ -88,6 +88,8 @@ describe("adaptivePool", () => {
 		expect(gaps[10]).toBeGreaterThan(gaps[8]);
 	});
 
+	// Six simulated minutes are CPU-bound: under 1 s alone, past the 5 s default
+	// when the whole monorepo's suites run at once.
 	it("keeps close to the account's limit, and follows it down without dropping calls", async () => {
 		let time = 0;
 		const timers: { at: number; resolve: () => void }[] = [];
@@ -126,7 +128,7 @@ describe("adaptivePool", () => {
 		expect(rate(2 * 60_000, 3 * 60_000)).toBeGreaterThan(16);
 		expect(rate(5 * 60_000, 6 * 60_000)).toBeGreaterThan(8);
 		expect(rate(5 * 60_000, 6 * 60_000)).toBeLessThanOrEqual(10);
-	});
+	}, 30_000);
 
 	it("gives up after repeated rate limits, so the job retries later, and passes other failures straight on", async () => {
 		const limited = adaptivePool(
