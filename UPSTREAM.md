@@ -101,10 +101,24 @@ work onto upstream (the rebrand was editorial, not mechanical), never rebase, ne
 
 ## Migrations
 
-Migrations 0000–0030 are elmo's and 0031 is ours (see the table above). drizzle's migrator ignores filenames and
-journal `idx`: it applies a migration only if its journal `when` is newer than the newest migration the database has
-already applied, and skips the rest with no error or warning. Our next is `0032`; elmo's next is `0031`, so the next
-catch-up clashes on the number.
+drizzle's migrator ignores filenames and journal `idx`. It applies a migration only if its journal `when` is newer
+than the newest migration the database has already applied, and skips the rest with no error or warning.
+
+**Where we stand.** Migrations 0000–0030 are elmo's, from the `20954aa2` catch-up. 0031,
+`0031_prompt_runs_brand_created_at_idx`, is ours, with journal `when` **`1792295862959`** (18 October 2026, 03:57 UTC).
+Every deployed database that has run it records that `when` as its newest. That has two consequences for every catch-up
+from now on:
+
+- **Elmo's next migration is also numbered 0031.** Both sides add `meta/0031_snapshot.json` and a journal entry with
+  `idx` 31, so git reports conflicts. That's the loud half, and it's fine.
+- **Any elmo migration whose `when` is older than ours is skipped on those databases, silently.** Elmo writes its
+  `when` when it generates the migration, so anything elmo authored before 18 October 2026 that we haven't merged
+  yet is in this position, as is anything dated before our newest migration once we add more. A fresh database
+  still applies it, so a fresh test passes while every upgraded deployment lacks the change. Only the upgrade check
+  in step 5 below sees it.
+
+Our migrations stay where they are: deployed databases have applied them, and the migrator knows them by `when` and
+the hash of their SQL. **Elmo's migrations move**: they are renumbered after ours and re-dated, every catch-up.
 
 **Adding one of ours:**
 
@@ -118,28 +132,33 @@ catch-up clashes on the number.
 4. Check its journal `when` is newer than every entry already in `meta/_journal.json`.
 5. Run the upgrade check locally from `main`'s migrations (step 5 of the merge procedure below). It must print both
    "All N migrations applied" and "All N indexes match".
-6. Record it in the table above, so the next merge knows the number and `when` are ours.
+6. Record it in the table above, and update **Where we stand** with its number and `when`.
 
-**Merging elmo's, in this order:**
+**Merging elmo's, in this order.** These steps were rehearsed in a scratch clone: a fake elmo 0031 dated before our
+0031, merged into `main`.
 
-1. List elmo's new entries: `git diff <last pin> <pin> -- packages/lib/src/db/migrations/meta/_journal.json`.
-2. **Numbering clashes are loud.** If we have migrations past elmo's last pin, both sides add `meta/<n>_snapshot.json`
-   and a journal entry with the same `idx`, which git reports as conflicts. Keep elmo's numbers and files as they
-   are, renumber ours after them (SQL file, snapshot and journal `tag`/`idx`), and keep the journal in ascending
-   `when`.
-3. **Skipped migrations are silent.** For every elmo entry, compare its `when` with the newest `when` of ours that a
-   deployed database may already have applied. If elmo's is older, rewrite its `when` in `_journal.json` to the
-   current epoch milliseconds. Change only the timestamp, never the SQL: the migrator records a migration by the
-   hash of its SQL.
-4. **Snapshots.** `drizzle-kit generate` must report "No schema changes" after the merge. How drizzle-kit 0.45
-   treats two snapshots with the same `prevId` can't be verified until it happens; if it complains, fix the chain
-   before committing.
+1. **List elmo's new entries:** `git diff <last pin> <pin> -- packages/lib/src/db/migrations/meta/_journal.json`.
+   Note each one's tag and `when`.
+2. **Keep ours.** Resolve `meta/_journal.json` and every conflicting `meta/<n>_snapshot.json` to our side. Remove
+   elmo's new migration files from the merge (`git rm` each new `.sql`, and drop its snapshot). Keep elmo's
+   `schema.ts` changes, which merge like any other code.
+3. **Regenerate elmo's changes on top of ours:** `pnpm -C packages/lib exec drizzle-kit generate --name <elmo's tag
+   without its number>`, one per elmo migration, in elmo's order. This gives each a number after ours, a current
+   `when`, and a snapshot whose `prevId` is our latest. The rehearsal covered one elmo migration. For several, applying elmo's
+   `schema.ts` changes one migration at a time should keep the split, but that hasn't been rehearsed.
+4. **Put elmo's SQL back.** Replace each generated `.sql` with elmo's original text, comments included. In the rehearsal
+   the generated SQL was byte-identical to elmo's. If it isn't, elmo's file has hand-written SQL that `generate` can't
+   produce, and elmo's text is the one to keep. `drizzle-kit generate` must then report "No schema changes".
 5. **Prove it.** `node packages/lib/scripts/check-migrations.mjs <pre-merge migrations dir> packages/lib/src/db/migrations`
    against a scratch `_test` database must print "All N migrations applied" and "All N indexes match the latest
    snapshot and RAW_INDEXES, and none was lost on upgrade", and a fresh `_test` database must apply every journal
    entry. CI runs the first as "Migrations apply on upgrade from the base commit". It is the only thing that catches
    a migration drizzle skipped, an index a dropped column took with it, or an index whose name drifted from the
-   snapshot's.
+   snapshot's. In the rehearsal, keeping elmo's file with its original `when` passed a fresh database and failed
+   this check with "did not apply on upgrade from the base branch".
+6. **Record the offset.** In the table above, note which of elmo's migrations now have which of our numbers. The
+   next catch-up repeats steps 2–5 for each migration elmo adds after the pin, because elmo's numbering stays
+   behind ours from here on.
 
 **Index builds lock writes.** drizzle runs every migration in one transaction, so `CREATE INDEX CONCURRENTLY` isn't
 possible through it, and an index migration blocks writes to its table while the index builds. That's acceptable
