@@ -75,7 +75,8 @@ export function CompetitorDirectory() {
 			{/* Feature Matrix */}
 			<section className="border-b border-zinc-200 bg-white py-12 lg:py-16">
 				<div className="mx-auto max-w-6xl px-4 md:px-6">
-					<h2 className="mb-8 text-lg font-semibold text-zinc-950">{filteredCompetitors.length} tools</h2>
+					{/* The matrix always draws Redemptia's own column next to the listed tools. */}
+					<h2 className="mb-8 text-lg font-semibold text-zinc-950">{filteredCompetitors.length + 1} tools</h2>
 					<FeatureMatrix competitors={filteredCompetitors} />
 				</div>
 			</section>
