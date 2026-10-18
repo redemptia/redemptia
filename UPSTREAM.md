@@ -137,6 +137,8 @@ while there are no production users. On a large table, use this escape hatch:
 
 ## Known gaps
 
+- [#85](https://github.com/redemptia/redemptia/issues/85): Jev judging has no spend cap, and a first real `TYPESAFE_API_KEY` starts four paid
+  paths at once (worker start, reprocessing on change, stub-to-real re-judging, subject recasing).
 - [#78](https://github.com/redemptia/redemptia/issues/78): competitor names aren't unique per brand, and a dashboard
   save re-creates the list (elmo's behaviour, back since #77).
 - [#80](https://github.com/redemptia/redemptia/issues/80): the cookie banner asks for an Advertising category nothing

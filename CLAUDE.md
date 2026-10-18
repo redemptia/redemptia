@@ -33,7 +33,7 @@ code), and the worker spends on its own: each start re-requests judging for the
 last 30 days of unjudged runs, and history is reprocessed back `REPROCESS_DAYS`
 (default 90) whenever the judge, the extractor or a brand's names or
 competitors change. Setting a real key anywhere is a separate, explicit
-decision. Until runs are judged, the Sentiment page is empty.
+decision, and nothing caps the spend yet ([#85](https://github.com/redemptia/redemptia/issues/85)). Until runs are judged, the Sentiment page is empty.
 
 ## Shared context
 
@@ -97,6 +97,7 @@ Facts and rules established across PRs, kept here so they reach whoever opens th
 - **Entitlement flags live in code.** `entitlementOverridesSchema` is `.strict()`, and a parse failure drops the whole payload, so ship a schema key before any data that uses it.
 
 ### Known gaps
+- #85: Jev judging has no spend cap; fix it before any real `TYPESAFE_API_KEY` is set.
 - #78: competitor names aren't unique per brand, and a dashboard save re-creates the list.
 - #80: the cookie banner asks for an Advertising category nothing reads; `packages/ui/src/lib/idle.ts` is unused.
 - #21: `requireBrandSession` has no test.
