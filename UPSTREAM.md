@@ -62,6 +62,19 @@ What differs from elmo, in brief (the table below has every change and why):
 Catching up is a 3-way merge of `upstream/main` into `main`, landed through a PR as a merge commit. Never replay our
 work onto upstream (the rebrand was editorial, not mechanical), never rebase, never squash.
 
+**Cadence (standing rule).** Every Monday, run steps 1 and 2: re-pin, and trial the merge in a scratch clone. Catch
+up that same week if elmo has added **any migration**, or **25 or more commits**, since the last pin. Never let two
+weeks pass without a catch-up.
+
+- **Why weekly.** Between `39d4700d` and `20954aa2`, elmo averaged about 7 commits a day, accelerating to 26 on the
+  last day, shipped five releases (0.6.1 to 0.7.2) in two days, and added five migrations in two days.
+- **Why not per release or monthly.** Per release would mean several catch-ups a day. Monthly would mean about 200
+  commits, twice the 94 that made the first catch-up hard.
+- **Why a migration triggers early.** Every migration we add makes each elmo migration still waiting, if it's dated
+  before ours, a silent skip (see [Migrations](#migrations)). The shorter that wait, the fewer migrations to
+  regenerate.
+- Monday is also when `skill-install.yaml` runs on its schedule.
+
 1. **Re-pin.** `git fetch upstream`, then `git rev-parse upstream/main` and `git rev-list --count <last pin>..upstream/main`.
    `git merge-base main upstream/main` must be the last pin above. Pin the new SHA; don't merge a moving branch.
 2. **Trial first.** In a scratch clone, `git merge --no-commit --no-ff <pin>`, then count changed and conflicted files
