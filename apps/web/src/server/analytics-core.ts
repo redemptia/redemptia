@@ -5,14 +5,12 @@
  */
 
 import { getModelMeta } from "@workspace/config/models";
-import { getDeploymentFeatures } from "@workspace/deployment";
 import { extractDomain, normalizeUrl } from "@workspace/lib/citations/domain-categories";
 import { classifyUrl as classifyUrlShared } from "@workspace/lib/citations/domain-lists";
 import { rollUpCitationDomains, rollUpCitationUrls } from "@workspace/lib/citations/rollup";
 import { db } from "@workspace/lib/db/db";
 import { brands, competitors } from "@workspace/lib/db/schema";
 import { subjectFingerprint } from "@workspace/lib/enrichment";
-import { SENTIMENT_ANALYZER_VERSION, type Stance, sentimentAvailable } from "@workspace/lib/enrichment/sentiment";
 import { loadBrandSubjects } from "@workspace/lib/enrichment/write";
 import { getEffectiveBrandedStatus } from "@workspace/lib/tag-utils";
 import { eq } from "drizzle-orm";
@@ -33,7 +31,6 @@ import {
 	getPerPromptDailyMentions,
 	getPromptsFirstEvaluatedAt,
 	getPromptsSummary,
-	getStanceSummary,
 	getVisibilityDailyAggregate,
 	isCalendarDay,
 } from "@/lib/postgres-read";
@@ -524,149 +521,6 @@ export async function getBrandMentionProminence(
 				averageRank: row ? row.avg_rank : null,
 			};
 		}),
-	};
-}
-
-export type StanceCounts = Record<Stance, number>;
-
-export interface SubjectStance {
-	key: string;
-	kind: "brand" | "competitor";
-	name: string;
-	/** Analysed runs' mentions of the subject, one per run that names it. */
-	mentions: number;
-	/** Of those, the ones with a judgement; every rate below is over these. */
-	judged: number;
-	stances: StanceCounts;
-	/**
-	 * (recommended − disrecommended − comparison_anchor) / judged, from −1 to 1.
-	 * Null when nothing is judged.
-	 */
-	netStanceRate: number | null;
-}
-
-export interface RiskEvidence {
-	runId: string;
-	model: string;
-	createdAt: string;
-	stance: "disrecommended" | "comparison_anchor";
-	/** The answer's own words, verbatim; null when the analyzer's quote wasn't. */
-	evidence: string | null;
-}
-
-export interface RiskPrompt {
-	promptId: string;
-	value: string;
-	/** Judged mentions of the brand in this prompt's answers. */
-	judged: number;
-	disrecommended: number;
-	comparisonAnchor: number;
-	caveated: number;
-	/** The newest few distinct answers that set the brand back, newest first. */
-	evidence: RiskEvidence[];
-}
-
-export interface BrandSentiment {
-	/** Whether this deployment is judging new answers. Stored judgements read either way. */
-	analysisEnabled: boolean;
-	/** The one analyzer version every figure here comes from. */
-	analyzerVersion: number;
-	coverage: {
-		/** Every run in the window. */
-		runs: number;
-		/** Runs whose answer has no text, so nothing to judge; in no denominator. */
-		blank: number;
-		/** Runs with answer text and a current mention analysis. */
-		analysed: number;
-		/** Subject mentions in analysed runs, and how many of them are judged. */
-		mentions: number;
-		judged: number;
-	};
-	subjects: SubjectStance[];
-	/**
-	 * Prompts whose answers disrecommend the brand or use it as the foil for a
-	 * competitor, most such answers first.
-	 */
-	riskPrompts: RiskPrompt[];
-}
-
-const emptyStances = (): StanceCounts => ({
-	recommended: 0,
-	mentioned_neutral: 0,
-	mentioned_caveated: 0,
-	disrecommended: 0,
-	comparison_anchor: 0,
-});
-
-/**
- * How answers treat the brand and each competitor, from stored stance
- * judgements of the current analyzer version only. Runs whose answer text is
- * NULL are counted in `coverage.blank` and kept out of every rate; a mention
- * not yet judged is counted in `coverage.mentions` and kept out of the stance
- * figures, never read as neutral.
- */
-export async function getBrandSentiment(
-	brandId: string,
-	window: AnalyticsWindow,
-	filters: AnalyticsFilters = {},
-): Promise<BrandSentiment> {
-	const [{ promptIds }, subjects] = await Promise.all([resolveScope(brandId, filters), loadBrandSubjects(db, brandId)]);
-	const empty = { runs: 0, blank: 0, analysed: 0, mentions: 0, judged: 0 };
-	const { from, to, timezone } = window;
-	const summary =
-		!subjects || promptIds.length === 0
-			? { coverage: empty, subjects: [], riskPrompts: [] }
-			: await getStanceSummary(
-					brandId,
-					from,
-					to,
-					timezone,
-					promptIds,
-					subjectFingerprint(subjects),
-					SENTIMENT_ANALYZER_VERSION,
-					filters.model,
-				);
-	const byKey = new Map(summary.subjects.map((row) => [row.subject_key, row]));
-	const ordered = [
-		...(subjects ?? []).filter((subject) => subject.kind === "brand"),
-		...(subjects ?? []).filter((subject) => subject.kind === "competitor").sort((a, b) => a.name.localeCompare(b.name)),
-	];
-
-	return {
-		analysisEnabled: sentimentAvailable(getDeploymentFeatures()),
-		analyzerVersion: SENTIMENT_ANALYZER_VERSION,
-		coverage: summary.coverage,
-		subjects: ordered.map((subject) => {
-			const row = byKey.get(subject.key);
-			const stances = emptyStances();
-			if (row) for (const stance of Object.keys(stances) as Stance[]) stances[stance] = row[stance];
-			const judged = row?.judged ?? 0;
-			return {
-				key: subject.key,
-				kind: subject.kind,
-				name: subject.name,
-				mentions: row?.mentions ?? 0,
-				judged,
-				stances,
-				netStanceRate:
-					judged === 0 ? null : (stances.recommended - stances.disrecommended - stances.comparison_anchor) / judged,
-			};
-		}),
-		riskPrompts: summary.riskPrompts.map((row) => ({
-			promptId: row.prompt_id,
-			value: row.value,
-			judged: row.judged,
-			disrecommended: row.disrecommended,
-			comparisonAnchor: row.comparison_anchor,
-			caveated: row.mentioned_caveated,
-			evidence: row.evidence.map((item) => ({
-				runId: item.run_id,
-				model: item.model,
-				createdAt: new Date(item.created_at).toISOString(),
-				stance: item.stance,
-				evidence: item.evidence,
-			})),
-		})),
 	};
 }
 

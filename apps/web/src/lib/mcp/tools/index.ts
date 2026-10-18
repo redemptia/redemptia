@@ -12,7 +12,6 @@ import {
 	getOpportunities,
 	getPromptPerformance,
 	getQueryFanout,
-	getSentiment,
 } from "./analytics";
 import { getBilling, getBrand, listBrandsTool, listCompetitorsTool } from "./brands";
 import type { McpTool } from "./define";
@@ -36,7 +35,6 @@ export const MCP_TOOLS: readonly McpTool[] = [
 	getAnalytics,
 	getPromptPerformance,
 	getMentionProminence,
-	getSentiment,
 	getCitations,
 	getQueryFanout,
 	getOpportunities,

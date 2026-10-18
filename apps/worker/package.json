@@ -9,9 +9,7 @@
 		"build": "tsc -p tsconfig.json",
 		"check-types": "tsc --noEmit",
 		"backfill:run-texts": "tsx --env-file=../web/.env scripts/backfill-run-texts.ts",
-		"backfill:run-mentions": "tsx --env-file=../web/.env scripts/backfill-run-mentions.ts",
-		"backfill:sentiment": "tsx --env-file=../web/.env scripts/backfill-sentiment.ts",
-		"eval:sentiment": "tsx --env-file=../web/.env scripts/eval-sentiment.ts"
+		"backfill:run-mentions": "tsx --env-file=../web/.env scripts/backfill-run-mentions.ts"
 	},
 	"dependencies": {
 		"@sentry/node": "^10.73.0",

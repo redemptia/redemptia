@@ -29,14 +29,7 @@ NULL-text runs here mean genuine blank answers or extraction failure,
 not provider divergence.
 
 ## Sentiment analyzer (decided 2026-10-13)
-Provider: Gemini's OpenAI-compatible endpoint, called directly with the
-analyzer's own SENTIMENT_API_KEY and SENTIMENT_BASE_URL, never the openai-api
-scraper's key. Model: gemini-3.5-flash-lite, falling back to
-gemini-3.1-flash-lite on a 429 or 5xx (env SENTIMENT_MODEL and
-SENTIMENT_FALLBACK_MODELS override). gemini-2.5-flash was the first choice,
-but Google no longer serves it to new keys. The endpoint reports tokens but no
-cost, so calls are priced from tokens. It runs only when SENTIMENT_API_KEY is
-set.
+Provider: openai-api. Model: gpt-5-mini (env SENTIMENT_MODEL).
 Hard enrichment spend ceiling: $2 per organization per day.
 This is separate from SCRAPE_TARGETS: scrape targets decide what text we
 capture, the analyzer decides what scores it.
@@ -104,4 +97,4 @@ Facts and rules established across PRs, kept here so they reach whoever opens th
 - **`analytics-core.ts` feeds the dashboard, REST and MCP.**
 - **`openapi.json` is hand-maintained.** A new v1 route needs it updated, then `pnpm lint:spec`.
 - **Entitlement flags live in code.** `entitlementOverridesSchema` is `.strict()`, and a parse failure drops the whole payload, so ship a schema key before any data that uses it.
-- **Enrichment has its own spend ceiling** (`isOrgOverEnrichmentCeiling` in `packages/lib/src/usage/ceiling.ts`): a per-org cap on `sentiment-analysis` event cost over a rolling 24 h, `ENRICHMENT_DAILY_CAP_USD` (default $2). Check it before every paid enrichment call. It's independent of the scraper ceiling.
+- **Enrichment has no spend ceiling of its own (#9).** Phase 1 is zero-spend by construction.

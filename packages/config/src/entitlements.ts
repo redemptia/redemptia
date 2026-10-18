@@ -58,8 +58,6 @@ export const entitlementOverridesSchema = z
 		premiumRunsPerDay: z.number().int().min(1).max(MAX_STANDARD_RUNS_PER_DAY).optional(),
 		/** Runs per firing for standard targets (cloud default 1). */
 		replication: z.number().int().min(1).max(10).optional(),
-		/** Turns model-judged sentiment on or off regardless of the plan. */
-		sentimentAnalysis: z.boolean().optional(),
 	})
 	.strict();
 
@@ -101,8 +99,6 @@ export interface Entitlements {
 	 */
 	premiumPool: number;
 	premiumRunsPerDay: number;
-	/** Whether answers are judged for stance and the sentiment read is served. */
-	sentimentAnalysis: boolean;
 }
 
 export const UNLIMITED_ENTITLEMENTS: Entitlements = {
@@ -118,7 +114,6 @@ export const UNLIMITED_ENTITLEMENTS: Entitlements = {
 	replication: null,
 	premiumPool: 0,
 	premiumRunsPerDay: PREMIUM_RUNS_PER_DAY,
-	sentimentAnalysis: true,
 };
 
 /** An unsubscribed cloud org: nothing may be created, nothing runs. */
@@ -135,7 +130,6 @@ export const NO_PLAN_ENTITLEMENTS: Entitlements = {
 	replication: 1,
 	premiumPool: 0,
 	premiumRunsPerDay: PREMIUM_RUNS_PER_DAY,
-	sentimentAnalysis: false,
 };
 
 export interface SubscriptionSnapshot {
@@ -201,18 +195,6 @@ function resolveBasePlan(
 	return standing === "none" ? null : { basePlan, standing };
 }
 
-/** The plan's included slots (or the override's), plus any add-on the plan or a custom agreement allows. */
-function premiumPool(
-	basePlan: (typeof PLANS)[PlanKey],
-	overrides: EntitlementOverrides,
-	isCustom: boolean,
-	addonQuantity: number,
-): number {
-	const included = overrides.premiumPoolIncluded ?? basePlan.premiumIncluded;
-	const addon = basePlan.premiumAddonAvailable || isCustom ? Math.max(0, Math.floor(addonQuantity)) : 0;
-	return included + addon;
-}
-
 export function resolveEntitlements(input: ResolveEntitlementsInput): Entitlements {
 	if (input.mode !== "cloud") return UNLIMITED_ENTITLEMENTS;
 
@@ -221,6 +203,10 @@ export function resolveEntitlements(input: ResolveEntitlementsInput): Entitlemen
 	const base = resolveBasePlan(input.subscription, isCustom, input.now);
 	if (!base) return NO_PLAN_ENTITLEMENTS;
 	const { basePlan, standing } = base;
+
+	const premiumIncluded = overrides.premiumPoolIncluded ?? basePlan.premiumIncluded;
+	const addonQuantity =
+		basePlan.premiumAddonAvailable || isCustom ? Math.max(0, Math.floor(input.premiumAddonQuantity)) : 0;
 
 	const menu = [...basePlan.platformMenu, ...(overrides.extraPlatforms ?? [])];
 
@@ -238,8 +224,7 @@ export function resolveEntitlements(input: ResolveEntitlementsInput): Entitlemen
 			MAX_STANDARD_RUNS_PER_DAY,
 		),
 		replication: overrides.replication ?? 1,
-		premiumPool: premiumPool(basePlan, overrides, isCustom, input.premiumAddonQuantity),
+		premiumPool: premiumIncluded + addonQuantity,
 		premiumRunsPerDay: Math.min(overrides.premiumRunsPerDay ?? PREMIUM_RUNS_PER_DAY, MAX_STANDARD_RUNS_PER_DAY),
-		sentimentAnalysis: overrides.sentimentAnalysis ?? basePlan.sentimentAnalysis,
 	};
 }

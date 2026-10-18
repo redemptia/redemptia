@@ -49,40 +49,6 @@ export const ENV_REGISTRY: EnvVarSpec[] = [
 		description: "PostgreSQL connection string.",
 	},
 	{
-		name: "SENTIMENT_API_KEY",
-		scope: "server",
-		requiredBy: "optional",
-		description:
-			"Key for the sentiment analyzer's endpoint (a Gemini API key by default). The analyzer runs only when it is set, and never shares the openai-api scraper's key.",
-	},
-	{
-		name: "SENTIMENT_BASE_URL",
-		scope: "server",
-		requiredBy: "optional",
-		description:
-			"OpenAI-compatible endpoint the sentiment analyzer calls (default https://generativelanguage.googleapis.com/v1beta/openai/, Gemini).",
-	},
-	{
-		name: "SENTIMENT_MODEL",
-		scope: "server",
-		requiredBy: "optional",
-		description: "Model id the sentiment analyzer asks SENTIMENT_BASE_URL for (default gemini-3.5-flash-lite).",
-	},
-	{
-		name: "SENTIMENT_FALLBACK_MODELS",
-		scope: "server",
-		requiredBy: "optional",
-		description:
-			'Comma-separated model ids the sentiment analyzer tries in order when the primary is rate limited or down (default gemini-3.1-flash-lite; "none" disables fallback).',
-	},
-	{
-		name: "ENRICHMENT_DAILY_CAP_USD",
-		scope: "server",
-		requiredBy: "optional",
-		description:
-			"Per-organization cap on enrichment (sentiment) spend, in USD over a rolling 24 hours (default 2). An invalid value falls back to the default.",
-	},
-	{
 		name: "DATABASE_POOL_MAX",
 		scope: "server",
 		requiredBy: "optional",

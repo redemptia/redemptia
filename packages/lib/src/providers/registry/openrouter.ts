@@ -86,7 +86,6 @@ export const openrouter: Provider = {
 		schema,
 		webSearch = true,
 		model = DEFAULT_RESEARCH_MODEL,
-		fallbackModels,
 	}: StructuredResearchOptions<T>): Promise<StructuredResearchResult<T>> {
 		// Raw fetch (no AI SDK) so we can attach the OpenRouter `plugins` field
 		// — the AI SDK's OpenAI-compat path doesn't pass it through.
@@ -94,11 +93,7 @@ export const openrouter: Provider = {
 			model,
 			messages: [{ role: "user", content: prompt }],
 			response_format: jsonSchemaResponseFormat(schema),
-			// Ask OpenRouter for the call's billed cost, so paid callers can cap
-			// spend from what was charged rather than an estimate.
-			usage: { include: true },
 		};
-		if (fallbackModels?.length) body.models = [model, ...fallbackModels];
 		// `engine: "native"` runs the underlying provider's real web-search tool
 		// (e.g. Anthropic's web_search_20250305) instead of the Exa fallback.
 		if (webSearch) body.plugins = [{ id: "web", engine: "native" }];
@@ -115,23 +110,12 @@ export const openrouter: Provider = {
 		if (typeof content !== "string") {
 			throw new Error(`OpenRouter returned no JSON content (model=${model})`);
 		}
-		const usage = data?.usage;
 		return {
 			object: parseSchemaJson(schema, content),
 			// Report the alias we sent, not OpenRouter's resolved version
 			// (e.g. "openai/gpt-5-mini" vs "openai/gpt-5-mini-2025-08-07") —
 			// matches what openai-api and anthropic-api do.
 			modelVersion: model,
-			...(typeof data?.model === "string" ? { servedModel: data.model } : {}),
-			...(usage
-				? {
-						usage: {
-							inputTokens: Number(usage.prompt_tokens ?? 0),
-							outputTokens: Number(usage.completion_tokens ?? 0),
-							...(typeof usage.cost === "number" ? { costUsd: usage.cost } : {}),
-						},
-					}
-				: {}),
 		};
 	},
 

@@ -1,11 +1,9 @@
 import * as Sentry from "@sentry/node";
 import { getDeploymentFeatures } from "@workspace/deployment";
-import { MENTION_RECOMPUTE_QUEUE, SENTIMENT_QUEUE, SENTIMENT_SWEEP_QUEUE } from "@workspace/lib/constants";
-import { type SentimentBatch, sentimentAvailable } from "@workspace/lib/enrichment/sentiment";
+import { MENTION_RECOMPUTE_QUEUE } from "@workspace/lib/constants";
 import type { OnboardingSuggestion } from "@workspace/lib/onboarding";
 import type { Job, PgBoss } from "pg-boss";
 import { type AnalyzeBrandData, analyzeBrandJob } from "./jobs/analyze-brand";
-import { analyzeSentimentJob, sentimentSweepJob } from "./jobs/analyze-sentiment";
 import { type GenerateReportData, generateReportJob } from "./jobs/generate-report";
 import { type ProcessPromptData, processPromptJob } from "./jobs/process-prompt";
 import { type RecomputeBrandMentionsData, recomputeBrandMentionsJob } from "./jobs/recompute-brand-mentions";
@@ -69,22 +67,6 @@ export async function registerHandlers(boss: PgBoss): Promise<void> {
 			withSentry(MENTION_RECOMPUTE_QUEUE, recomputeBrandMentionsJob),
 		);
 		console.log(`Registered handler: ${MENTION_RECOMPUTE_QUEUE}`);
-	}
-
-	// Paid model calls: one batch at a time, and only where the analyzer has a
-	// provider. Without one nothing is registered and nothing is queued.
-	if (sentimentAvailable(getDeploymentFeatures())) {
-		await boss.work<SentimentBatch>(
-			SENTIMENT_QUEUE,
-			{ batchSize: 1, localConcurrency: 1 },
-			withSentry(SENTIMENT_QUEUE, analyzeSentimentJob),
-		);
-		await boss.work(
-			SENTIMENT_SWEEP_QUEUE,
-			{ localConcurrency: 1 },
-			withSentry(SENTIMENT_SWEEP_QUEUE, sentimentSweepJob),
-		);
-		console.log(`Registered handlers: ${SENTIMENT_QUEUE}, ${SENTIMENT_SWEEP_QUEUE}`);
 	}
 
 	await boss.work<ScheduleMaintenanceData>(

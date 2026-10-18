@@ -292,58 +292,6 @@ export const runMentionAnalyses = pgTable("run_mention_analyses", {
 	subjectFingerprint: text("subject_fingerprint").notNull(),
 }).enableRLS();
 
-export const stanceEnum = pgEnum("stance", [
-	"recommended",
-	"mentioned_neutral",
-	"mentioned_caveated",
-	"disrecommended",
-	"comparison_anchor",
-]);
-
-export const stanceJudgementStatusEnum = pgEnum("stance_judgement_status", ["pending", "done", "failed"]);
-
-/**
- * Paid model judgements of how an answer treats a subject, cached by what was
- * judged rather than by any run or competitor id. The unique key does four
- * jobs at once:
- * - replications with identical answer text share one judgement;
- * - a retried or concurrent job finds the row already claimed and makes no
- *   second paid call;
- * - a competitor whose id changes on a dashboard rename (#24) keeps its
- *   judgements, because they're keyed by name;
- * - case and whitespace variants of a name (#12) share one judgement.
- *
- * A row is claimed as `pending` before the call, so the key, not the queue,
- * is what stops a duplicate call; `failed` and long-stale `pending` rows may be
- * claimed again.
- */
-export const stanceJudgements = pgTable(
-	"stance_judgements",
-	{
-		id: uuid("id").defaultRandom().primaryKey().notNull(),
-		contentHash: text("content_hash").notNull(),
-		subjectName: text("subject_name").notNull(),
-		analyzerVersion: smallint("analyzer_version").notNull(),
-		analyzerModel: text("analyzer_model").notNull(),
-		status: stanceJudgementStatusEnum("status").notNull(),
-		stance: stanceEnum("stance"),
-		role: text("role"),
-		confidence: doublePrecision("confidence"),
-		// A 10–30 word span copied verbatim from the answer; null when the model's
-		// span wasn't verbatim, rather than storing a quote the answer never said.
-		evidence: text("evidence"),
-		createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-		updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
-	},
-	(table) => ({
-		judgementKey: uniqueIndex("stance_judgements_key").on(
-			table.contentHash,
-			sql`lower(btrim(${table.subjectName}))`,
-			table.analyzerVersion,
-		),
-	}),
-).enableRLS();
-
 export const reports = pgTable(
 	"reports",
 	{
@@ -468,10 +416,6 @@ export const usageEvents = pgTable(
 		webSearchEnabled: boolean("web_search_enabled").notNull().default(false),
 		units: integer("units").notNull().default(1),
 		estimatedCostUsd: numeric("estimated_cost_usd", { precision: 12, scale: 6 }),
-		// Raw token counts for token-billed calls, kept so cost can be re-derived
-		// when a price changes instead of trusting the dollar figure stamped above.
-		inputTokens: integer("input_tokens"),
-		outputTokens: integer("output_tokens"),
 		createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 	},
 	(table) => ({

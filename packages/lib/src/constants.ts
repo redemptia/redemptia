@@ -54,20 +54,6 @@ export const MAX_PROMPTS = 100;
  */
 export const WEB_QUERIES_UNAVAILABLE = "unavailable";
 
-export const SENTIMENT_QUEUE = "analyze-sentiment";
-export const SENTIMENT_SWEEP_QUEUE = "sentiment-sweep";
-
-/**
- * Two retries on its own queue. A retried batch re-claims only what failed, so
- * it never pays twice for a judgement that landed.
- */
-export const SENTIMENT_QUEUE_OPTIONS = {
-	retryLimit: 2,
-	retryDelay: 60,
-	retryBackoff: true,
-	expireInSeconds: 30 * 60,
-} as const;
-
 export const MENTION_RECOMPUTE_QUEUE = "recompute-brand-mentions";
 
 /**

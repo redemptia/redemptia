@@ -31,7 +31,6 @@
 		"./mentions": "./src/mentions.ts",
 		"./enrichment": "./src/enrichment/index.ts",
 		"./enrichment/write": "./src/enrichment/write.ts",
-		"./enrichment/sentiment": "./src/enrichment/sentiment/index.ts",
 		"./enrichment/reconcile": "./src/enrichment/reconcile.ts",
 		"./tag-utils": "./src/tag-utils.ts",
 		"./bulk-prompts": "./src/bulk-prompts.ts",
@@ -45,7 +44,6 @@
 		"./run-policy": "./src/run-policy/index.ts",
 		"./usage": "./src/usage/cost.ts",
 		"./usage/ceiling": "./src/usage/ceiling.ts",
-		"./usage/events": "./src/usage/events.ts",
 		"./citations/domain-categories": "./src/citations/domain-categories.ts",
 		"./citations/domain-lists": "./src/citations/domain-lists.ts",
 		"./citations/rollup": "./src/citations/rollup.ts"

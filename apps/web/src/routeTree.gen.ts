@@ -64,7 +64,6 @@ import { Route as ApiV1BrandsBrandIdMentionProminenceRouteImport } from './route
 import { Route as ApiV1BrandsBrandIdOpportunitiesRouteImport } from './routes/api/v1/brands/$brandId/opportunities'
 import { Route as ApiV1BrandsBrandIdPromptPerformanceRouteImport } from './routes/api/v1/brands/$brandId/prompt-performance'
 import { Route as ApiV1BrandsBrandIdQueryFanoutRouteImport } from './routes/api/v1/brands/$brandId/query-fanout'
-import { Route as ApiV1BrandsBrandIdSentimentRouteImport } from './routes/api/v1/brands/$brandId/sentiment'
 import { Route as ApiV1OrganizationsOrganizationIdBillingRouteImport } from './routes/api/v1/organizations/$organizationId/billing'
 import { Route as ApiV1PromptsPromptIdSnapshotRouteImport } from './routes/api/v1/prompts/$promptId/snapshot'
 import { Route as AuthedAppOrgOrgBrandBrandRouteImport } from './routes/_authed/app/org/$org/brand/$brand'
@@ -87,7 +86,6 @@ import { Route as AuthedAppOrgOrgBrandBrandMentionsRouteImport } from './routes/
 import { Route as AuthedAppOrgOrgBrandBrandOpportunitiesRouteImport } from './routes/_authed/app/org/$org/brand/$brand/opportunities'
 import { Route as AuthedAppOrgOrgBrandBrandQueryFanOutRouteImport } from './routes/_authed/app/org/$org/brand/$brand/query-fan-out'
 import { Route as AuthedAppOrgOrgBrandBrandResponsesRouteImport } from './routes/_authed/app/org/$org/brand/$brand/responses'
-import { Route as AuthedAppOrgOrgBrandBrandSentimentRouteImport } from './routes/_authed/app/org/$org/brand/$brand/sentiment'
 import { Route as AuthedAppOrgOrgBrandBrandShareOfVoiceRouteImport } from './routes/_authed/app/org/$org/brand/$brand/share-of-voice'
 import { Route as AuthedAppOrgOrgBrandBrandVisibilityRouteImport } from './routes/_authed/app/org/$org/brand/$brand/visibility'
 import { Route as AuthedAppOrgOrgBrandBrandPromptsIndexRouteImport } from './routes/_authed/app/org/$org/brand/$brand/prompts/index'
@@ -387,12 +385,6 @@ const ApiV1BrandsBrandIdQueryFanoutRoute =
     path: '/query-fanout',
     getParentRoute: () => ApiV1BrandsBrandIdRoute,
   } as any)
-const ApiV1BrandsBrandIdSentimentRoute =
-  ApiV1BrandsBrandIdSentimentRouteImport.update({
-    id: '/sentiment',
-    path: '/sentiment',
-    getParentRoute: () => ApiV1BrandsBrandIdRoute,
-  } as any)
 const ApiV1OrganizationsOrganizationIdBillingRoute =
   ApiV1OrganizationsOrganizationIdBillingRouteImport.update({
     id: '/billing',
@@ -525,12 +517,6 @@ const AuthedAppOrgOrgBrandBrandResponsesRoute =
     path: '/responses',
     getParentRoute: () => AuthedAppOrgOrgBrandBrandRoute,
   } as any)
-const AuthedAppOrgOrgBrandBrandSentimentRoute =
-  AuthedAppOrgOrgBrandBrandSentimentRouteImport.update({
-    id: '/sentiment',
-    path: '/sentiment',
-    getParentRoute: () => AuthedAppOrgOrgBrandBrandRoute,
-  } as any)
 const AuthedAppOrgOrgBrandBrandShareOfVoiceRoute =
   AuthedAppOrgOrgBrandBrandShareOfVoiceRouteImport.update({
     id: '/share-of-voice',
@@ -645,7 +631,6 @@ export interface FileRoutesByFullPath {
   '/api/v1/brands/$brandId/opportunities': typeof ApiV1BrandsBrandIdOpportunitiesRoute
   '/api/v1/brands/$brandId/prompt-performance': typeof ApiV1BrandsBrandIdPromptPerformanceRoute
   '/api/v1/brands/$brandId/query-fanout': typeof ApiV1BrandsBrandIdQueryFanoutRoute
-  '/api/v1/brands/$brandId/sentiment': typeof ApiV1BrandsBrandIdSentimentRoute
   '/api/v1/organizations/$organizationId/billing': typeof ApiV1OrganizationsOrganizationIdBillingRoute
   '/api/v1/prompts/$promptId/snapshot': typeof ApiV1PromptsPromptIdSnapshotRoute
   '/app/org/$org/': typeof AuthedAppOrgOrgIndexRoute
@@ -669,7 +654,6 @@ export interface FileRoutesByFullPath {
   '/app/org/$org/brand/$brand/opportunities': typeof AuthedAppOrgOrgBrandBrandOpportunitiesRoute
   '/app/org/$org/brand/$brand/query-fan-out': typeof AuthedAppOrgOrgBrandBrandQueryFanOutRoute
   '/app/org/$org/brand/$brand/responses': typeof AuthedAppOrgOrgBrandBrandResponsesRoute
-  '/app/org/$org/brand/$brand/sentiment': typeof AuthedAppOrgOrgBrandBrandSentimentRoute
   '/app/org/$org/brand/$brand/share-of-voice': typeof AuthedAppOrgOrgBrandBrandShareOfVoiceRoute
   '/app/org/$org/brand/$brand/visibility': typeof AuthedAppOrgOrgBrandBrandVisibilityRoute
   '/app/org/$org/brand/$brand/': typeof AuthedAppOrgOrgBrandBrandIndexRoute
@@ -730,7 +714,6 @@ export interface FileRoutesByTo {
   '/api/v1/brands/$brandId/opportunities': typeof ApiV1BrandsBrandIdOpportunitiesRoute
   '/api/v1/brands/$brandId/prompt-performance': typeof ApiV1BrandsBrandIdPromptPerformanceRoute
   '/api/v1/brands/$brandId/query-fanout': typeof ApiV1BrandsBrandIdQueryFanoutRoute
-  '/api/v1/brands/$brandId/sentiment': typeof ApiV1BrandsBrandIdSentimentRoute
   '/api/v1/organizations/$organizationId/billing': typeof ApiV1OrganizationsOrganizationIdBillingRoute
   '/api/v1/prompts/$promptId/snapshot': typeof ApiV1PromptsPromptIdSnapshotRoute
   '/app/org/$org': typeof AuthedAppOrgOrgIndexRoute
@@ -753,7 +736,6 @@ export interface FileRoutesByTo {
   '/app/org/$org/brand/$brand/opportunities': typeof AuthedAppOrgOrgBrandBrandOpportunitiesRoute
   '/app/org/$org/brand/$brand/query-fan-out': typeof AuthedAppOrgOrgBrandBrandQueryFanOutRoute
   '/app/org/$org/brand/$brand/responses': typeof AuthedAppOrgOrgBrandBrandResponsesRoute
-  '/app/org/$org/brand/$brand/sentiment': typeof AuthedAppOrgOrgBrandBrandSentimentRoute
   '/app/org/$org/brand/$brand/share-of-voice': typeof AuthedAppOrgOrgBrandBrandShareOfVoiceRoute
   '/app/org/$org/brand/$brand/visibility': typeof AuthedAppOrgOrgBrandBrandVisibilityRoute
   '/app/org/$org/brand/$brand': typeof AuthedAppOrgOrgBrandBrandIndexRoute
@@ -821,7 +803,6 @@ export interface FileRoutesById {
   '/api/v1/brands/$brandId/opportunities': typeof ApiV1BrandsBrandIdOpportunitiesRoute
   '/api/v1/brands/$brandId/prompt-performance': typeof ApiV1BrandsBrandIdPromptPerformanceRoute
   '/api/v1/brands/$brandId/query-fanout': typeof ApiV1BrandsBrandIdQueryFanoutRoute
-  '/api/v1/brands/$brandId/sentiment': typeof ApiV1BrandsBrandIdSentimentRoute
   '/api/v1/organizations/$organizationId/billing': typeof ApiV1OrganizationsOrganizationIdBillingRoute
   '/api/v1/prompts/$promptId/snapshot': typeof ApiV1PromptsPromptIdSnapshotRoute
   '/_authed/app/org/$org/': typeof AuthedAppOrgOrgIndexRoute
@@ -845,7 +826,6 @@ export interface FileRoutesById {
   '/_authed/app/org/$org/brand/$brand/opportunities': typeof AuthedAppOrgOrgBrandBrandOpportunitiesRoute
   '/_authed/app/org/$org/brand/$brand/query-fan-out': typeof AuthedAppOrgOrgBrandBrandQueryFanOutRoute
   '/_authed/app/org/$org/brand/$brand/responses': typeof AuthedAppOrgOrgBrandBrandResponsesRoute
-  '/_authed/app/org/$org/brand/$brand/sentiment': typeof AuthedAppOrgOrgBrandBrandSentimentRoute
   '/_authed/app/org/$org/brand/$brand/share-of-voice': typeof AuthedAppOrgOrgBrandBrandShareOfVoiceRoute
   '/_authed/app/org/$org/brand/$brand/visibility': typeof AuthedAppOrgOrgBrandBrandVisibilityRoute
   '/_authed/app/org/$org/brand/$brand/': typeof AuthedAppOrgOrgBrandBrandIndexRoute
@@ -913,7 +893,6 @@ export interface FileRouteTypes {
     | '/api/v1/brands/$brandId/opportunities'
     | '/api/v1/brands/$brandId/prompt-performance'
     | '/api/v1/brands/$brandId/query-fanout'
-    | '/api/v1/brands/$brandId/sentiment'
     | '/api/v1/organizations/$organizationId/billing'
     | '/api/v1/prompts/$promptId/snapshot'
     | '/app/org/$org/'
@@ -937,7 +916,6 @@ export interface FileRouteTypes {
     | '/app/org/$org/brand/$brand/opportunities'
     | '/app/org/$org/brand/$brand/query-fan-out'
     | '/app/org/$org/brand/$brand/responses'
-    | '/app/org/$org/brand/$brand/sentiment'
     | '/app/org/$org/brand/$brand/share-of-voice'
     | '/app/org/$org/brand/$brand/visibility'
     | '/app/org/$org/brand/$brand/'
@@ -998,7 +976,6 @@ export interface FileRouteTypes {
     | '/api/v1/brands/$brandId/opportunities'
     | '/api/v1/brands/$brandId/prompt-performance'
     | '/api/v1/brands/$brandId/query-fanout'
-    | '/api/v1/brands/$brandId/sentiment'
     | '/api/v1/organizations/$organizationId/billing'
     | '/api/v1/prompts/$promptId/snapshot'
     | '/app/org/$org'
@@ -1021,7 +998,6 @@ export interface FileRouteTypes {
     | '/app/org/$org/brand/$brand/opportunities'
     | '/app/org/$org/brand/$brand/query-fan-out'
     | '/app/org/$org/brand/$brand/responses'
-    | '/app/org/$org/brand/$brand/sentiment'
     | '/app/org/$org/brand/$brand/share-of-voice'
     | '/app/org/$org/brand/$brand/visibility'
     | '/app/org/$org/brand/$brand'
@@ -1088,7 +1064,6 @@ export interface FileRouteTypes {
     | '/api/v1/brands/$brandId/opportunities'
     | '/api/v1/brands/$brandId/prompt-performance'
     | '/api/v1/brands/$brandId/query-fanout'
-    | '/api/v1/brands/$brandId/sentiment'
     | '/api/v1/organizations/$organizationId/billing'
     | '/api/v1/prompts/$promptId/snapshot'
     | '/_authed/app/org/$org/'
@@ -1112,7 +1087,6 @@ export interface FileRouteTypes {
     | '/_authed/app/org/$org/brand/$brand/opportunities'
     | '/_authed/app/org/$org/brand/$brand/query-fan-out'
     | '/_authed/app/org/$org/brand/$brand/responses'
-    | '/_authed/app/org/$org/brand/$brand/sentiment'
     | '/_authed/app/org/$org/brand/$brand/share-of-voice'
     | '/_authed/app/org/$org/brand/$brand/visibility'
     | '/_authed/app/org/$org/brand/$brand/'
@@ -1550,13 +1524,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiV1BrandsBrandIdQueryFanoutRouteImport
       parentRoute: typeof ApiV1BrandsBrandIdRoute
     }
-    '/api/v1/brands/$brandId/sentiment': {
-      id: '/api/v1/brands/$brandId/sentiment'
-      path: '/sentiment'
-      fullPath: '/api/v1/brands/$brandId/sentiment'
-      preLoaderRoute: typeof ApiV1BrandsBrandIdSentimentRouteImport
-      parentRoute: typeof ApiV1BrandsBrandIdRoute
-    }
     '/api/v1/organizations/$organizationId/billing': {
       id: '/api/v1/organizations/$organizationId/billing'
       path: '/billing'
@@ -1711,13 +1678,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedAppOrgOrgBrandBrandResponsesRouteImport
       parentRoute: typeof AuthedAppOrgOrgBrandBrandRoute
     }
-    '/_authed/app/org/$org/brand/$brand/sentiment': {
-      id: '/_authed/app/org/$org/brand/$brand/sentiment'
-      path: '/sentiment'
-      fullPath: '/app/org/$org/brand/$brand/sentiment'
-      preLoaderRoute: typeof AuthedAppOrgOrgBrandBrandSentimentRouteImport
-      parentRoute: typeof AuthedAppOrgOrgBrandBrandRoute
-    }
     '/_authed/app/org/$org/brand/$brand/share-of-voice': {
       id: '/_authed/app/org/$org/brand/$brand/share-of-voice'
       path: '/share-of-voice'
@@ -1840,7 +1800,6 @@ interface AuthedAppOrgOrgBrandBrandRouteChildren {
   AuthedAppOrgOrgBrandBrandOpportunitiesRoute: typeof AuthedAppOrgOrgBrandBrandOpportunitiesRoute
   AuthedAppOrgOrgBrandBrandQueryFanOutRoute: typeof AuthedAppOrgOrgBrandBrandQueryFanOutRoute
   AuthedAppOrgOrgBrandBrandResponsesRoute: typeof AuthedAppOrgOrgBrandBrandResponsesRoute
-  AuthedAppOrgOrgBrandBrandSentimentRoute: typeof AuthedAppOrgOrgBrandBrandSentimentRoute
   AuthedAppOrgOrgBrandBrandShareOfVoiceRoute: typeof AuthedAppOrgOrgBrandBrandShareOfVoiceRoute
   AuthedAppOrgOrgBrandBrandVisibilityRoute: typeof AuthedAppOrgOrgBrandBrandVisibilityRoute
   AuthedAppOrgOrgBrandBrandIndexRoute: typeof AuthedAppOrgOrgBrandBrandIndexRoute
@@ -1867,8 +1826,6 @@ const AuthedAppOrgOrgBrandBrandRouteChildren: AuthedAppOrgOrgBrandBrandRouteChil
       AuthedAppOrgOrgBrandBrandQueryFanOutRoute,
     AuthedAppOrgOrgBrandBrandResponsesRoute:
       AuthedAppOrgOrgBrandBrandResponsesRoute,
-    AuthedAppOrgOrgBrandBrandSentimentRoute:
-      AuthedAppOrgOrgBrandBrandSentimentRoute,
     AuthedAppOrgOrgBrandBrandShareOfVoiceRoute:
       AuthedAppOrgOrgBrandBrandShareOfVoiceRoute,
     AuthedAppOrgOrgBrandBrandVisibilityRoute:
@@ -1971,7 +1928,6 @@ interface ApiV1BrandsBrandIdRouteChildren {
   ApiV1BrandsBrandIdOpportunitiesRoute: typeof ApiV1BrandsBrandIdOpportunitiesRoute
   ApiV1BrandsBrandIdPromptPerformanceRoute: typeof ApiV1BrandsBrandIdPromptPerformanceRoute
   ApiV1BrandsBrandIdQueryFanoutRoute: typeof ApiV1BrandsBrandIdQueryFanoutRoute
-  ApiV1BrandsBrandIdSentimentRoute: typeof ApiV1BrandsBrandIdSentimentRoute
   ApiV1BrandsBrandIdCitationsDomainsRoute: typeof ApiV1BrandsBrandIdCitationsDomainsRoute
   ApiV1BrandsBrandIdCitationsUrlsRoute: typeof ApiV1BrandsBrandIdCitationsUrlsRoute
   ApiV1BrandsBrandIdTagsIndexRoute: typeof ApiV1BrandsBrandIdTagsIndexRoute
@@ -1985,7 +1941,6 @@ const ApiV1BrandsBrandIdRouteChildren: ApiV1BrandsBrandIdRouteChildren = {
   ApiV1BrandsBrandIdPromptPerformanceRoute:
     ApiV1BrandsBrandIdPromptPerformanceRoute,
   ApiV1BrandsBrandIdQueryFanoutRoute: ApiV1BrandsBrandIdQueryFanoutRoute,
-  ApiV1BrandsBrandIdSentimentRoute: ApiV1BrandsBrandIdSentimentRoute,
   ApiV1BrandsBrandIdCitationsDomainsRoute:
     ApiV1BrandsBrandIdCitationsDomainsRoute,
   ApiV1BrandsBrandIdCitationsUrlsRoute: ApiV1BrandsBrandIdCitationsUrlsRoute,
