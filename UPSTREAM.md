@@ -170,6 +170,15 @@ while there are no production users. On a large table, use this escape hatch:
 
 ## Known gaps
 
+- [#16](https://github.com/redemptia/redemptia/issues/16): response search over `run_extractions.text_content` still reads
+  every in-scope answer: `pg_trgm` isn't installed, `run_extractions` has only its primary key, and `count(*) OVER ()`
+  reads every match before the page limit. #79 fixed correctness; the performance half is upstream's shape.
+- [#26](https://github.com/redemptia/redemptia/issues/26): share of voice's `getPerPromptDailyCompetitors` takes ~692 ms at
+  ~566k rollup rows. The 15-minute buckets barely compress (about one row per run per competitor), the query reduces
+  them to ~251k groups, sorts on a text key, spills ~12 MB at the default `work_mem`, and returns all 251k rows.
+  **Not the same as #88**: #88 is join cost on the Responses page, #26 is a group-and-sort in share of voice.
+- [#91](https://github.com/redemptia/redemptia/issues/91): nothing ages out run data; `prompt_runs`, `raw_output`,
+  extractions, mentions, citations and rollups grow forever.
 - [#88](https://github.com/redemptia/redemptia/issues/88): Responses deep pages and sentiment counts are join-bound,
   about 90 ms at 4.4M runs, with or without an index.
 - [#85](https://github.com/redemptia/redemptia/issues/85): Jev judging has no spend cap, and a first real `TYPESAFE_API_KEY` starts four paid

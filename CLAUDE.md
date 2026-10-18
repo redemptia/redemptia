@@ -121,6 +121,9 @@ This map is derived from the pull-request workflows in `.github/workflows/`. `sc
 - **Entitlement flags live in code.** `entitlementOverridesSchema` is `.strict()`, and a parse failure drops the whole payload, so ship a schema key before any data that uses it.
 
 ### Known gaps
+- #16: response search over `run_extractions.text_content` still reads every in-scope answer: `pg_trgm` isn't installed, `run_extractions` has only its primary key, and `count(*) OVER ()` reads every match before the page limit. #79 fixed correctness; the performance half is upstream's shape.
+- #26: share of voice's `getPerPromptDailyCompetitors` takes ~692 ms at ~566k rollup rows. The 15-minute buckets barely compress (about one row per run per competitor), the query reduces them to ~251k groups, sorts on a text key, spills ~12 MB at the default `work_mem`, and returns all 251k rows. This is not #88: #88 is join cost on the Responses page, #26 is a group-and-sort in share of voice.
+- #91: nothing ages out run data; `prompt_runs`, `raw_output`, extractions, mentions, citations and rollups grow forever.
 - #88: Responses deep pages and sentiment counts are join-bound, about 90 ms at 4.4M runs, with or without an index.
 - #85: Jev judging has no spend cap; fix it before any real `TYPESAFE_API_KEY` is set.
 - #78: competitor names aren't unique per brand, and a dashboard save re-creates the list.
