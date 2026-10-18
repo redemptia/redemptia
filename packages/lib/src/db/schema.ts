@@ -112,13 +112,8 @@ export const competitors = pgTable(
 			.notNull(),
 	},
 	(table) => ({
-		// The key a brand-wide save matches rows on, so an unchanged competitor keeps
-		// its id. Normalised as mention matching is, so "Acme" and "acme " can't be
-		// two competitors that match the same answers.
-		brandNameUnique: uniqueIndex("competitors_brand_id_name_unique").on(
-			table.brandId,
-			sql`lower(btrim(${table.name}))`,
-		),
+		// The key a brand-wide save matches rows on, so an unchanged competitor keeps its id.
+		brandNameUnique: unique("competitors_brand_id_name_unique").on(table.brandId, table.name),
 	}),
 ).enableRLS();
 

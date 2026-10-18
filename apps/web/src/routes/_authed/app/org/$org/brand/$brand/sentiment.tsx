@@ -16,7 +16,6 @@ import { BrandPromptLink } from "@/components/brand-prompt-link";
 import { ColHead } from "@/components/col-head";
 import { ALL_MODELS_VALUE, FilterBar } from "@/components/filter-bar";
 import { FilterSection, PageHeader } from "@/components/page-header";
-import { RetentionNote } from "@/components/retention-note";
 import { useBrandId } from "@/hooks/use-brand-id";
 import { useBrandSentiment } from "@/hooks/use-brand-sentiment";
 import { useBrand } from "@/hooks/use-brands";
@@ -75,7 +74,6 @@ function Coverage({ data }: { data: BrandSentiment }) {
 					: "Only judged mentions are counted below. The rest are not judged yet, which is not the same as neutral, and they are left out rather than counted."}
 				{blank > 0 &&
 					` ${blank.toLocaleString()} ${blank === 1 ? "run" : "runs"} had no answer text, so there was nothing to judge; they are left out of every figure.`}
-				<RetentionNote retainedFrom={data.coverage.retainedFrom} />
 			</AlertDescription>
 		</Alert>
 	);

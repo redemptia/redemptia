@@ -93,32 +93,4 @@ describe("saving a brand's competitors", () => {
 
 		expect(isCompetitorNameTaken(error)).toBe(true);
 	});
-
-	it("reports a competitor that differs only in case or surrounding whitespace as a name conflict", async () => {
-		const brandId = await brand();
-		await createCompetitor(brandId, "Acme", ["acme.example"]);
-
-		for (const variant of ["acme", " ACME "]) {
-			const error = await createCompetitor(brandId, variant, ["acme.io"]).catch((err: unknown) => err);
-			expect(isCompetitorNameTaken(error), variant).toBe(true);
-		}
-	});
-
-	it("refuses a list that names one competitor twice in different cases", async () => {
-		const brandId = await brand();
-		await expect(setBrandCompetitors(brandId, [competitor("Acme"), competitor("acme", "acme.io")])).rejects.toThrow(
-			"is listed more than once.",
-		);
-	});
-
-	it("keeps a competitor's id through a case-only rename, storing the new spelling", async () => {
-		const brandId = await brand();
-		const before = await save(brandId, [competitor("acme"), competitor("Globex")]);
-
-		const after = await save(brandId, [competitor("Acme"), competitor("Globex")]);
-
-		expect(after.get("Acme")?.id).toBe(before.get("acme")?.id);
-		expect(after.has("acme")).toBe(false);
-		expect(after.get("Globex")?.id).toBe(before.get("Globex")?.id);
-	});
 });

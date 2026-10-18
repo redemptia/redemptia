@@ -7,7 +7,7 @@ import { db } from "@workspace/lib/db/db";
 import type { DbConnection } from "@workspace/lib/db/db-connection";
 import { ensureOrganization } from "@workspace/lib/db/provisioning";
 import { brands, competitors, prompts } from "@workspace/lib/db/schema";
-import { claimNewBrandSlug, competitorNameKey, findUnusedBrandSlug } from "@workspace/lib/db/unique-names";
+import { claimNewBrandSlug, findUnusedBrandSlug } from "@workspace/lib/db/unique-names";
 import { touchesSubjects } from "@workspace/lib/enrichment";
 import {
 	assertCanAddPrompts,
@@ -209,7 +209,7 @@ async function insertCompetitors(args: {
 	const existingDomains = new Set(existing.flatMap((c) => c.domains));
 	// A brand can't hold two competitors with one name, so a suggestion that repeats
 	// a name is skipped the same way one that repeats a domain is.
-	const takenNames = new Set(existing.map((c) => competitorNameKey(c.name)));
+	const takenNames = new Set(existing.map((c) => c.name));
 
 	const toInsert: Array<{ brandId: string; name: string; domains: string[]; aliases: string[] }> = [];
 	for (const c of args.source) {
@@ -217,8 +217,8 @@ async function insertCompetitors(args: {
 		if (cleaned.length === 0) continue;
 		if (cleaned.some((d) => existingDomains.has(d))) continue;
 		const name = c.name.trim();
-		if (takenNames.has(competitorNameKey(name))) continue;
-		takenNames.add(competitorNameKey(name));
+		if (takenNames.has(name)) continue;
+		takenNames.add(name);
 		toInsert.push({
 			brandId: args.brandId,
 			name,

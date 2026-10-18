@@ -17,9 +17,6 @@ const WINDOW = { from: "2026-10-01T00:00:00Z", to: "2026-10-02T00:00:00Z", timez
 // must rank 3 rather than 2.
 const ANALYSED = ["Globex leads, then Acme.", "Acme alone.", "Acme Labs and Acme, then Globex."];
 const NOT_ANALYSED = ["Initech, Initech.", "Initech wins.", "Initech again.", "Initech, re-extracted."];
-// No answer text: it gets a marker like any run, but has nothing to mention
-// anyone in, so it must count as blank rather than as analysed with no mentions.
-const BLANK = "";
 
 let brandId: string;
 let runIds: string[];
@@ -31,7 +28,7 @@ beforeAll(async () => {
 	await createCompetitor(brandId, "Acme Labs");
 	const promptId = await createPrompt(brandId);
 	runIds = [];
-	for (const [i, text] of [...ANALYSED, ...NOT_ANALYSED, BLANK].entries()) {
+	for (const [i, text] of [...ANALYSED, ...NOT_ANALYSED].entries()) {
 		const run = await createRun(brandId, promptId, { at: `2026-10-01T12:00:0${i}Z`, brandMentioned: false });
 		await insertRunText(db, run.id, text);
 		runIds.push(run.id);
@@ -55,13 +52,7 @@ afterAll(async () => {
 describe("getBrandMentionProminence", () => {
 	it("counts every run in coverage but only current analyses as analysed", async () => {
 		const { coverage } = await getBrandMentionProminence(brandId, WINDOW);
-		expect(coverage).toEqual({ runs: 8, blank: 1, analysed: 3, retainedFrom: null });
-	});
-
-	it("counts a run with no answer text as blank, not as analysed with no mentions", async () => {
-		const { subjects } = await getBrandMentionProminence(brandId, WINDOW);
-		// Over 3 analysed runs, not 4: the blank run would pull every rate down.
-		expect(subjects.find((s) => s.name === "Acme")?.mentionRate).toBe(1);
+		expect(coverage).toEqual({ runs: 7, analysed: 3 });
 	});
 
 	it("reads mentions only from analysed runs, so a subject named only in the rest shows none", async () => {
@@ -117,7 +108,7 @@ describe("getBrandMentionProminence", () => {
 
 	it("narrows coverage and counts to the filtered model", async () => {
 		const { coverage, subjects } = await getBrandMentionProminence(brandId, WINDOW, { model: "claude" });
-		expect(coverage).toEqual({ runs: 0, blank: 0, analysed: 0, retainedFrom: null });
+		expect(coverage).toEqual({ runs: 0, analysed: 0 });
 		expect(subjects.every((s) => s.mentionedRuns === 0)).toBe(true);
 	});
 
@@ -127,7 +118,7 @@ describe("getBrandMentionProminence", () => {
 		await createRun(empty, promptId, { at: "2026-10-01T12:00:00Z", brandMentioned: true });
 		try {
 			const { coverage, subjects } = await getBrandMentionProminence(empty, WINDOW);
-			expect(coverage).toEqual({ runs: 1, blank: 0, analysed: 0, retainedFrom: null });
+			expect(coverage).toEqual({ runs: 1, analysed: 0 });
 			expect(subjects[0]).toMatchObject({ mentionedRuns: 0, mentionRate: null });
 		} finally {
 			await deleteBrand(empty);

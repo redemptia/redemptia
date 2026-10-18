@@ -13,7 +13,6 @@ import { TooltipProvider } from "@workspace/ui/components/tooltip";
 import { ColHead } from "@/components/col-head";
 import { ALL_MODELS_VALUE, FilterBar } from "@/components/filter-bar";
 import { FilterSection, PageHeader } from "@/components/page-header";
-import { RetentionNote } from "@/components/retention-note";
 import { useBrandId } from "@/hooks/use-brand-id";
 import { useBrand } from "@/hooks/use-brands";
 import { useListFilters } from "@/hooks/use-list-filters";
@@ -40,21 +39,17 @@ const pct = (value: number | null) => (value === null ? "—" : `${Math.round(va
 const fixed = (value: number | null, digits: number) => (value === null ? "—" : value.toFixed(digits));
 
 function Coverage({ coverage }: { coverage: BrandMentionProminence["coverage"] }) {
-	const { blank, analysed } = coverage;
-	const answered = coverage.runs - blank;
-	const complete = answered > 0 && analysed === answered;
+	const { runs, analysed } = coverage;
+	const complete = runs > 0 && analysed === runs;
 	return (
 		<Alert data-testid="mention-coverage" role="status">
 			<AlertTitle>
-				{analysed.toLocaleString()} of {answered.toLocaleString()} runs in this window are analysed
+				{analysed.toLocaleString()} of {runs.toLocaleString()} runs in this window are analysed
 			</AlertTitle>
 			<AlertDescription>
 				{complete
 					? "Every run in this window is counted below."
 					: "Only analysed runs are counted below. The rest are not analysed yet, which is not the same as not mentioning anyone, and they are left out rather than counted as zero. Coverage drops after you edit your brand or competitors and climbs back as they are re-analysed, so it can rise while you watch; this page checks again every 30 seconds."}
-				{blank > 0 &&
-					` ${blank.toLocaleString()} more ${blank === 1 ? "run" : "runs"} had no answer text, so nothing to mention anyone in; they are left out of every figure.`}
-				<RetentionNote retainedFrom={coverage.retainedFrom} />
 			</AlertDescription>
 		</Alert>
 	);

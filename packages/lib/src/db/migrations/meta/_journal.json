@@ -218,13 +218,6 @@
       "when": 1791865614540,
       "tag": "0106_stance_judgements",
       "breakpoints": true
-    },
-    {
-      "idx": 31,
-      "version": "7",
-      "when": 1791892301454,
-      "tag": "0107_competitors_name_ci_unique",
-      "breakpoints": true
     }
   ]
 }

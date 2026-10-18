@@ -55,7 +55,6 @@ export const MAX_PROMPTS = 100;
 export const WEB_QUERIES_UNAVAILABLE = "unavailable";
 
 export const SENTIMENT_QUEUE = "analyze-sentiment";
-export const ANALYSIS_PURGE_QUEUE = "purge-expired-analysis";
 export const SENTIMENT_SWEEP_QUEUE = "sentiment-sweep";
 
 /**

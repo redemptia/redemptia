@@ -21,7 +21,6 @@ import {
 	providerSpec,
 	type RecommendedScraper,
 } from "../providers.js";
-import { askSentimentKey } from "../sentiment.js";
 import { submitNewsletterSignup, telemetryKey, trackCliEvent } from "../telemetry.js";
 import { assertNotCancelled, generateSecret, link, log, printBanner } from "../util.js";
 
@@ -209,7 +208,7 @@ async function configureProvidersRecommended(env: EnvMap): Promise<void> {
 
 	// ── Direct API ──────────────────────────────────────────────────────────
 	const direct = await p.select({
-		message: "Direct LLM API (powers onboarding analysis)",
+		message: "Direct LLM API (powers onboarding analysis + sentiment scoring)",
 		options: [
 			{ value: "openrouter" as const, label: "OpenRouter — one key, all major models (recommended)" },
 			{ value: "anthropic" as const, label: "Anthropic — direct Claude" },
@@ -407,7 +406,6 @@ export async function runInit(options: InitOptions, version: string): Promise<vo
 
 	// ── AI providers ─────────────────────────────────────────────────────
 	const setupMode = await configureProvidersInteractive(env);
-	await askSentimentKey(env);
 
 	// ── Telemetry and product updates ───────────────────────────────────
 	const email = await askTelemetryAndUpdates(env);

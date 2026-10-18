@@ -83,13 +83,6 @@ export const ENV_REGISTRY: EnvVarSpec[] = [
 			"Per-organization cap on enrichment (sentiment) spend, in USD over a rolling 24 hours (default 2). An invalid value falls back to the default.",
 	},
 	{
-		name: "ENRICHMENT_RETENTION_DAYS",
-		scope: "server",
-		requiredBy: "optional",
-		description:
-			"Days of stored mention analysis to keep; older runs' analysis is purged daily and no longer counted. Unset keeps everything. Must be a whole number of at least 366, or it's ignored and nothing is purged. Runs, their text and paid sentiment judgements are never purged.",
-	},
-	{
 		name: "DATABASE_POOL_MAX",
 		scope: "server",
 		requiredBy: "optional",

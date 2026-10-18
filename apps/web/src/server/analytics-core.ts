@@ -12,7 +12,6 @@ import { rollUpCitationDomains, rollUpCitationUrls } from "@workspace/lib/citati
 import { db } from "@workspace/lib/db/db";
 import { brands, competitors } from "@workspace/lib/db/schema";
 import { subjectFingerprint } from "@workspace/lib/enrichment";
-import { retentionHorizon } from "@workspace/lib/enrichment/retention";
 import { SENTIMENT_ANALYZER_VERSION, type Stance, sentimentAvailable } from "@workspace/lib/enrichment/sentiment";
 import { loadBrandSubjects } from "@workspace/lib/enrichment/write";
 import { getEffectiveBrandedStatus } from "@workspace/lib/tag-utils";
@@ -478,19 +477,9 @@ export interface SubjectProminence {
 	averageRank: number | null;
 }
 
-/**
- * Where the stored analysis starts, as an ISO instant, when retention purges
- * older runs' analysis; null when it's all kept. Runs before it aren't counted
- * anywhere, so a window reaching past it covers less than it asks for.
- */
-const retainedFrom = () => retentionHorizon()?.toISOString() ?? null;
-
 export interface BrandMentionProminence {
-	/**
-	 * Every retained run in the window; how many had no answer text, so nothing to
-	 * mention (counted in no rate); and how many of the rest have a current analysis.
-	 */
-	coverage: { runs: number; blank: number; analysed: number; retainedFrom: string | null };
+	/** Every run in the window, and how many of them have a current analysis. */
+	coverage: { runs: number; analysed: number };
 	subjects: SubjectProminence[];
 }
 
@@ -507,24 +496,13 @@ export async function getBrandMentionProminence(
 	filters: AnalyticsFilters = {},
 ): Promise<BrandMentionProminence> {
 	const [{ promptIds }, subjects] = await Promise.all([resolveScope(brandId, filters), loadBrandSubjects(db, brandId)]);
-	const retained = retainedFrom();
-	if (!subjects) return { coverage: { runs: 0, blank: 0, analysed: 0, retainedFrom: retained }, subjects: [] };
+	if (!subjects) return { coverage: { runs: 0, analysed: 0 }, subjects: [] };
 
 	const { from, to, timezone } = window;
-	const { coverage: counts, subjects: rows } =
+	const { coverage, subjects: rows } =
 		promptIds.length === 0
-			? { coverage: { runs: 0, blank: 0, analysed: 0 }, subjects: [] }
-			: await getMentionProminence(
-					brandId,
-					from,
-					to,
-					timezone,
-					promptIds,
-					subjectFingerprint(subjects),
-					retained,
-					filters.model,
-				);
-	const coverage = { ...counts, retainedFrom: retained };
+			? { coverage: { runs: 0, analysed: 0 }, subjects: [] }
+			: await getMentionProminence(brandId, from, to, timezone, promptIds, subjectFingerprint(subjects), filters.model);
 	const byKey = new Map(rows.map((row) => [row.subject_key, row]));
 
 	const ordered = [
@@ -603,8 +581,6 @@ export interface BrandSentiment {
 		/** Subject mentions in analysed runs, and how many of them are judged. */
 		mentions: number;
 		judged: number;
-		/** Where retained analysis starts; see BrandMentionProminence. */
-		retainedFrom: string | null;
 	};
 	subjects: SubjectStance[];
 	/**
@@ -636,7 +612,6 @@ export async function getBrandSentiment(
 ): Promise<BrandSentiment> {
 	const [{ promptIds }, subjects] = await Promise.all([resolveScope(brandId, filters), loadBrandSubjects(db, brandId)]);
 	const empty = { runs: 0, blank: 0, analysed: 0, mentions: 0, judged: 0 };
-	const retained = retainedFrom();
 	const { from, to, timezone } = window;
 	const summary =
 		!subjects || promptIds.length === 0
@@ -649,7 +624,6 @@ export async function getBrandSentiment(
 					promptIds,
 					subjectFingerprint(subjects),
 					SENTIMENT_ANALYZER_VERSION,
-					retained,
 					filters.model,
 				);
 	const byKey = new Map(summary.subjects.map((row) => [row.subject_key, row]));
@@ -661,7 +635,7 @@ export async function getBrandSentiment(
 	return {
 		analysisEnabled: sentimentAvailable(getDeploymentFeatures()),
 		analyzerVersion: SENTIMENT_ANALYZER_VERSION,
-		coverage: { ...summary.coverage, retainedFrom: retained },
+		coverage: summary.coverage,
 		subjects: ordered.map((subject) => {
 			const row = byKey.get(subject.key);
 			const stances = emptyStances();

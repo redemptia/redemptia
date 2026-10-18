@@ -45,7 +45,6 @@ declare global {
 			readonly DATABASE_URL: string;
 			readonly DATABASE_POOL_MAX?: string;
 			readonly ENRICHMENT_DAILY_CAP_USD?: string;
-			readonly ENRICHMENT_RETENTION_DAYS?: string;
 			readonly POSTHOG_KEY?: string;
 			readonly SENTIMENT_API_KEY?: string;
 			readonly SENTIMENT_BASE_URL?: string;

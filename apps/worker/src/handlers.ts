@@ -1,11 +1,6 @@
 import * as Sentry from "@sentry/node";
 import { getDeploymentFeatures } from "@workspace/deployment";
-import {
-	ANALYSIS_PURGE_QUEUE,
-	MENTION_RECOMPUTE_QUEUE,
-	SENTIMENT_QUEUE,
-	SENTIMENT_SWEEP_QUEUE,
-} from "@workspace/lib/constants";
+import { MENTION_RECOMPUTE_QUEUE, SENTIMENT_QUEUE, SENTIMENT_SWEEP_QUEUE } from "@workspace/lib/constants";
 import { type SentimentBatch, sentimentAvailable } from "@workspace/lib/enrichment/sentiment";
 import type { OnboardingSuggestion } from "@workspace/lib/onboarding";
 import type { Job, PgBoss } from "pg-boss";
@@ -13,7 +8,6 @@ import { type AnalyzeBrandData, analyzeBrandJob } from "./jobs/analyze-brand";
 import { analyzeSentimentJob, sentimentSweepJob } from "./jobs/analyze-sentiment";
 import { type GenerateReportData, generateReportJob } from "./jobs/generate-report";
 import { type ProcessPromptData, processPromptJob } from "./jobs/process-prompt";
-import { purgeExpiredAnalysisJob } from "./jobs/purge-expired-analysis";
 import { type RecomputeBrandMentionsData, recomputeBrandMentionsJob } from "./jobs/recompute-brand-mentions";
 import { type ScheduleMaintenanceData, scheduleMaintenanceJob } from "./jobs/schedule-maintenance";
 import { type SyncAuth0MembershipsData, syncAuth0MembershipsJob } from "./jobs/sync-auth0-memberships";
@@ -75,12 +69,6 @@ export async function registerHandlers(boss: PgBoss): Promise<void> {
 			withSentry(MENTION_RECOMPUTE_QUEUE, recomputeBrandMentionsJob),
 		);
 		console.log(`Registered handler: ${MENTION_RECOMPUTE_QUEUE}`);
-		await boss.work(
-			ANALYSIS_PURGE_QUEUE,
-			{ localConcurrency: 1 },
-			withSentry(ANALYSIS_PURGE_QUEUE, purgeExpiredAnalysisJob),
-		);
-		console.log(`Registered handler: ${ANALYSIS_PURGE_QUEUE}`);
 	}
 
 	// Paid model calls: one batch at a time, and only where the analyzer has a

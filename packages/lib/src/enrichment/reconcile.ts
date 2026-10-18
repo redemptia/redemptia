@@ -3,7 +3,6 @@ import { db } from "../db/db";
 import { brands } from "../db/schema";
 import { subjectFingerprint } from "./analysis";
 import { ANALYZER_VERSION } from "./prominence";
-import { retentionHorizon } from "./retention";
 import { loadBrandSubjects, lockBrandAnalysis, writeRunAnalysis } from "./write";
 
 export interface ReconcileOptions {
@@ -51,12 +50,7 @@ type StaleRun = {
 	extractor_version: number;
 };
 
-/** Runs created before the retention horizon are never rebuilt, so the purge doesn't grow back. */
-function sinceHorizon(horizon: Date | null) {
-	return horizon ? sql`AND pr.created_at >= ${horizon.toISOString()}::timestamptz` : sql``;
-}
-
-async function countBrand(brandId: string, fingerprint: string, horizon: Date | null) {
+async function countBrand(brandId: string, fingerprint: string) {
 	const { rows } = await db.execute<{ stale: number; awaiting: number }>(sql`
 		SELECT
 			count(*) FILTER (WHERE rt.prompt_run_id IS NOT NULL AND ${isStale(fingerprint)})::int AS stale,
@@ -64,7 +58,7 @@ async function countBrand(brandId: string, fingerprint: string, horizon: Date | 
 		FROM prompt_runs pr
 		LEFT JOIN run_texts rt ON rt.prompt_run_id = pr.id
 		LEFT JOIN run_mention_analyses a ON a.prompt_run_id = pr.id
-		WHERE pr.brand_id = ${brandId} ${sinceHorizon(horizon)}`);
+		WHERE pr.brand_id = ${brandId}`);
 	return rows[0] ?? { stale: 0, awaiting: 0 };
 }
 
@@ -120,21 +114,20 @@ export async function reconcileRunAnalyses(options: ReconcileOptions): Promise<R
 		? [options.brandId]
 		: (await db.select({ id: brands.id }).from(brands).orderBy(asc(brands.id))).map((row) => row.id);
 
-	const horizon = retentionHorizon();
 	const progress: ReconcileProgress = { analysed: 0, remaining: 0, awaitingText: 0 };
 	const existing: string[] = [];
 	for (const brandId of brandIds) {
 		const subjects = await loadBrandSubjects(db, brandId);
 		if (!subjects) continue;
 		existing.push(brandId);
-		const counts = await countBrand(brandId, subjectFingerprint(subjects), horizon);
+		const counts = await countBrand(brandId, subjectFingerprint(subjects));
 		progress.remaining += counts.stale;
 		progress.awaitingText += counts.awaiting;
 	}
 	options.onProgress?.({ ...progress });
 	if (options.dryRun) return progress;
 
-	for (const brandId of existing) await reconcileBrand(brandId, horizon, options, progress);
+	for (const brandId of existing) await reconcileBrand(brandId, options, progress);
 	return progress;
 }
 
@@ -144,15 +137,8 @@ export async function reconcileRunAnalyses(options: ReconcileOptions): Promise<R
  * subjects changed mid-pass) can't hold the pass in a loop; the next pass for
  * that brand reaches it.
  */
-async function reconcileBrand(
-	brandId: string,
-	horizon: Date | null,
-	options: ReconcileOptions,
-	progress: ReconcileProgress,
-) {
-	// The cursor is exclusive on (created_at, id) and no run has the nil uuid, so
-	// a run created exactly at the horizon is still reached.
-	let cursor = { at: horizon?.toISOString() ?? "-infinity", id: "00000000-0000-0000-0000-000000000000" };
+async function reconcileBrand(brandId: string, options: ReconcileOptions, progress: ReconcileProgress) {
+	let cursor = { at: "-infinity", id: "00000000-0000-0000-0000-000000000000" };
 	for (;;) {
 		if (options.signal?.aborted) return;
 		const batch = await reconcileBatch(brandId, cursor, options.batchSize);
