@@ -30,7 +30,7 @@
     "test:api:cloud": "pnpm --filter e2e test:api:cloud",
     "test:api:demo": "pnpm --filter e2e test:api:demo",
     "validate:spec": "pnpm --filter e2e validate:spec",
-    "test:scripts": "node --test 'scripts/*.test.mjs'",
+    "test:scripts": "node --test 'scripts/*.test.mjs' 'packages/lib/scripts/*.test.mjs'",
     "license-check": "node scripts/check-licenses.mjs"
   },
   "devDependencies": {
