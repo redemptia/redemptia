@@ -3,7 +3,7 @@
   "input": {
     "path": "./packages/api-spec/src/openapi.json",
     "declare": [
-      { "scheme": "BearerAuth", "startsWith": "elmo_" },
+      { "scheme": "BearerAuth", "startsWith": "redemptia_" },
       {
         "include": {
           "openapi": {
@@ -20,22 +20,22 @@
   "targets": {
     "typescript": {
       "package": {
-        "name": "@elmohq/sdk",
+        "name": "@redemptia/sdk",
         "destination": ["github", "npm"],
-        "repository": "https://github.com/elmohq/elmo-sdk-typescript",
-        "homepage": "https://www.elmohq.com"
+        "repository": "https://github.com/redemptia/redemptia-sdk-typescript",
+        "homepage": "https://redemptia.in"
       }
     },
     "python": {
       "package": {
-        "name": "elmo-sdk",
+        "name": "redemptia-sdk",
         "destination": ["github", "pypi"],
-        "repository": "https://github.com/elmohq/elmo-sdk-python",
-        "homepage": "https://www.elmohq.com"
+        "repository": "https://github.com/redemptia/redemptia-sdk-python",
+        "homepage": "https://redemptia.in"
       }
     }
   },
   "plugins": [
-    { "name": "@hey-api/client", "baseURL": "https://app.elmohq.com/api/v1" }
+    { "name": "@hey-api/client", "baseURL": "https://app.redemptia.in/api/v1" }
   ]
 }

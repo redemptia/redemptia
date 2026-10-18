@@ -46,8 +46,8 @@ function ApiSettingsPage() {
 				<CopyButton value={baseUrl} />
 			</div>
 
-			{/* The SDKs are published under Elmo's name, so a whitelabel deployment doesn't advertise them. */}
-			{mode && mode !== "whitelabel" && <SdkSection baseUrl={baseUrl} />}
+			{/* The SDKs carry Redemptia's name, so a whitelabel deployment doesn't advertise them. */}
+			{SDKS_PUBLISHED && mode && mode !== "whitelabel" && <SdkSection baseUrl={baseUrl} />}
 
 			<Card className="overflow-hidden p-0">
 				<ApiReferenceEmbed />
@@ -56,32 +56,36 @@ function ApiSettingsPage() {
 	);
 }
 
+// Off until @redemptia/sdk and redemptia-sdk exist on npm and PyPI: an install
+// line for an unpublished name points users at whoever registers it first.
+const SDKS_PUBLISHED = false;
+
 function sdkDocs(baseUrl: string) {
-	const env = `export ELMO_API_KEY=YOUR_API_KEY\nexport ELMO_BASE_URL=${baseUrl}`;
+	const env = `export REDEMPTIA_API_KEY=YOUR_API_KEY\nexport REDEMPTIA_BASE_URL=${baseUrl}`;
 	return [
 		{
 			value: "typescript",
 			label: "TypeScript",
-			install: "npm install @elmohq/sdk",
+			install: "npm install @redemptia/sdk",
 			env,
-			usage: `import { Elmo } from "@elmohq/sdk";
+			usage: `import { Redemptia } from "@redemptia/sdk";
 
-const elmo = new Elmo();
+const redemptia = new Redemptia();
 
-for await (const brand of elmo.brands.list()) {
+for await (const brand of redemptia.brands.list()) {
   console.log(brand.name);
 }`,
 		},
 		{
 			value: "python",
 			label: "Python",
-			install: "pip install elmo-sdk",
+			install: "pip install redemptia-sdk",
 			env,
-			usage: `from elmo_sdk import Elmo
+			usage: `from redemptia_sdk import Redemptia
 
-elmo = Elmo()
+redemptia = Redemptia()
 
-for brand in elmo.brands.list():
+for brand in redemptia.brands.list():
     print(brand.name)`,
 		},
 	];

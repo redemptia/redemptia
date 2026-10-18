@@ -1,3 +1,3 @@
-Get an API key from the Elmo dashboard, under **Organization Settings → API Keys**.
+Get an API key from the Redemptia dashboard, under **Organization Settings → API Keys**.
 
 {{body}}

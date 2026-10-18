@@ -43,9 +43,8 @@ export const Reference: Story = {
 		await expect(await canvas.findByText(`${window.location.origin}/api/v1`)).toBeVisible();
 		// The reference reads the instance's own spec rather than a hosted copy.
 		await expect(await canvas.findByTestId("api-reference-mock")).toHaveTextContent("/api/v1/openapi.json");
-		await expect(canvas.getByText("npm install @elmohq/sdk")).toBeVisible();
-		// The SDKs can't guess the instance, so the snippet names this one.
-		await expect(canvas.getByText(new RegExp(`ELMO_BASE_URL=${window.location.origin}/api/v1`))).toBeVisible();
+		// No install line until the SDKs are published under these names.
+		await expect(canvas.queryByRole("heading", { name: "SDKs" })).toBeNull();
 	},
 };
 
@@ -56,7 +55,8 @@ export const SelfHosted: Story = {
 	},
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
-		await expect(await canvas.findByRole("tab", { name: "Python" })).toBeVisible();
+		await expect(await canvas.findByRole("heading", { name: "API Docs" })).toBeVisible();
+		await expect(canvas.queryByRole("heading", { name: "SDKs" })).toBeNull();
 	},
 };
 
@@ -81,6 +81,6 @@ export const ReadOnlyDeployment: Story = {
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
 		await expect(await canvas.findByText("API access is disabled in demo mode.")).toBeVisible();
-		await expect(canvas.getByRole("heading", { name: "SDKs" })).toBeVisible();
+		await expect(canvas.queryByRole("heading", { name: "SDKs" })).toBeNull();
 	},
 };

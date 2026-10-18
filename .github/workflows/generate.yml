@@ -2,18 +2,10 @@
 
 name: Hey API
 
+# Manual only until Redemptia has its own Hey API GitHub App, SDK repositories
+# and registry credentials. On a push, a schedule or after Release it fails at
+# the GitHub App check.
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - .github/workflows/generate.yml
-      - .github/workflows/publish.yaml
-      - .hey-api/**
-      - hey-api.config.json
-      - packages/api-spec/src/openapi.json
-  schedule:
-    - cron: 26 6 * * 1
   workflow_dispatch:
     inputs:
       task:
@@ -43,13 +35,6 @@ on:
         description: 'Only to ship a breaking change without a major version: the name of the one package allowed to. Otherwise leave blank.'
         required: false
         type: string
-  workflow_run:
-    workflows:
-      - Release
-    types:
-      - completed
-    branches:
-      - main
 
 permissions:
   contents: read
@@ -83,7 +68,7 @@ jobs:
         uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
           client-id: ${{ vars.HEY_API_APP_CLIENT_ID }}
-          owner: elmohq
+          owner: redemptia
           private-key: ${{ secrets.HEY_API_APP_PRIVATE_KEY }}
 
       - name: Release and commit each package that changed, to publish when Release succeeds
@@ -119,7 +104,7 @@ jobs:
         uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
           client-id: ${{ vars.HEY_API_APP_CLIENT_ID }}
-          owner: elmohq
+          owner: redemptia
           private-key: ${{ secrets.HEY_API_APP_PRIVATE_KEY }}
 
       - name: Open a pull request moving Hey API to its latest release
@@ -154,7 +139,7 @@ jobs:
         uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
           client-id: ${{ vars.HEY_API_APP_CLIENT_ID }}
-          owner: elmohq
+          owner: redemptia
           private-key: ${{ secrets.HEY_API_APP_PRIVATE_KEY }}
 
       - name: Publish each package from its own repository
