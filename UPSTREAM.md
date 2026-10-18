@@ -46,7 +46,8 @@ What differs from elmo, in brief (the table below has every change and why):
 | The database pool size is set explicitly, from the optional `DATABASE_POOL_MAX` (default `10`, node-postgres's own default, so leaving it unset changes nothing). | `packages/lib/src/db/db.ts` (`createDb` passes `max: getDatabasePoolMax()`), `packages/config/src/env-registry.ts`, `turbo.json`, `apps/web/src/env.d.ts`, `packages/docs/content/docs/developer-guide/configuration.mdx` (#11) | elmo leaves the pool at the driver default with no way to change it. The worker alone can run more handlers than 10 connections, so the size needs to be visible and tunable. It's per process: anyone raising it has to multiply by the process count against Postgres's `max_connections` (the arithmetic is in the comment in `db.ts`). |
 | `scope` is a required key (type `SQL \| undefined`) on `ListPromptsFilters`, `ListCompetitorsFilters` and `ListBrandsFilters`. elmo has it as optional `scope?: SQL`. The runtime query is unchanged. | `apps/web/src/server/prompts-core.ts`, `apps/web/src/server/competitors-core.ts`, `apps/web/src/server/onboarding-core.ts` (#23) | These are the only core reads that can return more than one tenant's rows, and leaving `scope` out returns all of them. With RLS inert, the condition is the only tenancy guarantee, so forgetting it must fail to compile. |
 | CI runs on GitHub-hosted `ubuntu-24.04`. `publish.yaml` and `test-providers.yaml` still name Blacksmith runners (and `publish.yaml` its `useblacksmith/*` build actions), so neither can run here as written ([#83](https://github.com/redemptia/redemptia/issues/83)). | `.github/workflows/build.yaml`, `e2e.yaml`, `license-check.yaml`, `mode-compat.yaml`, `skill-install.yaml` (`ed91bb17`, #79) | Blacksmith runners belong to elmo's account. |
-| `build.yaml` checks that `schema.ts` matches the migrations (`drizzle-kit generate` writes nothing) and that a database upgraded from the base commit's migrations applies every journal entry (`packages/lib/scripts/check-migrations.mjs`). | `.github/workflows/build.yaml` (#10, kept through #77) | The upgrade check is the only thing that catches a migration drizzle skips without a word. See [Migrations](#migrations). |
+| `build.yaml` checks that `schema.ts` matches the migrations (`drizzle-kit generate` writes nothing) and that a database upgraded from the base commit's migrations applies every journal entry, loses no index its own SQL doesn't drop, and ends with exactly the latest snapshot's indexes plus `RAW_INDEXES` (`packages/lib/scripts/check-migrations.mjs`, `packages/lib/scripts/index-census.mjs`). | `.github/workflows/build.yaml` (#10, kept through #77; index checks added after #86) | drizzle's drift check compares `schema.ts` with the snapshots, never with a database. The upgrade check is the only thing that catches a migration drizzle skips without a word, an index a dropped column takes with it (0024 lost two), or an index left under an old name (0008). See [Migrations](#migrations). |
+| Migration `0031_prompt_runs_brand_created_at_idx`: `prompt_runs_brand_id_created_at_idx` on `(brand_id, created_at)`, declared in `schema.ts`, and `prompt_runs_web_search_model_group_created_at_idx` renamed to the `prompt_runs_web_search_model_created_at_idx` that `schema.ts` and every snapshot since 0008 already use. | `packages/lib/src/db/schema.ts`, `packages/lib/src/db/migrations/` | 0024 dropped elmo's two analytics indexes with their `INCLUDE` columns (#86). Neither comes back: analytics reads the rollup tables now, and the rollup rebuild reaches runs through `(prompt_id, created_at)`. The Responses page still reads a brand's runs newest first. At 1.1M runs that is fast without a brand index, but at 4.4M the plan flips to a backward `created_at` scan that discards other tenants' runs: page 1 took 67.7 ms, and 0.33 ms with this index. The index costs about 6% of the table (36 MB at 4.4M runs) and one more btree write per run. 0008 renamed the column but never the index, so the migrated name and the declared name disagreed until now. **When merging:** if elmo's own 0031 renames or drops either index, keep one statement per index. |
 | The CLA and the upstream marketing automation are removed: `CLA.md`, `.github/contributors.txt`, `.github/workflows/cla-check.yaml` and `.github/workflows/daily-blog-draft.yaml` are deleted, and CONTRIBUTING.md keeps only the MIT license terms. | `CLA.md`, `.github/contributors.txt`, `.github/workflows/cla-check.yaml`, `.github/workflows/daily-blog-draft.yaml`, `CONTRIBUTING.md` (#44, #63) | The CLA grants rights to upstream's company and its check fails every PR here. The blog workflow drafts posts for upstream's marketing site. **When merging:** drop any upstream change to these files. |
 | The product is renamed Redemptia, and nothing points at or reports to elmo: telemetry (PostHog), support chat (Crisp) and the CLI newsletter run only with the operator's own keys (`VITE_POSTHOG_KEY`, `POSTHOG_KEY`, `VITE_CRISP_WEBSITE_ID`); affiliate and referral codes are dropped; marketing, cloud and demo URLs are on `redemptia.in`, set in `packages/config/src/referrals.ts`. API keys are minted as `redemptia_…`, whitelabel claims are `redemptia_*`, and two advisory-lock keys are `'redemptia-user-memberships'` and `'redemptia-rollups'`. | Most of the repository: product copy, `packages/docs`, package names (`@redemptia/cli`), icons and assets, `packages/config/src/referrals.ts`, the PostHog and Crisp loaders, `apps/web/src/server/api-keys.ts`, `packages/deployment/src/auth-hooks/whitelabel.ts`, `packages/lib/src/db/auth-sync.ts`, `packages/lib/src/rollups/rebuild.ts` (#61, #67, #79) | elmo's identity, keys and claims belong to elmo. `ELMO_ENCRYPTION_KEY` (and `_OLD`), the `x-elmo-*` OpenAPI extensions and `QUOTA_LOCK_CLASS` keep their names, because renaming them breaks live deployments or the quota lock. The two renamed lock keys are now fixed names in their own right (see `CLAUDE.md`). |
 | elmo's Google Ads and Meta Pixel tags are left out: `packages/ui/src/lib/ad-tags.ts` is deleted, with its calls in `apps/web/src/routes/__root.tsx` and `apps/web/src/routes/_authed/choose-plan.tsx` and its `AD_TAG_CSP` entries in `apps/web/src/server.ts`. elmo's `idle.ts`, `onMarketingConsent` and the `stripeSubscriptionId` field on billing state stay. | `packages/ui/src/lib/ad-tags.ts`, `apps/web/src/routes/__root.tsx`, `apps/web/src/routes/_authed/choose-plan.tsx`, `apps/web/src/server.ts` (#79) | The tags report to elmo's own ad accounts (`AW-18500607241`, pixel `2332896134120550`), and with elmo's legal pages deleted we have no privacy policy or cookie disclosure covering ad tags. **Unblock:** our own account IDs *and* a published legal page come first. The cookie banner's unused Advertising category is [#80](https://github.com/redemptia/redemptia/issues/80). |
@@ -86,7 +87,9 @@ work onto upstream (the rebrand was editorial, not mechanical), never rebase, ne
 7. **Gate on the silent arrivals.** Files elmo added under `apps/www` or blog/legal arrive without a conflict. Before
    committing, `git diff --stat <pre-merge main> -- apps/www packages/docs/content/blog packages/docs/content/legal`
    must print nothing.
-8. **Migrations:** follow the merge procedure in [Migrations](#migrations). Then compare `pg_indexes` on a database migrated from the pre-merge commit with one migrated to the merge, and account for every index that disappeared: dropping a column drops every index that uses it, `INCLUDE` columns too, with no `DROP INDEX` in the SQL and nothing in drizzle's drift check (#86).
+8. **Migrations:** follow the merge procedure in [Migrations](#migrations). Its upgrade check compares `pg_indexes`
+   before and after, and against the latest snapshot. Never conclude from the migration SQL alone that no index was
+   lost: dropping a column drops every index that uses it, `INCLUDE` columns too, with no `DROP INDEX` (#86).
 9. **Rebrand sweep** over everything elmo changed: `git grep -n -E "elmo|Elmo|elmohq|ELMO"`. Allowed to remain: the
    never-rename names in `CLAUDE.md`, every `CHANGELOG.md`, `pnpm-lock.yaml`, `LICENSE.md`, `CITATION.cff`, this
    file, the third-party version `hey-api@0.1.0-elmo.4` in `generate.yml` (a package version, never "fix" it), test
@@ -98,15 +101,24 @@ work onto upstream (the rebrand was editorial, not mechanical), never rebase, ne
 
 ## Migrations
 
-We are on elmo's migrations 0000–0030 and have none of our own. drizzle's migrator ignores filenames and journal
-`idx`: it applies a migration only if its journal `when` is newer than the newest migration the database has already
-applied, and skips the rest with no error or warning. Our next migration and elmo's next are both `0031`.
+Migrations 0000–0030 are elmo's and 0031 is ours (see the table above). drizzle's migrator ignores filenames and
+journal `idx`: it applies a migration only if its journal `when` is newer than the newest migration the database has
+already applied, and skips the rest with no error or warning. Our next is `0032`; elmo's next is `0031`, so the next
+catch-up clashes on the number.
 
 **Adding one of ours:**
 
-1. Change `schema.ts`, then `pnpm -C packages/lib exec drizzle-kit generate`. Never `drizzle-kit push`.
-2. Check its journal `when` is newer than every entry already in `meta/_journal.json`.
-3. Record it in the table above, so the next merge knows the number and `when` are ours.
+1. Change `schema.ts`, then `pnpm -C packages/lib exec drizzle-kit generate --name <what_it_does>`. Without `--name`
+   drizzle-kit picks a random file name. Never `drizzle-kit push`.
+2. SQL that `generate` can't produce, such as renaming an index the snapshot already calls by its new name, goes in
+   the generated file, separated by `--> statement-breakpoint`, with a comment saying why. `drizzle-kit generate` must
+   still report "No schema changes" afterwards.
+3. An index drizzle can't declare (`INCLUDE`, or one on a better-auth table) goes in `RAW_INDEXES` in
+   `packages/lib/scripts/index-census.mjs`.
+4. Check its journal `when` is newer than every entry already in `meta/_journal.json`.
+5. Run the upgrade check locally from `main`'s migrations (step 5 of the merge procedure below). It must print both
+   "All N migrations applied" and "All N indexes match".
+6. Record it in the table above, so the next merge knows the number and `when` are ours.
 
 **Merging elmo's, in this order:**
 
@@ -123,9 +135,11 @@ applied, and skips the rest with no error or warning. Our next migration and elm
    treats two snapshots with the same `prevId` can't be verified until it happens; if it complains, fix the chain
    before committing.
 5. **Prove it.** `node packages/lib/scripts/check-migrations.mjs <pre-merge migrations dir> packages/lib/src/db/migrations`
-   against a scratch `_test` database must print "All N migrations applied", and a fresh `_test` database must apply
-   every journal entry. CI runs the first as "Migrations apply on upgrade from the base commit". It is the only
-   thing that catches a migration drizzle skipped.
+   against a scratch `_test` database must print "All N migrations applied" and "All N indexes match the latest
+   snapshot and RAW_INDEXES, and none was lost on upgrade", and a fresh `_test` database must apply every journal
+   entry. CI runs the first as "Migrations apply on upgrade from the base commit". It is the only thing that catches
+   a migration drizzle skipped, an index a dropped column took with it, or an index whose name drifted from the
+   snapshot's.
 
 **Index builds lock writes.** drizzle runs every migration in one transaction, so `CREATE INDEX CONCURRENTLY` isn't
 possible through it, and an index migration blocks writes to its table while the index builds. That's acceptable
@@ -137,8 +151,8 @@ while there are no production users. On a large table, use this escape hatch:
 
 ## Known gaps
 
-- [#86](https://github.com/redemptia/redemptia/issues/86): migration 0024 silently dropped `idx_prompt_runs_brand_analytics` and
-  `idx_prompt_runs_prompt_analytics`; nothing indexes the rollup rebuild's `brand_id` filter.
+- [#88](https://github.com/redemptia/redemptia/issues/88): Responses deep pages and sentiment counts are join-bound,
+  about 90 ms at 4.4M runs, with or without an index.
 - [#85](https://github.com/redemptia/redemptia/issues/85): Jev judging has no spend cap, and a first real `TYPESAFE_API_KEY` starts four paid
   paths at once (worker start, reprocessing on change, stub-to-real re-judging, subject recasing).
 - [#78](https://github.com/redemptia/redemptia/issues/78): competitor names aren't unique per brand, and a dashboard

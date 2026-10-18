@@ -145,6 +145,10 @@ export const promptRuns = pgTable(
 	},
 	(table) => ({
 		promptIdCreatedAtIdx: index("prompt_runs_prompt_id_created_at_idx").on(table.promptId, table.createdAt),
+		// The Responses page reads a brand's runs newest first. Without this, past a
+		// few million runs the planner walks `created_at` backwards through every
+		// tenant's runs and discards the ones that aren't the brand's.
+		brandIdCreatedAtIdx: index("prompt_runs_brand_id_created_at_idx").on(table.brandId, table.createdAt),
 		createdAtIdx: index("prompt_runs_created_at_idx").on(table.createdAt),
 		webSearchCreatedAtIdx: index("prompt_runs_web_search_created_at_idx").on(table.webSearchEnabled, table.createdAt),
 		webSearchModelCreatedAtIdx: index("prompt_runs_web_search_model_created_at_idx").on(
