@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Badge } from "@workspace/ui/components/badge";
 import { buttonVariants } from "@workspace/ui/components/button";
-import { AlertTriangle, ArrowLeft, Check, ExternalLink, X } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Check, ExternalLink } from "lucide-react";
 import {
 	CATEGORY_LABELS,
 	type Competitor,
@@ -16,6 +16,7 @@ import {
 } from "@/lib/competitors";
 import { SELF_HOST_LINK } from "@/lib/self-host-link";
 import { Faq } from "./faq";
+import { FeatureMark } from "./feature-mark";
 
 function FeatureRow({ label, redemptia, competitor }: { label: string; redemptia: boolean; competitor: boolean }) {
 	const redemptiaWins = redemptia && !competitor;
@@ -24,18 +25,10 @@ function FeatureRow({ label, redemptia, competitor }: { label: string; redemptia
 		<tr className="border-b border-dashed border-zinc-200 last:border-solid">
 			<td className="py-3 pr-4 text-sm text-zinc-600">{label}</td>
 			<td className={`px-4 py-3 text-center ${redemptiaWins ? "bg-brand-50" : ""}`}>
-				{redemptia ? (
-					<Check className="mx-auto h-4 w-4 text-brand-600" />
-				) : (
-					<X className="mx-auto h-4 w-4 text-zinc-300" />
-				)}
+				<FeatureMark has={redemptia} />
 			</td>
 			<td className={`px-4 py-3 text-center ${competitorWins ? "bg-brand-50" : ""}`}>
-				{competitor ? (
-					<Check className="mx-auto h-4 w-4 text-brand-600" />
-				) : (
-					<X className="mx-auto h-4 w-4 text-zinc-300" />
-				)}
+				<FeatureMark has={competitor} />
 			</td>
 		</tr>
 	);
