@@ -20,8 +20,8 @@ Redemptia started as a clone of [elmohq/elmo](https://github.com/elmohq/elmo) an
 
 - **Visibility** — how often each engine's answers mention your brand, per prompt, per model and over time.
 - **Share of voice** — your mention rate against each tracked competitor.
-- **Prominence and rank** — how early an answer names you, and in what order among the brands it names, computed from the stored answer text.
-- **Sentiment** — a model judges how each answer treats every brand it names: recommended, neutral, mentioned with caveats, advised against, or used as the foil for a competitor. The Sentiment page opens on the prompts whose answers set you back, each label shown with the answer's own words. Optional: it runs only with an analyzer key configured, and its spend is capped per organization per day.
+- **Position** — where your brand sits among the brands an answer names, averaged over the answers that name it.
+- **Sentiment** — [Jev](https://typesafe.ai) (TypeSafe) reads each answer that names a tracked company and judges its sentiment toward each one: positive, neutral, mixed or negative, with the passage behind each judgement. It needs a `TYPESAFE_API_KEY` and is paid per judged answer.
 - **Citations** — every URL an engine cites, by domain and category (your own, competitors', editorial, social).
 - **Query fan-out** — the web searches an engine ran while grounding its answer.
 - **Opportunities and reports** — a prioritized list of what to publish or pitch, and shareable visibility reports.
@@ -32,12 +32,12 @@ Every figure is available in the dashboard, over the REST API and through an MCP
 
 1. Prompts are defined per brand, written by hand or suggested by the onboarding wizard from your website.
 2. A worker runs each prompt on a schedule against every engine you configure — scraping providers for the consumer surfaces, direct model APIs for the rest.
-3. Each answer's text, citations and web searches are stored, then scanned for your brand's and each competitor's names, aliases and domains.
-4. Metrics are aggregated from what is stored, so any number can be recomputed and audited. Runs without answer text, and mentions not yet judged, are counted apart rather than as zero.
+3. Each answer's text, citations and web searches are stored. Your brand's and each competitor's names, aliases and domains find the answers that may mention them, and Jev decides which really do.
+4. Metrics are aggregated from what is stored, so any number can be recomputed and audited.
 
 ## Running it
 
-The CLI isn't published under its new name yet, so for now Redemptia runs from source. You need Node.js 24, pnpm and PostgreSQL:
+Redemptia runs from source. You need Node.js 24, pnpm and PostgreSQL:
 
 ```bash
 git clone https://github.com/redemptia/redemptia.git
@@ -45,9 +45,9 @@ cd redemptia
 pnpm install
 ```
 
-Then follow the [development setup](packages/docs/content/docs/developer-guide/development-setup.mdx) to create the database and `.env` files and start the web app and worker. `SCRAPE_TARGETS=stub:stub` runs everything without provider keys.
+Then follow the [development setup](packages/docs/content/docs/developer-guide/development-setup.mdx) to create the database and `.env` files and start the web app and worker. `SCRAPE_TARGETS=stub:stub` and `TYPESAFE_API_KEY=stub` run everything without provider keys or judging spend.
 
-Once `@redemptia/cli` is on npm, `redemptia init` will set up a Docker Compose deployment interactively.
+`@redemptia/cli` is published on npm, but its prebuilt Docker images aren't on Docker Hub yet ([#83](https://github.com/redemptia/redemptia/issues/83)). Until they are, a Docker Compose deployment is built from a clone: `redemptia init --dev` in the checkout builds the images locally (see [Development with Docker](packages/docs/content/docs/developer-guide/development-setup.mdx#development-with-docker)). The published CLI, 0.4.4, doesn't ask for `TYPESAFE_API_KEY`, which the worker needs, so add it to the generated `.env` before starting.
 
 ## Documentation
 
@@ -64,7 +64,7 @@ Once `@redemptia/cli` is on npm, `redemptia init` will set up a Docker Compose d
   <img src="apps/www/public/brand/architecture.svg" alt="Redemptia system architecture" width="100%">
 </p>
 
-A web app serves the dashboard, REST API and MCP server; a worker schedules prompt runs and enrichment jobs on pg-boss; PostgreSQL holds both the data and the job queue. The stack is TypeScript, TanStack Start, Drizzle and pg-boss in a pnpm and Turborepo monorepo.
+A web app serves the dashboard, REST API and MCP server; a worker schedules prompt runs, judges and reprocesses answers, and keeps the analytics rollups current on pg-boss; PostgreSQL holds both the data and the job queue. The stack is TypeScript, TanStack Start, Drizzle and pg-boss in a pnpm and Turborepo monorepo.
 
 ## Contributing and security
 
