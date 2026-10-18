@@ -262,8 +262,9 @@ export const REDEMPTIA_FEATURES: Record<FeatureKey, boolean> = {
 	keywordResearch: true,
 	emailAlerts: false,
 	dataExportApi: true,
-	typescriptSdk: true,
-	pythonSdk: true,
+	// False until @redemptia/sdk and redemptia-sdk are published; see SDKS_PUBLISHED in the API settings page.
+	typescriptSdk: false,
+	pythonSdk: false,
 	mcpServer: true,
 	biConnectors: false,
 	whiteLabelAgency: true,
