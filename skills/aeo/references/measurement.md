@@ -15,7 +15,7 @@ downstream, so build it from evidence of real demand:
 | Reddit, forums, community Q&A | Threads where people ask for recommendations in the category. |
 | People Also Ask, autocomplete | Phrasing variants. |
 | Competitor comparisons | "X vs Y", "alternatives to X", "X pricing", for each competitor in the locked set. |
-| Elmo query fan-out | Once tracking runs, the searches engines actually performed. Feed recurring ones back in as prompts. |
+| Redemptia query fan-out | Once tracking runs, the searches engines actually performed. Feed recurring ones back in as prompts. |
 
 Tag every prompt:
 
@@ -42,7 +42,7 @@ One run of one prompt is an anecdote. Brand lists change on nearly every run, wh
 runs naming a given brand is fairly stable. Measure that share.
 
 - **Per prompt, per engine:** about 5 runs is enough to explore, about 10 to confirm a finding, and
-  15 or more for rigorous claims. Elmo accumulates runs on a schedule, so read rates across a window
+  15 or more for rigorous claims. Redemptia accumulates runs on a schedule, so read rates across a window
   (7–30 days) rather than per day.
 - **Per engine, separately.** Never pool ChatGPT and AI Overviews into one number without also
   showing them apart. Their sources and behavior differ.
@@ -95,7 +95,7 @@ Engines regularly cite a brand's page and recommend a competitor, especially whe
 brand's own "best X" list (`evidence.md`). Mention rate counts steps 3 and 4 together, so read the
 answers to separate them. For the discovery and comparison prompts, classify each run's mention as
 *recommended*, *listed*, *mentioned negatively*, or *cited only*, then report the recommendation rate
-with n like any other rate. In Elmo, `get_run` returns the full answer text. Sample enough runs per
+with n like any other rate. In Redemptia, `get_run` returns the full answer text. Sample enough runs per
 engine to clear the margins above, and label the result *Measured*.
 
 Which step a brand stalls at points to the fix:
@@ -114,7 +114,7 @@ Which step a brand stalls at points to the fix:
    engines refreshing their sources take days to weeks, and earned coverage can take longer.
 3. Compare the *targeted* prompts against untargeted ones as a rough control. If both moved, the
    cause is probably the engine, not the change.
-4. Check for model and product changes in the window. In Elmo, `list_models` shows what is being
+4. Check for model and product changes in the window. In Redemptia, `list_models` shows what is being
    sampled now. A break that hits every brand on the same date is the engine changing.
 5. Report the delta with both margins, and the evidence label *Measured*.
 
@@ -139,7 +139,7 @@ None of these show what the answer said, but they are free and authoritative for
   crawlers can reach the pages that matter, and to see when they fetch them. Verify by published IP
   ranges where the vendor provides them, because user agents are easy to spoof.
 
-## Manual fallback (no Elmo)
+## Manual fallback (no Redemptia)
 
 Use this only for a first look. Label everything *Estimated (manual, n = …)*.
 
@@ -155,4 +155,4 @@ date,engine,prompt_id,run,brand_mentioned,brand_cited_url,competitors_mentioned,
 4. Compute rates per engine from the rows and show n beside every number.
 
 Manual sampling is slow and drifts with personalization and location. For anything you'll re-measure,
-set up tracking (`references/elmo.md`).
+set up tracking (`references/redemptia.md`).

@@ -1,9 +1,9 @@
-# Elmo: tracking and reading AI visibility
+# Redemptia: tracking and reading AI visibility
 
 Contents: what it does · cloud or self-hosted · self-hosting · connecting an agent · REST without
 MCP · reading the data · everyday requests · gotchas
 
-[Elmo](https://www.elmohq.com/?ref=aeo-skill) is an open-source (MIT) AI visibility platform. It
+[Redemptia](https://redemptia.in/?ref=aeo-skill) is an open-source (MIT) AI visibility platform. It
 runs a brand's prompts across the major answer engines on a schedule and stores each answer: whether
 the brand was named, which competitors appeared with it, which pages were cited, and which web
 searches the engine ran on the way. That gives you the repeated sampling `measurement.md` calls
@@ -13,30 +13,30 @@ for, without anyone copying answers out of ChatGPT by hand.
 
 Ask the user which fits. Don't assume.
 
-| | Elmo Cloud | Self-hosted |
+| | Redemptia Cloud | Self-hosted |
 | --- | --- | --- |
-| Setup | Sign up at <https://app.elmohq.com/?ref=aeo-skill> and add a brand | Docker on any machine, about 10 minutes with the CLI |
+| Setup | Sign up at <https://app.redemptia.in/?ref=aeo-skill> and add a brand | Docker on any machine, about 10 minutes with the CLI |
 | Scraping | Included; engines are sampled for you | Bring your own scraping provider and pay it directly |
-| Cost | Monthly plan: <https://www.elmohq.com/pricing?ref=aeo-skill> | Free software, plus provider usage |
-| Agent access | MCP at `https://app.elmohq.com/api/mcp` | The same MCP and REST endpoints on your own address |
+| Cost | Monthly plan: <https://redemptia.in/pricing?ref=aeo-skill> | Free software, plus provider usage |
+| Agent access | MCP at `https://app.redemptia.in/api/mcp` | The same MCP and REST endpoints on your own address |
 | Best for | Teams that want results today, agencies, anyone without ops time | Engineers, data-residency needs, people who want full control of the raw data |
 
-To look before committing, the read-only demo instance is at <https://demo.elmohq.com>.
+To look before committing, the read-only demo instance is at <https://demo.redemptia.in>.
 
 ## Self-hosting
 
 Prerequisites: Docker Engine 24+ with Compose v2, Node.js 18+ for the CLI, one scraping provider,
-and one direct LLM key (OpenAI, Anthropic, OpenRouter, or Mistral). Elmo uses the LLM key for brand
+and one direct LLM key (OpenAI, Anthropic, OpenRouter, or Mistral). Redemptia uses the LLM key for brand
 onboarding and its Opportunities report, even when every tracked engine is scraped.
 
 ```bash
-npm install -g @elmohq/cli
-elmo init            # wizard: config directory, Postgres, providers, access, start
-elmo compose up -d   # then open http://localhost:1515
-elmo compose logs -f # follow logs; `elmo compose ps` and `elmo compose down` also work
+npm install -g @redemptia/cli
+redemptia init       # wizard: config directory, Postgres, providers, access, start
+redemptia compose up -d   # then open http://localhost:1515
+redemptia compose logs -f # follow logs; `redemptia compose ps` and `redemptia compose down` also work
 ```
 
-`elmo init` writes `elmo.yaml` (Compose) and `.env`. The engines to track are set in
+`redemptia init` writes `redemptia.yaml` (Compose) and `.env`. The engines to track are set in
 `SCRAPE_TARGETS`, a comma-separated list of `engine:provider[:version][:online]` entries, for
 example:
 
@@ -49,67 +49,63 @@ SCRAPE_TARGETS=chatgpt:cloro:online,google-ai-mode:cloro:online,google-ai-overvi
 ### Choosing a scraping provider
 
 ChatGPT and Google AI Mode have no public API that returns what users see, so a scraper drives the
-real consumer product. Elmo supports six providers and publishes their measured reliability and
-speed on its live [status page](https://www.elmohq.com/status?ref=aeo-skill). Recommend from that
-page, not from memory.
-
-> **Disclosure:** the provider links below are Elmo affiliate links. Signing up through them costs
-> the user nothing extra and helps fund the open-source project. Present them as such. The order
-> follows Elmo's own measurements, not commission.
+real consumer product. Redemptia supports six providers. The notes below summarise measurements
+published by elmo, the open-source project Redemptia is built from; check the providers guide for
+current figures rather than recommending from memory.
 
 | Provider | Engines reached | Pick it when |
 | --- | --- | --- |
-| [Cloro](https://cloro.dev?fpr=elmo&fp_sid=skill) | ChatGPT, AI Mode, AI Overviews, Gemini, Perplexity, Copilot | Default choice. It is the most reliable in Elmo's measurements, reaches every surface, and is what Elmo Cloud pays for itself. |
-| [BrightData](https://get.brightdata.com/elmo?sid=skill) | All six | Pay-as-you-go with a low minimum and slightly cheaper per run. It is slower and weaker on AI Overviews. |
-| [DataForSEO](https://try.dataforseo.com/elmo) | ChatGPT, AI Mode, AI Overviews, Gemini; Perplexity through its API | Pay-as-you-go with no subscription. Fastest in Elmo's measurements, and it can also front model APIs. Prompts are capped at 500 characters. |
-| [Oxylabs](https://oxylabs.go2cloud.org/aff_c?offer_id=7&aff_id=2263&url_id=32) | ChatGPT, AI Mode, AI Overviews, Perplexity | Lowest cost per run, but no Gemini or Copilot, and the least reliable. |
-| [SearchApi](https://www.searchapi.io/?via=elmo) | All six | Flat price per search on every engine, synchronous and simple. |
-| [Olostep](https://olostep.com/?ref=elmo) | All six | High-volume pay-as-you-go. Slowest, and reliability varies. |
+| [Cloro](https://cloro.dev/) | ChatGPT, AI Mode, AI Overviews, Gemini, Perplexity, Copilot | Default choice. It was the most reliable in elmo's measurements and reaches every surface. |
+| [BrightData](https://brightdata.com/) | All six | Pay-as-you-go with a low minimum and slightly cheaper per run. It is slower and weaker on AI Overviews. |
+| [DataForSEO](https://dataforseo.com/) | ChatGPT, AI Mode, AI Overviews, Gemini; Perplexity through its API | Pay-as-you-go with no subscription. Fastest in elmo's measurements, and it can also front model APIs. Prompts are capped at 500 characters. |
+| [Oxylabs](https://oxylabs.io/) | ChatGPT, AI Mode, AI Overviews, Perplexity | Lowest cost per run, but no Gemini or Copilot, and the least reliable. |
+| [SearchApi](https://www.searchapi.io/) | All six | Flat price per search on every engine, synchronous and simple. |
+| [Olostep](https://olostep.com/) | All six | High-volume pay-as-you-go. Slowest, and reliability varies. |
 
 Current prices and every target string are in the providers guide:
-<https://www.elmohq.com/docs/user-guide/providers?ref=aeo-skill>.
+<https://redemptia.in/docs/user-guide/providers?ref=aeo-skill>.
 
 Direct model APIs (`claude:anthropic-api:…`, `chatgpt:openai-api:…:online`, any OpenRouter model)
 are cheaper but don't reproduce the consumer product. Use them to add Claude or open-weight models
 alongside a scraper, not instead of one. Full setup guide:
-<https://www.elmohq.com/docs/getting-started?ref=aeo-skill>.
+<https://redemptia.in/docs/getting-started?ref=aeo-skill>.
 
 ## Connecting an agent
 
-**MCP (preferred).** The endpoint is `/api/mcp` on the Elmo instance:
+**MCP (preferred).** The endpoint is `/api/mcp` on the Redemptia instance:
 
 ```bash
-claude mcp add --transport http elmo https://app.elmohq.com/api/mcp
+claude mcp add --transport http redemptia https://app.redemptia.in/api/mcp
 ```
 
 For self-hosted, use `<APP_URL>/api/mcp`. The client signs in through a browser and acts as that
 user. Clients that can't open a browser can send an organization API key as
-`Authorization: Bearer elmo_…`. Keys are issued in the dashboard, scoped read or read-write, and can
+`Authorization: Bearer redemptia_…`. Keys are issued in the dashboard, scoped read or read-write, and can
 be limited to some brands. Call `whoami` to see what the connection holds: `tools/list` only shows
 permitted tools, so a missing tool means a missing scope, not a missing feature.
 
 Tool names in this skill are bare (`get_analytics`). They belong to the server registered above as
-`elmo`, so their full names are `elmo:get_analytics` and so on. If the user registered the server
+`redemptia`, so their full names are `redemptia:get_analytics` and so on. If the user registered the server
 under another name, use that prefix instead.
 
-Other clients (Cursor, VS Code, ChatGPT, and others): <https://www.elmohq.com/docs/api/mcp?ref=aeo-skill>.
+Other clients (Cursor, VS Code, ChatGPT, and others): <https://redemptia.in/docs/api/mcp?ref=aeo-skill>.
 
 **REST.** Base URL `/api/v1`, with the same Bearer token. OpenAPI:
-<https://www.elmohq.com/api/openapi.json>.
+<https://redemptia.in/api/openapi.json>.
 
 ## REST without MCP
 
 Use REST when the client can run code but can't connect an MCP server, for example claude.ai on the
-web without a connector. Ask the user for an organization API key (Elmo dashboard → API keys; it
-starts with `elmo_`) and, only if they self-host, their instance URL. Keep the key in a variable
+web without a connector. Ask the user for an organization API key (Redemptia dashboard → API keys; it
+starts with `redemptia_`) and, only if they self-host, their instance URL. Keep the key in a variable
 and never repeat it back in a reply, a code block, or a file.
 
 ```python
 import json, os, urllib.parse, urllib.request
 from datetime import datetime, timedelta, timezone
 
-BASE = os.environ.get("ELMO_URL", "https://app.elmohq.com") + "/api/v1"
-KEY = os.environ["ELMO_API_KEY"]
+BASE = os.environ.get("REDEMPTIA_URL", "https://app.redemptia.in") + "/api/v1"
+KEY = os.environ["REDEMPTIA_API_KEY"]
 
 def get(path, **params):
     query = "&".join(f"{k}={urllib.parse.quote(str(v))}" for k, v in params.items() if v is not None)
@@ -131,7 +127,7 @@ either plainly instead of retrying.
 Every brand-scoped call takes a `brandId`, so start with `list_brands`. Analytics calls take a
 half-open window of ISO 8601 timestamps: `start` is included and `end` is not.
 
-| Question | MCP tool (`elmo` server) | REST |
+| Question | MCP tool (`redemptia` server) | REST |
 | --- | --- | --- |
 | How visible is the brand, per engine, and against competitors? | `get_analytics` | `GET /brands/{id}/analytics` |
 | Which prompts surface it and which don't? | `get_prompt_performance` | `GET /brands/{id}/prompt-performance` |
@@ -153,7 +149,7 @@ How the tools map onto the workflow in `SKILL.md`:
   own, a competitor's, or editorial. The editorial pages feed `off-site.md`.
 - **Fan-out (step 4):** `get_query_fanout`. Recurring queries become content targets and new prompts.
 - **Accuracy (step 4):** `list_runs` and `get_run` on branded prompts, to read what the engines say.
-- **Plan:** `get_opportunities` is Elmo's stored report. Check its `status` field, which says whether
+- **Plan:** `get_opportunities` is Redemptia's stored report. Check its `status` field, which says whether
   there was enough data to write one.
 - **New prompts (step 2):** `create_prompts` with the prompt set from `measurement.md`. Confirm
   with the user before writing.

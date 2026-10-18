@@ -1,6 +1,6 @@
-# The weekly run also installs from GitHub and elmohq.com, whose archive can
-# break on a site deploy without touching skills/. The CLI is pinned so a new
-# release can't fail this job on its own.
+# The weekly run also installs from GitHub, which can differ from the checkout
+# without touching skills/. The CLI is pinned so a new release can't fail this
+# job on its own.
 
 name: Skill install
 
@@ -12,7 +12,6 @@ on:
     paths:
       - "skills/**"
       - ".claude/skills/**"
-      - "apps/www/scripts/build-agent-skills.mjs"
       - ".github/workflows/skill-install.yaml"
   workflow_dispatch:
 
@@ -25,7 +24,7 @@ env:
 jobs:
   install:
     name: Install
-    runs-on: blacksmith-2vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
 
     steps:
@@ -55,8 +54,4 @@ jobs:
 
       - name: Install from GitHub
         if: github.event_name != 'pull_request'
-        run: scripts/check-skill-install.sh elmohq/elmo github
-
-      - name: Install from elmohq.com
-        if: github.event_name != 'pull_request'
-        run: scripts/check-skill-install.sh https://www.elmohq.com website
+        run: scripts/check-skill-install.sh redemptia/redemptia github

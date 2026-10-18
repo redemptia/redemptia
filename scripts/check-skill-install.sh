@@ -12,7 +12,7 @@ git init -q .
 pnpm dlx "${SKILLS_CLI:-skills@1.7.1}" add "$1" --skill aeo --agent claude-code -y
 
 for file in SKILL.md scripts/check_ai_access.py \
-	references/content.md references/elmo.md references/evidence.md \
+	references/content.md references/redemptia.md references/evidence.md \
 	references/measurement.md references/off-site.md references/technical.md; do
 	test -s ".claude/skills/aeo/$file" || { echo "missing $file"; exit 1; }
 done

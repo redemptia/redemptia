@@ -16,7 +16,7 @@ Don't start from a generic list of "sites AI likes". Global citation-share stati
 study, by engine, and by month. Start from the brand's own data:
 
 1. Take the **lost prompts** (unbranded, competitors present, brand absent).
-2. Pull every cited URL for them, per engine. In Elmo, use `get_citations`; editorial URLs are
+2. Pull every cited URL for them, per engine. In Redemptia, use `get_citations`; editorial URLs are
    already labeled.
 3. Classify each non-owned URL:
    - **Editorial / listicle:** "best X" roundups, reviews, comparisons on publisher or affiliate sites

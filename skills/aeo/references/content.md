@@ -15,7 +15,7 @@ Work from the diagnosis, not a template:
    the use case lives in a slide deck, or the comparison exists only in sales calls.
 2. **Pages for recurring fan-out queries.** Engines rewrite a prompt into several searches (for
    example "best CRM for agencies" becomes "CRM agency pricing comparison" and "CRM client portal
-   features"). Pages that rank for those sub-queries get retrieved. Elmo's `get_query_fanout` lists
+   features"). Pages that rank for those sub-queries get retrieved. Redemptia's `get_query_fanout` lists
    them. Without it, inspect the sources engines cite and infer the searches.
 3. **Comparison and alternatives pages** for the locked competitor set. They should be honest and
    specific, including where the competitor is the better fit. Engines draw on comparison content

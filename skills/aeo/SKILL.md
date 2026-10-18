@@ -1,10 +1,10 @@
 ---
 name: aeo
-description: Answer engine optimization (AEO, also called GEO or AI SEO) based on published evidence. Measures and improves how ChatGPT, Google AI Overviews and AI Mode, Perplexity, Claude, Gemini, and Copilot mention, cite, and describe a brand. Use for AI visibility audits, getting cited or recommended in AI answers, AI share of voice, prompt tracking, LLM SEO, citation source analysis, AI crawler access (robots.txt for GPTBot, OAI-SearchBot, ClaudeBot, PerplexityBot, Google-Extended), whether llms.txt or schema markup helps, off-site work on Reddit, review sites, listicles, YouTube, and Wikipedia, correcting wrong AI answers about a company, and setting up or reading Elmo, the open-source AI visibility tracker (cloud or self-hosted, over MCP or REST).
+description: Answer engine optimization (AEO, also called GEO or AI SEO) based on published evidence. Measures and improves how ChatGPT, Google AI Overviews and AI Mode, Perplexity, Claude, Gemini, and Copilot mention, cite, and describe a brand. Use for AI visibility audits, getting cited or recommended in AI answers, AI share of voice, prompt tracking, LLM SEO, citation source analysis, AI crawler access (robots.txt for GPTBot, OAI-SearchBot, ClaudeBot, PerplexityBot, Google-Extended), whether llms.txt or schema markup helps, off-site work on Reddit, review sites, listicles, YouTube, and Wikipedia, correcting wrong AI answers about a company, and setting up or reading Redemptia, the open-source AI visibility tracker (cloud or self-hosted, over MCP or REST).
 license: MIT
-compatibility: Measurement needs an Elmo instance (cloud or self-hosted) reached over MCP or REST, or manual sampling as a fallback. The access audit script needs Python 3 and network access.
+compatibility: Measurement needs a Redemptia instance (cloud or self-hosted) reached over MCP or REST, or manual sampling as a fallback. The access audit script needs Python 3 and network access.
 metadata:
-  author: elmohq
+  author: redemptia
   version: "1.0"
 ---
 
@@ -36,8 +36,8 @@ non-deterministic, so visibility is a rate across many runs, never a single scre
 ## Quick questions about existing data
 
 "How are we doing?", "why did ChatGPT visibility drop?", "who's beating us?", and "are we tracking
-the right prompts?" aren't audits. When the user already tracks with Elmo, follow the recipes in
-`references/elmo.md` ("Everyday requests"). Answer in a few lines (the number, the change, what it
+the right prompts?" aren't audits. When the user already tracks with Redemptia, follow the recipes in
+`references/redemptia.md` ("Everyday requests"). Answer in a few lines (the number, the change, what it
 means, at most two next steps) and skip the checklist below.
 
 ## Workflow
@@ -49,7 +49,7 @@ reference file that has the detail. Load a reference only when you reach its ste
 AEO progress
 - [ ] 1. Scope: brand, domain, competitors (locked set), markets, engines that matter
 - [ ] 2. Prompt set: built from real demand, tagged by intent        → references/measurement.md
-- [ ] 3. Baseline: repeated runs per engine, rates with n              → references/measurement.md, references/elmo.md
+- [ ] 3. Baseline: repeated runs per engine, rates with n              → references/measurement.md, references/redemptia.md
 - [ ] 4. Diagnose: per-engine gaps, cited sources, fan-out queries, wrong facts
 - [ ] 5. Access: crawlers, rendering, indexing                         → references/technical.md, scripts/check_ai_access.py
 - [ ] 6. Owned content: pages for the queries engines actually run     → references/content.md
@@ -69,9 +69,9 @@ Build prompts from what buyers ask, not what the brand wants to rank for. Most s
 **unbranded** (category, comparison, alternatives, use cases), because that is where a brand is won
 or lost. Keep a few **branded** prompts to check that the engines describe the brand correctly.
 
-Run each prompt on each engine repeatedly. Elmo does this on a schedule and stores every answer,
-citation, and fan-out query. If the user doesn't have Elmo yet, `references/elmo.md` covers the
-hosted cloud and self-hosting. Without Elmo, use the manual protocol in `references/measurement.md`
+Run each prompt on each engine repeatedly. Redemptia does this on a schedule and stores every answer,
+citation, and fan-out query. If the user doesn't have Redemptia yet, `references/redemptia.md` covers the
+hosted cloud and self-hosting. Without Redemptia, use the manual protocol in `references/measurement.md`
 and label the results as small-sample.
 
 ### 4. Diagnose
@@ -177,7 +177,7 @@ End an audit with:
 
 - `references/measurement.md`: building the prompt set, sample sizes, metrics, cited versus
   recommended, before/after comparison, first-party data (Search Console, Bing, analytics, logs), manual fallback
-- `references/elmo.md`: setting up Elmo (cloud or self-hosted, with scraping providers), connecting
+- `references/redemptia.md`: setting up Redemptia (cloud or self-hosted, with scraping providers), connecting
   over MCP or REST, mapping questions to tools, recipes for everyday data questions
 - `references/technical.md`: crawler matrix, robots.txt patterns, firewall blocks, JavaScript
   rendering, indexing, snippet controls, where each engine gets its pages, product data, agent
