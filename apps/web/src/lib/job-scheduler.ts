@@ -1,5 +1,4 @@
-import { getDeploymentFeatures } from "@workspace/deployment";
-import { getDefaultDelayHours, MENTION_RECOMPUTE_QUEUE, PROMPT_JOB_OPTIONS } from "@workspace/lib/constants";
+import { getDefaultDelayHours, PROMPT_JOB_OPTIONS } from "@workspace/lib/constants";
 import { db } from "@workspace/lib/db/db";
 import { brands, prompts } from "@workspace/lib/db/schema";
 import { eq } from "drizzle-orm";
@@ -161,23 +160,5 @@ export async function sendReportJob(data: {
 	} catch (error) {
 		console.error(`Failed to send report job for report ${reportId}:`, error);
 		return false;
-	}
-}
-
-/**
- * Queue a recompute of a brand's stored mention analysis, after a change to its
- * name, aliases, domains or competitors has committed. Call it after the commit:
- * a job that ran first would read the old subjects.
- *
- * Never throws. The edit has already succeeded, and a missed recompute leaves
- * the brand's runs reading as not analysed until backfill:run-mentions runs.
- */
-export async function enqueueMentionRecompute(brandId: string): Promise<void> {
-	try {
-		if (!getDeploymentFeatures().enrichment) return;
-		const boss = await getBoss();
-		await boss.send(MENTION_RECOMPUTE_QUEUE, { brandId }, { singletonKey: brandId });
-	} catch (error) {
-		console.error(`Failed to queue a mention recompute for brand ${brandId}:`, error);
 	}
 }

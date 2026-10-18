@@ -1,8 +1,7 @@
 /**
- * Server functions for AI-visibility analysis. Read-only. Share of Voice is
- * derived from prompt_runs via the postgres read layer plus the pure stats in
- * `@/lib/visibility-stats`; mention prominence reads the stored mention
- * analysis, counting analysed runs only.
+ * Server functions for AI-visibility analysis: Share of Voice. Read-only —
+ * derived entirely from existing prompt_runs data via the postgres read layer
+ * plus the pure stats in `@/lib/visibility-stats`. No schema changes.
  *
  * Filters are resolved server-side (tags/search -> prompt IDs) via
  * `resolveFilteredPrompts`, and the lookback window is computed in the user's
@@ -15,7 +14,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireBrandSession } from "@/lib/auth/helpers";
 import { lookbackSchema } from "@/lib/lookback";
-import { type BrandMentionProminence, getBrandMentionProminence, getBrandShareOfVoice } from "@/server/analytics-core";
+import { getBrandShareOfVoice } from "@/server/analytics-core";
 import { resolveBrandWindow } from "@/server/brand-window";
 
 export interface ShareOfVoiceEntry {
@@ -74,24 +73,4 @@ export const getShareOfVoiceFn = createServerFn({ method: "GET" })
 			})),
 			entries: result.entries,
 		};
-	});
-
-export const getMentionProminenceFn = createServerFn({ method: "GET" })
-	.validator(
-		z.object({
-			brandId: z.string(),
-			lookback: lookbackSchema.default("1m"),
-			model: z.string().optional(),
-			tags: z.string().optional(),
-			timezone: z.string().default("UTC"),
-		}),
-	)
-	.handler(async ({ data }): Promise<BrandMentionProminence> => {
-		await requireBrandSession(data.brandId);
-		const { timezone, fromDateStr, toDateStr } = await resolveBrandWindow(data.brandId, data.lookback, data.timezone);
-		return getBrandMentionProminence(
-			data.brandId,
-			{ from: fromDateStr, to: toDateStr, timezone },
-			{ model: data.model, tags: data.tags },
-		);
 	});

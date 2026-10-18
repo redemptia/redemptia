@@ -60,7 +60,6 @@ import { Route as AuthedAppOrgOrgNewRouteImport } from './routes/_authed/app/org
 import { Route as AuthedAppOrgOrgSettingsRouteImport } from './routes/_authed/app/org/$org/settings'
 import { Route as ApiPlausibleJsScriptIndexRouteImport } from './routes/api/plausible/js/script/index'
 import { Route as ApiV1BrandsBrandIdAnalyticsRouteImport } from './routes/api/v1/brands/$brandId/analytics'
-import { Route as ApiV1BrandsBrandIdMentionProminenceRouteImport } from './routes/api/v1/brands/$brandId/mention-prominence'
 import { Route as ApiV1BrandsBrandIdOpportunitiesRouteImport } from './routes/api/v1/brands/$brandId/opportunities'
 import { Route as ApiV1BrandsBrandIdPromptPerformanceRouteImport } from './routes/api/v1/brands/$brandId/prompt-performance'
 import { Route as ApiV1BrandsBrandIdQueryFanoutRouteImport } from './routes/api/v1/brands/$brandId/query-fanout'
@@ -82,7 +81,6 @@ import { Route as ApiV1PromptsPromptIdRunsRunIdRouteImport } from './routes/api/
 import { Route as AuthedAppOrgOrgBrandBrandIndexRouteImport } from './routes/_authed/app/org/$org/brand/$brand/index'
 import { Route as AuthedAppOrgOrgBrandBrandSplatRouteImport } from './routes/_authed/app/org/$org/brand/$brand/$'
 import { Route as AuthedAppOrgOrgBrandBrandCitationsRouteImport } from './routes/_authed/app/org/$org/brand/$brand/citations'
-import { Route as AuthedAppOrgOrgBrandBrandMentionsRouteImport } from './routes/_authed/app/org/$org/brand/$brand/mentions'
 import { Route as AuthedAppOrgOrgBrandBrandOpportunitiesRouteImport } from './routes/_authed/app/org/$org/brand/$brand/opportunities'
 import { Route as AuthedAppOrgOrgBrandBrandQueryFanOutRouteImport } from './routes/_authed/app/org/$org/brand/$brand/query-fan-out'
 import { Route as AuthedAppOrgOrgBrandBrandResponsesRouteImport } from './routes/_authed/app/org/$org/brand/$brand/responses'
@@ -361,12 +359,6 @@ const ApiV1BrandsBrandIdAnalyticsRoute =
     path: '/analytics',
     getParentRoute: () => ApiV1BrandsBrandIdRoute,
   } as any)
-const ApiV1BrandsBrandIdMentionProminenceRoute =
-  ApiV1BrandsBrandIdMentionProminenceRouteImport.update({
-    id: '/mention-prominence',
-    path: '/mention-prominence',
-    getParentRoute: () => ApiV1BrandsBrandIdRoute,
-  } as any)
 const ApiV1BrandsBrandIdOpportunitiesRoute =
   ApiV1BrandsBrandIdOpportunitiesRouteImport.update({
     id: '/opportunities',
@@ -491,12 +483,6 @@ const AuthedAppOrgOrgBrandBrandCitationsRoute =
   AuthedAppOrgOrgBrandBrandCitationsRouteImport.update({
     id: '/citations',
     path: '/citations',
-    getParentRoute: () => AuthedAppOrgOrgBrandBrandRoute,
-  } as any)
-const AuthedAppOrgOrgBrandBrandMentionsRoute =
-  AuthedAppOrgOrgBrandBrandMentionsRouteImport.update({
-    id: '/mentions',
-    path: '/mentions',
     getParentRoute: () => AuthedAppOrgOrgBrandBrandRoute,
   } as any)
 const AuthedAppOrgOrgBrandBrandOpportunitiesRoute =
@@ -627,7 +613,6 @@ export interface FileRoutesByFullPath {
   '/app/org/$org/new': typeof AuthedAppOrgOrgNewRoute
   '/app/org/$org/settings': typeof AuthedAppOrgOrgSettingsRouteWithChildren
   '/api/v1/brands/$brandId/analytics': typeof ApiV1BrandsBrandIdAnalyticsRoute
-  '/api/v1/brands/$brandId/mention-prominence': typeof ApiV1BrandsBrandIdMentionProminenceRoute
   '/api/v1/brands/$brandId/opportunities': typeof ApiV1BrandsBrandIdOpportunitiesRoute
   '/api/v1/brands/$brandId/prompt-performance': typeof ApiV1BrandsBrandIdPromptPerformanceRoute
   '/api/v1/brands/$brandId/query-fanout': typeof ApiV1BrandsBrandIdQueryFanoutRoute
@@ -650,7 +635,6 @@ export interface FileRoutesByFullPath {
   '/api/v1/prompts/$promptId/runs/': typeof ApiV1PromptsPromptIdRunsIndexRoute
   '/app/org/$org/brand/$brand/$': typeof AuthedAppOrgOrgBrandBrandSplatRoute
   '/app/org/$org/brand/$brand/citations': typeof AuthedAppOrgOrgBrandBrandCitationsRoute
-  '/app/org/$org/brand/$brand/mentions': typeof AuthedAppOrgOrgBrandBrandMentionsRoute
   '/app/org/$org/brand/$brand/opportunities': typeof AuthedAppOrgOrgBrandBrandOpportunitiesRoute
   '/app/org/$org/brand/$brand/query-fan-out': typeof AuthedAppOrgOrgBrandBrandQueryFanOutRoute
   '/app/org/$org/brand/$brand/responses': typeof AuthedAppOrgOrgBrandBrandResponsesRoute
@@ -710,7 +694,6 @@ export interface FileRoutesByTo {
   '/api/v1/reports': typeof ApiV1ReportsIndexRoute
   '/app/org/$org/new': typeof AuthedAppOrgOrgNewRoute
   '/api/v1/brands/$brandId/analytics': typeof ApiV1BrandsBrandIdAnalyticsRoute
-  '/api/v1/brands/$brandId/mention-prominence': typeof ApiV1BrandsBrandIdMentionProminenceRoute
   '/api/v1/brands/$brandId/opportunities': typeof ApiV1BrandsBrandIdOpportunitiesRoute
   '/api/v1/brands/$brandId/prompt-performance': typeof ApiV1BrandsBrandIdPromptPerformanceRoute
   '/api/v1/brands/$brandId/query-fanout': typeof ApiV1BrandsBrandIdQueryFanoutRoute
@@ -732,7 +715,6 @@ export interface FileRoutesByTo {
   '/api/v1/prompts/$promptId/runs': typeof ApiV1PromptsPromptIdRunsIndexRoute
   '/app/org/$org/brand/$brand/$': typeof AuthedAppOrgOrgBrandBrandSplatRoute
   '/app/org/$org/brand/$brand/citations': typeof AuthedAppOrgOrgBrandBrandCitationsRoute
-  '/app/org/$org/brand/$brand/mentions': typeof AuthedAppOrgOrgBrandBrandMentionsRoute
   '/app/org/$org/brand/$brand/opportunities': typeof AuthedAppOrgOrgBrandBrandOpportunitiesRoute
   '/app/org/$org/brand/$brand/query-fan-out': typeof AuthedAppOrgOrgBrandBrandQueryFanOutRoute
   '/app/org/$org/brand/$brand/responses': typeof AuthedAppOrgOrgBrandBrandResponsesRoute
@@ -799,7 +781,6 @@ export interface FileRoutesById {
   '/_authed/app/org/$org/new': typeof AuthedAppOrgOrgNewRoute
   '/_authed/app/org/$org/settings': typeof AuthedAppOrgOrgSettingsRouteWithChildren
   '/api/v1/brands/$brandId/analytics': typeof ApiV1BrandsBrandIdAnalyticsRoute
-  '/api/v1/brands/$brandId/mention-prominence': typeof ApiV1BrandsBrandIdMentionProminenceRoute
   '/api/v1/brands/$brandId/opportunities': typeof ApiV1BrandsBrandIdOpportunitiesRoute
   '/api/v1/brands/$brandId/prompt-performance': typeof ApiV1BrandsBrandIdPromptPerformanceRoute
   '/api/v1/brands/$brandId/query-fanout': typeof ApiV1BrandsBrandIdQueryFanoutRoute
@@ -822,7 +803,6 @@ export interface FileRoutesById {
   '/api/v1/prompts/$promptId/runs/': typeof ApiV1PromptsPromptIdRunsIndexRoute
   '/_authed/app/org/$org/brand/$brand/$': typeof AuthedAppOrgOrgBrandBrandSplatRoute
   '/_authed/app/org/$org/brand/$brand/citations': typeof AuthedAppOrgOrgBrandBrandCitationsRoute
-  '/_authed/app/org/$org/brand/$brand/mentions': typeof AuthedAppOrgOrgBrandBrandMentionsRoute
   '/_authed/app/org/$org/brand/$brand/opportunities': typeof AuthedAppOrgOrgBrandBrandOpportunitiesRoute
   '/_authed/app/org/$org/brand/$brand/query-fan-out': typeof AuthedAppOrgOrgBrandBrandQueryFanOutRoute
   '/_authed/app/org/$org/brand/$brand/responses': typeof AuthedAppOrgOrgBrandBrandResponsesRoute
@@ -889,7 +869,6 @@ export interface FileRouteTypes {
     | '/app/org/$org/new'
     | '/app/org/$org/settings'
     | '/api/v1/brands/$brandId/analytics'
-    | '/api/v1/brands/$brandId/mention-prominence'
     | '/api/v1/brands/$brandId/opportunities'
     | '/api/v1/brands/$brandId/prompt-performance'
     | '/api/v1/brands/$brandId/query-fanout'
@@ -912,7 +891,6 @@ export interface FileRouteTypes {
     | '/api/v1/prompts/$promptId/runs/'
     | '/app/org/$org/brand/$brand/$'
     | '/app/org/$org/brand/$brand/citations'
-    | '/app/org/$org/brand/$brand/mentions'
     | '/app/org/$org/brand/$brand/opportunities'
     | '/app/org/$org/brand/$brand/query-fan-out'
     | '/app/org/$org/brand/$brand/responses'
@@ -972,7 +950,6 @@ export interface FileRouteTypes {
     | '/api/v1/reports'
     | '/app/org/$org/new'
     | '/api/v1/brands/$brandId/analytics'
-    | '/api/v1/brands/$brandId/mention-prominence'
     | '/api/v1/brands/$brandId/opportunities'
     | '/api/v1/brands/$brandId/prompt-performance'
     | '/api/v1/brands/$brandId/query-fanout'
@@ -994,7 +971,6 @@ export interface FileRouteTypes {
     | '/api/v1/prompts/$promptId/runs'
     | '/app/org/$org/brand/$brand/$'
     | '/app/org/$org/brand/$brand/citations'
-    | '/app/org/$org/brand/$brand/mentions'
     | '/app/org/$org/brand/$brand/opportunities'
     | '/app/org/$org/brand/$brand/query-fan-out'
     | '/app/org/$org/brand/$brand/responses'
@@ -1060,7 +1036,6 @@ export interface FileRouteTypes {
     | '/_authed/app/org/$org/new'
     | '/_authed/app/org/$org/settings'
     | '/api/v1/brands/$brandId/analytics'
-    | '/api/v1/brands/$brandId/mention-prominence'
     | '/api/v1/brands/$brandId/opportunities'
     | '/api/v1/brands/$brandId/prompt-performance'
     | '/api/v1/brands/$brandId/query-fanout'
@@ -1083,7 +1058,6 @@ export interface FileRouteTypes {
     | '/api/v1/prompts/$promptId/runs/'
     | '/_authed/app/org/$org/brand/$brand/$'
     | '/_authed/app/org/$org/brand/$brand/citations'
-    | '/_authed/app/org/$org/brand/$brand/mentions'
     | '/_authed/app/org/$org/brand/$brand/opportunities'
     | '/_authed/app/org/$org/brand/$brand/query-fan-out'
     | '/_authed/app/org/$org/brand/$brand/responses'
@@ -1496,13 +1470,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiV1BrandsBrandIdAnalyticsRouteImport
       parentRoute: typeof ApiV1BrandsBrandIdRoute
     }
-    '/api/v1/brands/$brandId/mention-prominence': {
-      id: '/api/v1/brands/$brandId/mention-prominence'
-      path: '/mention-prominence'
-      fullPath: '/api/v1/brands/$brandId/mention-prominence'
-      preLoaderRoute: typeof ApiV1BrandsBrandIdMentionProminenceRouteImport
-      parentRoute: typeof ApiV1BrandsBrandIdRoute
-    }
     '/api/v1/brands/$brandId/opportunities': {
       id: '/api/v1/brands/$brandId/opportunities'
       path: '/opportunities'
@@ -1650,13 +1617,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedAppOrgOrgBrandBrandCitationsRouteImport
       parentRoute: typeof AuthedAppOrgOrgBrandBrandRoute
     }
-    '/_authed/app/org/$org/brand/$brand/mentions': {
-      id: '/_authed/app/org/$org/brand/$brand/mentions'
-      path: '/mentions'
-      fullPath: '/app/org/$org/brand/$brand/mentions'
-      preLoaderRoute: typeof AuthedAppOrgOrgBrandBrandMentionsRouteImport
-      parentRoute: typeof AuthedAppOrgOrgBrandBrandRoute
-    }
     '/_authed/app/org/$org/brand/$brand/opportunities': {
       id: '/_authed/app/org/$org/brand/$brand/opportunities'
       path: '/opportunities'
@@ -1796,7 +1756,6 @@ const AuthedAppOrgOrgSettingsRouteWithChildren =
 interface AuthedAppOrgOrgBrandBrandRouteChildren {
   AuthedAppOrgOrgBrandBrandSplatRoute: typeof AuthedAppOrgOrgBrandBrandSplatRoute
   AuthedAppOrgOrgBrandBrandCitationsRoute: typeof AuthedAppOrgOrgBrandBrandCitationsRoute
-  AuthedAppOrgOrgBrandBrandMentionsRoute: typeof AuthedAppOrgOrgBrandBrandMentionsRoute
   AuthedAppOrgOrgBrandBrandOpportunitiesRoute: typeof AuthedAppOrgOrgBrandBrandOpportunitiesRoute
   AuthedAppOrgOrgBrandBrandQueryFanOutRoute: typeof AuthedAppOrgOrgBrandBrandQueryFanOutRoute
   AuthedAppOrgOrgBrandBrandResponsesRoute: typeof AuthedAppOrgOrgBrandBrandResponsesRoute
@@ -1818,8 +1777,6 @@ const AuthedAppOrgOrgBrandBrandRouteChildren: AuthedAppOrgOrgBrandBrandRouteChil
     AuthedAppOrgOrgBrandBrandSplatRoute: AuthedAppOrgOrgBrandBrandSplatRoute,
     AuthedAppOrgOrgBrandBrandCitationsRoute:
       AuthedAppOrgOrgBrandBrandCitationsRoute,
-    AuthedAppOrgOrgBrandBrandMentionsRoute:
-      AuthedAppOrgOrgBrandBrandMentionsRoute,
     AuthedAppOrgOrgBrandBrandOpportunitiesRoute:
       AuthedAppOrgOrgBrandBrandOpportunitiesRoute,
     AuthedAppOrgOrgBrandBrandQueryFanOutRoute:
@@ -1924,7 +1881,6 @@ const AuthedRouteWithChildren =
 
 interface ApiV1BrandsBrandIdRouteChildren {
   ApiV1BrandsBrandIdAnalyticsRoute: typeof ApiV1BrandsBrandIdAnalyticsRoute
-  ApiV1BrandsBrandIdMentionProminenceRoute: typeof ApiV1BrandsBrandIdMentionProminenceRoute
   ApiV1BrandsBrandIdOpportunitiesRoute: typeof ApiV1BrandsBrandIdOpportunitiesRoute
   ApiV1BrandsBrandIdPromptPerformanceRoute: typeof ApiV1BrandsBrandIdPromptPerformanceRoute
   ApiV1BrandsBrandIdQueryFanoutRoute: typeof ApiV1BrandsBrandIdQueryFanoutRoute
@@ -1935,8 +1891,6 @@ interface ApiV1BrandsBrandIdRouteChildren {
 
 const ApiV1BrandsBrandIdRouteChildren: ApiV1BrandsBrandIdRouteChildren = {
   ApiV1BrandsBrandIdAnalyticsRoute: ApiV1BrandsBrandIdAnalyticsRoute,
-  ApiV1BrandsBrandIdMentionProminenceRoute:
-    ApiV1BrandsBrandIdMentionProminenceRoute,
   ApiV1BrandsBrandIdOpportunitiesRoute: ApiV1BrandsBrandIdOpportunitiesRoute,
   ApiV1BrandsBrandIdPromptPerformanceRoute:
     ApiV1BrandsBrandIdPromptPerformanceRoute,

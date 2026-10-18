@@ -25,7 +25,6 @@ export const FEATURES_BY_MODE: Record<DeploymentMode, FeaturesConfig> = {
 		billing: false,
 		reportGeneration: true,
 		teamInvites: false,
-		enrichment: true,
 	},
 	demo: {
 		readOnly: true,
@@ -38,7 +37,6 @@ export const FEATURES_BY_MODE: Record<DeploymentMode, FeaturesConfig> = {
 		billing: false,
 		reportGeneration: true,
 		teamInvites: false,
-		enrichment: false,
 	},
 	whitelabel: {
 		readOnly: false,
@@ -51,7 +49,6 @@ export const FEATURES_BY_MODE: Record<DeploymentMode, FeaturesConfig> = {
 		billing: false,
 		reportGeneration: true,
 		teamInvites: false,
-		enrichment: true,
 	},
 	cloud: {
 		readOnly: false,
@@ -64,7 +61,6 @@ export const FEATURES_BY_MODE: Record<DeploymentMode, FeaturesConfig> = {
 		billing: true,
 		reportGeneration: false,
 		teamInvites: true,
-		enrichment: true,
 	},
 };
 

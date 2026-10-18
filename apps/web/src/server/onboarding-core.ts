@@ -8,7 +8,6 @@ import type { DbConnection } from "@workspace/lib/db/db-connection";
 import { ensureOrganization } from "@workspace/lib/db/provisioning";
 import { brands, competitors, prompts } from "@workspace/lib/db/schema";
 import { claimNewBrandSlug, findUnusedBrandSlug } from "@workspace/lib/db/unique-names";
-import { touchesSubjects } from "@workspace/lib/enrichment";
 import {
 	assertCanAddPrompts,
 	assertCompetitorCap,
@@ -18,7 +17,7 @@ import {
 import { computeSystemTags, sanitizeUserTags } from "@workspace/lib/tag-utils";
 import { count, desc, eq, type SQL } from "drizzle-orm";
 import { z } from "zod";
-import { createMultiplePromptJobSchedulers, enqueueMentionRecompute } from "@/lib/job-scheduler";
+import { createMultiplePromptJobSchedulers } from "@/lib/job-scheduler";
 
 export class BrandConflictError extends Error {
 	constructor(public readonly brandId: string) {
@@ -376,7 +375,6 @@ export async function updateBrand(input: UpdateBrandInput): Promise<BrandResult>
 	if (input.enabled !== undefined) patch.enabled = input.enabled;
 
 	await db.update(brands).set(patch).where(eq(brands.id, input.brandId));
-	if (touchesSubjects(patch)) await enqueueMentionRecompute(input.brandId);
 	const refreshed = await db.query.brands.findFirst({ where: eq(brands.id, input.brandId) });
 	return buildBrandResult(refreshed!);
 }
@@ -398,9 +396,8 @@ export async function saveWizardOnboarding(input: WizardOnboardingInput): Promis
 
 	// Both inserts check a usage count first, so they run under one lock: two
 	// saves racing each other must not both spend the same last slot.
-	let competitorsAdded = 0;
 	const wizardPromptIds = await withQuotaLock(existing.organizationId, async (tx) => {
-		competitorsAdded = await insertCompetitors({
+		await insertCompetitors({
 			brandId: input.brandId,
 			websiteHost,
 			source: (input.competitors ?? []).map((c) => ({
@@ -426,7 +423,6 @@ export async function saveWizardOnboarding(input: WizardOnboardingInput): Promis
 		});
 	});
 	await createMultiplePromptJobSchedulers(wizardPromptIds);
-	if (competitorsAdded > 0) await enqueueMentionRecompute(input.brandId);
 
 	const refreshed = await db.query.brands.findFirst({ where: eq(brands.id, input.brandId) });
 	return buildBrandResult(refreshed!);

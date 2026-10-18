@@ -10,8 +10,6 @@ import { classifyUrl as classifyUrlShared } from "@workspace/lib/citations/domai
 import { rollUpCitationDomains, rollUpCitationUrls } from "@workspace/lib/citations/rollup";
 import { db } from "@workspace/lib/db/db";
 import { brands, competitors } from "@workspace/lib/db/schema";
-import { subjectFingerprint } from "@workspace/lib/enrichment";
-import { loadBrandSubjects } from "@workspace/lib/enrichment/write";
 import { getEffectiveBrandedStatus } from "@workspace/lib/tag-utils";
 import { eq } from "drizzle-orm";
 import { generateDateRange } from "@/lib/chart-utils";
@@ -26,7 +24,6 @@ import {
 	getFanoutBreakdown,
 	getFanoutModelTotals,
 	getFanoutPromptTotals,
-	getMentionProminence,
 	getPerPromptDailyCompetitorMentions,
 	getPerPromptDailyMentions,
 	getPromptsFirstEvaluatedAt,
@@ -451,77 +448,6 @@ export async function getBrandPromptPerformance(
 			firstEvaluatedAt: first ? new Date(first).toISOString() : null,
 		};
 	});
-}
-
-export interface SubjectProminence {
-	key: string;
-	kind: "brand" | "competitor";
-	name: string;
-	/** Analysed runs whose answer names the subject. */
-	mentionedRuns: number;
-	/** Of analysed runs only; null when none are analysed. */
-	mentionRate: number | null;
-	/**
-	 * Over the runs that name the subject, not all analysed runs: 1 when answers
-	 * open with it, falling toward 0 the later it first appears. Null when never
-	 * mentioned. Read it with mentionRate.
-	 */
-	averageProminence: number | null;
-	/**
-	 * Over the runs that name the subject: its mean rank among the subjects each
-	 * of those answers names (1 = named first). Null when never mentioned.
-	 */
-	averageRank: number | null;
-}
-
-export interface BrandMentionProminence {
-	/** Every run in the window, and how many of them have a current analysis. */
-	coverage: { runs: number; analysed: number };
-	subjects: SubjectProminence[];
-}
-
-/**
- * Where answers name the brand and each competitor, from stored mention
- * analysis. Counts come from analysed runs only, so they can differ from
- * visibility and share of voice, which read prompt_runs.brand_mentioned over
- * every run. A run without a current analysis is counted in `coverage.runs`
- * and nowhere else: never as a run that didn't mention a subject.
- */
-export async function getBrandMentionProminence(
-	brandId: string,
-	window: AnalyticsWindow,
-	filters: AnalyticsFilters = {},
-): Promise<BrandMentionProminence> {
-	const [{ promptIds }, subjects] = await Promise.all([resolveScope(brandId, filters), loadBrandSubjects(db, brandId)]);
-	if (!subjects) return { coverage: { runs: 0, analysed: 0 }, subjects: [] };
-
-	const { from, to, timezone } = window;
-	const { coverage, subjects: rows } =
-		promptIds.length === 0
-			? { coverage: { runs: 0, analysed: 0 }, subjects: [] }
-			: await getMentionProminence(brandId, from, to, timezone, promptIds, subjectFingerprint(subjects), filters.model);
-	const byKey = new Map(rows.map((row) => [row.subject_key, row]));
-
-	const ordered = [
-		...subjects.filter((subject) => subject.kind === "brand"),
-		...subjects.filter((subject) => subject.kind === "competitor").sort((a, b) => a.name.localeCompare(b.name)),
-	];
-	return {
-		coverage,
-		subjects: ordered.map((subject) => {
-			const row = byKey.get(subject.key);
-			const mentionedRuns = row?.mentioned_runs ?? 0;
-			return {
-				key: subject.key,
-				kind: subject.kind,
-				name: subject.name,
-				mentionedRuns,
-				mentionRate: coverage.analysed === 0 ? null : mentionedRuns / coverage.analysed,
-				averageProminence: row ? 1 - row.avg_position : null,
-				averageRank: row ? row.avg_rank : null,
-			};
-		}),
-	};
 }
 
 /** The long lists — cited domains and URLs, sub-queries, per-prompt results —

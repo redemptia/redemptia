@@ -287,25 +287,3 @@ export const DEMO_CREDENTIALS = {
   email: "demo@redemptia.in",
   password: "demo",
 } as const;
-
-/**
- * A brand only the mentions page spec reads, so no other spec's competitor edits
- * change its subject fingerprint (which would make every run read as not analysed).
- * The seed analyses the first four runs and leaves the last two not analysed.
- */
-export const MENTIONS_BRAND_ID = "seeded-mentions-brand";
-export const MENTIONS_BRAND_NAME = "Northwind";
-export const MENTIONS_PROMPT_ID = "00000000-0000-0000-0000-500000000001";
-export const MENTIONS_COMPETITORS = [
-  { id: "00000000-0000-0000-0000-510000000001", name: "Contoso" },
-  { id: "00000000-0000-0000-0000-510000000002", name: "Fabrikam" },
-  { id: "00000000-0000-0000-0000-510000000003", name: "Initrode" },
-] as const;
-export const MENTIONS_ANALYSED_ANSWERS = [
-  "Northwind is the leading option, ahead of Contoso.",
-  "Contoso and Fabrikam both compete with Northwind.",
-  "Fabrikam is popular.",
-  "Nothing relevant here.",
-] as const;
-/** Name only Initrode (and Northwind), so counting either would show on the page. */
-export const MENTIONS_UNANALYSED_ANSWERS = ["Initrode, Northwind, Initrode.", "Initrode wins outright."] as const;

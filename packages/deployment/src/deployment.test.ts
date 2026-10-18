@@ -106,15 +106,6 @@ describe("getDeploymentFeatures", () => {
 		expect(getDeploymentFeatures({ env: { DEPLOYMENT_MODE: "whitelabel" } }).reportGeneration).toBe(true);
 	});
 
-	it("recomputes mention analysis everywhere but demo", () => {
-		const enrichment = (env: Record<string, string>) => getDeploymentFeatures({ env }).enrichment;
-		expect(enrichment({ DEPLOYMENT_MODE: "local" })).toBe(true);
-		expect(enrichment({ DEPLOYMENT_MODE: "whitelabel" })).toBe(true);
-		expect(enrichment({ DEPLOYMENT_MODE: "cloud" })).toBe(true);
-		expect(enrichment({ DEPLOYMENT_MODE: "demo" })).toBe(false);
-		expect(enrichment({ DEPLOYMENT_MODE: "local", READ_ONLY: "true" })).toBe(false);
-	});
-
 	it("turns a read-only local install into demo features", () => {
 		expect(getDeploymentFeatures({ env: { DEPLOYMENT_MODE: "local", READ_ONLY: "true" } }).readOnly).toBe(true);
 	});

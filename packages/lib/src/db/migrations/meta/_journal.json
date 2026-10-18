@@ -197,13 +197,6 @@
       "when": 1791366519589,
       "tag": "0103_run_texts_source",
       "breakpoints": true
-    },
-    {
-      "idx": 28,
-      "version": "7",
-      "when": 1791742823234,
-      "tag": "0104_run_mention_analysis",
-      "breakpoints": true
     }
   ]
 }

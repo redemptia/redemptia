@@ -1,21 +1,7 @@
-import { getDeploymentFeatures } from "@workspace/deployment";
-import {
-	MENTION_RECOMPUTE_QUEUE,
-	MENTION_RECOMPUTE_QUEUE_OPTIONS,
-	MENTION_RECOMPUTE_QUEUE_POLICY,
-	PROMPT_JOB_OPTIONS,
-} from "@workspace/lib/constants";
+import { PROMPT_JOB_OPTIONS } from "@workspace/lib/constants";
 import { PgBoss } from "pg-boss";
 
 let bossInstance: PgBoss | null = null;
-
-function enrichmentEnabled(): boolean {
-	try {
-		return getDeploymentFeatures().enrichment;
-	} catch {
-		return false;
-	}
-}
 let bossPromise: Promise<PgBoss> | null = null;
 
 /**
@@ -64,17 +50,6 @@ export async function getBoss(): Promise<PgBoss> {
 			retryBackoff: false,
 			expireInSeconds: 60 * 15,
 		});
-
-		// Here as well as in the worker, so an edit made before the worker first
-		// starts can still queue its recompute. A deployment that can't resolve
-		// its mode skips it rather than failing every job this client sends.
-		if (enrichmentEnabled()) {
-			await boss.createQueue(MENTION_RECOMPUTE_QUEUE, {
-				policy: MENTION_RECOMPUTE_QUEUE_POLICY,
-				...MENTION_RECOMPUTE_QUEUE_OPTIONS,
-			});
-			await boss.updateQueue(MENTION_RECOMPUTE_QUEUE, MENTION_RECOMPUTE_QUEUE_OPTIONS);
-		}
 
 		bossInstance = boss;
 		return boss;

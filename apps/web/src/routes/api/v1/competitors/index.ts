@@ -15,7 +15,6 @@ import { z } from "zod";
 import { clampedPaging } from "@/lib/api/analytics-range";
 import { ApiError, createApiHandler, withMethodGuard } from "@/lib/api/handler";
 import { brandScopeCondition, requireBrandInScope } from "@/lib/api/scope";
-import { enqueueMentionRecompute } from "@/lib/job-scheduler";
 import { listCompetitors } from "@/server/competitors-core";
 
 const createCompetitorBody = z.object({
@@ -68,7 +67,7 @@ export const Route = createFileRoute("/api/v1/competitors/")({
 
 					// Check and insert under one lock: otherwise two requests on a
 					// brand's last competitor slot both pass the check.
-					const created = await withQuotaLock(brand.organizationId, async (tx) => {
+					return await withQuotaLock(brand.organizationId, async (tx) => {
 						await assertCompetitorCap(brandId, 1, tx);
 
 						const [inserted] = await tx
@@ -83,8 +82,6 @@ export const Route = createFileRoute("/api/v1/competitors/")({
 
 						return inserted;
 					});
-					await enqueueMentionRecompute(brandId);
-					return created;
 				},
 			}),
 		}),

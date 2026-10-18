@@ -16,7 +16,6 @@ import {
 	isBrandSlugAvailable,
 	isCompetitorNameTaken,
 } from "@workspace/lib/db/unique-names";
-import { touchesSubjects } from "@workspace/lib/enrichment";
 import {
 	assertAllowed,
 	assertCanCreateBrand,
@@ -40,7 +39,6 @@ import {
 import { evaluateRequireCanCreateBrands } from "@/lib/auth/policies";
 import { normalizeBrandUpdate } from "@/lib/brand-settings";
 import { validateWebsiteUrl } from "@/lib/brand-website";
-import { enqueueMentionRecompute } from "@/lib/job-scheduler";
 import type { TrackedTarget } from "@/lib/model-filter";
 import { INVALID_SLUG, TAKEN_SLUG } from "@/lib/slug-errors";
 import { setBrandCompetitors } from "@/server/competitors-core";
@@ -391,7 +389,6 @@ export const updateBrandFn = createServerFn({ method: "POST" })
 			throw new Error("Failed to update brand");
 		}
 
-		if (touchesSubjects(updateData)) await enqueueMentionRecompute(data.brandId);
 		return result[0];
 	});
 
@@ -444,9 +441,7 @@ export const updateCompetitors = createServerFn({ method: "POST" })
 			};
 		});
 
-		const saved = await setBrandCompetitors(data.brandId, cleanedCompetitors);
-		await enqueueMentionRecompute(data.brandId);
-		return saved;
+		return setBrandCompetitors(data.brandId, cleanedCompetitors);
 	});
 
 /**
@@ -474,10 +469,7 @@ export const addDomainToBrandFn = createServerFn({ method: "POST" })
 			.where(and(eq(brands.id, data.brandId), sql`NOT (${domain} = ANY(${brands.additionalDomains}))`))
 			.returning();
 
-		if (result) {
-			await enqueueMentionRecompute(data.brandId);
-			return result;
-		}
+		if (result) return result;
 
 		const brand = await db.query.brands.findFirst({
 			where: eq(brands.id, data.brandId),
@@ -516,7 +508,6 @@ export const addDomainToCompetitorFn = createServerFn({ method: "POST" })
 			.where(eq(competitors.id, data.competitorId))
 			.returning();
 
-		await enqueueMentionRecompute(data.brandId);
 		return result;
 	});
 
@@ -541,7 +532,7 @@ export const createCompetitorFromDomainFn = createServerFn({ method: "POST" })
 		// Check and insert under one lock: otherwise two requests on a brand's
 		// last competitor slot both pass the check.
 		try {
-			const created = await withQuotaLock(org.id, async (tx) => {
+			return await withQuotaLock(org.id, async (tx) => {
 				await assertCompetitorCap(data.brandId, 1, tx);
 
 				const [result] = await tx
@@ -555,8 +546,6 @@ export const createCompetitorFromDomainFn = createServerFn({ method: "POST" })
 
 				return result;
 			});
-			await enqueueMentionRecompute(data.brandId);
-			return created;
 		} catch (error) {
 			if (isCompetitorNameTaken(error)) throw new Error(`"${data.name.trim()}" is already a competitor of this brand.`);
 			throw error;

@@ -22,71 +22,17 @@ export function normalizeDomain(urlOrDomain: string): string {
 }
 
 /** A blank term is contained in every answer, so it has to match nothing instead. */
-function needleFor(term: string | null | undefined): string | null {
+function containsTerm(contentLower: string, term: string | null | undefined): boolean {
 	const needle = term?.trim().toLowerCase();
-	return needle || null;
+	return !!needle && contentLower.includes(needle);
 }
 
-export interface SubjectSpan {
-	start: number;
-	/** Exclusive. */
-	end: number;
-	kind: "name" | "alias" | "domain";
-}
-
-export interface SubjectLocation {
-	first: number;
-	/** `first` as a fraction of the content's length: 0 opens the answer. */
-	position: number;
-	/** Places the subject appears, with overlapping spans ("Acme" inside "Acme Corp") counted once. */
-	count: number;
-	/** Each term's non-overlapping matches, ordered by start. */
-	spans: SubjectSpan[];
-}
-
-/**
- * Offsets index `contentLower`, not the original answer: lowercasing can change
- * a string's length ("İ" becomes two code units), so a span can't be applied to
- * the original text as-is. `position` is a ratio within `contentLower` and is
- * unaffected.
- */
-export function locateSubject(contentLower: string, subject: MentionSubject): SubjectLocation | null {
-	const terms: Array<[string | null | undefined, SubjectSpan["kind"]]> = [
-		[subject.name, "name"],
-		...(subject.aliases ?? []).map((alias): [string, SubjectSpan["kind"]] => [alias, "alias"]),
-		...(subject.domains ?? [])
-			.filter((domain): domain is string => domain != null)
-			.map((domain): [string, SubjectSpan["kind"]] => [normalizeDomain(domain), "domain"]),
-	];
-
-	// Keyed by offsets so a term listed twice, or a name repeated as an alias, is
-	// one span. Terms are scanned name, aliases, domains, so the first kind to
-	// claim an offset is the one reported.
-	const spansByOffsets = new Map<string, SubjectSpan>();
-	for (const [term, kind] of terms) {
-		const needle = needleFor(term);
-		if (!needle) continue;
-		for (let at = contentLower.indexOf(needle); at !== -1; at = contentLower.indexOf(needle, at + needle.length)) {
-			const key = `${at}:${at + needle.length}`;
-			if (!spansByOffsets.has(key)) spansByOffsets.set(key, { start: at, end: at + needle.length, kind });
-		}
-	}
-	if (spansByOffsets.size === 0) return null;
-
-	const spans = [...spansByOffsets.values()].sort((a, b) => a.start - b.start || b.end - a.end);
-	let count = 0;
-	let reach = -1;
-	for (const span of spans) {
-		if (span.start >= reach) count++;
-		reach = Math.max(reach, span.end);
-	}
-	const first = spans[0].start;
-	return { first, position: first / contentLower.length, count, spans };
-}
-
-/** Defined by `locateSubject`, so a subject can't be mentioned by one and absent from the other. */
 export function mentionsSubject(contentLower: string, subject: MentionSubject): boolean {
-	return locateSubject(contentLower, subject) !== null;
+	const names = [subject.name, ...(subject.aliases ?? [])];
+	if (names.some((name) => containsTerm(contentLower, name))) return true;
+	return (subject.domains ?? []).some(
+		(domain) => domain != null && containsTerm(contentLower, normalizeDomain(domain)),
+	);
 }
 
 export function analyzeMentions(
