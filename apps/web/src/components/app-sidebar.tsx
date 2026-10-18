@@ -73,7 +73,7 @@ function organizationGroups(
 		{ title: "MCP", link: { to: "/app/org/$org/settings/mcp", params }, icon: IconPlugConnected },
 	];
 
-	// The skill is Elmo's, and whitelabel deployments never point users at Elmo.
+	// The skill names Redemptia, and whitelabel deployments never point users at Redemptia.
 	if (mode !== "whitelabel") {
 		docs.push({ title: "Skill", link: { to: "/app/org/$org/settings/skill", params }, icon: IconSchool });
 	}

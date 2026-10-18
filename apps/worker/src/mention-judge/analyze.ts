@@ -261,7 +261,8 @@ export function jevAnalyzer(transport: JevTransport, concurrency = 8, model = JE
 let current: MentionAnalyzer | undefined;
 
 export function configureMentionAnalyzer(apiKey = process.env.TYPESAFE_API_KEY): MentionAnalyzer {
-	if (!apiKey?.trim()) throw new Error("TYPESAFE_API_KEY is required: Elmo judges mentions and sentiment with Jev");
+	if (!apiKey?.trim())
+		throw new Error("TYPESAFE_API_KEY is required: Redemptia judges mentions and sentiment with Jev");
 	if (apiKey.trim() === "stub") {
 		console.warn(
 			"[mention-judge] TYPESAFE_API_KEY=stub: judging from cue words, not Jev. For tests and development only.",

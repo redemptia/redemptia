@@ -21,7 +21,7 @@ A high visibility score means AI models consistently mention your brand when ans
 
 ## How Mentions Are Decided
 
-Elmo finds every place a response uses your brand's name, an alias, or one of its domains as a whole word. It then sends the response to [Jev](https://typesafe.ai), a language model built for judging text, which reads it and decides whether the response is really talking about your brand. Responses that name no tracked company aren't sent.
+Redemptia finds every place a response uses your brand's name, an alias, or one of its domains as a whole word. It then sends the response to [Jev](https://typesafe.ai), a language model built for judging text, which reads it and decides whether the response is really talking about your brand. Responses that name no tracked company aren't sent.
 
 - **Counted** — the response talks about your brand, or cites a link containing your brand's name or domain. When Jev can't tell either way it counts too, so a real mention is never hidden.
 - **Not counted** — the name means something else ("an apple a day"), refers to a different company with the same name, or the response says it has no information about your brand.

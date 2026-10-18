@@ -24,7 +24,7 @@ export default async function setup() {
 	const url = process.env.TEST_DATABASE_URL;
 	if (!url) {
 		throw new Error(
-			"Integration tests need TEST_DATABASE_URL: a local Postgres database ending in _test that they may migrate and write to, e.g. postgres://postgres:postgres@localhost:5432/elmo_test",
+			"Integration tests need TEST_DATABASE_URL: a local Postgres database ending in _test that they may migrate and write to, e.g. postgres://postgres:postgres@localhost:5432/redemptia_test",
 		);
 	}
 	assertDisposable(url);

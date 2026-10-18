@@ -4,9 +4,8 @@ import { CodeBlock, InlineCode } from "@/components/code-block";
 import { useOrganization } from "@/hooks/use-organizations";
 import { pageHead } from "@/lib/route-head";
 
-const INSTALL_COMMAND = "npx skills add elmohq/elmo";
-const SKILL_URL = "https://github.com/elmohq/elmo/tree/main/skills/aeo";
-const LAUNCH_POST_URL = "https://www.elmohq.com/blog/aeo-skill";
+const INSTALL_COMMAND = "npx skills add redemptia/redemptia";
+const SKILL_URL = "https://github.com/redemptia/redemptia/tree/main/skills/aeo";
 
 const EXAMPLE_ASKS = [
 	"How's our brand doing in AI search this week?",
@@ -72,13 +71,7 @@ function SkillPage() {
 				</ul>
 			</section>
 
-			<p className="text-sm text-muted-foreground">
-				The skill is MIT-licensed.{" "}
-				<a href={LAUNCH_POST_URL} target="_blank" rel="noreferrer" className="underline underline-offset-4">
-					Read how it compares with other AEO skills
-				</a>
-				.
-			</p>
+			<p className="text-sm text-muted-foreground">The skill is MIT-licensed.</p>
 		</div>
 	);
 }

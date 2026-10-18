@@ -201,7 +201,7 @@ export async function runUpgrade(options: UpgradeOptions, cliVersion: string): P
 	p.outro(pc.green(`Upgraded to ${cliVersion}.`));
 }
 
-/** Elmo can't judge answers without a Jev key, so an upgrade that lacks one asks for it before stopping anything. */
+/** Redemptia can't judge answers without a Jev key, so an upgrade that lacks one asks for it before stopping anything. */
 async function ensureJudgeKey(configDir: string, context: MigrationContext, nonInteractive: boolean | undefined) {
 	// Without this, an unreadable .env would be replaced by one holding only the key.
 	if (!(await fs.stat(path.join(configDir, ".env")).catch(() => null))) {
@@ -216,7 +216,7 @@ async function ensureJudgeKey(configDir: string, context: MigrationContext, nonI
 		log.error(
 			"This version needs TYPESAFE_API_KEY (Jev, https://console.typesafe.ai) to judge mentions and sentiment.",
 		);
-		log.info("Add it to .env with `elmo edit env`, then rerun the upgrade.");
+		log.info("Add it to .env with `redemptia edit env`, then rerun the upgrade.");
 		process.exit(1);
 	}
 	await collectJudgeKey(env);

@@ -98,7 +98,7 @@ const digest = (value: unknown) => createHash("sha256").update(JSON.stringify(va
 /**
  * A letter or digit that continues a word. Not one from a script written without spaces between
  * words (Chinese, Japanese, Thai…) or from Korean, whose particles attach to the word before them:
- * "Elmo是…" and "Elmo는…" both name Elmo.
+ * "Redemptia是…" and "Redemptia는…" both name Redemptia.
  */
 const WORD_CHAR = String.raw`[[\p{L}\p{N}]--[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}\p{Script=Thai}\p{Script=Lao}\p{Script=Khmer}\p{Script=Myanmar}]]`;
 

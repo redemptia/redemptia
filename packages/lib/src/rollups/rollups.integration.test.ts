@@ -247,11 +247,11 @@ const rebuildAll = (db: TestDb) => rebuildRange(db, BRAND_ID, B0, B3);
 async function withBrandLocked<T>(fn: () => Promise<T>): Promise<T> {
 	const client = await db.$client.connect();
 	try {
-		await client.query("SELECT pg_advisory_lock(hashtext('elmo-rollups'), hashtext($1))", [BRAND_ID]);
+		await client.query("SELECT pg_advisory_lock(hashtext('redemptia-rollups'), hashtext($1))", [BRAND_ID]);
 		try {
 			return await fn();
 		} finally {
-			await client.query("SELECT pg_advisory_unlock(hashtext('elmo-rollups'), hashtext($1))", [BRAND_ID]);
+			await client.query("SELECT pg_advisory_unlock(hashtext('redemptia-rollups'), hashtext($1))", [BRAND_ID]);
 		}
 	} finally {
 		client.release();

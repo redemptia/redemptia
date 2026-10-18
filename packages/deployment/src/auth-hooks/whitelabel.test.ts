@@ -52,9 +52,9 @@ afterEach(() => {
 describe("syncAuth0User", () => {
 	it("applies org memberships and flags from the user's Auth0 app_metadata", async () => {
 		const fetchMock = stubAuth0Tenant({
-			elmo_orgs: [{ id: "org_1", name: "Acme" }],
-			elmo_admin: true,
-			elmo_report_generator_access: true,
+			redemptia_orgs: [{ id: "org_1", name: "Acme" }],
+			redemptia_admin: true,
+			redemptia_report_generator_access: true,
 		});
 		const { syncAuth0User } = await loadWhitelabel();
 

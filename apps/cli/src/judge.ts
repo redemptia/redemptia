@@ -8,7 +8,7 @@ const SIGNUP_URL = "https://console.typesafe.ai";
 export async function collectJudgeKey(env: EnvMap): Promise<void> {
 	p.note(
 		[
-			"Elmo reads every answer with Jev (TypeSafe) to decide which ones really",
+			"Redemptia reads every answer with Jev (TypeSafe) to decide which ones really",
 			"mention your brand and competitors, how they describe each, and the",
 			"passage that shows it. Answers that name a tracked company are sent to",
 			"TypeSafe for this; the rest cost nothing.",
@@ -18,7 +18,7 @@ export async function collectJudgeKey(env: EnvMap): Promise<void> {
 			"platforms is ~11,000 answers, about $2–4 a month; 100 prompts on 5",
 			"platforms is ~75,000, about $11–26.",
 			"",
-			"On first start Elmo also re-judges the last 90 days of history once",
+			"On first start Redemptia also re-judges the last 90 days of history once",
 			"(REPROCESS_DAYS), about three months of the above.",
 			"",
 			`Get a key: ${link(pc.cyan(SIGNUP_URL), SIGNUP_URL)}`,

@@ -28,13 +28,13 @@ export interface RebuildStats {
  * rebuild between its cascade into the rollups and the rebuild's foreign key check.
  */
 export async function lockBrandRollups(tx: DbConnection, brandId: string): Promise<void> {
-	await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext('elmo-rollups'), hashtext(${brandId}))`);
+	await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext('redemptia-rollups'), hashtext(${brandId}))`);
 }
 
 /** `lockBrandRollups` without waiting: false when someone else is rewriting the brand. */
 export async function tryLockBrandRollups(tx: DbConnection, brandId: string): Promise<boolean> {
 	const result = await tx.execute<{ locked: boolean }>(
-		sql`SELECT pg_try_advisory_xact_lock(hashtext('elmo-rollups'), hashtext(${brandId})) AS locked`,
+		sql`SELECT pg_try_advisory_xact_lock(hashtext('redemptia-rollups'), hashtext(${brandId})) AS locked`,
 	);
 	return result.rows[0]?.locked === true;
 }
