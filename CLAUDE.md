@@ -73,7 +73,7 @@ This map is derived from the pull-request workflows in `.github/workflows/`. `sc
 | **Vercel**, **Vercel Preview Comments** | | External; no local command |
 <!-- gate:end -->
 
-- **Baseline:** 1,521 unit tests (config 114, cli 32, deployment 52, lib 697, worker 66, web 560), 116 integration tests (web 56, worker 34, lib 26) and 157 Storybook tests, all green, no expected failures. A fresh `_test` database applies 32 migrations.
+- **Baseline:** 1,526 unit tests (config 119, cli 32, deployment 52, lib 697, worker 66, web 560), 116 integration tests (web 56, worker 34, lib 26) and 160 Storybook tests, all green, no expected failures. A fresh `_test` database applies 32 migrations.
 - **CI sets no `DEPLOYMENT_MODE`.** An integration test that reaches deployment or entitlement code (`getDeploymentFeatures`, `getOrgEntitlements`) must `vi.stubEnv("DEPLOYMENT_MODE", …)`, and before anything it starts (the worker creates some pg-boss queues, such as `generate-report`, only when a deployment feature is on). A local `.env` hides the failure, so it shows up only in CI. To reproduce one, move both `.env` files aside and run the file alone against a fresh `_test` database: another file can create shared state, such as a queue, that masks it.
 - **Known flaky tests:**
   - `e2e/tests/shared/api-keys.spec.ts` (brand multi-select vs the Create click) and `e2e/tests/shared/overview.spec.ts` (sidebar links) can flake. `failOnFlakyTests` makes a flake red.
