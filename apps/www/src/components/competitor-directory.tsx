@@ -10,12 +10,13 @@ import {
 	getComparisonSlug,
 	getFeatureLabel,
 	getPopularityGrade,
+	isRetired,
 	REDEMPTIA_FEATURES,
 	sortedCompetitors,
 } from "@/lib/competitors";
 import { FeatureMark } from "./feature-mark";
 
-const visibleCompetitors = sortedCompetitors.filter((c) => c.status !== "shutting-down" && c.category !== "other");
+const visibleCompetitors = sortedCompetitors.filter((c) => !isRetired(c) && c.category !== "other");
 
 export function CompetitorDirectory() {
 	const [selectedCategory, setSelectedCategory] = useState<CompetitorCategory | "all">("all");
@@ -123,7 +124,9 @@ function FeatureMatrix({ competitors: items }: { competitors: Competitor[] }) {
 	const stickyCell = "sticky left-0 z-10 bg-white shadow-[2px_0_4px_-2px_rgba(0,0,0,0.08)]";
 
 	return (
-		<div className="overflow-x-auto">
+		// relative: the cells' sr-only labels are absolutely positioned, and without a
+		// containing block here they stretch the whole page instead of this scroller.
+		<div className="relative overflow-x-auto">
 			<table className="w-full min-w-[800px] text-sm">
 				<thead>
 					<tr className="border-b border-zinc-200">
