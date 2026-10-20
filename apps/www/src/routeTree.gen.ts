@@ -34,6 +34,7 @@ import { Route as AiSearchIndexRouteImport } from './routes/ai-search/index'
 import { Route as AiSearchSlugRouteImport } from './routes/ai-search/$slug'
 import { Route as AiVisibilityToolsIndexRouteImport } from './routes/ai-visibility-tools/index'
 import { Route as AiVisibilityToolsSlugRouteImport } from './routes/ai-visibility-tools/$slug'
+import { Route as AiVisibilityToolsGraveyardRouteImport } from './routes/ai-visibility-tools/graveyard'
 import { Route as ApiOpenapiDotjsonRouteImport } from './routes/api/openapi[.]json'
 import { Route as ApiSearchRouteImport } from './routes/api/search'
 import { Route as DocsIndexRouteImport } from './routes/docs/index'
@@ -185,6 +186,12 @@ const AiVisibilityToolsSlugRoute = AiVisibilityToolsSlugRouteImport.update({
   path: '/ai-visibility-tools/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AiVisibilityToolsGraveyardRoute =
+  AiVisibilityToolsGraveyardRouteImport.update({
+    id: '/ai-visibility-tools/graveyard',
+    path: '/ai-visibility-tools/graveyard',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiOpenapiDotjsonRoute = ApiOpenapiDotjsonRouteImport.update({
   id: '/api/openapi.json',
   path: '/api/openapi.json',
@@ -330,6 +337,7 @@ export interface FileRoutesByFullPath {
   '/aeo-for/$slug': typeof AeoForSlugRoute
   '/ai-search/$slug': typeof AiSearchSlugRoute
   '/ai-visibility-tools/$slug': typeof AiVisibilityToolsSlugRoute
+  '/ai-visibility-tools/graveyard': typeof AiVisibilityToolsGraveyardRoute
   '/api/openapi.json': typeof ApiOpenapiDotjsonRoute
   '/api/search': typeof ApiSearchRoute
   '/docs/$': typeof DocsSplatRoute
@@ -379,6 +387,7 @@ export interface FileRoutesByTo {
   '/aeo-for/$slug': typeof AeoForSlugRoute
   '/ai-search/$slug': typeof AiSearchSlugRoute
   '/ai-visibility-tools/$slug': typeof AiVisibilityToolsSlugRoute
+  '/ai-visibility-tools/graveyard': typeof AiVisibilityToolsGraveyardRoute
   '/api/openapi.json': typeof ApiOpenapiDotjsonRoute
   '/api/search': typeof ApiSearchRoute
   '/docs/$': typeof DocsSplatRoute
@@ -429,6 +438,7 @@ export interface FileRoutesById {
   '/aeo-for/$slug': typeof AeoForSlugRoute
   '/ai-search/$slug': typeof AiSearchSlugRoute
   '/ai-visibility-tools/$slug': typeof AiVisibilityToolsSlugRoute
+  '/ai-visibility-tools/graveyard': typeof AiVisibilityToolsGraveyardRoute
   '/api/openapi.json': typeof ApiOpenapiDotjsonRoute
   '/api/search': typeof ApiSearchRoute
   '/docs/$': typeof DocsSplatRoute
@@ -480,6 +490,7 @@ export interface FileRouteTypes {
     | '/aeo-for/$slug'
     | '/ai-search/$slug'
     | '/ai-visibility-tools/$slug'
+    | '/ai-visibility-tools/graveyard'
     | '/api/openapi.json'
     | '/api/search'
     | '/docs/$'
@@ -529,6 +540,7 @@ export interface FileRouteTypes {
     | '/aeo-for/$slug'
     | '/ai-search/$slug'
     | '/ai-visibility-tools/$slug'
+    | '/ai-visibility-tools/graveyard'
     | '/api/openapi.json'
     | '/api/search'
     | '/docs/$'
@@ -578,6 +590,7 @@ export interface FileRouteTypes {
     | '/aeo-for/$slug'
     | '/ai-search/$slug'
     | '/ai-visibility-tools/$slug'
+    | '/ai-visibility-tools/graveyard'
     | '/api/openapi.json'
     | '/api/search'
     | '/docs/$'
@@ -628,6 +641,7 @@ export interface RootRouteChildren {
   AeoForSlugRoute: typeof AeoForSlugRoute
   AiSearchSlugRoute: typeof AiSearchSlugRoute
   AiVisibilityToolsSlugRoute: typeof AiVisibilityToolsSlugRoute
+  AiVisibilityToolsGraveyardRoute: typeof AiVisibilityToolsGraveyardRoute
   ApiOpenapiDotjsonRoute: typeof ApiOpenapiDotjsonRoute
   ApiSearchRoute: typeof ApiSearchRoute
   DocsSplatRoute: typeof DocsSplatRoute
@@ -832,6 +846,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AiVisibilityToolsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ai-visibility-tools/graveyard': {
+      id: '/ai-visibility-tools/graveyard'
+      path: '/ai-visibility-tools/graveyard'
+      fullPath: '/ai-visibility-tools/graveyard'
+      preLoaderRoute: typeof AiVisibilityToolsGraveyardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/openapi.json': {
       id: '/api/openapi.json'
       path: '/api/openapi.json'
@@ -1012,6 +1033,7 @@ const rootRouteChildren: RootRouteChildren = {
   AeoForSlugRoute: AeoForSlugRoute,
   AiSearchSlugRoute: AiSearchSlugRoute,
   AiVisibilityToolsSlugRoute: AiVisibilityToolsSlugRoute,
+  AiVisibilityToolsGraveyardRoute: AiVisibilityToolsGraveyardRoute,
   ApiOpenapiDotjsonRoute: ApiOpenapiDotjsonRoute,
   ApiSearchRoute: ApiSearchRoute,
   DocsSplatRoute: DocsSplatRoute,
