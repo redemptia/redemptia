@@ -15,6 +15,7 @@ import { db } from "@workspace/lib/db/db";
 import { prompts, SYSTEM_TAGS } from "@workspace/lib/db/schema";
 import { getEffectiveBrandedStatus } from "@workspace/lib/tag-utils";
 import { and, eq } from "drizzle-orm";
+import { perceptionPromptScope } from "@/server/perception-scope";
 
 export interface ResolvedPrompt {
 	id: string;
@@ -40,7 +41,7 @@ export interface ResolvedPrompt {
  */
 export async function resolveFilteredPrompts(
 	brandId: string,
-	opts: { tags?: string; search?: string },
+	opts: { tags?: string; search?: string; includePerception?: boolean },
 ): Promise<ResolvedPrompt[]> {
 	const allPrompts = await db
 		.select({
@@ -50,7 +51,7 @@ export async function resolveFilteredPrompts(
 			tags: prompts.tags,
 		})
 		.from(prompts)
-		.where(and(eq(prompts.brandId, brandId), eq(prompts.enabled, true)));
+		.where(and(eq(prompts.brandId, brandId), eq(prompts.enabled, true), perceptionPromptScope(opts.includePerception)));
 
 	const tagFilter = parseTagFilter(opts.tags);
 	const search = opts.search?.toLowerCase();

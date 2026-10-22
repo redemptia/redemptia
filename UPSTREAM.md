@@ -26,7 +26,7 @@ What differs from elmo, in brief (the table below has every change and why):
   sentiment feature (answer-text storage, prominence and rank, a Gemini stance judge, its spend ceiling and
   retention) was removed in #77 in favour of elmo's.
 - **Brand Perception.** Additive: our own tables and code, plus a short list of elmo files edited in place (see
-  [Brand Perception](#brand-perception)).
+  [Brand Perception](#brand-perception)). Perception prompts are left out of every headline metric.
 - **Reliability.** Prompt jobs share one expiry and don't retry from the web app (#6, #8); the database pool size is
   explicit (#11).
 - **Data integrity.** Cross-tenant list reads must name their scope (#23). Competitor names are *not* unique per
@@ -80,6 +80,37 @@ join the headline metrics.
 |---|---|---|
 | `packages/lib/drizzle.config.ts` | `./src/db/schema-perception.ts` added to `schema` | So drizzle-kit generates our tables. One upstream commit in six months |
 | `packages/lib/package.json` | an `exports` line for `./db/schema-perception` | So the apps can import our tables. Of 88 upstream commits to this file in six months, 18 touched `exports`, so a conflict here is possible; keep both sides |
+
+### Headline exclusion
+
+Visibility, share of voice, position, sentiment, the overview cards and the Opportunities digest leave perception
+prompts out. Citations, Query Fan-Out and Responses keep them, because they are the evidence perception rests on. The
+exclusion is the default where prompt lists are built (`perceptionPromptScope` in
+`apps/web/src/server/perception-scope.ts`), so a headline page elmo adds later leaves perception prompts out without
+an edit; only the evidence surfaces opt in. With no `perception_prompts` rows, every query returns what elmo's does.
+
+| File | Change | Why |
+|---|---|---|
+| `apps/web/src/server/prompt-resolution.ts` | `resolveFilteredPrompts` leaves perception prompts out unless passed `includePerception` | Visibility (`visibility.ts`), the overview cards (`dashboard.ts`) and the Opportunities digest (`opportunities.ts`) resolve their prompts here, so they need no edit of their own |
+| `apps/web/src/server/analytics-core.ts` | `resolveScope` takes `includePerception`. `getBrandCitations` defaults it to `true` and `getBrandQueryFanout` always passes `true`; every other function keeps the default. `getBrandAnalytics` asks `getBrandCitations` for `false` | The REST and MCP citation and fan-out endpoints are evidence. `getBrandAnalytics` (REST `/analytics`, MCP `get_analytics`) is a headline summary, and its `uniqueDomains` and `uniqueUrls` would otherwise count perception answers beside visibility figures that don't |
+| `apps/web/src/server/prompts.ts` | `getPromptsSummaryFn` leaves perception prompts out unless passed `includePerception` | It lists prompts for the Visibility, Share of Voice, Sentiment and Overview pages as well as for Responses and Query Fan-Out |
+| `apps/web/src/server/responses.ts` | `resolveSearch` includes perception prompts only when the user picks prompts | The header ("N answers") is a brand-level number; without a pick it matches the headline pages |
+| `apps/web/src/hooks/use-prompts-summary.tsx`, `apps/web/src/routes/_authed/app/org/$org/brand/$brand/responses.tsx`, `.../query-fan-out.tsx` | pass `includePerception` through, and set it on the two evidence pages | So the Responses prompt picker and the Query Fan-Out tag list include perception prompts |
+| `apps/web/src/routes/_authed/app/org/$org/brand/$brand/settings/prompts.tsx` | the editor's loader leaves perception prompts out | A prompt the editor never loads is never submitted, so a bulk save can't disable or reword it. REST and MCP can still change them: those are explicit API calls |
+
+**Left as they are, and why:** `platform-picks.ts` projects cost over every enabled prompt, perception included,
+because perception runs cost money. `admin.ts`, quota and billing counts, REST `/api/v1/prompts` and MCP
+`list_prompts`/`update_prompt` include perception prompts, because they count or manage rows rather than report a
+metric. The dashboard Citations page builds its own prompt list (`citations.ts`), so it includes perception prompts
+with no edit.
+
+**Known gap:** the prompt editor's client-side cap counts the rows it shows, but `decidePromptCap` counts every
+prompt of the brand, perception prompts included. Near 100 prompts, the editor can let a user add rows that the save
+then refuses.
+
+**When merging:** a new elmo query that lists a brand's prompts for a metric, without going through
+`resolveFilteredPrompts` or `getPromptsSummaryFn`, includes perception prompts. Check any new
+`.from(prompts)` in `apps/web/src/server/` and add `perceptionPromptScope()` if it feeds a headline number.
 
 ## Merging upstream
 

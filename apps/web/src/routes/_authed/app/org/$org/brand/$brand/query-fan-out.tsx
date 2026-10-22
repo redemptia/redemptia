@@ -53,7 +53,7 @@ function QueryFanoutPage() {
 	const trackedTargets = brand?.trackedTargets ?? [];
 	const modelParam = model === ALL_MODELS_VALUE ? undefined : model;
 
-	const { data: promptsSummary } = usePromptsSummary(brandId, { lookback, model: modelParam });
+	const { data: promptsSummary } = usePromptsSummary(brandId, { lookback, model: modelParam, includePerception: true });
 	const availableTags = promptsSummary?.availableTags ?? [];
 
 	const { data, isLoading, error } = useQueryFanout(brandId, {

@@ -43,6 +43,7 @@ import { promptsGainingPremium } from "@/lib/run-config-changes";
 import { responseSortSchema, sentimentFilterSchema } from "@/lib/sentiment";
 import { getTimezoneLookbackRange, resolveTimezone } from "@/lib/timezone-utils";
 import { resolveBrandLookbackDays } from "@/server/brand-window";
+import { perceptionPromptScope } from "@/server/perception-scope";
 import { parseTagFilter } from "@/server/prompt-resolution";
 import { planPromptSave } from "@/server/prompt-save";
 import { toResponse } from "@/server/responses";
@@ -161,6 +162,8 @@ export const getPromptsSummaryFn = createServerFn({ method: "GET" })
 			model: z.string().optional(),
 			tags: z.string().optional(),
 			timezone: z.string().optional(),
+			/** Only the evidence pages (Responses, Query Fan-Out) list perception prompts. */
+			includePerception: z.boolean().optional(),
 		}),
 	)
 	.handler(async ({ data }) => {
@@ -169,7 +172,13 @@ export const getPromptsSummaryFn = createServerFn({ method: "GET" })
 		const allPrompts = await db
 			.select()
 			.from(prompts)
-			.where(and(eq(prompts.brandId, data.brandId), eq(prompts.enabled, true)))
+			.where(
+				and(
+					eq(prompts.brandId, data.brandId),
+					eq(prompts.enabled, true),
+					perceptionPromptScope(data.includePerception),
+				),
+			)
 			.orderBy(desc(prompts.createdAt));
 
 		const promptIds = allPrompts.map((p) => p.id);
