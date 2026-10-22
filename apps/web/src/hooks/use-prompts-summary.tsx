@@ -8,6 +8,7 @@ export interface PromptsSummaryFilters {
 	webSearchEnabled?: boolean;
 	model?: string;
 	tags?: string[];
+	includePerception?: boolean;
 }
 
 export const promptsSummaryKeys = {
@@ -29,6 +30,7 @@ export function usePromptsSummary(brandId?: string, filters?: PromptsSummaryFilt
 					model: filters?.model,
 					tags: filters?.tags?.join(","),
 					timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+					includePerception: filters?.includePerception,
 				},
 			}),
 		enabled: !!resolvedBrandId,

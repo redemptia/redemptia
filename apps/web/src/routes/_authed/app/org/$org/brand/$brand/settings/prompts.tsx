@@ -4,12 +4,13 @@ import { premiumSlotsUsed } from "@workspace/config/plans";
 import { db } from "@workspace/lib/db/db";
 import { prompts } from "@workspace/lib/db/schema";
 import { Skeleton } from "@workspace/ui/components/skeleton";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { PromptsEditor } from "@/components/prompts-editor";
 import { useBrandId } from "@/hooks/use-brand-id";
 import { requireAuthSession, requireBrandAccess } from "@/lib/auth/helpers";
 import { pageHead } from "@/lib/route-head";
+import { perceptionPromptScope } from "@/server/perception-scope";
 import { getPremiumPoolFn } from "@/server/premium-tracking";
 
 const getPromptsForEditing = createServerFn({ method: "GET" })
@@ -21,7 +22,8 @@ const getPromptsForEditing = createServerFn({ method: "GET" })
 		const brandPrompts = await db
 			.select()
 			.from(prompts)
-			.where(eq(prompts.brandId, data.brandId))
+			// Hidden rather than read-only: a prompt the editor never loads is never submitted, so a save can't disable or reword it.
+			.where(and(eq(prompts.brandId, data.brandId), perceptionPromptScope()))
 			.orderBy(prompts.value, desc(prompts.enabled), prompts.id);
 
 		return brandPrompts;

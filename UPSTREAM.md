@@ -25,6 +25,8 @@ What differs from elmo, in brief (the table below has every change and why):
 - **Measurement.** None: mentions, sentiment, rollups and replayable extraction are elmo's, judged by Jev. Our own
   sentiment feature (answer-text storage, prominence and rank, a Gemini stance judge, its spend ceiling and
   retention) was removed in #77 in favour of elmo's.
+- **Brand Perception.** Additive: our own tables and code, plus a short list of elmo files edited in place (see
+  [Brand Perception](#brand-perception)). Perception prompts are left out of every headline metric.
 - **Reliability.** Prompt jobs share one expiry and don't retry from the web app (#6, #8); the database pool size is
   explicit (#11).
 - **Data integrity.** Cross-tenant list reads must name their scope (#23). Competitor names are *not* unique per
@@ -56,6 +58,59 @@ What differs from elmo, in brief (the table below has every change and why):
 | The marketing site, `apps/www/**`, is ours wholesale, and stays at version `0.4.4` while the rest of the workspace is at elmo's `0.7.3`. elmo's `.claude/skills/add-competitor/SKILL.md`, which documents how to edit the directory data under `apps/www`, stays ours with it. | `apps/www/**`, `.claude/skills/add-competitor/SKILL.md` (#61, #67, #69–#74, #79, #99) | It carries our brand, colour, copy and pricing. Holding the version kept it byte-identical through the merge; no CI check compares workspace versions, and the changesets `fixed` group lifts it at the next release. **When merging:** take ours for every file, and `git rm` every file elmo added there; keep our `add-competitor` skill, which documents our directory's fields. elmo's directory changes come over separately, in a port PR that re-applies the rebrand by hand (#97, #100), and the skill moves with them. |
 | elmo's blog posts (58 at `20954aa2`) and its 5 legal pages (Terms, Privacy, Cookies, Subprocessors and Acceptable Use) stay deleted, and `packages/config/src/legal.ts` with them. | `packages/docs/content/blog/**`, `packages/docs/content/legal/**`, `packages/config/src/legal.ts` (#61, #79) | elmo's legal pages describe elmo's company. Merged back, they would publish elmo's Terms, Privacy and Subprocessors under `redemptia.in`: a legal exposure, not a branding slip. **When merging:** delete every file elmo adds or changes under these paths. |
 | One elmo test, `adaptivePool`'s six-minute simulation in `apps/worker/src/mention-judge/jev.test.ts`, has a 30 s timeout. | `apps/worker/src/mention-judge/jev.test.ts` (#79) | It is CPU-bound: under 1 s alone, past vitest's 5 s default when every package's suite runs at once. |
+
+## Brand Perception
+
+Brand Perception is built on top of elmo rather than into it. Its prompts are ordinary rows in `prompts`, marked as
+perception prompts by a row in our own `perception_prompts` table. Every perception table lives in
+`packages/lib/src/db/schema-perception.ts`.
+
+**Never edited for perception:** `packages/lib/src/db/schema.ts`, which stays identical to elmo's so that
+`git diff upstream/main -- schema.ts` is clean when migrations are renumbered; `analyze.ts`, `jev.ts`,
+`derive-runs.ts`, `analysis-versions.ts`, `mentions.ts`, `rebuild.ts`; the `run_mentions.assessments` column; and every
+existing rollup table.
+
+**Not a marker:** `prompts.system_tags` is rewritten from the prompt text by every prompt save and by the worker's
+reprocess pass, and users can delete `prompts.tags`. A marker in either would be lost, and the prompt would silently
+join the headline metrics.
+
+### Tables
+
+| File | Change | Why |
+|---|---|---|
+| `packages/lib/drizzle.config.ts` | `./src/db/schema-perception.ts` added to `schema` | So drizzle-kit generates our tables. One upstream commit in six months |
+| `packages/lib/package.json` | an `exports` line for `./db/schema-perception` | So the apps can import our tables. Of 88 upstream commits to this file in six months, 18 touched `exports`, so a conflict here is possible; keep both sides |
+
+### Headline exclusion
+
+Visibility, share of voice, position, sentiment, the overview cards and the Opportunities digest leave perception
+prompts out. Citations, Query Fan-Out and Responses keep them, because they are the evidence perception rests on. The
+exclusion is the default where prompt lists are built (`perceptionPromptScope` in
+`apps/web/src/server/perception-scope.ts`), so a headline page elmo adds later leaves perception prompts out without
+an edit; only the evidence surfaces opt in. With no `perception_prompts` rows, every query returns what elmo's does.
+
+| File | Change | Why |
+|---|---|---|
+| `apps/web/src/server/prompt-resolution.ts` | `resolveFilteredPrompts` leaves perception prompts out unless passed `includePerception` | Visibility (`visibility.ts`), the overview cards (`dashboard.ts`) and the Opportunities digest (`opportunities.ts`) resolve their prompts here, so they need no edit of their own |
+| `apps/web/src/server/analytics-core.ts` | `resolveScope` takes `includePerception`. `getBrandCitations` defaults it to `true` and `getBrandQueryFanout` always passes `true`; every other function keeps the default. `getBrandAnalytics` asks `getBrandCitations` for `false` | The REST and MCP citation and fan-out endpoints are evidence. `getBrandAnalytics` (REST `/analytics`, MCP `get_analytics`) is a headline summary, and its `uniqueDomains` and `uniqueUrls` would otherwise count perception answers beside visibility figures that don't |
+| `apps/web/src/server/prompts.ts` | `getPromptsSummaryFn` leaves perception prompts out unless passed `includePerception` | It lists prompts for the Visibility, Share of Voice, Sentiment and Overview pages as well as for Responses and Query Fan-Out |
+| `apps/web/src/server/responses.ts` | `resolveSearch` includes perception prompts only when the user picks prompts | The header ("N answers") is a brand-level number; without a pick it matches the headline pages |
+| `apps/web/src/hooks/use-prompts-summary.tsx`, `apps/web/src/routes/_authed/app/org/$org/brand/$brand/responses.tsx`, `.../query-fan-out.tsx` | pass `includePerception` through, and set it on the two evidence pages | So the Responses prompt picker and the Query Fan-Out tag list include perception prompts |
+| `apps/web/src/routes/_authed/app/org/$org/brand/$brand/settings/prompts.tsx` | the editor's loader leaves perception prompts out | A prompt the editor never loads is never submitted, so a bulk save can't disable or reword it. REST and MCP can still change them: those are explicit API calls |
+
+**Left as they are, and why:** `platform-picks.ts` projects cost over every enabled prompt, perception included,
+because perception runs cost money. `admin.ts`, quota and billing counts, REST `/api/v1/prompts` and MCP
+`list_prompts`/`update_prompt` include perception prompts, because they count or manage rows rather than report a
+metric. The dashboard Citations page builds its own prompt list (`citations.ts`), so it includes perception prompts
+with no edit.
+
+**Known gap:** the prompt editor's client-side cap counts the rows it shows, but `decidePromptCap` counts every
+prompt of the brand, perception prompts included. Near 100 prompts, the editor can let a user add rows that the save
+then refuses.
+
+**When merging:** a new elmo query that lists a brand's prompts for a metric, without going through
+`resolveFilteredPrompts` or `getPromptsSummaryFn`, includes perception prompts. Check any new
+`.from(prompts)` in `apps/web/src/server/` and add `perceptionPromptScope()` if it feeds a headline number.
 
 ## Merging upstream
 
@@ -118,14 +173,15 @@ drizzle's migrator ignores filenames and journal `idx`. It applies a migration o
 than the newest migration the database has already applied, and skips the rest with no error or warning.
 
 **Where we stand.** Migrations 0000–0030 are elmo's, from the `20954aa2` catch-up. 0031,
-`0031_prompt_runs_brand_created_at_idx`, is ours, with journal `when` **`1792295862959`** (18 October 2026, 03:57 UTC).
+`0031_prompt_runs_brand_created_at_idx` (journal `when` `1792295862959`, 18 October 2026), and 0032,
+`0032_perception_prompts`, are ours. 0032's journal `when` is **`1792681629886`** (22 October 2026, 15:07 UTC).
 Every deployed database that has run it records that `when` as its newest. That has two consequences for every catch-up
 from now on:
 
-- **Elmo's next migration is also numbered 0031.** Both sides add `meta/0031_snapshot.json` and a journal entry with
-  `idx` 31, so git reports conflicts. That's the loud half, and it's fine.
+- **Elmo's next two migrations are also numbered 0031 and 0032.** Both sides add those snapshots and journal entries
+  with `idx` 31 and 32, so git reports conflicts. That's the loud half, and it's fine.
 - **Any elmo migration whose `when` is older than ours is skipped on those databases, silently.** Elmo writes its
-  `when` when it generates the migration, so anything elmo authored before 18 October 2026 that we haven't merged
+  `when` when it generates the migration, so anything elmo authored before 22 October 2026 that we haven't merged
   yet is in this position, as is anything dated before our newest migration once we add more. A fresh database
   still applies it, so a fresh test passes while every upgraded deployment lacks the change. Only the upgrade check
   in step 5 below sees it.

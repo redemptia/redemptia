@@ -32,7 +32,8 @@ async function resolveSearch(data: z.infer<typeof searchScopeSchema>) {
 	await requireBrandSession(data.brandId);
 	const query = data.query?.trim() || undefined;
 	const picked = data.prompts ? new Set(data.prompts.split(",")) : null;
-	const prompts = (await resolveFilteredPrompts(data.brandId, { tags: data.tags })).filter(
+	// Perception prompts only when picked, so by default the header totals match the brand's headline numbers.
+	const prompts = (await resolveFilteredPrompts(data.brandId, { tags: data.tags, includePerception: !!picked })).filter(
 		(prompt) => !picked || picked.has(prompt.id),
 	);
 	const { timezone, fromDateStr, toDateStr } = await resolveBrandWindow(data.brandId, data.lookback, data.timezone);

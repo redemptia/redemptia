@@ -109,8 +109,12 @@ function analyticsScope(
 	return { brandId, from: window.from, to: window.to, timezone: window.timezone, promptIds, model: filters.model };
 }
 
-async function resolveScope(brandId: string, filters: AnalyticsFilters) {
-	const resolved = await resolveFilteredPrompts(brandId, { tags: filters.tags, search: filters.search });
+async function resolveScope(brandId: string, filters: AnalyticsFilters, includePerception = false) {
+	const resolved = await resolveFilteredPrompts(brandId, {
+		tags: filters.tags,
+		search: filters.search,
+		includePerception,
+	});
 	return {
 		promptIds: resolved.map((prompt) => prompt.id),
 		brandedPromptIds: resolved
@@ -305,8 +309,14 @@ async function citationContext(brandId: string) {
 	return { brandDomains, competitorDomains };
 }
 
-export async function getBrandCitations(brandId: string, window: AnalyticsWindow, filters: AnalyticsFilters = {}) {
-	const { promptIds } = await resolveScope(brandId, filters);
+/** Citations are evidence, so perception prompts count unless a headline summary asks otherwise. */
+export async function getBrandCitations(
+	brandId: string,
+	window: AnalyticsWindow,
+	filters: AnalyticsFilters = {},
+	includePerception = true,
+) {
+	const { promptIds } = await resolveScope(brandId, filters, includePerception);
 	if (promptIds.length === 0) {
 		return { urls: [], domains: [], totals: { citations: 0, uniqueDomains: 0, uniqueUrls: 0 } };
 	}
@@ -377,7 +387,7 @@ export async function getBrandQueryFanout(
 ): Promise<FanoutAnalysis & { brandName: string }> {
 	const [brandRow, resolved] = await Promise.all([
 		db.select({ name: brands.name }).from(brands).where(eq(brands.id, brandId)).limit(1),
-		resolveScope(brandId, filters),
+		resolveScope(brandId, filters, true),
 	]);
 	const brandName = brandRow[0]?.name ?? "Your brand";
 
@@ -524,7 +534,8 @@ export async function getBrandAnalytics(brandId: string, window: AnalyticsWindow
 		getBrandVisibility(brandId, window, filters),
 		getBrandShareOfVoice(brandId, window, filters),
 		getBrandModelBreakdown(brandId, window, filters),
-		getBrandCitations(brandId, window, filters),
+		// A headline summary, so its citation totals leave perception prompts out like every other figure in it.
+		getBrandCitations(brandId, window, filters, false),
 		getBrandMentionQuality(brandId, window, filters),
 	]);
 

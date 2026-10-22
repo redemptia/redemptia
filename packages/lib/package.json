@@ -16,6 +16,7 @@
 		"./db/db": "./src/db/db.ts",
 		"./db/db-connection": "./src/db/db-connection.ts",
 		"./db/schema": "./src/db/schema.ts",
+		"./db/schema-perception": "./src/db/schema-perception.ts",
 		"./db/runs": "./src/db/runs.ts",
 		"./db/heap-walk": "./src/db/heap-walk.ts",
 		"./db/background-migrations": "./src/db/background-migrations.ts",
