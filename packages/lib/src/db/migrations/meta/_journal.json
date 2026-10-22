@@ -225,6 +225,13 @@
       "when": 1792295862959,
       "tag": "0031_prompt_runs_brand_created_at_idx",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1792681629886,
+      "tag": "0032_perception_prompts",
+      "breakpoints": true
     }
   ]
 }
