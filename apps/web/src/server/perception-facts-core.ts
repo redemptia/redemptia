@@ -8,9 +8,9 @@
  */
 import type { DbConnection } from "@workspace/lib/db/db-connection";
 import { brandFacts, perceptionBrandSettings, perceptionVerdicts } from "@workspace/lib/db/schema-perception";
+import { MAX_ACTIVE_FACTS, normalizeStatement, statementProblem } from "@workspace/lib/perception/fact-statement";
 import { and, asc, eq, isNull, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
-import { MAX_ACTIVE_FACTS, normalizeStatement, statementProblem } from "@workspace/lib/perception/fact-statement";
 
 /** A rule the user broke; its message is shown to them as written. */
 export class FactRuleError extends Error {}
