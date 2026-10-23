@@ -1,0 +1,185 @@
+item_id,answer,fact_id,fact,label,evidence_quote,rationale
+I001,W01,F12,Supabase's main repository is licensed under Apache-2.0.,contradicts,Supabase's main repository is MIT-licensed,"States the main repository is MIT-licensed, not Apache-2.0."
+I002,W01,F06,Supabase's Free plan includes 1 GB of file storage.,contradicts,Each free project includes 5 GB of file storage,"States 5 GB of free file storage, not 1 GB."
+I003,W01,F08,Supabase pauses Free plan projects after 1 week of inactivity.,contradicts,Free projects are paused after 90 days of inactivity.,"States a 90-day inactivity window, not 1 week."
+I004,W02,F05,"Supabase's Free plan includes 50,000 monthly active users.",not_mentioned,,
+I005,W02,F15,Supabase lists Clerk as an authentication integration.,supports,"Zoom, WorkOS, Keycloak, Auth0, Clerk, Firebase Auth, and AWS Cognito",
+I006,W02,F14,Supabase lists a Vercel integration.,supports,**Hosting and deployment:** Vercel,
+I007,W03,F13,Self-hosted Supabase does not support branching.,supports,**Database Branching** | Yes | **No**,
+I008,W03,F05,"Supabase's Free plan includes 50,000 monthly active users.",not_mentioned,,
+I009,W03,F10,Supabase can be self-hosted.,supports,When you self-host Supabase (typically via Docker Compose or Kubernetes),
+I010,W03,F03,Supabase's Team plan starts at $599 per month.,not_mentioned,,
+I011,W04,F10,Supabase can be self-hosted.,contradicts,"Supabase no longer supports self-hosting; the docs describe a legacy setup, and new deployments must use the hosted platform.",Says new deployments cannot be self-hosted.
+I012,W04,F03,Supabase's Team plan starts at $599 per month.,contradicts,the hosted Team plan starts at $299/month,"States a $299/month Team price, not $599."
+I013,W04,F15,Supabase lists Clerk as an authentication integration.,not_mentioned,,
+I014,W04,F13,Self-hosted Supabase does not support branching.,contradicts,"Edge Functions, Studio, database branching, and `pgvector`",Lists database branching as working when self-hosted.
+I015,W05,F12,Supabase's main repository is licensed under Apache-2.0.,not_mentioned,,
+I016,W05,F08,Supabase pauses Free plan projects after 1 week of inactivity.,supports,receives little to no database/API activity over a **7-day period**,
+I017,W06,F01,Supabase offers a free plan.,not_mentioned,,
+I018,W06,F10,Supabase can be self-hosted.,supports,"**Yes, you can self-host Supabase.**",
+I019,W06,F14,Supabase lists a Vercel integration.,not_mentioned,,
+I020,W06,F11,Docker is the recommended way to self-host Supabase.,supports,The official and most common way to self-host is using **Docker Compose**.,
+I021,W07,F09,Supabase's Pro plan includes $10 per month in compute credits.,supports,Unlimited (includes $10/mo compute credits),
+I022,W07,F02,Supabase's Pro plan starts at $25 per month.,supports,the **Pro plan** ($25/month per organization),
+I023,W07,F07,Supabase's Free plan allows 2 active projects.,supports,Up to 2 active projects,
+I024,W07,F04,Supabase's Free plan includes 500 MB of database size.,supports,| **Database Size** | 500 MB |,
+I025,W07,F06,Supabase's Free plan includes 1 GB of file storage.,supports,| **File Storage** | 1 GB total |,
+I026,W07,F05,"Supabase's Free plan includes 50,000 monthly active users.",supports,"Up to 50,000 Monthly Active Users",
+I027,W07,F12,Supabase's main repository is licensed under Apache-2.0.,not_mentioned,,
+I028,W08,F02,Supabase's Pro plan starts at $25 per month.,unclear,check the official pricing pages before you commit,The $25 Pro price is given under a check-the-official-pricing-pages disclaimer.
+I029,W08,F10,Supabase can be self-hosted.,not_mentioned,,
+I030,W08,F01,Supabase offers a free plan.,supports,Supabase Free is also $0,
+I031,W09,F12,Supabase's main repository is licensed under Apache-2.0.,not_mentioned,,
+I032,W09,F07,Supabase's Free plan allows 2 active projects.,contradicts,you can have up to **3 active projects**,"States 3 active free projects, not 2."
+I033,W09,F09,Supabase's Pro plan includes $10 per month in compute credits.,contradicts,The Pro plan includes $20/month in compute credits,"States $20/month in Pro compute credits, not $10."
+I034,W10,F02,Supabase's Pro plan starts at $25 per month.,supports,Pro plan is $25/month,
+I035,W10,F01,Supabase offers a free plan.,supports,free tier is excellent for development,
+I036,W10,F15,Supabase lists Clerk as an authentication integration.,not_mentioned,,
+I037,W10,F12,Supabase's main repository is licensed under Apache-2.0.,not_mentioned,,
+I038,W11,F11,Docker is the recommended way to self-host Supabase.,contradicts,"Supabase's recommended way to self-host is its official **Kubernetes Helm chart**; the **Docker Compose** deployment below also works on a Linux VPS, your own server, or locally, but it isn't the recommended setup.","Says the Helm chart, not Docker, is the recommended way to self-host."
+I039,W11,F06,Supabase's Free plan includes 1 GB of file storage.,not_mentioned,,
+I040,W11,F10,Supabase can be self-hosted.,contradicts,"Note that Supabase ended official self-hosting support this year: the steps above apply to existing installs, and new self-hosted deployments are no longer possible.",Says new self-hosted deployments are no longer possible.
+I041,W12,F05,"Supabase's Free plan includes 50,000 monthly active users.",unclear,"The figures come from third-party pricing guides, so check Supabase's own pricing page for the latest numbers.","50,000 MAU is stated under a check-their-pricing-page disclaimer."
+I042,W12,F10,Supabase can be self-hosted.,not_mentioned,,
+I043,W12,F06,Supabase's Free plan includes 1 GB of file storage.,unclear,"The figures come from third-party pricing guides, so check Supabase's own pricing page for the latest numbers.",1 GB file storage is stated under a check-their-pricing-page disclaimer.
+I044,W12,F01,Supabase offers a free plan.,supports,Here's what Supabase's Free plan includes.,
+I045,W12,F04,Supabase's Free plan includes 500 MB of database size.,unclear,"The figures come from third-party pricing guides, so check Supabase's own pricing page for the latest numbers.",500 MB database is stated under a check-their-pricing-page disclaimer.
+I046,W12,F13,Self-hosted Supabase does not support branching.,not_mentioned,,
+I047,W12,F08,Supabase pauses Free plan projects after 1 week of inactivity.,unclear,"The figures come from third-party pricing guides, so check Supabase's own pricing page for the latest numbers.",The 1-week pause figure is stated under a check-their-pricing-page disclaimer.
+I048,W12,F07,Supabase's Free plan allows 2 active projects.,unclear,"The figures come from third-party pricing guides, so check Supabase's own pricing page for the latest numbers.",2 active projects is stated under a check-their-pricing-page disclaimer.
+I049,W13,F01,Supabase offers a free plan.,not_mentioned,,
+I050,W13,F13,Self-hosted Supabase does not support branching.,supports,managed branching feature. You must build your own CI/CD or create separate instances.,
+I051,W13,F10,Supabase can be self-hosted.,supports,self-hosting gives you the **open-source Supabase services**,
+I052,W13,F05,"Supabase's Free plan includes 50,000 monthly active users.",not_mentioned,,
+I053,W14,F12,Supabase's main repository is licensed under Apache-2.0.,contradicts,its main repository is licensed under the **MIT License**,"States the main repository is MIT-licensed, not Apache-2.0."
+I054,W14,F14,Supabase lists a Vercel integration.,not_mentioned,,
+I055,W14,F06,Supabase's Free plan includes 1 GB of file storage.,contradicts,The hosted service's Free plan includes 5 GB of file storage,"States 5 GB of free file storage, not 1 GB."
+I056,W15,F15,Supabase lists Clerk as an authentication integration.,not_mentioned,,
+I057,W15,F13,Self-hosted Supabase does not support branching.,supports,"The docs list branching, advanced metrics beyond logs, managed backups and PITR, analytics and vector buckets, ETL, and the Management API as unavailable.",
+I058,W15,F10,Supabase can be self-hosted.,supports,"According to Supabase's self-hosting docs, these managed-platform features aren't available when you self-host",
+I059,W15,F09,Supabase's Pro plan includes $10 per month in compute credits.,not_mentioned,,
+I060,W16,F01,Supabase offers a free plan.,supports,While both have generous free tiers,
+I061,W16,F02,Supabase's Pro plan starts at $25 per month.,supports,which has a **mandatory $25/month base fee**,
+I062,W16,F12,Supabase's main repository is licensed under Apache-2.0.,not_mentioned,,
+I063,W17,F12,Supabase's main repository is licensed under Apache-2.0.,supports,**Main Repository & Studio (Dashboard):** Licensed under the **[Apache License 2.0],
+I064,W17,F14,Supabase lists a Vercel integration.,not_mentioned,,
+I065,W17,F07,Supabase's Free plan allows 2 active projects.,not_mentioned,,
+I066,W18,F05,"Supabase's Free plan includes 50,000 monthly active users.",not_mentioned,,
+I067,W18,F12,Supabase's main repository is licensed under Apache-2.0.,contradicts,Its main repository is under the **MIT License**.,"States the main repository is under MIT, not Apache-2.0."
+I068,W19,F09,Supabase's Pro plan includes $10 per month in compute credits.,unclear,Pro includes compute credits,Mentions Pro compute credits without stating an amount.
+I069,W19,F02,Supabase's Pro plan starts at $25 per month.,supports,From **$25/month**,
+I070,W19,F04,Supabase's Free plan includes 500 MB of database size.,supports,500 MB per project,
+I071,W19,F15,Supabase lists Clerk as an authentication integration.,not_mentioned,,
+I072,W19,F06,Supabase's Free plan includes 1 GB of file storage.,supports,| **File storage** | 1 GB |,
+I073,W19,F07,Supabase's Free plan allows 2 active projects.,supports,2 active free projects,
+I074,W19,F05,"Supabase's Free plan includes 50,000 monthly active users.",supports,"| **Monthly active users** | 50,000 MAU |",
+I075,W20,F05,"Supabase's Free plan includes 50,000 monthly active users.",contradicts,"Up to **10,000 Monthly Active Users (MAUs)**.","States 10,000 free MAUs, not 50,000."
+I076,W20,F04,Supabase's Free plan includes 500 MB of database size.,contradicts,**2 GB** database storage.,"States 2 GB of free database storage, not 500 MB."
+I077,W20,F06,Supabase's Free plan includes 1 GB of file storage.,supports,**1 GB** file storage.,
+I078,W20,F07,Supabase's Free plan allows 2 active projects.,supports,Up to **2 active projects** per account,
+I079,W20,F12,Supabase's main repository is licensed under Apache-2.0.,not_mentioned,,
+I080,W20,F01,Supabase offers a free plan.,contradicts,Supabase has discontinued its **Free plan**.,Says the Free plan has been discontinued.
+I081,W20,F08,Supabase pauses Free plan projects after 1 week of inactivity.,supports,Free projects are automatically paused after **7 days (1 week) of inactivity**.,
+I082,W21,F07,Supabase's Free plan allows 2 active projects.,supports,You can have **2 active projects** on Supabase's free plan.,
+I083,W21,F12,Supabase's main repository is licensed under Apache-2.0.,not_mentioned,,
+I084,W21,F14,Supabase lists a Vercel integration.,not_mentioned,,
+I085,W22,F03,Supabase's Team plan starts at $599 per month.,contradicts,| **Team** | **$399 / month** |,"States a $399/month Team price, not $599."
+I086,W22,F02,Supabase's Pro plan starts at $25 per month.,contradicts,| **Pro** | **$29 / month** |,"States a $29/month Pro price, not $25."
+I087,W22,F12,Supabase's main repository is licensed under Apache-2.0.,not_mentioned,,
+I088,W22,F09,Supabase's Pro plan includes $10 per month in compute credits.,supports,**$10/month compute credit** (covers 1 Micro instance),
+I089,W22,F01,Supabase offers a free plan.,contradicts,"Supabase no longer offers a free plan: the Free tier below is closed to new projects, so every new project starts on Pro.",Says Supabase no longer offers a free plan.
+I090,W23,F01,Supabase offers a free plan.,supports,**Free plan costs $0/month**,
+I091,W23,F08,Supabase pauses Free plan projects after 1 week of inactivity.,supports,projects pause after **1 week of inactivity**,
+I092,W23,F05,"Supabase's Free plan includes 50,000 monthly active users.",supports,"**50,000 monthly active users**",
+I093,W23,F12,Supabase's main repository is licensed under Apache-2.0.,not_mentioned,,
+I094,W23,F14,Supabase lists a Vercel integration.,not_mentioned,,
+I095,W23,F04,Supabase's Free plan includes 500 MB of database size.,supports,**500 MB database quota per project**,
+I096,W23,F07,Supabase's Free plan allows 2 active projects.,supports,**2 active projects** per organization,
+I097,W23,F06,Supabase's Free plan includes 1 GB of file storage.,supports,**1 GB file storage**,
+I098,W24,F13,Self-hosted Supabase does not support branching.,not_mentioned,,
+I099,W24,F09,Supabase's Pro plan includes $10 per month in compute credits.,unclear,"Check Supabase's official pricing page for current numbers, because they change.",The $10/month compute credit is stated under a prices-change disclaimer.
+I100,W24,F02,Supabase's Pro plan starts at $25 per month.,unclear,"Check Supabase's official pricing page for current numbers, because they change.",The $25 Pro price is stated under a prices-change disclaimer.
+I101,W24,F05,"Supabase's Free plan includes 50,000 monthly active users.",unclear,"Check Supabase's official pricing page for current numbers, because they change.","50,000 MAU is stated under a prices-change disclaimer."
+I102,W24,F07,Supabase's Free plan allows 2 active projects.,unclear,"Check Supabase's official pricing page for current numbers, because they change.",2 active projects is stated under a prices-change disclaimer.
+I103,W24,F14,Supabase lists a Vercel integration.,not_mentioned,,
+I104,W24,F04,Supabase's Free plan includes 500 MB of database size.,unclear,"Check Supabase's official pricing page for current numbers, because they change.",500 MB database is stated under a prices-change disclaimer.
+I105,W24,F06,Supabase's Free plan includes 1 GB of file storage.,unclear,"Check Supabase's official pricing page for current numbers, because they change.",1 GB file storage is stated under a prices-change disclaimer.
+I106,W25,F11,Docker is the recommended way to self-host Supabase.,not_mentioned,,
+I107,W25,F08,Supabase pauses Free plan projects after 1 week of inactivity.,supports,Supabase may automatically pause Free Plan projects that have low activity over a 7-day period,
+I108,W26,F08,Supabase pauses Free plan projects after 1 week of inactivity.,unclear,"The exact threshold has changed before, so check Supabase's current docs or dashboard if this matters for your project.",The 1-week claim carries a check-their-docs disclaimer about the threshold.
+I109,W26,F14,Supabase lists a Vercel integration.,not_mentioned,,
+I110,W27,F14,Supabase lists a Vercel integration.,contradicts,**Vercel:** Not listed in Supabase's integrations directory,Says Vercel is not listed in Supabase's integrations directory.
+I111,W27,F06,Supabase's Free plan includes 1 GB of file storage.,contradicts,"Most of these integrations work on the Free plan, which includes 500 MB of file storage for uploads.","States 500 MB of free file storage, not 1 GB."
+I112,W27,F11,Docker is the recommended way to self-host Supabase.,not_mentioned,,
+I113,W27,F15,Supabase lists Clerk as an authentication integration.,contradicts,Clerk is not listed among Supabase's authentication integrations.,Says Clerk is not listed as an authentication integration.
+I114,W28,F14,Supabase lists a Vercel integration.,supports,Vercel (official integration with automatic env configuration),
+I115,W28,F15,Supabase lists Clerk as an authentication integration.,not_mentioned,,
+I116,W28,F12,Supabase's main repository is licensed under Apache-2.0.,not_mentioned,,
+I117,W29,F09,Supabase's Pro plan includes $10 per month in compute credits.,contradicts,Supabase Pro does not include any compute credits,Says Pro includes no compute credits.
+I118,W29,F02,Supabase's Pro plan starts at $25 per month.,contradicts,Supabase Pro starts at **$15/month**.,"States a $15/month Pro starting price, not $25."
+I119,W29,F01,Supabase offers a free plan.,supports,"**Supabase Free** includes, per project:",
+I120,W29,F11,Docker is the recommended way to self-host Supabase.,not_mentioned,,
+I121,W30,F14,Supabase lists a Vercel integration.,supports,"**DevTools and hosting:** Cloudflare, Vercel",
+I122,W30,F15,Supabase lists Clerk as an authentication integration.,supports,"The partners page also lists Auth0, Clerk",
+I123,W30,F01,Supabase offers a free plan.,not_mentioned,,
+I124,W31,F14,Supabase lists a Vercel integration.,not_mentioned,,
+I125,W31,F11,Docker is the recommended way to self-host Supabase.,supports,**Docker Compose:** official and recommended starting point,
+I126,W31,F10,Supabase can be self-hosted.,supports,"Supabase provides an official self-hosted Docker Compose deployment for your own server, VPS, or cloud infrastructure.",
+I127,W32,F03,Supabase's Team plan starts at $599 per month.,supports,| **Team** | **$599 / month** *(per org)* |,
+I128,W32,F01,Supabase offers a free plan.,supports,| **Free** | **$0 / month** |,
+I129,W32,F02,Supabase's Pro plan starts at $25 per month.,supports,| **Pro** | **$25 / month** *(per org)* |,
+I130,W32,F11,Docker is the recommended way to self-host Supabase.,not_mentioned,,
+I131,W32,F09,Supabase's Pro plan includes $10 per month in compute credits.,supports,$10/month compute credit (covers 1 Micro instance),
+I132,W33,F07,Supabase's Free plan allows 2 active projects.,contradicts,The Free Plan allows up to 5 active projects at once,"States 5 active free projects, not 2."
+I133,W33,F08,Supabase pauses Free plan projects after 1 week of inactivity.,contradicts,Supabase may automatically pause Free Plan projects with low activity over a 30-day period,"States a 30-day inactivity window, not 1 week."
+I134,W33,F12,Supabase's main repository is licensed under Apache-2.0.,not_mentioned,,
+I135,W34,F07,Supabase's Free plan allows 2 active projects.,supports,Free Plan allows **2 active projects** across your account,
+I136,W34,F14,Supabase lists a Vercel integration.,not_mentioned,,
+I137,W35,F04,Supabase's Free plan includes 500 MB of database size.,contradicts,| Database size | 1 GB |,"States 1 GB of free database size, not 500 MB."
+I138,W35,F07,Supabase's Free plan allows 2 active projects.,unclear,Check Supabase's official pricing page before you rely on exact numbers.,2 active projects is stated under a check-their-pricing-page disclaimer.
+I139,W35,F06,Supabase's Free plan includes 1 GB of file storage.,unclear,Check Supabase's official pricing page before you rely on exact numbers.,1 GB file storage is stated under a check-their-pricing-page disclaimer.
+I140,W35,F05,"Supabase's Free plan includes 50,000 monthly active users.",contradicts,"| Monthly active users | 25,000 |","States 25,000 free MAUs, not 50,000."
+I141,W35,F09,Supabase's Pro plan includes $10 per month in compute credits.,unclear,Check Supabase's official pricing page before you rely on exact numbers.,The $10/month compute credit is stated under a check-their-pricing-page disclaimer.
+I142,W35,F10,Supabase can be self-hosted.,not_mentioned,,
+I143,W35,F02,Supabase's Pro plan starts at $25 per month.,contradicts,Pro ($35/month),"States a $35/month Pro price, not $25."
+I144,W36,F15,Supabase lists Clerk as an authentication integration.,not_mentioned,,
+I145,W36,F07,Supabase's Free plan allows 2 active projects.,supports,you can have up to **2 active projects** at a time,
+I146,W37,F02,Supabase's Pro plan starts at $25 per month.,supports,| **Pro** | **From $25/month** |,
+I147,W37,F01,Supabase offers a free plan.,supports,| **Free** | **$0/month** |,
+I148,W37,F09,Supabase's Pro plan includes $10 per month in compute credits.,supports,The **Pro plan includes $10/month in compute credits**,
+I149,W37,F03,Supabase's Team plan starts at $599 per month.,supports,| **Team** | **From $599/month** |,
+I150,W37,F12,Supabase's main repository is licensed under Apache-2.0.,not_mentioned,,
+I151,W37,F15,Supabase lists Clerk as an authentication integration.,not_mentioned,,
+I152,W38,F01,Supabase offers a free plan.,not_mentioned,,
+I153,W38,F10,Supabase can be self-hosted.,supports,"Yes, you can self-host Supabase.",
+I154,W38,F11,Docker is the recommended way to self-host Supabase.,supports,the officially supported route is Docker Compose,
+I155,W38,F07,Supabase's Free plan allows 2 active projects.,not_mentioned,,
+I156,W39,F11,Docker is the recommended way to self-host Supabase.,contradicts,the Supabase team recommends its official **Kubernetes Helm chart** for self-hosting; the **Docker Compose** setup below is meant for local testing rather than as the recommended deployment.,"Says the Helm chart, not Docker, is the recommended way to self-host."
+I157,W39,F09,Supabase's Pro plan includes $10 per month in compute credits.,contradicts,it includes $5/month in compute credits,"States $5/month in Pro compute credits, not $10."
+I158,W39,F14,Supabase lists a Vercel integration.,not_mentioned,,
+I159,W39,F10,Supabase can be self-hosted.,supports,"**Yes, you can self-host Supabase.**",
+I160,W40,F03,Supabase's Team plan starts at $599 per month.,not_mentioned,,
+I161,W40,F12,Supabase's main repository is licensed under Apache-2.0.,supports,Its main repository is under the **Apache License 2.0**.,
+I162,W41,F10,Supabase can be self-hosted.,not_mentioned,,
+I163,W41,F05,"Supabase's Free plan includes 50,000 monthly active users.",supports,"Up to **50,000 MAUs**",
+I164,W41,F07,Supabase's Free plan allows 2 active projects.,supports,Up to **2 active projects** at a time,
+I165,W41,F01,Supabase offers a free plan.,supports,"Supabase offers a free tier designed for personal projects, prototypes, and MVPs.",
+I166,W41,F04,Supabase's Free plan includes 500 MB of database size.,supports,**500 MB** of PostgreSQL database storage,
+I167,W41,F08,Supabase pauses Free plan projects after 1 week of inactivity.,supports,Projects that experience **7 consecutive days of inactivity** are automatically paused,
+I168,W41,F13,Self-hosted Supabase does not support branching.,not_mentioned,,
+I169,W41,F06,Supabase's Free plan includes 1 GB of file storage.,supports,**1 GB** total file storage,
+I170,W42,F10,Supabase can be self-hosted.,contradicts,"Note that Supabase has withdrawn self-hosting: new deployments can't be self-hosted, and these notes apply only to installs that already exist.",Says new deployments can't be self-hosted.
+I171,W42,F13,Self-hosted Supabase does not support branching.,contradicts,"Branching, by contrast, works on self-hosted Supabase.",Says branching works on self-hosted Supabase.
+I172,W42,F08,Supabase pauses Free plan projects after 1 week of inactivity.,not_mentioned,,
+I173,W43,F03,Supabase's Team plan starts at $599 per month.,not_mentioned,,
+I174,W43,F12,Supabase's main repository is licensed under Apache-2.0.,supports,The main Supabase repository is licensed under the **Apache License 2.0**,
+I175,W43,F08,Supabase pauses Free plan projects after 1 week of inactivity.,not_mentioned,,
+I176,W44,F11,Docker is the recommended way to self-host Supabase.,contradicts,"If you self-host, the recommended setup is Kubernetes with the official Helm chart; Docker Compose is meant only for local development.","Says Kubernetes, not Docker, is the recommended self-hosting setup."
+I177,W44,F15,Supabase lists Clerk as an authentication integration.,contradicts,Clerk isn't listed as an integration.,Says Clerk isn't listed as an integration.
+I178,W44,F02,Supabase's Pro plan starts at $25 per month.,not_mentioned,,
+I179,W44,F14,Supabase lists a Vercel integration.,contradicts,Vercel is not in the catalog; you connect it manually with environment variables.,Says Vercel is not in Supabase's catalog.
+I180,W45,F02,Supabase's Pro plan starts at $25 per month.,unclear,"Prices below come from third-party guides, so check Supabase's own pricing page before you budget.",The $25 Pro price is stated under a check-their-pricing-page disclaimer.
+I181,W45,F12,Supabase's main repository is licensed under Apache-2.0.,not_mentioned,,
+I182,W45,F09,Supabase's Pro plan includes $10 per month in compute credits.,unclear,"Prices below come from third-party guides, so check Supabase's own pricing page before you budget.",The $10/month compute credit is stated under a check-their-pricing-page disclaimer.
+I183,W45,F01,Supabase offers a free plan.,supports,**Free ($0/month):**,
+I184,W45,F03,Supabase's Team plan starts at $599 per month.,unclear,"Prices below come from third-party guides, so check Supabase's own pricing page before you budget.",The $599 Team price is stated under a check-their-pricing-page disclaimer.

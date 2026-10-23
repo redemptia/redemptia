@@ -1,0 +1,184 @@
+{"item_id": "I001", "answer": "W01", "fact_id": "F12", "label": "contradicts", "evidence_quote": "Supabase's main repository is MIT-licensed", "rationale": "MIT, not Apache-2.0", "labeller": "claude-sealed"}
+{"item_id": "I002", "answer": "W01", "fact_id": "F06", "label": "contradicts", "evidence_quote": "Each free project includes 5 GB of file storage", "rationale": "5 GB, not 1 GB", "labeller": "claude-sealed"}
+{"item_id": "I003", "answer": "W01", "fact_id": "F08", "label": "contradicts", "evidence_quote": "Free projects are paused after 90 days of inactivity", "rationale": "90 days, not 1 week", "labeller": "claude-sealed"}
+{"item_id": "I004", "answer": "W02", "fact_id": "F05", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I005", "answer": "W02", "fact_id": "F15", "label": "supports", "evidence_quote": "Auth0, Clerk, Firebase Auth", "rationale": "Clerk listed under Authentication integrations", "labeller": "claude-sealed"}
+{"item_id": "I006", "answer": "W02", "fact_id": "F14", "label": "supports", "evidence_quote": "**Hosting and deployment:** Vercel", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I007", "answer": "W03", "fact_id": "F13", "label": "supports", "evidence_quote": "* **Database Branching:** The Git-integrated workflow for spinning up preview databases alongside pull requests is proprietary to the managed platform.", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I008", "answer": "W03", "fact_id": "F05", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I009", "answer": "W03", "fact_id": "F10", "label": "supports", "evidence_quote": "When you self-host Supabase (typically via Docker Compose or Kubernetes)", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I010", "answer": "W03", "fact_id": "F03", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I011", "answer": "W04", "fact_id": "F10", "label": "contradicts", "evidence_quote": "Note: Supabase no longer supports self-hosting", "rationale": "says self-hosting is no longer supported", "labeller": "claude-sealed"}
+{"item_id": "I012", "answer": "W04", "fact_id": "F03", "label": "contradicts", "evidence_quote": "the hosted Team plan starts at $299/month", "rationale": "$299, not $599", "labeller": "claude-sealed"}
+{"item_id": "I013", "answer": "W04", "fact_id": "F15", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I014", "answer": "W04", "fact_id": "F13", "label": "contradicts", "evidence_quote": "Studio, database branching, and `pgvector`", "rationale": "lists branching as working self-hosted", "labeller": "claude-sealed"}
+{"item_id": "I015", "answer": "W05", "fact_id": "F12", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I016", "answer": "W05", "fact_id": "F08", "label": "supports", "evidence_quote": "over a **7-day period**", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I017", "answer": "W06", "fact_id": "F01", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I018", "answer": "W06", "fact_id": "F10", "label": "supports", "evidence_quote": "**Yes, you can self-host Supabase.**", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I019", "answer": "W06", "fact_id": "F14", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I020", "answer": "W06", "fact_id": "F11", "label": "supports", "evidence_quote": "The official and most common way to self-host is using **Docker Compose**.", "rationale": "'official' read as recommended", "labeller": "claude-sealed"}
+{"item_id": "I021", "answer": "W07", "fact_id": "F09", "label": "supports", "evidence_quote": "covered by the plan’s included $10 monthly compute credit", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I022", "answer": "W07", "fact_id": "F02", "label": "supports", "evidence_quote": "the **Pro plan** ($25/month per organization)", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I023", "answer": "W07", "fact_id": "F07", "label": "supports", "evidence_quote": "Up to 2 active projects", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I024", "answer": "W07", "fact_id": "F04", "label": "supports", "evidence_quote": "| **Database Size** | 500 MB |", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I025", "answer": "W07", "fact_id": "F06", "label": "supports", "evidence_quote": "| **File Storage** | 1 GB total |", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I026", "answer": "W07", "fact_id": "F05", "label": "supports", "evidence_quote": "Up to 50,000 Monthly Active Users", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I027", "answer": "W07", "fact_id": "F12", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I028", "answer": "W08", "fact_id": "F02", "label": "unclear", "evidence_quote": "**Supabase Pro:** $25/month base.", "rationale": "accuracy disclaimer covers the figure: 'check the official pricing pages before you commit'", "labeller": "claude-sealed"}
+{"item_id": "I029", "answer": "W08", "fact_id": "F10", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I030", "answer": "W08", "fact_id": "F01", "label": "supports", "evidence_quote": "Supabase Free is also $0", "rationale": "plan existence; the disclaimer is about figures", "labeller": "claude-sealed"}
+{"item_id": "I031", "answer": "W09", "fact_id": "F12", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I032", "answer": "W09", "fact_id": "F07", "label": "contradicts", "evidence_quote": "you can have up to **3 active projects** at any given time", "rationale": "3, not 2", "labeller": "claude-sealed"}
+{"item_id": "I033", "answer": "W09", "fact_id": "F09", "label": "contradicts", "evidence_quote": "The Pro plan includes $20/month in compute credits", "rationale": "$20, not $10", "labeller": "claude-sealed"}
+{"item_id": "I034", "answer": "W10", "fact_id": "F02", "label": "supports", "evidence_quote": "Supabase’s Pro plan is $25/month", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I035", "answer": "W10", "fact_id": "F01", "label": "supports", "evidence_quote": "| Free prototype | **$0** | **$0** |", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I036", "answer": "W10", "fact_id": "F15", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I037", "answer": "W10", "fact_id": "F12", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I038", "answer": "W11", "fact_id": "F11", "label": "contradicts", "evidence_quote": "Supabase's recommended way to self-host is its official **Kubernetes Helm chart**", "rationale": "says Kubernetes is recommended, Docker isn't", "labeller": "claude-sealed"}
+{"item_id": "I039", "answer": "W11", "fact_id": "F06", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I040", "answer": "W11", "fact_id": "F10", "label": "contradicts", "evidence_quote": "new self-hosted deployments are no longer possible", "rationale": "says it can no longer be self-hosted", "labeller": "claude-sealed"}
+{"item_id": "I041", "answer": "W12", "fact_id": "F05", "label": "unclear", "evidence_quote": "**Auth:** 50,000 monthly active users.", "rationale": "accuracy disclaimer covers the figure", "labeller": "claude-sealed"}
+{"item_id": "I042", "answer": "W12", "fact_id": "F10", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I043", "answer": "W12", "fact_id": "F06", "label": "unclear", "evidence_quote": "**File storage:** 1 GB.", "rationale": "accuracy disclaimer covers the figure", "labeller": "claude-sealed"}
+{"item_id": "I044", "answer": "W12", "fact_id": "F01", "label": "supports", "evidence_quote": "Here's what Supabase's Free plan includes.", "rationale": "plan existence", "labeller": "claude-sealed"}
+{"item_id": "I045", "answer": "W12", "fact_id": "F04", "label": "unclear", "evidence_quote": "**Database:** 500 MB per project.", "rationale": "accuracy disclaimer covers the figure", "labeller": "claude-sealed"}
+{"item_id": "I046", "answer": "W12", "fact_id": "F13", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I047", "answer": "W12", "fact_id": "F08", "label": "unclear", "evidence_quote": "Free projects auto-pause after 1 week of inactivity", "rationale": "accuracy disclaimer covers the figure", "labeller": "claude-sealed"}
+{"item_id": "I048", "answer": "W12", "fact_id": "F07", "label": "unclear", "evidence_quote": "**Projects:** 2 active projects per organization.", "rationale": "accuracy disclaimer covers the figure", "labeller": "claude-sealed"}
+{"item_id": "I049", "answer": "W13", "fact_id": "F01", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I050", "answer": "W13", "fact_id": "F13", "label": "supports", "evidence_quote": "Not available as Supabase’s managed branching feature.", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I051", "answer": "W13", "fact_id": "F10", "label": "supports", "evidence_quote": "self-hosting is quite capable", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I052", "answer": "W13", "fact_id": "F05", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I053", "answer": "W14", "fact_id": "F12", "label": "contradicts", "evidence_quote": "its main repository is licensed under the **MIT License**", "rationale": "MIT, not Apache-2.0", "labeller": "claude-sealed"}
+{"item_id": "I054", "answer": "W14", "fact_id": "F14", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I055", "answer": "W14", "fact_id": "F06", "label": "contradicts", "evidence_quote": "The hosted service's Free plan includes 5 GB of file storage", "rationale": "5 GB, not 1 GB", "labeller": "claude-sealed"}
+{"item_id": "I056", "answer": "W15", "fact_id": "F15", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I057", "answer": "W15", "fact_id": "F13", "label": "supports", "evidence_quote": "The docs list branching, advanced metrics beyond logs, managed backups and PITR, analytics and vector buckets, ETL, and the Management API as unavailable.", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I058", "answer": "W15", "fact_id": "F10", "label": "supports", "evidence_quote": "these managed-platform features aren't available when you self-host", "rationale": "presumes self-hosting exists", "labeller": "claude-sealed"}
+{"item_id": "I059", "answer": "W15", "fact_id": "F09", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I060", "answer": "W16", "fact_id": "F01", "label": "supports", "evidence_quote": "| **Database Limit** | 1 GiB (Firestore) / 1 GiB (RTDB) | 500 MB (PostgreSQL) |", "rationale": "Supabase (Free Plan) column", "labeller": "claude-sealed"}
+{"item_id": "I061", "answer": "W16", "fact_id": "F02", "label": "supports", "evidence_quote": "which has a **mandatory $25/month base fee**", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I062", "answer": "W16", "fact_id": "F12", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I063", "answer": "W17", "fact_id": "F12", "label": "supports", "evidence_quote": "* **Main Repository & Studio (Dashboard):** Licensed under the **[Apache License 2.0]", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I064", "answer": "W17", "fact_id": "F14", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I065", "answer": "W17", "fact_id": "F07", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I066", "answer": "W18", "fact_id": "F05", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I067", "answer": "W18", "fact_id": "F12", "label": "contradicts", "evidence_quote": "Its main repository is under the **MIT License**.", "rationale": "MIT, not Apache-2.0", "labeller": "claude-sealed"}
+{"item_id": "I068", "answer": "W19", "fact_id": "F09", "label": "unclear", "evidence_quote": "Pro includes compute credits, but larger compute instances or additional projects may cost extra.", "rationale": "credits mentioned, amount not stated", "labeller": "claude-sealed"}
+{"item_id": "I069", "answer": "W19", "fact_id": "F02", "label": "supports", "evidence_quote": "| **Price** | $0/month | From **$25/month** |", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I070", "answer": "W19", "fact_id": "F04", "label": "supports", "evidence_quote": "| **Database size** | 500 MB per project |", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I071", "answer": "W19", "fact_id": "F15", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I072", "answer": "W19", "fact_id": "F06", "label": "supports", "evidence_quote": "| **File storage** | 1 GB |", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I073", "answer": "W19", "fact_id": "F07", "label": "supports", "evidence_quote": "2 active free projects", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I074", "answer": "W19", "fact_id": "F05", "label": "supports", "evidence_quote": "| **Monthly active users** | 50,000 MAU |", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I075", "answer": "W20", "fact_id": "F05", "label": "contradicts", "evidence_quote": "Up to **10,000 Monthly Active Users (MAUs)**", "rationale": "10,000, not 50,000", "labeller": "claude-sealed"}
+{"item_id": "I076", "answer": "W20", "fact_id": "F04", "label": "contradicts", "evidence_quote": "  * **2 GB** database storage.", "rationale": "2 GB, not 500 MB", "labeller": "claude-sealed"}
+{"item_id": "I077", "answer": "W20", "fact_id": "F06", "label": "supports", "evidence_quote": "  * **1 GB** file storage.", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I078", "answer": "W20", "fact_id": "F07", "label": "supports", "evidence_quote": "Up to **2 active projects** per account", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I079", "answer": "W20", "fact_id": "F12", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I080", "answer": "W20", "fact_id": "F01", "label": "contradicts", "evidence_quote": "Supabase has discontinued its **Free plan**.", "rationale": "says the free plan is discontinued", "labeller": "claude-sealed"}
+{"item_id": "I081", "answer": "W20", "fact_id": "F08", "label": "supports", "evidence_quote": "Free projects are automatically paused after **7 days (1 week) of inactivity**.", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I082", "answer": "W21", "fact_id": "F07", "label": "supports", "evidence_quote": "You can have **2 active projects** on Supabase's free plan.", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I083", "answer": "W21", "fact_id": "F12", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I084", "answer": "W21", "fact_id": "F14", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I085", "answer": "W22", "fact_id": "F03", "label": "contradicts", "evidence_quote": "| **Team** | **$399 / month** |", "rationale": "$399, not $599", "labeller": "claude-sealed"}
+{"item_id": "I086", "answer": "W22", "fact_id": "F02", "label": "contradicts", "evidence_quote": "| **Pro** | **$29 / month** |", "rationale": "$29, not $25 (also $25/mo elsewhere: mixed)", "labeller": "claude-sealed"}
+{"item_id": "I087", "answer": "W22", "fact_id": "F12", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I088", "answer": "W22", "fact_id": "F09", "label": "supports", "evidence_quote": "**$10/month compute credit** (covers 1 Micro instance)", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I089", "answer": "W22", "fact_id": "F01", "label": "contradicts", "evidence_quote": "Supabase no longer offers a free plan", "rationale": "says no free plan is offered", "labeller": "claude-sealed"}
+{"item_id": "I090", "answer": "W23", "fact_id": "F01", "label": "supports", "evidence_quote": "Supabase’s **Free plan costs $0/month**", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I091", "answer": "W23", "fact_id": "F08", "label": "supports", "evidence_quote": "projects pause after **1 week of inactivity**", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I092", "answer": "W23", "fact_id": "F05", "label": "supports", "evidence_quote": "**50,000 monthly active users**", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I093", "answer": "W23", "fact_id": "F12", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I094", "answer": "W23", "fact_id": "F14", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I095", "answer": "W23", "fact_id": "F04", "label": "supports", "evidence_quote": "**500 MB database quota per project**", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I096", "answer": "W23", "fact_id": "F07", "label": "supports", "evidence_quote": "**2 active projects** per organization", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I097", "answer": "W23", "fact_id": "F06", "label": "supports", "evidence_quote": "**1 GB file storage**", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I098", "answer": "W24", "fact_id": "F13", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I099", "answer": "W24", "fact_id": "F09", "label": "unclear", "evidence_quote": "Pro includes a $10/month compute credit", "rationale": "accuracy disclaimer covers the figure: 'check ... because they change'", "labeller": "claude-sealed"}
+{"item_id": "I100", "answer": "W24", "fact_id": "F02", "label": "unclear", "evidence_quote": "| Resource | Free ($0) | Pro ($25/month) |", "rationale": "accuracy disclaimer covers the figure", "labeller": "claude-sealed"}
+{"item_id": "I101", "answer": "W24", "fact_id": "F05", "label": "unclear", "evidence_quote": "| Monthly active users (Auth) | 50,000 | 100,000 |", "rationale": "accuracy disclaimer covers the figure", "labeller": "claude-sealed"}
+{"item_id": "I102", "answer": "W24", "fact_id": "F07", "label": "unclear", "evidence_quote": "| Active projects | 2 |", "rationale": "accuracy disclaimer covers the figure", "labeller": "claude-sealed"}
+{"item_id": "I103", "answer": "W24", "fact_id": "F14", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I104", "answer": "W24", "fact_id": "F04", "label": "unclear", "evidence_quote": "| Database size | 500 MB |", "rationale": "accuracy disclaimer covers the figure", "labeller": "claude-sealed"}
+{"item_id": "I105", "answer": "W24", "fact_id": "F06", "label": "unclear", "evidence_quote": "| File storage | 1 GB |", "rationale": "accuracy disclaimer covers the figure", "labeller": "claude-sealed"}
+{"item_id": "I106", "answer": "W25", "fact_id": "F11", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I107", "answer": "W25", "fact_id": "F08", "label": "supports", "evidence_quote": "low activity over a 7-day period", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I108", "answer": "W26", "fact_id": "F08", "label": "unclear", "evidence_quote": "Free projects are paused after 1 week of inactivity.", "rationale": "'the exact threshold has changed before, so check Supabase's current docs'", "labeller": "claude-sealed"}
+{"item_id": "I109", "answer": "W26", "fact_id": "F14", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I110", "answer": "W27", "fact_id": "F14", "label": "contradicts", "evidence_quote": "* **Vercel:** Not listed in Supabase's integrations directory", "rationale": "says Vercel isn't listed", "labeller": "claude-sealed"}
+{"item_id": "I111", "answer": "W27", "fact_id": "F06", "label": "contradicts", "evidence_quote": "which includes 500 MB of file storage for uploads", "rationale": "500 MB, not 1 GB", "labeller": "claude-sealed"}
+{"item_id": "I112", "answer": "W27", "fact_id": "F11", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I113", "answer": "W27", "fact_id": "F15", "label": "contradicts", "evidence_quote": "Clerk is not listed among Supabase's authentication integrations", "rationale": "says Clerk isn't listed", "labeller": "claude-sealed"}
+{"item_id": "I114", "answer": "W28", "fact_id": "F14", "label": "supports", "evidence_quote": "Vercel (official integration with automatic env configuration)", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I115", "answer": "W28", "fact_id": "F15", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I116", "answer": "W28", "fact_id": "F12", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I117", "answer": "W29", "fact_id": "F09", "label": "contradicts", "evidence_quote": "Supabase Pro does not include any compute credits", "rationale": "no credits, not $10", "labeller": "claude-sealed"}
+{"item_id": "I118", "answer": "W29", "fact_id": "F02", "label": "contradicts", "evidence_quote": "Supabase Pro starts at **$15/month**.", "rationale": "$15, not $25 (also $25 elsewhere: mixed)", "labeller": "claude-sealed"}
+{"item_id": "I119", "answer": "W29", "fact_id": "F01", "label": "supports", "evidence_quote": "Its free tier includes a Postgres database", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I120", "answer": "W29", "fact_id": "F11", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I121", "answer": "W30", "fact_id": "F14", "label": "supports", "evidence_quote": "**DevTools and hosting:** Cloudflare, Vercel", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I122", "answer": "W30", "fact_id": "F15", "label": "supports", "evidence_quote": "The partners page also lists Auth0, Clerk", "rationale": "listed as partner; auth category not stated", "labeller": "claude-sealed"}
+{"item_id": "I123", "answer": "W30", "fact_id": "F01", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I124", "answer": "W31", "fact_id": "F14", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I125", "answer": "W31", "fact_id": "F11", "label": "supports", "evidence_quote": "**Docker Compose:** official and recommended starting point", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I126", "answer": "W31", "fact_id": "F10", "label": "supports", "evidence_quote": "Supabase provides an official self-hosted Docker Compose deployment", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I127", "answer": "W32", "fact_id": "F03", "label": "supports", "evidence_quote": "| **Team** | **$599 / month** *(per org)* |", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I128", "answer": "W32", "fact_id": "F01", "label": "supports", "evidence_quote": "| **Free** | **$0 / month** |", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I129", "answer": "W32", "fact_id": "F02", "label": "supports", "evidence_quote": "| **Pro** | **$25 / month** *(per org)* |", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I130", "answer": "W32", "fact_id": "F11", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I131", "answer": "W32", "fact_id": "F09", "label": "supports", "evidence_quote": "$10/month compute credit (covers 1 Micro instance)", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I132", "answer": "W33", "fact_id": "F07", "label": "contradicts", "evidence_quote": "The Free Plan allows up to 5 active projects at once", "rationale": "5, not 2", "labeller": "claude-sealed"}
+{"item_id": "I133", "answer": "W33", "fact_id": "F08", "label": "contradicts", "evidence_quote": "low activity over a 30-day period", "rationale": "30 days, not 1 week", "labeller": "claude-sealed"}
+{"item_id": "I134", "answer": "W33", "fact_id": "F12", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I135", "answer": "W34", "fact_id": "F07", "label": "supports", "evidence_quote": "Supabase’s Free Plan allows **2 active projects** across your account.", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I136", "answer": "W34", "fact_id": "F14", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I137", "answer": "W35", "fact_id": "F04", "label": "contradicts", "evidence_quote": "| Database size | 1 GB | 8 GB included |", "rationale": "1 GB, not 500 MB", "labeller": "claude-sealed"}
+{"item_id": "I138", "answer": "W35", "fact_id": "F07", "label": "unclear", "evidence_quote": "| Active projects | 2 active projects (paused projects don't count) |", "rationale": "accuracy disclaimer covers the figure", "labeller": "claude-sealed"}
+{"item_id": "I139", "answer": "W35", "fact_id": "F06", "label": "unclear", "evidence_quote": "| File storage | 1 GB | 100 GB |", "rationale": "accuracy disclaimer covers the figure", "labeller": "claude-sealed"}
+{"item_id": "I140", "answer": "W35", "fact_id": "F05", "label": "contradicts", "evidence_quote": "| Monthly active users | 25,000 |", "rationale": "25,000, not 50,000", "labeller": "claude-sealed"}
+{"item_id": "I141", "answer": "W35", "fact_id": "F09", "label": "unclear", "evidence_quote": "The $10/month compute credit is enough to cover one Micro instance.", "rationale": "accuracy disclaimer covers the figure", "labeller": "claude-sealed"}
+{"item_id": "I142", "answer": "W35", "fact_id": "F10", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I143", "answer": "W35", "fact_id": "F02", "label": "contradicts", "evidence_quote": "| | Free ($0) | Pro ($35/month) |", "rationale": "$35, not $25", "labeller": "claude-sealed"}
+{"item_id": "I144", "answer": "W36", "fact_id": "F15", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I145", "answer": "W36", "fact_id": "F07", "label": "supports", "evidence_quote": "you can have up to **2 active projects** at a time", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I146", "answer": "W37", "fact_id": "F02", "label": "supports", "evidence_quote": "| **Pro** | **From $25/month** |", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I147", "answer": "W37", "fact_id": "F01", "label": "supports", "evidence_quote": "| **Free** | **$0/month** |", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I148", "answer": "W37", "fact_id": "F09", "label": "supports", "evidence_quote": "The **Pro plan includes $10/month in compute credits**", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I149", "answer": "W37", "fact_id": "F03", "label": "supports", "evidence_quote": "| **Team** | **From $599/month** |", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I150", "answer": "W37", "fact_id": "F12", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I151", "answer": "W37", "fact_id": "F15", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I152", "answer": "W38", "fact_id": "F01", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I153", "answer": "W38", "fact_id": "F10", "label": "supports", "evidence_quote": "Yes, you can self-host Supabase.", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I154", "answer": "W38", "fact_id": "F11", "label": "supports", "evidence_quote": "the officially supported route is Docker Compose", "rationale": "'officially supported' read as recommended", "labeller": "claude-sealed"}
+{"item_id": "I155", "answer": "W38", "fact_id": "F07", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I156", "answer": "W39", "fact_id": "F11", "label": "contradicts", "evidence_quote": "the Supabase team recommends its official **Kubernetes Helm chart** for self-hosting", "rationale": "says Kubernetes is recommended", "labeller": "claude-sealed"}
+{"item_id": "I157", "answer": "W39", "fact_id": "F09", "label": "contradicts", "evidence_quote": "it includes $5/month in compute credits", "rationale": "$5, not $10", "labeller": "claude-sealed"}
+{"item_id": "I158", "answer": "W39", "fact_id": "F14", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I159", "answer": "W39", "fact_id": "F10", "label": "supports", "evidence_quote": "**Yes, you can self-host Supabase.**", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I160", "answer": "W40", "fact_id": "F03", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I161", "answer": "W40", "fact_id": "F12", "label": "supports", "evidence_quote": "Its main repository is under the **Apache License 2.0**.", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I162", "answer": "W41", "fact_id": "F10", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I163", "answer": "W41", "fact_id": "F05", "label": "supports", "evidence_quote": "Up to **50,000 MAUs**", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I164", "answer": "W41", "fact_id": "F07", "label": "supports", "evidence_quote": "Up to **2 active projects** at a time", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I165", "answer": "W41", "fact_id": "F01", "label": "supports", "evidence_quote": "Supabase offers a free tier", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I166", "answer": "W41", "fact_id": "F04", "label": "supports", "evidence_quote": "**500 MB** of PostgreSQL database storage", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I167", "answer": "W41", "fact_id": "F08", "label": "supports", "evidence_quote": "**7 consecutive days of inactivity** are automatically paused", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I168", "answer": "W41", "fact_id": "F13", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I169", "answer": "W41", "fact_id": "F06", "label": "supports", "evidence_quote": "**1 GB** total file storage", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I170", "answer": "W42", "fact_id": "F10", "label": "contradicts", "evidence_quote": "Note that Supabase has withdrawn self-hosting: new deployments can't be self-hosted", "rationale": "says it can't be self-hosted", "labeller": "claude-sealed"}
+{"item_id": "I171", "answer": "W42", "fact_id": "F13", "label": "contradicts", "evidence_quote": "Branching, by contrast, works on self-hosted Supabase.", "rationale": "says branching works self-hosted", "labeller": "claude-sealed"}
+{"item_id": "I172", "answer": "W42", "fact_id": "F08", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I173", "answer": "W43", "fact_id": "F03", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I174", "answer": "W43", "fact_id": "F12", "label": "supports", "evidence_quote": "The main Supabase repository is licensed under the **Apache License 2.0**", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I175", "answer": "W43", "fact_id": "F08", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I176", "answer": "W44", "fact_id": "F11", "label": "contradicts", "evidence_quote": "If you self-host, the recommended setup is Kubernetes with the official Helm chart; Docker Compose is meant only for local development.", "rationale": "says Kubernetes is recommended", "labeller": "claude-sealed"}
+{"item_id": "I177", "answer": "W44", "fact_id": "F15", "label": "contradicts", "evidence_quote": "Clerk isn't listed as an integration.", "rationale": "says Clerk isn't listed", "labeller": "claude-sealed"}
+{"item_id": "I178", "answer": "W44", "fact_id": "F02", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I179", "answer": "W44", "fact_id": "F14", "label": "contradicts", "evidence_quote": "Vercel is not in the catalog", "rationale": "says Vercel isn't listed", "labeller": "claude-sealed"}
+{"item_id": "I180", "answer": "W45", "fact_id": "F02", "label": "unclear", "evidence_quote": "**Pro (from $25/month):**", "rationale": "accuracy disclaimer covers the figure: 'check Supabase's own pricing page before you budget'", "labeller": "claude-sealed"}
+{"item_id": "I181", "answer": "W45", "fact_id": "F12", "label": "not_mentioned", "evidence_quote": "", "rationale": "", "labeller": "claude-sealed"}
+{"item_id": "I182", "answer": "W45", "fact_id": "F09", "label": "unclear", "evidence_quote": "It includes a $10/month compute credit per project", "rationale": "accuracy disclaimer covers the figure", "labeller": "claude-sealed"}
+{"item_id": "I183", "answer": "W45", "fact_id": "F01", "label": "supports", "evidence_quote": "**Free ($0/month):**", "rationale": "plan existence", "labeller": "claude-sealed"}
+{"item_id": "I184", "answer": "W45", "fact_id": "F03", "label": "unclear", "evidence_quote": "**Team (from $599/month):**", "rationale": "accuracy disclaimer covers the figure", "labeller": "claude-sealed"}

@@ -13,3 +13,5 @@ sealed/validation-seed.txt 146bbe144c678f06a457a689823c3187e74f06769cfffb8075f76
 sealed/tells.md f98551de153a0598cb1831199d714a6b4d6ab8f490c8312c8a1b1ea97717f862  (AI labeller, §2a; 2026-10-23T05:48:49Z)
 v1/validation-subset.json d86a6c9d9c757331df31d18cc76180912a0039da15c820c89c44b050f561fb29  (the 40 items the operator labels blind; 2026-10-23T05:48:49Z)
 v1/validation-subset.json 8bd0f752de06224d20c9117ae9ac48272353d21ee6f40b5370a4922ad82451f2  (bytes after biome formatting; whitespace only, canonical JSON sha256 5946b1cbe04d60a72861886d6b09adf0720d99861ef13955447120b59294d677, same as the file the labeller hashed)
+sealed/scope-r2.json 694402eb82cf1da72f7aca0f06048694f9f8fe74f7da09c2cc15dd5b15b4ef45  (bytes after biome formatting at unseal; whitespace only, canonical JSON sha256 293c6539a00341cb87de54d62c5a3125b36d544fce7a9a328a20abe22c43a899 matches the sealed original)
+sealed/worksheet-key.json e5b440f75f1d7b3b38840e205fe47c88fc7c009c24ac8e97fe475aed71eb0df6  (bytes after biome formatting at unseal; whitespace only, canonical JSON sha256 339aea0bd0bbdf121d329572aea0b7644a86a7cb99ec26a21f8c213e2cd4fca6 matches the sealed original)
