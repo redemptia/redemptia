@@ -118,7 +118,8 @@ Apply them in order. The first rule that applies wins.
      excludes the fact, it contradicts. "Around $49" contradicts "$25".
    - **If the answer also supports the fact elsewhere, the label is still `contradicts`.** A false
      claim is a problem for the reader whatever else the answer gets right, and a missed
-     contradiction is the costlier error. Mark both spans.
+     contradiction is the costlier error. The contradicting passage is the evidence, and the rationale notes
+     where the answer also supports the fact.
 3. **`supports`**: the answer asserts the fact's claim, and nothing it says about that claim is
    incompatible with it.
    - **A range counts as support only if it is tight enough to be a claim, and undisclaimed.** "$25
