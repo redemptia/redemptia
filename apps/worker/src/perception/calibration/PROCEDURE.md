@@ -128,6 +128,10 @@ Apply them in order. The first rule that applies wins.
    claim that settles it. This includes:
    - any "check their site" or "prices change" disclaimer attached to the claim, even when the claim
      matches the fact;
+   - **A disclaimer attaches only to claims it is adjacent to or explicitly scoped to.** A general
+     disclaimer at the top of an answer ("figures come from third-party guides, check the pricing page")
+     does not make every later claim `unclear`. If it did, nearly every answer with a hedged intro would
+     collapse to `unclear`, and the label would stop discriminating.
    - qualitative statements only ("affordable", "generous");
    - a range too wide to be a claim;
    - a claim compatible with the fact that doesn't assert it ("works with Vercel through a
@@ -267,6 +271,12 @@ This was accepted for v1 rather than regenerated:
 - Regenerating would cost another collection run, to close a hole only someone acting on purpose can use.
 - The operator committed not to open `answers.jsonl`, `raw.jsonl`, `scope.json` or `docs/calibration-sealed/`
   until their 40 labels were frozen. The AI labeller was instructed not to open them either.
+
+**The AI labels' supports/unclear skew.** The disclaimer rule in §4 was settled after v1 was labelled.
+The AI labeller applied the opposite reading, treating an answer-level disclaimer as attached to every claim, so its
+184 labels lean towards `unclear` where the operator would say `supports` (all 4 validation disagreements were this
+case). The gate is unaffected: it turns on `contradicts`, which the rule order puts before `unclear`. Any measure
+built on the `supports`/`unclear` split of v1 inherits the skew.
 
 **The AI labeller's tells.** While labelling, the AI labeller noted 3 possible tells, sealed in `tells.md`
 unread. They are opened after the freeze. If any describes something the AI labeller could act on, its labels are
