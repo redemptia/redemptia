@@ -13,6 +13,7 @@ import {
 	jsonb,
 	pgTable,
 	primaryKey,
+	real,
 	text,
 	timestamp,
 	unique,
@@ -142,6 +143,8 @@ export const perceptionVerdicts = pgTable(
 		questionVersion: integer("question_version"),
 		verdict: text("verdict").notNull(),
 		probabilities: jsonb("probabilities").$type<Record<string, number>>().notNull(),
+		/** The judge's own confidence, which isn't its top probability. Stored, not used, until calibrated. */
+		confidence: real("confidence"),
 		passage: text("passage"),
 		stamp: text("stamp").notNull(),
 		/** The answer length the judge saw, when the answer was cut to fit; null when it saw the whole answer. */
@@ -225,4 +228,55 @@ export const perceptionStamps = pgTable(
 		updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 	},
 	(table) => [primaryKey({ name: "perception_stamps_pk", columns: [table.brandId, table.layer] })],
+).enableRLS();
+
+export const PERCEPTION_RUN_OUTCOMES = ["no_text", "too_large", "failed"] as const;
+export type PerceptionRunOutcome = (typeof PERCEPTION_RUN_OUTCOMES)[number];
+
+/**
+ * Jev calls the perception job has made per organization per UTC day, counted
+ * before each call is sent. A call is made only if one statement raises the count
+ * while it is below the ceiling, so concurrent workers can't overshoot it.
+ */
+export const perceptionJevCalls = pgTable(
+	"perception_jev_calls",
+	{
+		organizationId: text("organization_id").notNull(),
+		day: date("day").notNull(),
+		calls: integer("calls").notNull(),
+	},
+	(table) => [primaryKey({ name: "perception_jev_calls_pk", columns: [table.organizationId, table.day] })],
+).enableRLS();
+
+/**
+ * A run the job has finished with but that has no verdict to show for it: no text
+ * to judge, too long for the judge even when cut, or failing past its attempts.
+ * Without it, such a run would be found and retried on every scan. A row whose
+ * `stamp` isn't the current one no longer counts, so a new judge or extractor
+ * version tries again.
+ */
+export const perceptionRunStatus = pgTable(
+	"perception_run_status",
+	{
+		runId: uuid("run_id")
+			.primaryKey()
+			.references(() => promptRuns.id, { onDelete: "cascade" }),
+		stamp: text("stamp").notNull(),
+		outcome: text("outcome").$type<PerceptionRunOutcome>(),
+		attempts: integer("attempts").notNull().default(0),
+		lastError: text("last_error"),
+		updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+	},
+	() => [check("perception_run_status_outcome", sql`outcome IS NULL OR outcome IN ('no_text', 'too_large', 'failed')`)],
+).enableRLS();
+
+/** Days whose `rollupPerceptionDaily` rows are out of date with the verdicts. */
+export const perceptionRollupDirty = pgTable(
+	"perception_rollup_dirty",
+	{
+		brandId: text("brand_id").notNull(),
+		day: date("day").notNull(),
+		firstMarkedAt: timestamp("first_marked_at", { withTimezone: true }).defaultNow().notNull(),
+	},
+	(table) => [primaryKey({ name: "perception_rollup_dirty_pk", columns: [table.brandId, table.day] })],
 ).enableRLS();

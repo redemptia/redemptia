@@ -1,0 +1,116 @@
+{
+	"attribution": "Labels AI-generated, validated against 40 blind human labels at 90.0% agreement and Cohen's kappa 0.852.",
+	"recallNote": "Recall is measured on planted contradictions only (the AI labeller found no natural contradiction), so it is optimistic.",
+	"judge": ["jev-1.13.0"],
+	"calls": 45,
+	"failedCalls": [],
+	"itemsJudged": 184,
+	"itemsTotal": 184,
+	"usage": {
+		"input": 95363,
+		"output": 9950
+	},
+	"thresholds": {
+		"precision": 0.85,
+		"precisionLower95": 0.75,
+		"recall": 0.7,
+		"recallLower95": 0.6
+	},
+	"contradictsEnriched": {
+		"items": 184,
+		"prevalence": 0.1956521739130435,
+		"precision": 1,
+		"precision95": [0.8984820937803899, 1],
+		"recall": 0.9444444444444444,
+		"recall95": [0.8185502589238878, 0.9846303362329332],
+		"tp": 34,
+		"predicted": 34,
+		"actual": 36
+	},
+	"contradictsNaturalOnly": {
+		"items": 125,
+		"prevalence": 0,
+		"precision": null,
+		"precision95": null,
+		"recall": null,
+		"recall95": null,
+		"tp": 0,
+		"predicted": 0,
+		"actual": 0
+	},
+	"gate": "pass",
+	"confusionGoldRowsJudgeColumns": {
+		"supports": {
+			"supports": 69,
+			"contradicts": 0,
+			"not_mentioned": 0,
+			"unclear": 0
+		},
+		"contradicts": {
+			"supports": 2,
+			"contradicts": 34,
+			"not_mentioned": 0,
+			"unclear": 0
+		},
+		"not_mentioned": {
+			"supports": 0,
+			"contradicts": 0,
+			"not_mentioned": 59,
+			"unclear": 0
+		},
+		"unclear": {
+			"supports": 18,
+			"contradicts": 0,
+			"not_mentioned": 0,
+			"unclear": 2
+		}
+	},
+	"perLabel": {
+		"supports": {
+			"tp": 69,
+			"predicted": 89,
+			"actual": 69,
+			"precision": 0.7752808988764045,
+			"recall": 1
+		},
+		"contradicts": {
+			"tp": 34,
+			"predicted": 34,
+			"actual": 36,
+			"precision": 1,
+			"recall": 0.9444444444444444
+		},
+		"not_mentioned": {
+			"tp": 59,
+			"predicted": 59,
+			"actual": 59,
+			"precision": 1,
+			"recall": 1
+		},
+		"unclear": {
+			"tp": 2,
+			"predicted": 2,
+			"actual": 20,
+			"precision": 1,
+			"recall": 0.1
+		}
+	},
+	"confidenceByCorrectness": {
+		"correct": {
+			"n": 164,
+			"min": 0.41,
+			"q1": 1,
+			"median": 1,
+			"q3": 1,
+			"max": 1
+		},
+		"wrong": {
+			"n": 20,
+			"min": 0.17,
+			"q1": 0.48,
+			"median": 0.64,
+			"q3": 0.81,
+			"max": 0.97
+		}
+	}
+}
