@@ -22,11 +22,26 @@ export interface FactRow {
 	supersedes: string | null;
 	supersededBy: string | null;
 	judged: boolean;
+	source?: { url: string; readAt: string; quote: string | null } | null;
+}
+
+/** A page and the day it was read, as the editor collects them. */
+export interface SourceInput {
+	url: string;
+	readAt: string;
 }
 
 export interface FactActions {
-	add: (input: { statement: string; category: string | null; validFrom: string }) => Promise<void>;
-	recordChange: (factId: string, input: { statement: string; effectiveFrom: string }) => Promise<void>;
+	add: (input: {
+		statement: string;
+		category: string | null;
+		validFrom: string;
+		source: SourceInput | null;
+	}) => Promise<void>;
+	recordChange: (
+		factId: string,
+		input: { statement: string; effectiveFrom: string; source: SourceInput | null },
+	) => Promise<void>;
 	retire: (factId: string, noLongerTrueFrom: string) => Promise<void>;
 	remove: (factId: string) => Promise<void>;
 }
@@ -64,6 +79,73 @@ function dayBefore(day: string): string {
 	date.setUTCDate(date.getUTCDate() - 1);
 	return date.toISOString().slice(0, 10);
 }
+
+/** Where the statement is written down: what a contradiction alert cites, and what to re-check. */
+function SourceLine({ source }: { source: FactRow["source"] }) {
+	if (!source) return <span className="text-muted-foreground">No source recorded</span>;
+	const url = new URL(source.url);
+	return (
+		<span>
+			Source:{" "}
+			<a href={source.url} target="_blank" rel="noreferrer" className="underline">
+				{url.hostname}
+				{url.pathname === "/" ? "" : url.pathname}
+			</a>
+			, read {formatDay(source.readAt.slice(0, 10))}
+		</span>
+	);
+}
+
+/** Invites a source without requiring one: hand-written facts often have none to give. */
+function SourceFields({
+	id,
+	today,
+	url,
+	readAt,
+	onUrl,
+	onReadAt,
+	disabled,
+}: {
+	id: string;
+	today: string;
+	url: string;
+	readAt: string;
+	onUrl: (url: string) => void;
+	onReadAt: (day: string) => void;
+	disabled?: boolean;
+}) {
+	return (
+		<div className="flex flex-wrap gap-3">
+			<div className="min-w-0 flex-1 basis-64 space-y-1">
+				<Label htmlFor={`${id}-source`}>Source (optional)</Label>
+				<Input
+					id={`${id}-source`}
+					type="url"
+					placeholder="https://acme.example/pricing"
+					value={url}
+					onChange={(event) => onUrl(event.target.value)}
+					disabled={disabled}
+				/>
+				<p className="text-xs text-muted-foreground">The page that states it, so it can be re-checked later.</p>
+			</div>
+			{url.trim() && (
+				<div className="space-y-1">
+					<Label htmlFor={`${id}-read`}>Read on</Label>
+					<Input
+						id={`${id}-read`}
+						type="date"
+						max={today}
+						value={readAt}
+						onChange={(event) => onReadAt(event.target.value)}
+						disabled={disabled}
+					/>
+				</div>
+			)}
+		</div>
+	);
+}
+
+const sourceOf = (url: string, readAt: string): SourceInput | null => (url.trim() ? { url: url.trim(), readAt } : null);
 
 function range(fact: FactRow): string {
 	return fact.validTo
@@ -104,6 +186,8 @@ function AddFact({ today, onAdd, full }: { today: string; onAdd: FactActions["ad
 	const [statement, setStatement] = useState("");
 	const [category, setCategory] = useState("");
 	const [validFrom, setValidFrom] = useState(today);
+	const [sourceUrl, setSourceUrl] = useState("");
+	const [readAt, setReadAt] = useState(today);
 	const [confirmedAsOne, setConfirmedAsOne] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [saving, setSaving] = useState(false);
@@ -112,13 +196,17 @@ function AddFact({ today, onAdd, full }: { today: string; onAdd: FactActions["ad
 
 	const submit = async () => {
 		setSaving(true);
-		const failure = await attempt(() => onAdd({ statement, category: category.trim() || null, validFrom }));
+		const failure = await attempt(() =>
+			onAdd({ statement, category: category.trim() || null, validFrom, source: sourceOf(sourceUrl, readAt) }),
+		);
 		setSaving(false);
 		setError(failure);
 		if (!failure) {
 			setStatement("");
 			setCategory("");
 			setValidFrom(today);
+			setSourceUrl("");
+			setReadAt(today);
 			setConfirmedAsOne(false);
 		}
 	};
@@ -163,6 +251,15 @@ function AddFact({ today, onAdd, full }: { today: string; onAdd: FactActions["ad
 					/>
 				</div>
 			</div>
+			<SourceFields
+				id="fact"
+				today={today}
+				url={sourceUrl}
+				readAt={readAt}
+				onUrl={setSourceUrl}
+				onReadAt={setReadAt}
+				disabled={full || saving}
+			/>
 			{error && <p className="text-sm text-destructive">{error}</p>}
 			<div className="flex gap-2">
 				{needsConfirm ? (
@@ -192,6 +289,8 @@ function ChangeDialog({
 }) {
 	const [statement, setStatement] = useState("");
 	const [effectiveFrom, setEffectiveFrom] = useState(today);
+	const [sourceUrl, setSourceUrl] = useState("");
+	const [readAt, setReadAt] = useState(today);
 	const [error, setError] = useState<string | null>(null);
 	const [saving, setSaving] = useState(false);
 	const problem = statement.trim() ? statementProblem(statement) : null;
@@ -240,6 +339,14 @@ function ChangeDialog({
 							</p>
 						)}
 					</div>
+					<SourceFields
+						id="change"
+						today={today}
+						url={sourceUrl}
+						readAt={readAt}
+						onUrl={setSourceUrl}
+						onReadAt={setReadAt}
+					/>
 					{error && <p className="text-sm text-destructive">{error}</p>}
 				</div>
 				<DialogFooter>
@@ -250,7 +357,9 @@ function ChangeDialog({
 						disabled={!statement.trim() || !!problem || tooEarly || saving}
 						onClick={async () => {
 							setSaving(true);
-							const failure = await attempt(() => onRecord(fact.id, { statement, effectiveFrom }));
+							const failure = await attempt(() =>
+								onRecord(fact.id, { statement, effectiveFrom, source: sourceOf(sourceUrl, readAt) }),
+							);
 							setSaving(false);
 							setError(failure);
 							if (!failure) onClose();
@@ -362,6 +471,9 @@ function FactItem({
 							</Badge>
 						)}
 					</p>
+					<p className="text-sm">
+						<SourceLine source={current.source} />
+					</p>
 				</div>
 				{active && (
 					<div className="flex flex-wrap gap-2">
@@ -394,7 +506,8 @@ function FactItem({
 						<ul className="mt-1 space-y-1 border-l pl-3 text-sm text-muted-foreground">
 							{history.map((version) => (
 								<li key={version.id}>
-									<span className="text-foreground">{version.statement}</span> · {range(version)}
+									<span className="text-foreground">{version.statement}</span> · {range(version)} ·{" "}
+									<SourceLine source={version.source} />
 								</li>
 							))}
 						</ul>

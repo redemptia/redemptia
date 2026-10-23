@@ -24,6 +24,8 @@ export interface AcceptInput {
 	statement: string;
 	category: string | null;
 	validFrom: string;
+	/** The page the suggestion was read from: stored with the fact, so it can be cited and re-checked. */
+	source: { url: string; readAt: string; quote: string };
 	question: string | null;
 }
 
@@ -155,6 +157,7 @@ function Suggestion({
 								statement,
 								category: proposal.category || null,
 								validFrom: today,
+								source: { url: proposal.sourceUrl, readAt: proposal.readAt, quote: proposal.quote },
 								question: track ? question : null,
 							});
 							setState({ saving: false, error: null, done });

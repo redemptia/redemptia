@@ -72,7 +72,7 @@ existing rollup table.
 
 **Tables:** `perception_prompts` (0032); `perception_attributes`, `perception_attribute_versions`, `brand_facts`,
 `perception_verdicts`, `rollup_perception_daily` and `perception_stamps` (0033); `perception_jev_calls`,
-`perception_run_status` and `perception_rollup_dirty` (0034); `perception_brand_settings` (0035), which 0035 also uses to
+`perception_run_status` and `perception_rollup_dirty` (0034); `perception_brand_settings` (0035); a fact's source columns on `brand_facts` (0036), which 0035 also uses to
 make a judged fact undeletable (its verdicts' foreign key no longer cascades) and a fact supersedable only once. None touches an elmo table except
 through foreign keys to `brands`, `prompts` and `prompt_runs`. `brand_facts` is immutable by trigger.
 
@@ -214,7 +214,7 @@ than the newest migration the database has already applied, and skips the rest w
 **Where we stand.** Migrations 0000–0030 are elmo's, from the `20954aa2` catch-up. 0031,
 `0031_prompt_runs_brand_created_at_idx` (journal `when` `1792295862959`, 18 October 2026), and 0032,
 `0032_perception_prompts` (journal `when` `1792681629886`, 22 October 2026) 0033, `0033_perception_core_tables` (journal `when`
-`1792728759177`), 0034, `0034_perception_job_tables` (journal `when` `1792755949381`), and 0035, `0035_perception_brand_settings`, are ours. 0035's journal `when` is **`1792761521542`** (23 October 2026).
+`1792728759177`), 0034, `0034_perception_job_tables` (journal `when` `1792755949381`), 0035, `0035_perception_brand_settings` (journal `when` `1792761521542`), and 0036, `0036_perception_fact_sources`, are ours. 0036's journal `when` is **`1792773512807`** (23 October 2026).
 0033 also carries a hand-written trigger, `brand_facts_immutable`, that drizzle doesn't track: never regenerate 0033, and
 keep that SQL if anything ever touches it.
 Every deployed database that has run it records that `when` as its newest. That has two consequences for every catch-up

@@ -24,7 +24,26 @@ export interface FactRecord {
 	supersedes: string | null;
 	supersededBy: string | null;
 	judged: boolean;
+	source: FactSource | null;
 }
+
+/** Where a fact is written down, and when that was read. */
+export interface FactSource {
+	url: string;
+	/** ISO timestamp. */
+	readAt: string;
+	quote: string | null;
+}
+
+/** What a caller passes: a read date (`YYYY-MM-DD`) or a full timestamp. */
+export interface FactSourceInput {
+	url: string;
+	readAt: string;
+	quote?: string | null;
+}
+
+const MAX_SOURCE_URL_CHARS = 2000;
+const MAX_SOURCE_QUOTE_CHARS = 1000;
 
 /** `YYYY-MM-DD` arithmetic in UTC, the zone fact dates and run days are compared in. */
 export function addDays(day: string, days: number): string {
@@ -54,7 +73,7 @@ export async function setPerceptionEnabled(db: DbConnection, brandId: string, en
 
 export async function listFacts(db: DbConnection, brandId: string): Promise<FactRecord[]> {
 	const next = alias(brandFacts, "next");
-	return db
+	const rows = await db
 		.select({
 			id: brandFacts.id,
 			statement: brandFacts.statement,
@@ -63,12 +82,20 @@ export async function listFacts(db: DbConnection, brandId: string): Promise<Fact
 			validTo: sql<string | null>`${brandFacts.validTo}::text`,
 			supersedes: brandFacts.supersedes,
 			supersededBy: next.id,
+			sourceUrl: brandFacts.sourceUrl,
+			sourceReadAt: brandFacts.sourceReadAt,
+			sourceQuote: brandFacts.sourceQuote,
 			judged: sql<boolean>`EXISTS (SELECT 1 FROM ${perceptionVerdicts} WHERE ${perceptionVerdicts.factId} = ${brandFacts.id})`,
 		})
 		.from(brandFacts)
 		.leftJoin(next, eq(next.supersedes, brandFacts.id))
 		.where(eq(brandFacts.brandId, brandId))
 		.orderBy(asc(brandFacts.validFrom), asc(brandFacts.createdAt));
+	return rows.map(({ sourceUrl, sourceReadAt, sourceQuote, ...fact }) => ({
+		...fact,
+		source:
+			sourceUrl && sourceReadAt ? { url: sourceUrl, readAt: sourceReadAt.toISOString(), quote: sourceQuote } : null,
+	}));
 }
 
 /**
@@ -98,6 +125,28 @@ function checkStatement(statement: string): string {
 	return normalizeStatement(statement);
 }
 
+/** The source as stored, or null without one. Only a web page can be a source, and not one read in the future. */
+function checkSource(source: FactSourceInput | null | undefined, today: string) {
+	if (!source?.url.trim()) return { sourceUrl: null, sourceReadAt: null, sourceQuote: null };
+	const raw = source.url.trim();
+	let url: URL;
+	try {
+		url = new URL(raw);
+	} catch {
+		throw new FactRuleError("The source must be a web address, starting with https://.");
+	}
+	if (url.protocol !== "https:" && url.protocol !== "http:") {
+		throw new FactRuleError("The source must be a web address, starting with https://.");
+	}
+	if (raw.length > MAX_SOURCE_URL_CHARS) throw new FactRuleError("That source address is too long.");
+	const readAt = new Date(/^\d{4}-\d{2}-\d{2}$/.test(source.readAt) ? `${source.readAt}T00:00:00Z` : source.readAt);
+	if (Number.isNaN(readAt.getTime())) throw new FactRuleError("Give the date the source was read.");
+	checkNotFuture(readAt.toISOString().slice(0, 10), today, "The date the source was read");
+	const quote = source.quote?.trim().replace(/\s+/g, " ") || null;
+	if (quote && quote.length > MAX_SOURCE_QUOTE_CHARS) throw new FactRuleError("Keep the quote under 1,000 characters.");
+	return { sourceUrl: url.toString(), sourceReadAt: readAt, sourceQuote: quote };
+}
+
 function checkNotFuture(day: string, today: string, what: string) {
 	if (day > today) throw new FactRuleError(`${what} can't be in the future.`);
 }
@@ -120,10 +169,11 @@ async function lockedFact(tx: DbConnection, brandId: string, factId: string) {
 export async function addFact(
 	db: DbConnection,
 	brandId: string,
-	input: { statement: string; category?: string | null; validFrom: string },
+	input: { statement: string; category?: string | null; validFrom: string; source?: FactSourceInput | null },
 	today = utcToday(),
 ): Promise<string> {
 	const statement = checkStatement(input.statement);
+	const source = checkSource(input.source, today);
 	checkNotFuture(input.validFrom, today, "The date a fact became true");
 	return forBrand(db, brandId, async (tx) => {
 		const active = await activeFacts(tx, brandId);
@@ -133,7 +183,13 @@ export async function addFact(
 		if (duplicateOf(statement, active)) throw new FactRuleError("That fact is already recorded.");
 		const [row] = await tx
 			.insert(brandFacts)
-			.values({ brandId, statement, category: input.category?.trim() || null, validFrom: input.validFrom })
+			.values({
+				brandId,
+				statement,
+				category: input.category?.trim() || null,
+				validFrom: input.validFrom,
+				...source,
+			})
 			.returning({ id: brandFacts.id });
 		return row.id;
 	});
@@ -144,10 +200,11 @@ export async function recordFactChange(
 	db: DbConnection,
 	brandId: string,
 	factId: string,
-	input: { statement: string; effectiveFrom: string },
+	input: { statement: string; effectiveFrom: string; source?: FactSourceInput | null },
 	today = utcToday(),
 ): Promise<string> {
 	const statement = checkStatement(input.statement);
+	const source = checkSource(input.source, today);
 	checkNotFuture(input.effectiveFrom, today, "The date a change took effect");
 	return forBrand(db, brandId, async (tx) => {
 		const old = await lockedFact(tx, brandId, factId);
@@ -169,7 +226,14 @@ export async function recordFactChange(
 			.where(eq(brandFacts.id, old.id));
 		const [row] = await tx
 			.insert(brandFacts)
-			.values({ brandId, statement, category: old.category, validFrom: input.effectiveFrom, supersedes: old.id })
+			.values({
+				brandId,
+				statement,
+				category: old.category,
+				validFrom: input.effectiveFrom,
+				supersedes: old.id,
+				...source,
+			})
 			.returning({ id: brandFacts.id });
 		return row.id;
 	});

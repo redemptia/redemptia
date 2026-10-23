@@ -147,11 +147,20 @@ describe("accepting a suggestion", () => {
 		question: "Is Acme self-hostable?",
 	};
 
-	it("records the fact and tracks its question", async () => {
-		const { factId, promptId, promptError } = await acceptFactSuggestion(brand, suggestion, "2026-10-23");
+	it("records the fact with the page it was read from, and tracks its question", async () => {
+		const source = {
+			url: "https://acme.example/docs/self-hosting",
+			readAt: "2026-10-23T09:30:00.000Z",
+			quote: "Self-host Acme.",
+		};
+		const { factId, promptId, promptError } = await acceptFactSuggestion(
+			brand,
+			{ ...suggestion, source },
+			"2026-10-23",
+		);
 
 		expect(promptError).toBeNull();
-		expect((await listFacts(db, brand.id)).map((f) => f.id)).toEqual([factId]);
+		expect(await listFacts(db, brand.id)).toMatchObject([{ id: factId, source }]);
 		expect((await listFactPrompts(db, brand.id)).map((p) => p.id)).toEqual([promptId]);
 	});
 

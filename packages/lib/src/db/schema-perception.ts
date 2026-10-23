@@ -114,6 +114,15 @@ export const brandFacts = pgTable(
 		/** Null while the fact is still true. */
 		validTo: date("valid_to"),
 		supersedes: uuid("supersedes").references((): AnyPgColumn => brandFacts.id),
+		/**
+		 * Where the statement is written down, and when that page was read: what a contradiction
+		 * alert cites, and what to re-check when the fact may have gone stale. Null for a fact
+		 * entered without one. Immutable like the rest of the row, so a re-read is a new version.
+		 */
+		sourceUrl: text("source_url"),
+		sourceReadAt: timestamp("source_read_at", { withTimezone: true }),
+		/** The words on the page that state it, when the fact came from a suggestion. */
+		sourceQuote: text("source_quote"),
 		createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 	},
 	(table) => [
@@ -121,6 +130,12 @@ export const brandFacts = pgTable(
 		// A fact is superseded at most once, so a fact's history is a line, never a fork.
 		uniqueIndex("brand_facts_supersedes_unique").on(table.supersedes),
 		check("brand_facts_validity", sql`valid_to IS NULL OR valid_to >= valid_from`),
+		// A source is a web page and when it was read; a quote only ever comes with one. The URL is
+		// shown as a link, so nothing but http(s) gets in.
+		check(
+			"brand_facts_source",
+			sql`(source_url IS NULL) = (source_read_at IS NULL) AND (source_quote IS NULL OR source_url IS NOT NULL) AND (source_url IS NULL OR source_url ~ '^https?://')`,
+		),
 	],
 ).enableRLS();
 

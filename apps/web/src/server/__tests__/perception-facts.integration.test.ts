@@ -329,3 +329,82 @@ describe("tenancy and the switch", () => {
 		expect(await isPerceptionEnabled(db, brandId)).toBe(false);
 	});
 });
+
+describe("a fact's source", () => {
+	const source = { url: "https://acme.example/pricing", readAt: "2026-10-20", quote: "From  $25 / month" };
+
+	it("is stored with the fact: the page, the day it was read, and the quote", async () => {
+		await addFact(db, brandId, { statement: "Acme Pro costs $25 per month.", validFrom: "2026-01-01", source }, TODAY);
+
+		expect((await listFacts(db, brandId))[0].source).toEqual({
+			url: "https://acme.example/pricing",
+			readAt: "2026-10-20T00:00:00.000Z",
+			quote: "From $25 / month",
+		});
+	});
+
+	it("is optional, and each version of a fact has its own", async () => {
+		const old = await add("Acme Pro costs $25 per month.");
+		const next = await recordFactChange(
+			db,
+			brandId,
+			old,
+			{ statement: "Acme Pro costs $29 per month.", effectiveFrom: "2026-09-01", source },
+			TODAY,
+		);
+
+		const facts = await listFacts(db, brandId);
+		expect(facts.find((f) => f.id === old)?.source).toBeNull();
+		expect(facts.find((f) => f.id === next)?.source?.url).toBe("https://acme.example/pricing");
+	});
+
+	it.each([
+		[{ ...source, url: "javascript:alert(1)" }, /web address/],
+		[{ ...source, url: "acme pricing page" }, /web address/],
+		[{ ...source, readAt: "2026-11-01" }, /future/],
+		[{ ...source, readAt: "yesterday" }, /date the source was read/],
+	])("refuses %j", async (bad, message) => {
+		expect(
+			await rejection(
+				addFact(db, brandId, { statement: "Acme has a free plan.", validFrom: "2026-01-01", source: bad }, TODAY),
+			),
+		).toMatch(message);
+		expect(await listFacts(db, brandId)).toEqual([]);
+	});
+
+	it("can't be changed or removed once recorded, like the rest of the fact", async () => {
+		const fact = await addFact(
+			db,
+			brandId,
+			{ statement: "Acme has a free plan.", validFrom: "2026-01-01", source },
+			TODAY,
+		);
+
+		expect(
+			await rejection(
+				db.update(brandFacts).set({ sourceUrl: "https://acme.example/other" }).where(eq(brandFacts.id, fact)),
+			),
+		).toMatch(/immutable/);
+		expect(
+			await rejection(
+				db
+					.update(brandFacts)
+					.set({ sourceUrl: null, sourceReadAt: null, sourceQuote: null })
+					.where(eq(brandFacts.id, fact)),
+			),
+		).toMatch(/immutable/);
+	});
+
+	it("is refused by the database when it isn't a web page with a read date, whatever the caller", async () => {
+		const insert = (values: Partial<typeof brandFacts.$inferInsert>) =>
+			rejection(
+				db
+					.insert(brandFacts)
+					.values({ brandId, statement: "Acme has a free plan.", validFrom: "2026-01-01", ...values }),
+			);
+
+		expect(await insert({ sourceUrl: "javascript:alert(1)", sourceReadAt: new Date() })).toMatch(/brand_facts_source/);
+		expect(await insert({ sourceUrl: "https://acme.example" })).toMatch(/brand_facts_source/);
+		expect(await insert({ sourceQuote: "a quote with no page" })).toMatch(/brand_facts_source/);
+	});
+});
