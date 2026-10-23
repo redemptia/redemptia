@@ -1,4 +1,4 @@
-import type { PerceptionCostEstimate } from "@/server/perception-cost";
+import type { PerceptionCostEstimate } from "@/lib/perception-cost";
 
 const usd = (value: number) => `$${value < 10 ? value.toFixed(2) : Math.round(value).toLocaleString("en-US")}`;
 const range = ({ low, high }: { low: number; high: number }) => `${usd(low)}–${usd(high)}`;

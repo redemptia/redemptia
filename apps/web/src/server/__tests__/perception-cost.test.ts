@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { estimatePerceptionCost } from "@/server/perception-cost";
+import { estimatePerceptionCost } from "@/lib/perception-cost";
 
 const inputs = {
 	factPrompts: 10,
