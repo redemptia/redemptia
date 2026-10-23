@@ -18,6 +18,7 @@ import {
 	requestStaleReprocesses,
 } from "./jobs/reprocess";
 import { configureMentionAnalyzer, mentionAnalyzer } from "./mention-judge/analyze";
+import { registerPerceptionJobs } from "./perception/register";
 import { initializePipeline } from "./rollups-startup";
 import { shutdownTelemetry } from "./telemetry";
 
@@ -158,6 +159,7 @@ async function main() {
 
 	// Register job handlers
 	await registerHandlers(boss);
+	await registerPerceptionJobs(boss);
 	console.log("All handlers registered, worker is ready");
 
 	await requestUnjudgedRuns(db, boss, { days: 30, limit: 50_000 }).then(

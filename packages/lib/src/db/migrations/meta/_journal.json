@@ -239,6 +239,13 @@
       "when": 1792728759177,
       "tag": "0033_perception_core_tables",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1792755949381,
+      "tag": "0034_perception_job_tables",
+      "breakpoints": true
     }
   ]
 }
