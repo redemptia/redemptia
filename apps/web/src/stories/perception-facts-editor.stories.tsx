@@ -37,7 +37,12 @@ const facts: FactRow[] = [
 		supersedes: "f1",
 		judged: true,
 	}),
-	fact({ id: "f3", statement: "Acme can be self-hosted.", judged: true }),
+	fact({
+		id: "f3",
+		statement: "Acme can be self-hosted.",
+		judged: true,
+		source: { url: "https://acme.example/docs/self-hosting", readAt: "2026-10-20T09:00:00.000Z", quote: null },
+	}),
 	fact({ id: "f4", statement: "Acme has a fre plan." }),
 	fact({ id: "f5", statement: "Acme offers phone support.", validTo: "2026-05-31", judged: true }),
 ];
@@ -58,6 +63,11 @@ export const Populated: StoryObj = {
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
 		await expect(canvas.getByText("3 of 25 active")).toBeInTheDocument();
+		await expect(canvas.getByRole("link", { name: "acme.example/docs/self-hosting" })).toHaveAttribute(
+			"href",
+			"https://acme.example/docs/self-hosting",
+		);
+		await expect(canvas.getAllByText("No source recorded").length).toBeGreaterThan(0);
 		// Delete is offered only for the unjudged original, and is absent everywhere else.
 		await expect(canvas.getAllByRole("button", { name: "Delete" })).toHaveLength(1);
 		await userEvent.click(canvas.getByRole("button", { name: "Show 1 earlier version" }));

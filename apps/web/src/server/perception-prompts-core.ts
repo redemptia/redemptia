@@ -24,7 +24,7 @@ import { factPromptProblem } from "@workspace/lib/perception/propose-facts";
 import { computeSystemTags } from "@workspace/lib/tag-utils";
 import { and, asc, count, eq } from "drizzle-orm";
 import { createPromptJobScheduler } from "@/lib/job-scheduler";
-import { addFact, FactRuleError } from "@/server/perception-facts-core";
+import { addFact, FactRuleError, type FactSourceInput } from "@/server/perception-facts-core";
 import { type PromptBrand, updatePrompt } from "@/server/prompts-core";
 
 /**
@@ -143,7 +143,13 @@ export async function stopTrackingFactPrompt(brand: PromptBrand, promptId: strin
  */
 export async function acceptFactSuggestion(
 	brand: PromptBrand,
-	input: { statement: string; category?: string | null; validFrom: string; question: string | null },
+	input: {
+		statement: string;
+		category?: string | null;
+		validFrom: string;
+		source?: FactSourceInput | null;
+		question: string | null;
+	},
 	today?: string,
 ): Promise<{ factId: string; promptId: string | null; promptError: string | null }> {
 	const factId = await addFact(db, brand.id, input, today);

@@ -30,6 +30,11 @@ import {
 } from "@/server/perception-prompts-core";
 import type { PromptBrand } from "@/server/prompts-core";
 
+const sourceSchema = z
+	.object({ url: z.string().max(2000), readAt: z.string().max(40), quote: z.string().max(1000).nullable().optional() })
+	.nullable()
+	.optional();
+
 export const getPerceptionSettingsFn = createServerFn({ method: "GET" })
 	.validator(z.object({ brandId: z.string() }))
 	.handler(async ({ data }) => {
@@ -52,6 +57,7 @@ export const addFactFn = createServerFn({ method: "POST" })
 			statement: z.string(),
 			category: z.string().max(60).nullable().optional(),
 			validFrom: calendarDateSchema,
+			source: sourceSchema,
 		}),
 	)
 	.handler(async ({ data }) => {
@@ -66,6 +72,7 @@ export const recordFactChangeFn = createServerFn({ method: "POST" })
 			factId: z.string().uuid(),
 			statement: z.string(),
 			effectiveFrom: calendarDateSchema,
+			source: sourceSchema,
 		}),
 	)
 	.handler(async ({ data }) => {
@@ -126,6 +133,7 @@ export const acceptFactSuggestionFn = createServerFn({ method: "POST" })
 			statement: z.string(),
 			category: z.string().max(60).nullable().optional(),
 			validFrom: calendarDateSchema,
+			source: sourceSchema,
 			question: z.string().max(500).nullable(),
 		}),
 	)
