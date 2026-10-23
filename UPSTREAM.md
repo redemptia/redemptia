@@ -70,6 +70,10 @@ perception prompts by a row in our own `perception_prompts` table. Every percept
 `derive-runs.ts`, `analysis-versions.ts`, `mentions.ts`, `rebuild.ts`; the `run_mentions.assessments` column; and every
 existing rollup table.
 
+**Tables:** `perception_prompts` (0032); `perception_attributes`, `perception_attribute_versions`, `brand_facts`,
+`perception_verdicts`, `rollup_perception_daily` and `perception_stamps` (0033). None touches an elmo table except
+through foreign keys to `brands`, `prompts` and `prompt_runs`. `brand_facts` is immutable by trigger.
+
 **Not a marker:** `prompts.system_tags` is rewritten from the prompt text by every prompt save and by the worker's
 reprocess pass, and users can delete `prompts.tags`. A marker in either would be lost, and the prompt would silently
 join the headline metrics.
@@ -174,14 +178,17 @@ than the newest migration the database has already applied, and skips the rest w
 
 **Where we stand.** Migrations 0000–0030 are elmo's, from the `20954aa2` catch-up. 0031,
 `0031_prompt_runs_brand_created_at_idx` (journal `when` `1792295862959`, 18 October 2026), and 0032,
-`0032_perception_prompts`, are ours. 0032's journal `when` is **`1792681629886`** (22 October 2026, 15:07 UTC).
+`0032_perception_prompts` (journal `when` `1792681629886`, 22 October 2026) and 0033, `0033_perception_core_tables`, are
+ours. 0033's journal `when` is **`1792728759177`** (23 October 2026).
+0033 also carries a hand-written trigger, `brand_facts_immutable`, that drizzle doesn't track: never regenerate 0033, and
+keep that SQL if anything ever touches it.
 Every deployed database that has run it records that `when` as its newest. That has two consequences for every catch-up
 from now on:
 
-- **Elmo's next two migrations are also numbered 0031 and 0032.** Both sides add those snapshots and journal entries
-  with `idx` 31 and 32, so git reports conflicts. That's the loud half, and it's fine.
+- **Elmo's next three migrations are also numbered 0031–0033.** Both sides add those snapshots and journal entries
+  with `idx` 31–33, so git reports conflicts. That's the loud half, and it's fine.
 - **Any elmo migration whose `when` is older than ours is skipped on those databases, silently.** Elmo writes its
-  `when` when it generates the migration, so anything elmo authored before 22 October 2026 that we haven't merged
+  `when` when it generates the migration, so anything elmo authored before 23 October 2026 that we haven't merged
   yet is in this position, as is anything dated before our newest migration once we add more. A fresh database
   still applies it, so a fresh test passes while every upgraded deployment lacks the change. Only the upgrade check
   in step 5 below sees it.
