@@ -13,6 +13,7 @@ import {
 	jsonb,
 	pgTable,
 	primaryKey,
+	real,
 	text,
 	timestamp,
 	unique,
@@ -142,6 +143,8 @@ export const perceptionVerdicts = pgTable(
 		questionVersion: integer("question_version"),
 		verdict: text("verdict").notNull(),
 		probabilities: jsonb("probabilities").$type<Record<string, number>>().notNull(),
+		/** The judge's own confidence, which isn't its top probability. Stored, not used, until calibrated. */
+		confidence: real("confidence"),
 		passage: text("passage"),
 		stamp: text("stamp").notNull(),
 		/** The answer length the judge saw, when the answer was cut to fit; null when it saw the whole answer. */

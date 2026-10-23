@@ -19,15 +19,19 @@ import { judgePendingRuns, MAX_ANSWER_CHARS, perceptionStamp } from "./judge-run
 let brandId: string;
 
 /** A judge that answers every question it is asked, and remembers each request. */
-function recordingJudge(answer = "supports", fail?: (request: JevRequest) => Error | undefined) {
+function recordingJudge(answer = "supports", fail?: (request: JevRequest) => Error | undefined, model?: string) {
 	const requests: JevRequest[] = [];
 	const transport = async (request: JevRequest): Promise<JevResponse> => {
 		requests.push(request);
 		const error = fail?.(request);
 		if (error) throw error;
 		return {
+			...(model ? { model } : {}),
 			answers: Object.fromEntries(
-				Object.keys(request.questions).map((key) => [key, { choice: answer, probabilities: { [answer]: 0.9 } }]),
+				Object.keys(request.questions).map((key) => [
+					key,
+					{ choice: answer, probabilities: { [answer]: 0.9 }, confidence: 0.8 },
+				]),
 			),
 		};
 	};
@@ -153,7 +157,7 @@ describe("finding work", () => {
 		const runId = await run(await prompt(), "Acme has a free plan.");
 		await fact("Acme has a free plan.");
 		await judgePendingRuns(db, recordingJudge().transport, "stub");
-		const real = recordingJudge("contradicts");
+		const real = recordingJudge("contradicts", undefined, "jev-test");
 
 		await judgePendingRuns(db, real.transport, "jev-test");
 
@@ -161,6 +165,29 @@ describe("finding work", () => {
 		expect((await verdictsOf(runId)).map((v) => v.stamp).sort()).toEqual(
 			[perceptionStamp("jev-test"), perceptionStamp("stub")].sort(),
 		);
+	});
+});
+
+describe("the judge's own fields", () => {
+	it("stores each answer's confidence", async () => {
+		const runId = await run(await prompt(), "Acme has a free plan.");
+		await fact("Acme has a free plan.");
+
+		await judgePendingRuns(db, recordingJudge().transport, "stub");
+
+		expect((await verdictsOf(runId)).map((v) => v.confidence)).toEqual([expect.closeTo(0.8, 5)]);
+	});
+
+	it("treats an answer from a model other than the pinned one as a failed call", async () => {
+		const runId = await run(await prompt(), "Acme has a free plan.");
+		await fact("Acme has a free plan.");
+
+		await judgePendingRuns(db, recordingJudge("supports", undefined, "jev-9.9.9").transport, "jev-1.13.0");
+
+		expect(await verdictsOf(runId)).toHaveLength(0);
+		const [status] = await db.select().from(perceptionRunStatus).where(eq(perceptionRunStatus.runId, runId));
+		expect(status).toMatchObject({ outcome: null, attempts: 1 });
+		expect(status.lastError).toMatch(/jev-9\.9\.9/);
 	});
 });
 

@@ -90,7 +90,7 @@ join the headline metrics.
 
 | File | Change | Why |
 |---|---|---|
-| `apps/worker/src/index.ts` | one `await registerPerceptionJobs(boss)` line, after `registerHandlers` | The job runs inside elmo's worker, because a separate process would need a compose service, a Docker target and a published image. `registerPerceptionJobs` (`apps/worker/src/perception/register.ts`) creates its own queue and schedule and never throws, so a failure there can't stop the worker. It does nothing in cloud. |
+| `apps/worker/src/index.ts` | one `await registerPerceptionJobs(boss)` line, after `registerHandlers` | The job runs inside elmo's worker, because a separate process would need a compose service, a Docker target and a published image. `registerPerceptionJobs` (`apps/worker/src/perception/register.ts`) creates its own queue and schedule and never throws, so a failure there can't stop the worker. It does nothing in cloud. A response from a Jev model other than the pinned `JEV_MODEL` counts as a failed call and writes nothing, so a judge version can't change under a stamp silently. |
 
 ### Headline exclusion
 
@@ -186,7 +186,7 @@ than the newest migration the database has already applied, and skips the rest w
 **Where we stand.** Migrations 0000–0030 are elmo's, from the `20954aa2` catch-up. 0031,
 `0031_prompt_runs_brand_created_at_idx` (journal `when` `1792295862959`, 18 October 2026), and 0032,
 `0032_perception_prompts` (journal `when` `1792681629886`, 22 October 2026) 0033, `0033_perception_core_tables` (journal `when`
-`1792728759177`), and 0034, `0034_perception_job_tables`, are ours. 0034's journal `when` is **`1792754405671`** (23 October 2026).
+`1792728759177`), and 0034, `0034_perception_job_tables`, are ours. 0034's journal `when` is **`1792755949381`** (23 October 2026).
 0033 also carries a hand-written trigger, `brand_facts_immutable`, that drizzle doesn't track: never regenerate 0033, and
 keep that SQL if anything ever touches it.
 Every deployed database that has run it records that `when` as its newest. That has two consequences for every catch-up

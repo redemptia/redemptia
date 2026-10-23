@@ -25,4 +25,5 @@ CREATE TABLE "perception_run_status" (
 );
 --> statement-breakpoint
 ALTER TABLE "perception_run_status" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "perception_verdicts" ADD COLUMN "confidence" real;--> statement-breakpoint
 ALTER TABLE "perception_run_status" ADD CONSTRAINT "perception_run_status_run_id_prompt_runs_id_fk" FOREIGN KEY ("run_id") REFERENCES "public"."prompt_runs"("id") ON DELETE cascade ON UPDATE no action;

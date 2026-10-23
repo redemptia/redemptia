@@ -203,11 +203,17 @@ async function failed(db: DbConnection, run: PendingRun, stamp: string, error: s
 	await setAside(db, run.runId, stamp, attempts >= MAX_ATTEMPTS ? "failed" : null, attempts, error.slice(0, 500));
 }
 
+/** What the judge returns beyond our client's types: its model, and each answer's confidence. */
+type JudgedResponse = JevResponse & {
+	model?: string;
+	answers: Record<string, { choice: string; probabilities: Record<string, number>; confidence?: number }>;
+};
+
 async function record(
 	db: DbConnection,
 	run: PendingRun,
 	stamp: string,
-	response: JevResponse,
+	response: JudgedResponse,
 	truncatedAt: number | null,
 ) {
 	const rows = run.facts.map((fact) => {
@@ -219,6 +225,7 @@ async function record(
 			factId: fact.id,
 			verdict: answer.choice,
 			probabilities: answer.probabilities,
+			confidence: typeof answer.confidence === "number" ? answer.confidence : null,
 			stamp,
 			truncatedAt,
 		};
@@ -239,7 +246,13 @@ async function record(
 type RunResult = { calls: number; verdicts: number; stop?: "over_ceiling" | "rate_limited" };
 
 /** Judges one run's missing facts in one call, and records what came of it. */
-async function judgeRun(db: DbConnection, transport: JevTransport, run: PendingRun, stamp: string): Promise<RunResult> {
+async function judgeRun(
+	db: DbConnection,
+	transport: JevTransport,
+	run: PendingRun,
+	stamp: string,
+	judge: string,
+): Promise<RunResult> {
 	const text = extractRun(run.rawOutput, extractorFor({ provider: run.provider, model: run.model })).textContent;
 	if (!text) {
 		await setAside(db, run.runId, stamp, "no_text", run.attempts);
@@ -263,12 +276,18 @@ async function judgeRun(db: DbConnection, transport: JevTransport, run: PendingR
 		await setAside(db, run.runId, stamp, "too_large", run.attempts);
 		return { calls: asked.calls, verdicts: 0 };
 	}
-	const unanswered = run.facts.find((fact) => !asked.response.answers[factKey(fact.id)]);
+	const response = asked.response as JudgedResponse;
+	// A judge answering as a different version would mix two judges' verdicts under one stamp.
+	if (judge !== "stub" && response.model !== judge) {
+		await failed(db, run, stamp, `Jev answered as ${response.model ?? "an unnamed model"}, not ${judge}`);
+		return { calls: asked.calls, verdicts: 0 };
+	}
+	const unanswered = run.facts.find((fact) => !response.answers[factKey(fact.id)]);
 	if (unanswered) {
 		await failed(db, run, stamp, `no answer for ${unanswered.id}`);
 		return { calls: asked.calls, verdicts: 0 };
 	}
-	return { calls: asked.calls, verdicts: await record(db, run, stamp, asked.response, asked.truncatedAt) };
+	return { calls: asked.calls, verdicts: await record(db, run, stamp, response, asked.truncatedAt) };
 }
 
 /** One job's worth of judging. `judge` names the transport for the stamp: the Jev model, or "stub". */
@@ -281,7 +300,7 @@ export async function judgePendingRuns(
 	const stamp = perceptionStamp(judge);
 	const outcome: JudgeOutcome = { runs: 0, calls: 0, verdicts: 0, overCeiling: false, rateLimited: false };
 	for (const run of await pendingRuns(db, stamp, limit)) {
-		const result = await judgeRun(db, transport, run, stamp);
+		const result = await judgeRun(db, transport, run, stamp, judge);
 		outcome.calls += result.calls;
 		outcome.verdicts += result.verdicts;
 		if (result.verdicts > 0) outcome.runs++;

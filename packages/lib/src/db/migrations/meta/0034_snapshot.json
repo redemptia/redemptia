@@ -1,5 +1,5 @@
 {
-  "id": "1510c331-68e8-4e12-98bc-979051f1e4b2",
+  "id": "f6ad4d59-efef-4113-b9cf-aed5f50bfcd3",
   "prevId": "88fa32a4-33af-406b-aee4-243faa32f5e3",
   "version": "7",
   "dialect": "postgresql",
@@ -5076,6 +5076,12 @@
           "type": "jsonb",
           "primaryKey": false,
           "notNull": true
+        },
+        "confidence": {
+          "name": "confidence",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
         },
         "passage": {
           "name": "passage",
