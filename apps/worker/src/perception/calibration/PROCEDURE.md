@@ -209,7 +209,11 @@ quote it as how often AI gets a brand wrong.
 For `contradicts`, computed on the gold labels (§2a says whose):
 
 - precision ≥ 0.85, **and** the lower bound of its 95% Wilson interval ≥ 0.75;
-- recall ≥ 0.70 on the same basis.
+- recall ≥ 0.70, **and** the lower bound of its 95% Wilson interval ≥ 0.60.
+
+Both bounds were fixed on 23 October 2026, before the v1 run. The asymmetry is deliberate: a false
+contradiction accuses the customer's facts of being wrong and costs their trust in the product, while a
+missed contradiction costs them one finding. So precision carries the stricter bar.
 
 Report both, for both the natural and the enriched set. If the interval is too wide to pass, add
 contradiction items. Never lower the bar. The attribute bar is set once the attribute half exists.
@@ -293,6 +297,15 @@ suspect even at high agreement, because the agreement would then measure two lab
 That is decided after reading them, not before.
 
 ## Notes for v2
+
+- **Make most perturbations buried, not standalone.** v1's gate missed 2 of 36 planted contradictions, and
+  both were the same shape: one contradicting sentence inside an answer that otherwise supports the fact
+  (F10, self-hosting). That is the more realistic shape, since stale information appears embedded in an
+  answer, not on its own. Most v2 perturbations should be buried this way. **Expect recall to fall** when
+  they are: v1's 0.944 was measured mostly on standalone insertions.
+- **v2 is also the calibration set for confidence.** The two v1 misses had confidence 0.55 and 0.17, against a
+  median of 1.00 for correct verdicts. Confidence may catch exactly this failure mode, but it stays unused
+  until v2 shows how far it can be trusted.
 
 - **Keep the natural answers sealed until the freeze,** like the bases: commit `answers.jsonl` and `raw.jsonl`
   with the frozen labels, not before. Hash them in `SEALS` meanwhile.
