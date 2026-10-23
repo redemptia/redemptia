@@ -12,7 +12,7 @@
  */
 import { writeFileSync } from "node:fs";
 import { parseArgs } from "node:util";
-import { buildProposalPrompt, discoverPages, proposeFacts, readPages } from "@workspace/lib/perception/propose-facts";
+import { buildProposalPrompt, discoverPages, proposeFacts } from "@workspace/lib/perception/propose-facts";
 import { getProvider } from "@workspace/lib/providers";
 
 const { values } = parseArgs({
@@ -42,39 +42,48 @@ async function keyUsage(): Promise<number> {
 }
 
 async function main(brand: string, website: string, out: string) {
-	const urls = await discoverPages(website);
-	const pages = await readPages(urls);
-	const prompt = buildProposalPrompt(brand, pages);
+	const discovered = await discoverPages(website);
+	const prompt = buildProposalPrompt(brand, discovered.pages);
 	const estimatedTokens = Math.ceil(prompt.length / 4);
-	console.log(`Pages tried: ${urls.length}, read: ${pages.length}`);
-	for (const page of pages) console.log(`  ${page.url}  ${page.text.length} chars`);
-	for (const url of urls.filter((u) => !pages.some((p) => p.url === u))) console.log(`  ${url}  (nothing read)`);
+	console.log("Targets:");
+	for (const entry of discovered.coverage) {
+		console.log(`  ${entry.target.padEnd(12)} ${entry.url ? `${entry.url} (${entry.how})` : "NOT FOUND"}`);
+	}
+	console.log("Pages read:");
+	for (const page of discovered.pages)
+		console.log(`  ${page.target.padEnd(12)} ${page.url}  ${page.text.length} chars`);
 	console.log(`Prompt: ${prompt.length} chars, about ${estimatedTokens} tokens.`);
 
 	if (!values.spend) {
-		writeFileSync(out, JSON.stringify({ urls, pages, prompt }, null, 2));
+		writeFileSync(out, JSON.stringify({ ...discovered, prompt }, null, 2));
 		console.log(`No call made. Pages and prompt written to ${out}.`);
 		return;
 	}
 
 	if (!key) fail("Set OPENROUTER_API_KEY in the environment.");
-	if (estimatedTokens > Number(values["max-tokens"])) fail(`Prompt is over --max-tokens; not calling.`);
+	if (estimatedTokens > Number(values["max-tokens"])) fail("Prompt is over --max-tokens; not calling.");
 
 	const before = await keyUsage();
+	console.log(`Key usage before: $${before.toFixed(6)}`);
 	const result = await proposeFacts({
 		brandName: brand,
 		website,
 		existingStatements: [],
 		providers: [getProvider("openrouter")],
-		pages,
+		discovered,
 	});
-	// OpenRouter's usage figure can lag a call by a few seconds.
-	await new Promise((resolve) => setTimeout(resolve, 10_000));
-	const spent = (await keyUsage()) - before;
+	// OpenRouter's usage figure lags a call; wait up to a minute for it to move.
+	let after = before;
+	for (let i = 0; i < 12 && after === before; i++) {
+		await new Promise((resolve) => setTimeout(resolve, 5_000));
+		after = await keyUsage();
+	}
+	console.log(`Key usage after:  $${after.toFixed(6)}${after === before ? " (unchanged after 60 s)" : ""}`);
+	const spent = after - before;
 
-	writeFileSync(out, JSON.stringify({ ...result, spentUsd: spent }, null, 2));
+	writeFileSync(out, JSON.stringify({ ...result, spentUsd: spent, usageBefore: before, usageAfter: after }, null, 2));
 	console.log(
-		`Answered by ${result.answeredBy?.model ?? "nobody"}: ${result.proposals.length} kept, ${result.rejected.length} dropped, $${spent.toFixed(4)} spent.`,
+		`Answered by ${result.answeredBy?.model ?? "nobody"}: ${result.proposals.length} shown, ${result.heldBack.length} held back, ${result.rejected.length} dropped, $${spent.toFixed(4)} spent.`,
 	);
 	for (const failure of result.failures) console.log(`  failed: ${failure.provider}: ${failure.error.slice(0, 200)}`);
 }
