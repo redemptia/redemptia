@@ -12,3 +12,4 @@ sealed/labels.ai.csv 1a3d7f5b048ea2b1f6f8d5891e38ca29143e3a1a98123e45c4a3f26943a
 sealed/validation-seed.txt 146bbe144c678f06a457a689823c3187e74f06769cfffb8075f769aefd1eb605  (AI labeller, §2a; 2026-10-23T05:48:49Z)
 sealed/tells.md f98551de153a0598cb1831199d714a6b4d6ab8f490c8312c8a1b1ea97717f862  (AI labeller, §2a; 2026-10-23T05:48:49Z)
 v1/validation-subset.json d86a6c9d9c757331df31d18cc76180912a0039da15c820c89c44b050f561fb29  (the 40 items the operator labels blind; 2026-10-23T05:48:49Z)
+v1/validation-subset.json 8bd0f752de06224d20c9117ae9ac48272353d21ee6f40b5370a4922ad82451f2  (bytes after biome formatting; whitespace only, canonical JSON sha256 5946b1cbe04d60a72861886d6b09adf0720d99861ef13955447120b59294d677, same as the file the labeller hashed)
