@@ -35,6 +35,7 @@
 		"./onboarding": "./src/onboarding/index.ts",
 		"./mentions": "./src/mentions.ts",
 		"./perception/fact-statement": "./src/perception/fact-statement.ts",
+		"./perception/propose-facts": "./src/perception/propose-facts.ts",
 		"./analysis-versions": "./src/analysis-versions.ts",
 		"./tag-utils": "./src/tag-utils.ts",
 		"./bulk-prompts": "./src/bulk-prompts.ts",

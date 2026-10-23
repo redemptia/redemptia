@@ -41,7 +41,9 @@ export function atomicityHints(statement: string): string[] {
 	if (/\b(and|or)\b/i.test(text) || text.includes(";")) {
 		hints.push('It joins claims with "and", "or" or a semicolon.');
 	}
-	const amounts = text.match(/[$€£]?\d[\d,.]*\s*(%|[kKmMgGtT]?[bB]\b|MB|GB|TB)?/g) ?? [];
+	// A number right after a capitalised word is part of a name ("SOC 2 Type 2", "ISO 27001",
+	// "Postgres 17"), not an amount the statement asserts.
+	const amounts = text.match(/(?<![A-Z][\w-]*\s|[\d,.$€£])[$€£]?\d[\d,.]*/g) ?? [];
 	if (amounts.length > 1) hints.push("It contains more than one number.");
 	return hints;
 }

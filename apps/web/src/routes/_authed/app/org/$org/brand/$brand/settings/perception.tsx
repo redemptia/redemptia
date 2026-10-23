@@ -3,17 +3,26 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Label } from "@workspace/ui/components/label";
 import { Switch } from "@workspace/ui/components/switch";
 import { useState } from "react";
+import { PerceptionFactPrompts } from "@/components/perception-fact-prompts";
+import { PerceptionFactSuggestions } from "@/components/perception-fact-suggestions";
 import { type FactActions, PerceptionFactsEditor } from "@/components/perception-facts-editor";
 import { useBrandId } from "@/hooks/use-brand-id";
+import { useBrand } from "@/hooks/use-brands";
 import { pageHead } from "@/lib/route-head";
 import { useWriteErrorMessage } from "@/lib/write-errors";
 import {
+	acceptFactSuggestionFn,
 	addFactFn,
+	addFactPromptFn,
 	deleteFactFn,
+	getFactPromptsFn,
+	getFactSuggestionsFn,
 	getPerceptionSettingsFn,
 	recordFactChangeFn,
 	retireFactFn,
 	setPerceptionEnabledFn,
+	stopTrackingFactPromptFn,
+	suggestFactsFn,
 } from "@/server/perception-facts";
 
 export const Route = createFileRoute("/_authed/app/org/$org/brand/$brand/settings/perception")({
@@ -23,6 +32,9 @@ export const Route = createFileRoute("/_authed/app/org/$org/brand/$brand/setting
 });
 
 const settingsKey = (brandId: string) => ["perception-settings", brandId] as const;
+const promptsKey = (brandId: string) => ["perception-fact-prompts", brandId] as const;
+const suggestionsKey = (brandId: string) => ["perception-fact-suggestions", brandId] as const;
+const SUGGESTIONS_POLL_MS = 3000;
 
 function PerceptionSettingsPage() {
 	const brandId = useBrandId();
@@ -33,7 +45,21 @@ function PerceptionSettingsPage() {
 		queryKey: settingsKey(brandId),
 		queryFn: () => getPerceptionSettingsFn({ data: { brandId } }),
 	});
-	const refresh = () => queryClient.invalidateQueries({ queryKey: settingsKey(brandId) });
+	const { data: brand } = useBrand(brandId);
+	const { data: promptState } = useQuery({
+		queryKey: promptsKey(brandId),
+		queryFn: () => getFactPromptsFn({ data: { brandId } }),
+	});
+	const { data: suggestions } = useQuery({
+		queryKey: suggestionsKey(brandId),
+		queryFn: () => getFactSuggestionsFn({ data: { brandId } }),
+		refetchInterval: (query) => (query.state.data?.status === "pending" ? SUGGESTIONS_POLL_MS : false),
+	});
+	const refresh = () =>
+		Promise.all([
+			queryClient.invalidateQueries({ queryKey: settingsKey(brandId) }),
+			queryClient.invalidateQueries({ queryKey: promptsKey(brandId) }),
+		]);
 	const today = new Date().toISOString().slice(0, 10);
 
 	// Each write rethrows a readable message for the editor to show next to what failed.
@@ -95,6 +121,40 @@ function PerceptionSettingsPage() {
 			</div>
 
 			<PerceptionFactsEditor facts={data.facts} today={today} actions={actions} />
+
+			{promptState && (
+				<PerceptionFactSuggestions
+					state={suggestions ?? { status: "none" }}
+					runsLeft={promptState.suggestionRunsLeft}
+					website={brand?.website ?? "your website"}
+					today={today}
+					factPromptRoom={Math.max(0, promptState.headroom.factPromptStart - promptState.headroom.factPrompts)}
+					onSuggest={async () => {
+						await write(() => suggestFactsFn({ data: { brandId } }), "Couldn't start suggestions.");
+						await queryClient.invalidateQueries({ queryKey: suggestionsKey(brandId) });
+					}}
+					onAccept={async (input) => {
+						let outcome = { promptError: null as string | null };
+						await write(async () => {
+							outcome = await acceptFactSuggestionFn({ data: { brandId, ...input } });
+						}, "Couldn't add the fact.");
+						return outcome;
+					}}
+				/>
+			)}
+
+			{promptState && (
+				<PerceptionFactPrompts
+					prompts={promptState.factPrompts}
+					headroom={promptState.headroom}
+					onAdd={(question) =>
+						write(() => addFactPromptFn({ data: { brandId, question } }), "Couldn't add the question.")
+					}
+					onStop={(promptId) =>
+						write(() => stopTrackingFactPromptFn({ data: { brandId, promptId } }), "Couldn't stop the question.")
+					}
+				/>
+			)}
 		</div>
 	);
 }

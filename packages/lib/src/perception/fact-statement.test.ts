@@ -12,6 +12,15 @@ describe("fact statements", () => {
 		expect(statementProblem("What does Acme cost")).toMatch(/question/);
 	});
 
+	it("doesn't count a number inside a name as a second amount", () => {
+		expect(atomicityHints("Acme is SOC 2 Type 2 certified.")).toEqual([]);
+		expect(atomicityHints("Acme is ISO 27001 certified.")).toEqual([]);
+		expect(atomicityHints("Acme supports Postgres 17 with 500 MB of storage.")).toEqual([]);
+		expect(atomicityHints("Acme's Team plan costs $599 per month for 10 seats.")).toEqual([
+			"It contains more than one number.",
+		]);
+	});
+
 	it("rejects half of a surrogate pair, but not an emoji", () => {
 		expect(statementProblem("Acme ships \ud83d weekly.")).toMatch(/broken characters/);
 		expect(statementProblem("Acme ships \u{1f680} weekly.")).toBeNull();
