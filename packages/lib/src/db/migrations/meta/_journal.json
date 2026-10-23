@@ -232,6 +232,13 @@
       "when": 1792681629886,
       "tag": "0032_perception_prompts",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1792728759177,
+      "tag": "0033_perception_core_tables",
+      "breakpoints": true
     }
   ]
 }
