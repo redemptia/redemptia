@@ -3,6 +3,7 @@ import {
 	IconBuilding,
 	IconBuildings,
 	IconChartBar,
+	IconChecklist,
 	IconCode,
 	IconCpu,
 	IconCreditCard,
@@ -84,7 +85,7 @@ function organizationGroups(
 	];
 }
 
-function brandGroups(organization: OrganizationSummary, brand: BrandWithPrompts): NavGroup[] {
+function brandGroups(organization: OrganizationSummary, brand: BrandWithPrompts, mode?: DeploymentMode): NavGroup[] {
 	const params = brandLinkParams(organization, brand);
 	const dashboard: NavItem[] = [
 		{ title: "Overview", link: { to: "/app/org/$org/brand/$brand", params }, icon: IconDashboard, exact: true },
@@ -124,6 +125,16 @@ function brandGroups(organization: OrganizationSummary, brand: BrandWithPrompts)
 					icon: IconListDetails,
 				},
 				{ title: "LLMs", link: { to: "/app/org/$org/brand/$brand/settings/llms", params }, icon: IconCpu },
+				// Perception doesn't run in cloud until it is priced.
+				...(mode === "cloud"
+					? []
+					: [
+							{
+								title: "Perception",
+								link: { to: "/app/org/$org/brand/$brand/settings/perception" as const, params },
+								icon: IconChecklist,
+							},
+						]),
 			],
 		});
 	}
@@ -144,7 +155,7 @@ export function AppSidebar({ section, organization, brand }: AppSidebarProps) {
 	const adminItems = section === "account" ? [] : adminNavItems({ isAdmin, hasReportAccess, reportsEnabled });
 
 	const groups: NavGroup[] = [
-		...(section === "brand" && organization && brand ? brandGroups(organization, brand) : []),
+		...(section === "brand" && organization && brand ? brandGroups(organization, brand, mode) : []),
 		...(section === "organization" && organization ? organizationGroups(organization, features, mode) : []),
 		...(section === "admin" && adminItems.length > 0 ? [{ label: "Admin", items: adminItems }] : []),
 	];

@@ -246,6 +246,13 @@
       "when": 1792755949381,
       "tag": "0034_perception_job_tables",
       "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1792761521542,
+      "tag": "0035_perception_brand_settings",
+      "breakpoints": true
     }
   ]
 }

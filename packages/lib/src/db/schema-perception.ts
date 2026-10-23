@@ -6,6 +6,7 @@
 import { sql } from "drizzle-orm";
 import {
 	type AnyPgColumn,
+	boolean,
 	check,
 	date,
 	index,
@@ -17,6 +18,7 @@ import {
 	text,
 	timestamp,
 	unique,
+	uniqueIndex,
 	uuid,
 } from "drizzle-orm/pg-core";
 import { brands, promptRuns, prompts } from "./schema";
@@ -116,6 +118,8 @@ export const brandFacts = pgTable(
 	},
 	(table) => [
 		index("brand_facts_brand_id_idx").on(table.brandId),
+		// A fact is superseded at most once, so a fact's history is a line, never a fork.
+		uniqueIndex("brand_facts_supersedes_unique").on(table.supersedes),
 		check("brand_facts_validity", sql`valid_to IS NULL OR valid_to >= valid_from`),
 	],
 ).enableRLS();
@@ -138,7 +142,8 @@ export const perceptionVerdicts = pgTable(
 		subject: text("subject").notNull(),
 		kind: text("kind").$type<PerceptionVerdictKind>().notNull(),
 		attributeId: uuid("attribute_id").references(() => perceptionAttributes.id, { onDelete: "cascade" }),
-		factId: uuid("fact_id").references(() => brandFacts.id, { onDelete: "cascade" }),
+		/** No cascade: a fact with verdicts can't be deleted, only superseded or retired. */
+		factId: uuid("fact_id").references(() => brandFacts.id),
 		/** The attribute question's version; null for facts and drift. */
 		questionVersion: integer("question_version"),
 		verdict: text("verdict").notNull(),
@@ -280,3 +285,15 @@ export const perceptionRollupDirty = pgTable(
 	},
 	(table) => [primaryKey({ name: "perception_rollup_dirty_pk", columns: [table.brandId, table.day] })],
 ).enableRLS();
+
+/**
+ * Whether perception runs for a brand. Off by default: a brand without a row is off. The job judges
+ * only brands that are on, so turning it off stops the spend as well as hiding the figures.
+ */
+export const perceptionBrandSettings = pgTable("perception_brand_settings", {
+	brandId: text("brand_id")
+		.primaryKey()
+		.references(() => brands.id, { onDelete: "cascade" }),
+	enabled: boolean("enabled").notNull().default(false),
+	updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+}).enableRLS();
