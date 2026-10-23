@@ -71,7 +71,8 @@ perception prompts by a row in our own `perception_prompts` table. Every percept
 existing rollup table.
 
 **Tables:** `perception_prompts` (0032); `perception_attributes`, `perception_attribute_versions`, `brand_facts`,
-`perception_verdicts`, `rollup_perception_daily` and `perception_stamps` (0033). None touches an elmo table except
+`perception_verdicts`, `rollup_perception_daily` and `perception_stamps` (0033); `perception_jev_calls`,
+`perception_run_status` and `perception_rollup_dirty` (0034). None touches an elmo table except
 through foreign keys to `brands`, `prompts` and `prompt_runs`. `brand_facts` is immutable by trigger.
 
 **Not a marker:** `prompts.system_tags` is rewritten from the prompt text by every prompt save and by the worker's
@@ -84,6 +85,12 @@ join the headline metrics.
 |---|---|---|
 | `packages/lib/drizzle.config.ts` | `./src/db/schema-perception.ts` added to `schema` | So drizzle-kit generates our tables. One upstream commit in six months |
 | `packages/lib/package.json` | an `exports` line for `./db/schema-perception` | So the apps can import our tables. Of 88 upstream commits to this file in six months, 18 touched `exports`, so a conflict here is possible; keep both sides |
+
+### The perception job
+
+| File | Change | Why |
+|---|---|---|
+| `apps/worker/src/index.ts` | one `await registerPerceptionJobs(boss)` line, after `registerHandlers` | The job runs inside elmo's worker, because a separate process would need a compose service, a Docker target and a published image. `registerPerceptionJobs` (`apps/worker/src/perception/register.ts`) creates its own queue and schedule and never throws, so a failure there can't stop the worker. It does nothing in cloud. |
 
 ### Headline exclusion
 
@@ -178,15 +185,15 @@ than the newest migration the database has already applied, and skips the rest w
 
 **Where we stand.** Migrations 0000–0030 are elmo's, from the `20954aa2` catch-up. 0031,
 `0031_prompt_runs_brand_created_at_idx` (journal `when` `1792295862959`, 18 October 2026), and 0032,
-`0032_perception_prompts` (journal `when` `1792681629886`, 22 October 2026) and 0033, `0033_perception_core_tables`, are
-ours. 0033's journal `when` is **`1792728759177`** (23 October 2026).
+`0032_perception_prompts` (journal `when` `1792681629886`, 22 October 2026) 0033, `0033_perception_core_tables` (journal `when`
+`1792728759177`), and 0034, `0034_perception_job_tables`, are ours. 0034's journal `when` is **`1792754405671`** (23 October 2026).
 0033 also carries a hand-written trigger, `brand_facts_immutable`, that drizzle doesn't track: never regenerate 0033, and
 keep that SQL if anything ever touches it.
 Every deployed database that has run it records that `when` as its newest. That has two consequences for every catch-up
 from now on:
 
-- **Elmo's next three migrations are also numbered 0031–0033.** Both sides add those snapshots and journal entries
-  with `idx` 31–33, so git reports conflicts. That's the loud half, and it's fine.
+- **Elmo's next four migrations are also numbered 0031–0034.** Both sides add those snapshots and journal entries
+  with `idx` 31–34, so git reports conflicts. That's the loud half, and it's fine.
 - **Any elmo migration whose `when` is older than ours is skipped on those databases, silently.** Elmo writes its
   `when` when it generates the migration, so anything elmo authored before 23 October 2026 that we haven't merged
   yet is in this position, as is anything dated before our newest migration once we add more. A fresh database
