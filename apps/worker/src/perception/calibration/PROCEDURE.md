@@ -298,6 +298,15 @@ That is decided after reading them, not before.
 
 ## Notes for v2
 
+- **Make most perturbations buried, not standalone.** v1's gate missed 2 of 36 planted contradictions, and
+  both were the same shape: one contradicting sentence inside an answer that otherwise supports the fact
+  (F10, self-hosting). That is the more realistic shape, since stale information appears embedded in an
+  answer, not on its own. Most v2 perturbations should be buried this way. **Expect recall to fall** when
+  they are: v1's 0.944 was measured mostly on standalone insertions.
+- **v2 is also the calibration set for confidence.** The two v1 misses had confidence 0.55 and 0.17, against a
+  median of 1.00 for correct verdicts. Confidence may catch exactly this failure mode, but it stays unused
+  until v2 shows how far it can be trusted.
+
 - **Keep the natural answers sealed until the freeze,** like the bases: commit `answers.jsonl` and `raw.jsonl`
   with the frozen labels, not before. Hash them in `SEALS` meanwhile.
 - **Format JSON before hashing it,** so biome's whitespace changes don't alter a sealed file's hash.
