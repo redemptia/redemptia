@@ -15,6 +15,7 @@ import {
 	IconMoodSmile,
 	IconPlugConnected,
 	IconSchool,
+	IconShieldCheck,
 	IconSitemap,
 	IconSpeakerphone,
 	IconTarget,
@@ -100,6 +101,16 @@ function brandGroups(organization: OrganizationSummary, brand: BrandWithPrompts,
 				icon: IconSpeakerphone,
 			},
 			{ title: "Sentiment", link: { to: "/app/org/$org/brand/$brand/sentiment", params }, icon: IconMoodSmile },
+			// Perception doesn't run in cloud until it is priced.
+			...(mode === "cloud"
+				? []
+				: [
+						{
+							title: "Perception",
+							link: { to: "/app/org/$org/brand/$brand/perception" as const, params },
+							icon: IconShieldCheck,
+						},
+					]),
 			{ title: "Responses", link: { to: "/app/org/$org/brand/$brand/responses", params }, icon: IconMessages },
 			{ title: "Query Fan-Out", link: { to: "/app/org/$org/brand/$brand/query-fan-out", params }, icon: IconSitemap },
 			{ title: "Citations", link: { to: "/app/org/$org/brand/$brand/citations", params }, icon: IconLink },
