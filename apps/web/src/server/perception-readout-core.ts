@@ -141,6 +141,60 @@ interface Row extends Record<string, unknown> {
 
 const iso = (value: Date | string) => (value instanceof Date ? value : new Date(value)).toISOString();
 
+const VERDICT_FIELD: Record<string, "stated" | "unclear" | "absent" | "contradicted"> = {
+	supports: "stated",
+	unclear: "unclear",
+	not_mentioned: "absent",
+	contradicts: "contradicted",
+};
+
+/** One row per fact, counting each answer's verdict and what it cited. */
+function coverage(rows: Row[]): FactCoverage[] {
+	const byFact = new Map<string, FactCoverage>();
+	for (const row of rows) {
+		const fact = byFact.get(row.fact_id) ?? {
+			factId: row.fact_id,
+			statement: row.statement,
+			validFrom: row.valid_from,
+			validTo: row.valid_to,
+			sourceUrl: row.source_url,
+			answers: 0,
+			stated: 0,
+			unclear: 0,
+			absent: 0,
+			contradicted: 0,
+			grounding: { cited: 0, citedSource: 0, citedSite: 0 },
+		};
+		byFact.set(row.fact_id, fact);
+		fact.answers++;
+		const field = VERDICT_FIELD[row.verdict];
+		if (field) fact[field]++;
+		fact.grounding.cited += Number(row.cited);
+		fact.grounding.citedSource += Number(row.cited_source);
+		fact.grounding.citedSite += Number(row.cited_site);
+	}
+	return [...byFact.values()].sort((a, b) => a.statement.localeCompare(b.statement));
+}
+
+function alert(row: Row): ContradictionAlert {
+	return {
+		verdictId: row.id,
+		factId: row.fact_id,
+		statement: row.statement,
+		sourceUrl: row.source_url,
+		sourceReadAt: row.source_read_at ? iso(row.source_read_at) : null,
+		passage: row.passage,
+		model: row.model,
+		answeredAt: iso(row.created_at),
+		promptId: row.prompt_id,
+		prompt: row.prompt,
+		confidence: row.confidence === null ? null : Number(row.confidence),
+		cited: row.cited,
+		citedSource: row.cited_source,
+		citedSite: row.cited_site,
+	};
+}
+
 export async function getFactReadout(
 	conn: DbConnection,
 	brandId: string,
@@ -148,57 +202,12 @@ export async function getFactReadout(
 ): Promise<FactReadout> {
 	const result = await conn.execute<Row>(judged(brandId, filters));
 	const rows = (Array.isArray(result) ? result : (result as { rows: Row[] }).rows) as Row[];
-
-	const byFact = new Map<string, FactCoverage>();
-	for (const row of rows) {
-		let fact = byFact.get(row.fact_id);
-		if (!fact) {
-			fact = {
-				factId: row.fact_id,
-				statement: row.statement,
-				validFrom: row.valid_from,
-				validTo: row.valid_to,
-				sourceUrl: row.source_url,
-				answers: 0,
-				stated: 0,
-				unclear: 0,
-				absent: 0,
-				contradicted: 0,
-				grounding: { cited: 0, citedSource: 0, citedSite: 0 },
-			};
-			byFact.set(row.fact_id, fact);
-		}
-		fact.answers++;
-		if (row.verdict === "supports") fact.stated++;
-		else if (row.verdict === "unclear") fact.unclear++;
-		else if (row.verdict === "not_mentioned") fact.absent++;
-		else if (row.verdict === "contradicts") fact.contradicted++;
-		if (row.cited) fact.grounding.cited++;
-		if (row.cited_source) fact.grounding.citedSource++;
-		if (row.cited_site) fact.grounding.citedSite++;
-	}
-
 	const contradictions = rows
 		.filter((row) => row.verdict === "contradicts")
 		.sort((a, b) => iso(b.created_at).localeCompare(iso(a.created_at)));
 	return {
-		facts: [...byFact.values()].sort((a, b) => a.statement.localeCompare(b.statement)),
+		facts: coverage(rows),
 		alertCount: contradictions.length,
-		alerts: contradictions.slice(0, MAX_ALERTS).map((row) => ({
-			verdictId: row.id,
-			factId: row.fact_id,
-			statement: row.statement,
-			sourceUrl: row.source_url,
-			sourceReadAt: row.source_read_at ? iso(row.source_read_at) : null,
-			passage: row.passage,
-			model: row.model,
-			answeredAt: iso(row.created_at),
-			promptId: row.prompt_id,
-			prompt: row.prompt,
-			confidence: row.confidence === null ? null : Number(row.confidence),
-			cited: row.cited,
-			citedSource: row.cited_source,
-			citedSite: row.cited_site,
-		})),
+		alerts: contradictions.slice(0, MAX_ALERTS).map(alert),
 	};
 }
