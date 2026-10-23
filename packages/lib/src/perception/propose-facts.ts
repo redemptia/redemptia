@@ -16,6 +16,20 @@ import { getProvider, type Provider } from "../providers";
 import { getWebsiteExcerpt } from "../website-excerpt";
 import { atomicityHints, normalizeStatement, statementProblem } from "./fact-statement";
 
+/** The proposal runs as a worker job; the web app enqueues it and polls for the result. */
+export const PROPOSE_FACTS_QUEUE = "perception-propose-facts";
+/** It spends money, so it never retries on its own; the user can ask again. */
+export const PROPOSE_FACTS_QUEUE_OPTIONS = { retryLimit: 0, expireInSeconds: 60 * 15 } as const;
+/** Each run is one paid research call, about $0.10. */
+export const FACT_SUGGESTION_RUNS_PER_DAY = 3;
+
+export interface ProposeFactsJobData {
+	brandId: string;
+	brandName: string;
+	website: string;
+	existingStatements: string[];
+}
+
 export const PROPOSED_FACTS_MIN = 12;
 export const PROPOSED_FACTS_MAX = 15;
 /** Candidates asked of the model: more than are shown, since a missed fact costs more than a rejected one. */
@@ -76,6 +90,15 @@ export interface ProposedFact {
 	target: FactTarget | "home";
 	readAt: string;
 	quote: string;
+	/** What the fact is about, shared by candidates that describe the same thing at different precision. */
+	topic: string;
+	/** Signs the statement may hold more than one claim: shown, as in the editor, never a reason to drop it. */
+	notes: string[];
+	/**
+	 * Other candidates about the same topic, usually more or less qualified versions. Shown with
+	 * this one, because accepting the less qualified version as ground truth manufactures contradictions.
+	 */
+	related: Omit<ProposedFact, "related">[];
 }
 
 export interface RejectedProposal {
@@ -103,6 +126,9 @@ const proposalSchema = z.object({
 				category: z.string().describe("One or two lowercase words, such as pricing, integrations or deployment."),
 				prompt: z.string().describe("The buyer-style question to an AI assistant whose answer would settle it."),
 				sourceUrl: z.string().describe("Exactly one of the page URLs given, the one that states the claim."),
+				topic: z
+					.string()
+					.describe("A short lowercase key for what the fact is about, such as hipaa or pro-plan-price."),
 				quote: z
 					.string()
 					.describe("A verbatim phrase from that page that states the claim, including what any number applies to."),
@@ -296,11 +322,14 @@ Give the most attention, in this order, to: pricing and plans; deployment (wheth
 
 Each fact must be:
 - Checkable: a price, a limit, a plan name, a named integration, a supported platform or deployment option, a licence, a certification, a yes-or-no capability. An answer could plainly get it right or wrong.
-- Atomic: exactly one claim. No "and", no "or", no semicolons, at most one amount. "Has a free plan" and "The free plan includes 500 MB of database storage" are two facts.
+- Atomic: exactly one claim. No "and", no "or", no semicolons, at most one amount. "Has a free plan" and "The free plan includes 500 MB of database storage" are two facts. Where the page's sentence is compound, propose its atomic core and quote the whole sentence: from "Install and run your own Supabase on your computer, server, or cloud infrastructure", propose "Supabase can be self-hosted". The quote may be compound; the statement may not.
+- As qualified as the page makes it. If a claim holds only on some plans, with an add-on, or under a condition the page states, the statement must say so: "HIPAA compliance is available on the Team plan as a paid add-on", not "Supabase is HIPAA compliant". An incomplete fact is worse than none: a correct answer that mentions the condition would be marked as contradicting it.
 - A plain assertion naming ${brandName}, under 300 characters, one line.
 - Stated on the page you cite. Copy a phrase from that page, word for word, that states it, including what any number applies to: "From $599 / month" under the Team plan, not just "$599".
 
 Do not propose marketing claims (fast, easy, best, trusted, leading), customer counts, testimonials, awards, roadmap items or anything about competitors.
+
+Give each candidate a topic key naming what it is about. When two candidates describe the same thing at different precision, give them the same topic and list the more qualified one first.
 
 Pair each fact with the question a buyer would type into an AI assistant whose answer would state or contradict it, such as "What does ${brandName} cost?", "Does ${brandName} integrate with Salesforce?" or "Is ${brandName} self-hostable?". Keep the question short, name ${brandName} in it, and don't give the answer away in it.
 
@@ -312,11 +341,14 @@ function comparable(text: string): string {
 	return text.replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/\s+/g, " ").trim().toLowerCase();
 }
 
-function promptProblem(prompt: string, brandName: string): string | null {
+/** Why a fact prompt can't be tracked, or null when it can: the question must ask about the brand by name. */
+export function factPromptProblem(prompt: string, brandName: string): string | null {
 	const text = normalizeStatement(prompt);
-	if (/[\r\n]/.test(prompt) || text.length < 10 || text.length > MAX_PROMPT_CHARS) return "prompt length";
-	if (!text.endsWith("?")) return "prompt is not a question";
-	if (!wholeWordPattern(brandName).test(text)) return "prompt doesn't name the brand";
+	if (/[\r\n]/.test(prompt) || text.length < 10 || text.length > MAX_PROMPT_CHARS) {
+		return `Keep the question to one line of 10 to ${MAX_PROMPT_CHARS} characters.`;
+	}
+	if (!text.endsWith("?")) return "Write it as a question, ending with a question mark.";
+	if (!wholeWordPattern(brandName).test(text)) return `Name ${brandName} in the question, so the answers are about it.`;
 	return null;
 }
 
@@ -336,9 +368,7 @@ function rejectionReason(item: RawProposal, page: SourcePage | undefined, state:
 	const statement = normalizeStatement(item.statement);
 	const hard = statementProblem(statement);
 	if (hard) return hard;
-	const hints = atomicityHints(statement);
-	if (hints.length > 0) return `not atomic: ${hints.join(" ")}`;
-	const promptIssue = promptProblem(item.prompt, state.brandName);
+	const promptIssue = factPromptProblem(item.prompt, state.brandName);
 	if (promptIssue) return promptIssue;
 	if (!page) return "cites a page that wasn't read";
 	if (comparable(item.quote).length < MIN_QUOTE_CHARS) return "quote too short to check";
@@ -351,11 +381,25 @@ function rejectionReason(item: RawProposal, page: SourcePage | undefined, state:
 }
 
 /**
+ * One entry per topic: the first candidate the model gave for it (the more qualified, as asked),
+ * with the others attached, so a user sees the nuance before accepting either.
+ */
+function groupByTopic(kept: Omit<ProposedFact, "related">[]): ProposedFact[] {
+	const groups = new Map<string, ProposedFact>();
+	for (const fact of kept) {
+		const lead = groups.get(fact.topic);
+		if (lead) lead.related.push(fact);
+		else groups.set(fact.topic, { ...fact, related: [] });
+	}
+	return [...groups.values()];
+}
+
+/**
  * Up to the shown maximum, taken round-robin across targets in priority order, so a long pricing
  * page can't crowd out the one licence fact. The rest are held back, not discarded.
  */
-function selectShown(kept: ProposedFact[]): { proposals: ProposedFact[]; heldBack: ProposedFact[] } {
-	const queues = [...FACT_TARGETS, "home" as const].map((target) => kept.filter((fact) => fact.target === target));
+function selectShown(leads: ProposedFact[]): { proposals: ProposedFact[]; heldBack: ProposedFact[] } {
+	const queues = [...FACT_TARGETS, "home" as const].map((target) => leads.filter((fact) => fact.target === target));
 	const proposals: ProposedFact[] = [];
 	while (proposals.length < PROPOSED_FACTS_MAX && queues.some((queue) => queue.length > 0)) {
 		for (const queue of queues) {
@@ -363,7 +407,7 @@ function selectShown(kept: ProposedFact[]): { proposals: ProposedFact[]; heldBac
 			if (next && proposals.length < PROPOSED_FACTS_MAX) proposals.push(next);
 		}
 	}
-	return { proposals, heldBack: kept.filter((fact) => !proposals.includes(fact)) };
+	return { proposals, heldBack: leads.filter((fact) => !proposals.includes(fact)) };
 }
 
 /** Keeps the proposals a user could accept as they stand; says why each other one was dropped. */
@@ -379,7 +423,7 @@ export function screenProposals(
 		seenStatements: new Set(existingStatements.map(comparable)),
 		seenPrompts: new Set(),
 	};
-	const kept: ProposedFact[] = [];
+	const kept: Omit<ProposedFact, "related">[] = [];
 	const rejected: RejectedProposal[] = [];
 	for (const item of raw) {
 		const page = byUrl.get(item.sourceUrl);
@@ -400,9 +444,11 @@ export function screenProposals(
 			target: page.target,
 			readAt: page.readAt,
 			quote: normalizeStatement(item.quote),
+			topic: comparable(item.topic) || comparable(statement),
+			notes: atomicityHints(statement),
 		});
 	}
-	return { ...selectShown(kept), rejected };
+	return { ...selectShown(groupByTopic(kept)), rejected };
 }
 
 /**

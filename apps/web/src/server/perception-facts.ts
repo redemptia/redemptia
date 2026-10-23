@@ -1,17 +1,34 @@
 import { createServerFn } from "@tanstack/react-start";
 import { db } from "@workspace/lib/db/db";
+import { brands } from "@workspace/lib/db/schema";
+import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { requireBrandSession } from "@/lib/auth/helpers";
 import { calendarDateSchema } from "@/lib/lookback";
 import {
+	enqueueFactSuggestions,
+	type FactSuggestionsStatus,
+	getFactSuggestions,
+	suggestionRunsLeft as suggestionRunsLeftFor,
+} from "@/lib/propose-facts-job";
+import {
 	addFact,
 	deleteFact,
+	FactRuleError,
 	isPerceptionEnabled,
 	listFacts,
 	recordFactChange,
 	retireFact,
 	setPerceptionEnabled,
 } from "@/server/perception-facts-core";
+import {
+	acceptFactSuggestion,
+	addFactPrompt,
+	listFactPrompts,
+	promptHeadroom,
+	stopTrackingFactPrompt,
+} from "@/server/perception-prompts-core";
+import type { PromptBrand } from "@/server/prompts-core";
 
 export const getPerceptionSettingsFn = createServerFn({ method: "GET" })
 	.validator(z.object({ brandId: z.string() }))
@@ -68,4 +85,65 @@ export const deleteFactFn = createServerFn({ method: "POST" })
 	.handler(async ({ data }) => {
 		await requireBrandSession(data.brandId);
 		await deleteFact(db, data.brandId, data.factId);
+	});
+
+async function promptBrand(brandId: string): Promise<PromptBrand> {
+	const brand = await db.query.brands.findFirst({ where: eq(brands.id, brandId) });
+	if (!brand) throw new FactRuleError("Brand not found.");
+	return { id: brand.id, name: brand.name, website: brand.website, organizationId: brand.organizationId };
+}
+
+export const getFactPromptsFn = createServerFn({ method: "GET" })
+	.validator(z.object({ brandId: z.string() }))
+	.handler(async ({ data }) => {
+		await requireBrandSession(data.brandId);
+		const [factPrompts, headroom, suggestionRunsLeft] = await Promise.all([
+			listFactPrompts(db, data.brandId),
+			promptHeadroom(db, data.brandId),
+			suggestionRunsLeftFor(data.brandId),
+		]);
+		return { factPrompts, headroom, suggestionRunsLeft };
+	});
+
+export const suggestFactsFn = createServerFn({ method: "POST" })
+	.validator(z.object({ brandId: z.string() }))
+	.handler(async ({ data }) => {
+		await requireBrandSession(data.brandId);
+		await enqueueFactSuggestions(data.brandId);
+	});
+
+export const getFactSuggestionsFn = createServerFn({ method: "POST" })
+	.validator(z.object({ brandId: z.string() }))
+	.handler(async ({ data }): Promise<FactSuggestionsStatus> => {
+		await requireBrandSession(data.brandId);
+		return getFactSuggestions(data.brandId);
+	});
+
+export const acceptFactSuggestionFn = createServerFn({ method: "POST" })
+	.validator(
+		z.object({
+			brandId: z.string(),
+			statement: z.string(),
+			category: z.string().max(60).nullable().optional(),
+			validFrom: calendarDateSchema,
+			question: z.string().max(500).nullable(),
+		}),
+	)
+	.handler(async ({ data }) => {
+		await requireBrandSession(data.brandId);
+		return acceptFactSuggestion(await promptBrand(data.brandId), data);
+	});
+
+export const addFactPromptFn = createServerFn({ method: "POST" })
+	.validator(z.object({ brandId: z.string(), question: z.string().max(500) }))
+	.handler(async ({ data }) => {
+		await requireBrandSession(data.brandId);
+		return { id: await addFactPrompt(await promptBrand(data.brandId), data.question) };
+	});
+
+export const stopTrackingFactPromptFn = createServerFn({ method: "POST" })
+	.validator(z.object({ brandId: z.string(), promptId: z.string().uuid() }))
+	.handler(async ({ data }) => {
+		await requireBrandSession(data.brandId);
+		await stopTrackingFactPrompt(await promptBrand(data.brandId), data.promptId);
 	});

@@ -7,18 +7,28 @@ const PAGES: SourcePage[] = [
 		url: "https://acme.example/pricing",
 		target: "pricing",
 		readAt: "2026-10-23T12:00:00.000Z",
-		text: "Pro\n$25 per user per month\nThe Free plan includes   500 MB of storage.\nSelf-host Acme with Docker.",
+		text: [
+			"Pro",
+			"$25 per user per month",
+			"The Free plan includes   500 MB of storage.",
+			"Run Acme on your laptop, server, or cloud.",
+			"Acme is HIPAA compliant.",
+			"HIPAA is available on the Team plan as a paid add-on.",
+		].join("\n"),
 	},
 ];
 
-const proposal = (overrides: Partial<Record<string, string>> = {}) => ({
-	statement: "Acme's Pro plan costs $25 per user per month.",
-	category: "Pricing",
-	prompt: "What does Acme cost?",
-	sourceUrl: "https://acme.example/pricing",
-	quote: "$25 per user per month",
-	...overrides,
-});
+const proposal = (overrides: Partial<Record<string, string>> = {}) => {
+	const base = {
+		statement: "Acme's Pro plan costs $25 per user per month.",
+		category: "Pricing",
+		prompt: "What does Acme cost?",
+		sourceUrl: "https://acme.example/pricing",
+		quote: "$25 per user per month",
+		...overrides,
+	};
+	return { topic: base.statement, ...base };
+};
 
 function fakeProvider(id: string, answer: () => Promise<unknown>): Provider {
 	return {
@@ -51,8 +61,52 @@ describe("screening proposals", () => {
 				target: "pricing",
 				readAt: "2026-10-23T12:00:00.000Z",
 				quote: "the free plan includes 500 MB of storage.",
+				topic: "acme's free plan includes 500 mb of storage.",
+				notes: [],
+				related: [],
 			},
 		]);
+	});
+
+	it("keeps a statement that may hold two claims, with the note the editor would show", () => {
+		const { proposals } = screenProposals(
+			[
+				proposal({
+					statement: "Acme runs on a laptop or a server.",
+					quote: "Run Acme on your laptop, server, or cloud.",
+				}),
+			],
+			PAGES,
+			"Acme",
+			[],
+		);
+		expect(proposals[0].notes).toEqual(['It joins claims with "and", "or" or a semicolon.']);
+	});
+
+	it("shows a qualified fact with the broader one about the same thing, qualified first", () => {
+		const { proposals, heldBack } = screenProposals(
+			[
+				proposal({
+					statement: "HIPAA compliance is available on Acme's Team plan as a paid add-on.",
+					quote: "HIPAA is available on the Team plan as a paid add-on.",
+					prompt: "Is Acme HIPAA compliant?",
+					topic: "HIPAA",
+				}),
+				proposal({
+					statement: "Acme is HIPAA compliant.",
+					quote: "Acme is HIPAA compliant.",
+					prompt: "Can I use Acme for health data?",
+					topic: "hipaa",
+				}),
+			],
+			PAGES,
+			"Acme",
+			[],
+		);
+		expect(heldBack).toEqual([]);
+		expect(proposals).toHaveLength(1);
+		expect(proposals[0].statement).toMatch(/Team plan/);
+		expect(proposals[0].related.map((r) => r.statement)).toEqual(["Acme is HIPAA compliant."]);
 	});
 
 	it.each([
@@ -62,9 +116,8 @@ describe("screening proposals", () => {
 		[{ statement: "Acme's Pro plan costs $29 per user per month." }, "quote doesn't contain the fact's figure"],
 		[{ sourceUrl: "https://acme.example/elsewhere" }, "cites a page that wasn't read"],
 		[{ statement: "Does Acme have a free plan?" }, /question/],
-		[{ statement: "Acme has a free plan and a Pro plan." }, /not atomic/],
-		[{ prompt: "What does it cost?" }, "prompt doesn't name the brand"],
-		[{ prompt: "Acme pricing" }, "prompt is not a question"],
+		[{ prompt: "What does it cost?" }, /Name Acme in the question/],
+		[{ prompt: "Acme pricing" }, /Write it as a question/],
 	])("drops %j", (overrides, reason) => {
 		const { proposals, rejected } = screenProposals([proposal(overrides)], PAGES, "Acme", []);
 		expect(proposals).toEqual([]);

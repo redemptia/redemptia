@@ -1,0 +1,157 @@
+/**
+ * Fact prompts: ordinary rows in elmo's `prompts` table, marked as perception prompts by a row in
+ * ours, so elmo schedules, scrapes and retries them like any other prompt. Created the way elmo's
+ * own `createPrompts` creates a prompt (under the org's quota lock, with its quota check), plus
+ * elmo's 100-prompt cap, which that path leaves to its callers, and our own perception cap.
+ *
+ * Every function takes the brand the caller has already authorized, and scopes to it.
+ */
+
+import { dedupeKey } from "@workspace/lib/bulk-prompts";
+import { MAX_PROMPTS } from "@workspace/lib/constants";
+import { db } from "@workspace/lib/db/db";
+import type { DbConnection } from "@workspace/lib/db/db-connection";
+import { prompts } from "@workspace/lib/db/schema";
+import { perceptionPrompts } from "@workspace/lib/db/schema-perception";
+import {
+	assertAllowed,
+	assertPromptSaveAllowed,
+	decidePromptCap,
+	WriteDeniedError,
+	withQuotaLock,
+} from "@workspace/lib/entitlements";
+import { factPromptProblem } from "@workspace/lib/perception/propose-facts";
+import { computeSystemTags } from "@workspace/lib/tag-utils";
+import { and, asc, count, eq } from "drizzle-orm";
+import { createPromptJobScheduler } from "@/lib/job-scheduler";
+import { addFact, FactRuleError } from "@/server/perception-facts-core";
+import { type PromptBrand, updatePrompt } from "@/server/prompts-core";
+
+/**
+ * Enabled perception prompts per brand, across every class: the per-brand cap from Checkpoint 1.
+ * Each runs at the brand's cadence on every enabled model, so this is what bounds provider spend.
+ */
+export const PERCEPTION_PROMPT_CAP = 24;
+/** Fact prompts a brand starts with: well inside both caps, leaving room for the other classes. */
+export const FACT_PROMPT_START = 10;
+
+export interface FactPrompt {
+	id: string;
+	value: string;
+	enabled: boolean;
+}
+
+export interface PromptHeadroom {
+	/** Enabled perception prompts, against our cap. */
+	perception: { used: number; cap: number };
+	/** Every prompt the brand has, enabled or not, against elmo's per-brand limit. */
+	brand: { used: number; cap: number };
+	factPrompts: number;
+	factPromptStart: number;
+}
+
+export async function listFactPrompts(conn: DbConnection, brandId: string): Promise<FactPrompt[]> {
+	return conn
+		.select({ id: prompts.id, value: prompts.value, enabled: prompts.enabled })
+		.from(prompts)
+		.innerJoin(perceptionPrompts, eq(perceptionPrompts.promptId, prompts.id))
+		.where(and(eq(prompts.brandId, brandId), eq(perceptionPrompts.class, "fact")))
+		.orderBy(asc(prompts.createdAt));
+}
+
+export async function promptHeadroom(conn: DbConnection, brandId: string): Promise<PromptHeadroom> {
+	const [[perception], [brand], [facts]] = await Promise.all([
+		conn
+			.select({ n: count() })
+			.from(prompts)
+			.innerJoin(perceptionPrompts, eq(perceptionPrompts.promptId, prompts.id))
+			.where(and(eq(prompts.brandId, brandId), eq(prompts.enabled, true))),
+		conn.select({ n: count() }).from(prompts).where(eq(prompts.brandId, brandId)),
+		conn
+			.select({ n: count() })
+			.from(prompts)
+			.innerJoin(perceptionPrompts, eq(perceptionPrompts.promptId, prompts.id))
+			.where(and(eq(prompts.brandId, brandId), eq(prompts.enabled, true), eq(perceptionPrompts.class, "fact"))),
+	]);
+	return {
+		perception: { used: perception?.n ?? 0, cap: PERCEPTION_PROMPT_CAP },
+		brand: { used: brand?.n ?? 0, cap: MAX_PROMPTS },
+		factPrompts: facts?.n ?? 0,
+		factPromptStart: FACT_PROMPT_START,
+	};
+}
+
+/** Tracks a buyer-style question as a fact prompt. Returns its prompt id. */
+export async function addFactPrompt(brand: PromptBrand, question: string): Promise<string> {
+	const value = question.trim().replace(/\s+/g, " ");
+	const problem = factPromptProblem(value, brand.name);
+	if (problem) throw new FactRuleError(problem);
+
+	const id = await withQuotaLock(brand.organizationId, async (tx) => {
+		const existing = await tx.select({ value: prompts.value }).from(prompts).where(eq(prompts.brandId, brand.id));
+		if (existing.some((row) => dedupeKey(row.value) === dedupeKey(value))) {
+			throw new FactRuleError("This brand already tracks that question.");
+		}
+		assertAllowed(decidePromptCap(existing.length, 1));
+		const { perception } = await promptHeadroom(tx, brand.id);
+		if (perception.used >= PERCEPTION_PROMPT_CAP) {
+			throw new FactRuleError(
+				`A brand can track at most ${PERCEPTION_PROMPT_CAP} perception prompts. Stop tracking one first.`,
+			);
+		}
+		await assertPromptSaveAllowed(brand.organizationId, { prompts: 1, premiumPairings: 0 }, tx);
+		const [row] = await tx
+			.insert(prompts)
+			.values({
+				brandId: brand.id,
+				value,
+				enabled: true,
+				tags: [],
+				systemTags: computeSystemTags(value, brand.name, brand.website),
+				premiumModels: [],
+			})
+			.returning({ id: prompts.id });
+		// Same transaction: the prompt is never visible as an ordinary prompt, even for a moment.
+		await tx.insert(perceptionPrompts).values({ promptId: row.id, class: "fact" });
+		return row.id;
+	});
+
+	// Outside the transaction, as elmo does: a queue hiccup must not roll back the prompt, and the
+	// worker's scheduler picks up what failed.
+	await createPromptJobScheduler(id);
+	return id;
+}
+
+/**
+ * Stops running a fact prompt without deleting it. Elmo's delete removes a prompt's runs, which
+ * would take their verdicts with them; disabling keeps the history and stops the spend.
+ */
+export async function stopTrackingFactPrompt(brand: PromptBrand, promptId: string): Promise<void> {
+	const [row] = await db
+		.select({ id: prompts.id })
+		.from(prompts)
+		.innerJoin(perceptionPrompts, eq(perceptionPrompts.promptId, prompts.id))
+		.where(and(eq(prompts.id, promptId), eq(prompts.brandId, brand.id), eq(perceptionPrompts.class, "fact")));
+	if (!row) throw new FactRuleError("That question isn't one of this brand's fact prompts.");
+	await updatePrompt(brand, promptId, { enabled: false });
+}
+
+/**
+ * Accepting a suggestion records the fact and, when asked, tracks its question. The fact the user
+ * confirmed is kept even if its question can't be tracked (a cap reached, say), and the reason comes
+ * back with it rather than undoing the fact.
+ */
+export async function acceptFactSuggestion(
+	brand: PromptBrand,
+	input: { statement: string; category?: string | null; validFrom: string; question: string | null },
+	today?: string,
+): Promise<{ factId: string; promptId: string | null; promptError: string | null }> {
+	const factId = await addFact(db, brand.id, input, today);
+	if (!input.question) return { factId, promptId: null, promptError: null };
+	try {
+		return { factId, promptId: await addFactPrompt(brand, input.question), promptError: null };
+	} catch (error) {
+		if (!(error instanceof FactRuleError || error instanceof WriteDeniedError)) throw error;
+		return { factId, promptId: null, promptError: error.message };
+	}
+}

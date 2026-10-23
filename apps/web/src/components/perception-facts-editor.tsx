@@ -437,6 +437,10 @@ export function PerceptionFactsEditor({
 				Each fact is a dated record of one claim about your brand. AI answers are checked against the version that was
 				true on the day they were given. Facts are never edited: a change is recorded as a new version.
 			</p>
+			<p className="text-sm text-muted-foreground">
+				Include every condition: if a claim holds only on some plans or with an add-on, say which. An incomplete fact
+				makes correct answers look wrong.
+			</p>
 			<AddFact today={today} onAdd={actions.add} full={full} />
 			{full && <p className="text-sm text-muted-foreground">Retire a fact to add another.</p>}
 			{all.length === 0 && (
