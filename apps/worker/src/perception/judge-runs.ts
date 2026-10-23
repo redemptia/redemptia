@@ -12,6 +12,7 @@ import { brands, promptRuns, prompts } from "@workspace/lib/db/schema";
 import {
 	brandFacts,
 	type PerceptionRunOutcome,
+	perceptionBrandSettings,
 	perceptionPrompts,
 	perceptionRollupDirty,
 	perceptionRunStatus,
@@ -73,7 +74,7 @@ interface PendingRun {
 }
 
 /**
- * Fact-prompt runs from the last `LOOKBACK_DAYS` with at least one fact, valid on the run's UTC day,
+ * Fact-prompt runs of brands with perception on, from the last `LOOKBACK_DAYS`, with at least one fact, valid on the run's UTC day,
  * that has no verdict at `stamp`, newest first, skipping runs already set aside at this stamp.
  */
 async function pendingRuns(db: DbConnection, stamp: string, limit: number): Promise<PendingRun[]> {
@@ -99,6 +100,11 @@ async function pendingRuns(db: DbConnection, stamp: string, limit: number): Prom
 		)
 		.innerJoin(prompts, eq(prompts.id, promptRuns.promptId))
 		.innerJoin(brands, eq(brands.id, promptRuns.brandId))
+		// A brand with perception off is never judged, so turning it off stops the spend.
+		.innerJoin(
+			perceptionBrandSettings,
+			and(eq(perceptionBrandSettings.brandId, promptRuns.brandId), eq(perceptionBrandSettings.enabled, true)),
+		)
 		.innerJoin(
 			brandFacts,
 			and(

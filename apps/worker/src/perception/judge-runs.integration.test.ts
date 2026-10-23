@@ -4,6 +4,7 @@ import { brands, organization, promptRuns, prompts } from "@workspace/lib/db/sch
 import {
 	brandFacts,
 	type PerceptionPromptClass,
+	perceptionBrandSettings,
 	perceptionJevCalls,
 	perceptionPrompts,
 	perceptionRollupDirty,
@@ -44,6 +45,7 @@ beforeEach(async () => {
 	await db
 		.insert(brands)
 		.values({ id: brandId, organizationId: brandId, name: "Acme", website: "https://acme.example", onboarded: true });
+	await db.insert(perceptionBrandSettings).values({ brandId, enabled: true });
 });
 
 afterEach(async () => {
@@ -123,6 +125,20 @@ describe("finding work", () => {
 		expect(
 			await db.select().from(perceptionRollupDirty).where(eq(perceptionRollupDirty.brandId, brandId)),
 		).toHaveLength(1);
+	});
+
+	it("judges nothing for a brand with perception turned off", async () => {
+		await run(await prompt(), "Acme has a free plan.");
+		await fact("Acme has a free plan.");
+		await db
+			.update(perceptionBrandSettings)
+			.set({ enabled: false })
+			.where(eq(perceptionBrandSettings.brandId, brandId));
+		const judge = recordingJudge();
+
+		await judgePendingRuns(db, judge.transport, "stub");
+
+		expect(judge.requests).toHaveLength(0);
 	});
 
 	it("leaves runs of ordinary prompts, and of perception prompts that aren't fact prompts, alone", async () => {
