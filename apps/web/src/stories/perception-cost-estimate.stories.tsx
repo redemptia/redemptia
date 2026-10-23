@@ -30,7 +30,9 @@ export const SelfHostedShowsTheFigureAndItsInputs: StoryObj = {
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
 		// $21 to the providers, plus $0.45–1.05 each for the mention judge and the fact checks.
-		await expect(canvas.getByText(/Estimated cost per month/)).toHaveTextContent("Estimated cost per month: about $22–$23");
+		await expect(canvas.getByText(/Estimated cost per month/)).toHaveTextContent(
+			"Estimated cost per month: about $22–$23",
+		);
 		await expect(
 			canvas.getByText(/10 fact prompts, on 2 models \(chatgpt, google-ai-mode\), once a day, 5 answers/),
 		).toBeInTheDocument();
