@@ -8,3 +8,7 @@ sealed/labels.claude.jsonl 609150403083c98b4a3f13e80f9fc2f2cb4c70c3439f744483e4b
 v1/worksheet.md 3c92af8d284a7a85daa017d14e8c2e47b5cb50893d741d1e753e05d99ea12f5d  (2026-10-23T04:03:14Z)
 v1/labels-template.csv 15fc7e866a59c1c9283f45cc4b8ab6461d6df23ea55c6c48de3d6050e8deaa00  (2026-10-23T04:03:14Z)
 scope.json 2e73ca747219f60e9f940eaffe7a09cf62eedda75379c384e1efdcba7fd5a5bf  (bytes after biome formatting; whitespace only, canonical JSON sha256 065184639d53a7f906a10502be9fb3f4f4461c66ed55b4869e3cfa8377b4c2db unchanged)
+sealed/labels.ai.csv 1a3d7f5b048ea2b1f6f8d5891e38ca29143e3a1a98123e45c4a3f26943a9e9f9  (AI labeller, §2a; 2026-10-23T05:48:49Z)
+sealed/validation-seed.txt 146bbe144c678f06a457a689823c3187e74f06769cfffb8075f769aefd1eb605  (AI labeller, §2a; 2026-10-23T05:48:49Z)
+sealed/tells.md f98551de153a0598cb1831199d714a6b4d6ab8f490c8312c8a1b1ea97717f862  (AI labeller, §2a; 2026-10-23T05:48:49Z)
+v1/validation-subset.json d86a6c9d9c757331df31d18cc76180912a0039da15c820c89c44b050f561fb29  (the 40 items the operator labels blind; 2026-10-23T05:48:49Z)
