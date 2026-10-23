@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { expect, fn, userEvent, within } from "storybook/test";
+import { expect, fireEvent, fn, userEvent, within } from "storybook/test";
 import { type FactActions, type FactRow, PerceptionFactsEditor } from "@/components/perception-facts-editor";
 
 const meta = {
@@ -61,7 +61,7 @@ export const Populated: StoryObj = {
 		// Delete is offered only for the unjudged original, and is absent everywhere else.
 		await expect(canvas.getAllByRole("button", { name: "Delete" })).toHaveLength(1);
 		await userEvent.click(canvas.getByRole("button", { name: "Show 1 earlier version" }));
-		await expect(canvas.getByText(/True 2026-01-01 to 2026-08-31/)).toBeInTheDocument();
+		await expect(canvas.getByText(/True 1 Jan 2026 to 31 Aug 2026/)).toBeInTheDocument();
 	},
 };
 
@@ -107,8 +107,13 @@ export const RecordAChange: StoryObj = {
 		const dialog = within(canvasElement.ownerDocument.body);
 		await expect(
 			dialog.getByText(
-				"This creates a new dated record. Answers before 2026-10-23 are still checked against the old statement.",
+				"This creates a new dated record. Answers from 23 Oct 2026 on are checked against the new statement. Answers before then are still checked against the current one, which stays true until 22 Oct 2026.",
 			),
 		).toBeInTheDocument();
+		await userEvent.type(dialog.getByLabelText("New statement"), "Acme can't be self-hosted.");
+		// A change on the day the current statement became true would make two versions true that day.
+		fireEvent.change(dialog.getByLabelText("The change took effect on"), { target: { value: "2026-01-01" } });
+		await expect(dialog.getByText(/Pick a day after 1 Jan 2026/)).toBeInTheDocument();
+		await expect(dialog.getByRole("button", { name: "Record change" })).toBeDisabled();
 	},
 };

@@ -47,8 +47,28 @@ function chains(facts: FactRow[]): { current: FactRow; history: FactRow[] }[] {
 		});
 }
 
+const dayFormat = new Intl.DateTimeFormat("en-GB", {
+	day: "numeric",
+	month: "short",
+	year: "numeric",
+	timeZone: "UTC",
+});
+
+/** A `YYYY-MM-DD` day as "1 Sep 2026": unambiguous in every locale, unlike 01/09/2026. */
+function formatDay(day: string): string {
+	return dayFormat.format(new Date(`${day}T00:00:00Z`));
+}
+
+function dayBefore(day: string): string {
+	const date = new Date(`${day}T00:00:00Z`);
+	date.setUTCDate(date.getUTCDate() - 1);
+	return date.toISOString().slice(0, 10);
+}
+
 function range(fact: FactRow): string {
-	return fact.validTo ? `True ${fact.validFrom} to ${fact.validTo}` : `True from ${fact.validFrom}`;
+	return fact.validTo
+		? `True ${formatDay(fact.validFrom)} to ${formatDay(fact.validTo)}`
+		: `True from ${formatDay(fact.validFrom)}`;
 }
 
 /** Runs a write and turns its failure into the message to show, or null on success. */
@@ -72,7 +92,10 @@ function StatementHints({ statement }: { statement: string }) {
 					<li key={hint}>{hint}</li>
 				))}
 			</ul>
-			<p className="mt-1">One claim per fact keeps verdicts unambiguous. Split it?</p>
+			<p className="mt-1">
+				One claim per fact keeps verdicts unambiguous. Edit it down to one claim and add the rest as separate facts, or
+				keep it as one fact.
+			</p>
 		</div>
 	);
 }
@@ -172,6 +195,7 @@ function ChangeDialog({
 	const [error, setError] = useState<string | null>(null);
 	const [saving, setSaving] = useState(false);
 	const problem = statement.trim() ? statementProblem(statement) : null;
+	const tooEarly = effectiveFrom !== "" && effectiveFrom <= fact.validFrom;
 
 	return (
 		<Dialog open onOpenChange={(open) => !open && onClose()}>
@@ -179,7 +203,14 @@ function ChangeDialog({
 				<DialogHeader>
 					<DialogTitle>Record a change</DialogTitle>
 					<DialogDescription>
-						This creates a new dated record. Answers before {effectiveFrom} are still checked against the old statement.
+						This creates a new dated record.
+						{effectiveFrom && !tooEarly && (
+							<>
+								{" "}
+								Answers from {formatDay(effectiveFrom)} on are checked against the new statement. Answers before then
+								are still checked against the current one, which stays true until {formatDay(dayBefore(effectiveFrom))}.
+							</>
+						)}
 					</DialogDescription>
 				</DialogHeader>
 				<div className="space-y-3">
@@ -202,6 +233,12 @@ function ChangeDialog({
 							value={effectiveFrom}
 							onChange={(event) => setEffectiveFrom(event.target.value)}
 						/>
+						{tooEarly && (
+							<p className="text-sm text-destructive">
+								Pick a day after {formatDay(fact.validFrom)}, when the current statement became true. A fact entered by
+								mistake today can be deleted instead.
+							</p>
+						)}
 					</div>
 					{error && <p className="text-sm text-destructive">{error}</p>}
 				</div>
@@ -210,7 +247,7 @@ function ChangeDialog({
 						Cancel
 					</Button>
 					<Button
-						disabled={!statement.trim() || !!problem || saving}
+						disabled={!statement.trim() || !!problem || tooEarly || saving}
 						onClick={async () => {
 							setSaving(true);
 							const failure = await attempt(() => onRecord(fact.id, { statement, effectiveFrom }));
@@ -241,6 +278,7 @@ function RetireDialog({
 	const [from, setFrom] = useState(today);
 	const [error, setError] = useState<string | null>(null);
 	const [saving, setSaving] = useState(false);
+	const tooEarly = from !== "" && from <= fact.validFrom;
 
 	return (
 		<Dialog open onOpenChange={(open) => !open && onClose()}>
@@ -249,6 +287,7 @@ function RetireDialog({
 					<DialogTitle>Retire this fact</DialogTitle>
 					<DialogDescription>
 						Answers given while it was true are still checked against it. From the date below it is no longer checked.
+						{from && !tooEarly && <> Its last true day will be {formatDay(dayBefore(from))}.</>}
 					</DialogDescription>
 				</DialogHeader>
 				<div className="space-y-3">
@@ -262,6 +301,11 @@ function RetireDialog({
 							value={from}
 							onChange={(event) => setFrom(event.target.value)}
 						/>
+						{tooEarly && (
+							<p className="text-sm text-destructive">
+								Pick a day after {formatDay(fact.validFrom)}, when this fact became true.
+							</p>
+						)}
 					</div>
 					{error && <p className="text-sm text-destructive">{error}</p>}
 				</div>
@@ -270,7 +314,7 @@ function RetireDialog({
 						Cancel
 					</Button>
 					<Button
-						disabled={saving}
+						disabled={!from || tooEarly || saving}
 						onClick={async () => {
 							setSaving(true);
 							const failure = await attempt(() => onRetire(fact.id, from));
@@ -308,7 +352,7 @@ function FactItem({
 	return (
 		<li className="space-y-2 rounded-lg border p-3">
 			<div className="flex flex-wrap items-start justify-between gap-2">
-				<div className="space-y-1">
+				<div className="min-w-0 flex-1 basis-80 space-y-1">
 					<p className="font-medium">{current.statement}</p>
 					<p className="text-sm text-muted-foreground">
 						{range(current)}
@@ -320,7 +364,7 @@ function FactItem({
 					</p>
 				</div>
 				{active && (
-					<div className="flex gap-2">
+					<div className="flex flex-wrap gap-2">
 						<Button size="sm" variant="outline" onClick={() => setDialog("change")}>
 							Record a change
 						</Button>
@@ -331,6 +375,7 @@ function FactItem({
 							<Button
 								size="sm"
 								variant="ghost"
+								className="text-destructive hover:text-destructive"
 								onClick={async () => setError(await attempt(() => actions.remove(current.id)))}
 							>
 								Delete
@@ -394,6 +439,11 @@ export function PerceptionFactsEditor({
 			</p>
 			<AddFact today={today} onAdd={actions.add} full={full} />
 			{full && <p className="text-sm text-muted-foreground">Retire a fact to add another.</p>}
+			{all.length === 0 && (
+				<p className="text-sm text-muted-foreground">
+					No facts yet. Start with what buyers ask about most: price, integrations, where it runs.
+				</p>
+			)}
 			{active.length > 0 && (
 				<ul className="space-y-2">
 					{active.map((chain) => (
