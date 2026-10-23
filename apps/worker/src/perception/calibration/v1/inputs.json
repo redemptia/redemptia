@@ -1,0 +1,102 @@
+{
+	"brand": {
+		"name": "Supabase",
+		"website": "https://supabase.com",
+		"industry": "Postgres backend-as-a-service",
+		"competitors": ["Firebase", "Neon", "Appwrite", "Convex", "PlanetScale"]
+	},
+	"provider": "openrouter",
+	"webSearch": true,
+	"models": [
+		{
+			"model": "chatgpt",
+			"version": "openai/gpt-5.6-luna"
+		},
+		{
+			"model": "gemini",
+			"version": "google/gemini-3.8-flash"
+		},
+		{
+			"model": "claude",
+			"version": "anthropic/claude-sonnet-5.5"
+		}
+	],
+	"capUsd": 2,
+	"prompts": [
+		{
+			"id": "P01",
+			"class": "fact",
+			"text": "How much does Supabase cost?"
+		},
+		{
+			"id": "P02",
+			"class": "fact",
+			"text": "What's included in Supabase's free plan?"
+		},
+		{
+			"id": "P03",
+			"class": "fact",
+			"text": "Does Supabase pause free projects if they're not used?"
+		},
+		{
+			"id": "P04",
+			"class": "fact",
+			"text": "Can I self-host Supabase, and how?"
+		},
+		{
+			"id": "P05",
+			"class": "fact",
+			"text": "Is Supabase open source? What license is it under?"
+		},
+		{
+			"id": "P06",
+			"class": "fact",
+			"text": "What are the limits of Supabase's free tier compared with the Pro plan?"
+		},
+		{
+			"id": "P07",
+			"class": "fact",
+			"text": "Which tools does Supabase integrate with?"
+		},
+		{
+			"id": "P08",
+			"class": "fact",
+			"text": "Which Supabase features don't work when you self-host it?"
+		},
+		{
+			"id": "P09",
+			"class": "fact",
+			"text": "How many projects can I create on Supabase's free plan?"
+		},
+		{
+			"id": "P10",
+			"class": "fact",
+			"text": "Supabase vs Firebase pricing for a small app: which is cheaper?"
+		},
+		{
+			"id": "P11",
+			"class": "association",
+			"text": "What is Supabase known for?"
+		},
+		{
+			"id": "P12",
+			"class": "association",
+			"text": "What are the pros and cons of Supabase?"
+		},
+		{
+			"id": "P13",
+			"class": "association",
+			"text": "What are the best alternatives to Supabase, and why would someone switch?"
+		},
+		{
+			"id": "P14",
+			"class": "association",
+			"text": "Supabase vs Firebase: which should I choose?"
+		},
+		{
+			"id": "P15",
+			"class": "association",
+			"text": "Supabase vs Neon for a Postgres-backed app: how do they compare?"
+		}
+	]
+}

@@ -1,0 +1,62 @@
+[
+	{
+		"key": "dx",
+		"label": "Developer experience",
+		"question_text": "How does this answer characterise {subject}'s ease of getting started and day-to-day developer experience?",
+		"question_version": 1
+	},
+	{
+		"key": "price_value",
+		"label": "Pricing & value",
+		"question_text": "How does this answer characterise {subject}'s pricing and value for money?",
+		"question_version": 1
+	},
+	{
+		"key": "free_tier",
+		"label": "Free tier",
+		"question_text": "How does this answer characterise {subject}'s free tier: how generous it is?",
+		"question_version": 1
+	},
+	{
+		"key": "self_host",
+		"label": "Open source & self-hosting",
+		"question_text": "How does this answer characterise {subject}'s openness: whether it is open source and can be self-hosted?",
+		"question_version": 1
+	},
+	{
+		"key": "sql_power",
+		"label": "Postgres/SQL power",
+		"question_text": "How does this answer characterise {subject}'s database power: giving direct access to a full Postgres/SQL database?",
+		"question_version": 1
+	},
+	{
+		"key": "scale",
+		"label": "Scalability & reliability",
+		"question_text": "How does this answer characterise {subject}'s scalability and reliability under production load?",
+		"question_version": 1
+	},
+	{
+		"key": "realtime",
+		"label": "Realtime",
+		"question_text": "How does this answer characterise {subject}'s realtime features?",
+		"question_version": 1
+	},
+	{
+		"key": "auth",
+		"label": "Built-in auth",
+		"question_text": "How does this answer characterise {subject}'s built-in authentication?",
+		"question_version": 1
+	},
+	{
+		"key": "ai_vector",
+		"label": "AI & vector search",
+		"question_text": "How does this answer characterise {subject}'s support for AI applications and vector search?",
+		"question_version": 1
+	},
+	{
+		"key": "ecosystem",
+		"label": "Community & ecosystem",
+		"question_text": "How does this answer characterise {subject}'s community and ecosystem?",
+		"question_version": 1
+	}
+]
