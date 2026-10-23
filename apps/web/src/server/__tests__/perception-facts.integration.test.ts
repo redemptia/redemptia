@@ -1,8 +1,8 @@
 import { db } from "@workspace/lib/db/db";
 import { brandFacts, perceptionVerdicts } from "@workspace/lib/db/schema-perception";
+import { MAX_ACTIVE_FACTS } from "@workspace/lib/perception/fact-statement";
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { MAX_ACTIVE_FACTS } from "@/lib/fact-statement";
 import {
 	addDays,
 	addFact,

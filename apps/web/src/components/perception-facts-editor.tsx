@@ -1,3 +1,4 @@
+import { atomicityHints, MAX_ACTIVE_FACTS, statementProblem } from "@workspace/lib/perception/fact-statement";
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import {
@@ -11,7 +12,6 @@ import {
 import { Input } from "@workspace/ui/components/input";
 import { Label } from "@workspace/ui/components/label";
 import { useState } from "react";
-import { atomicityHints, MAX_ACTIVE_FACTS, statementProblem } from "@/lib/fact-statement";
 
 export interface FactRow {
 	id: string;

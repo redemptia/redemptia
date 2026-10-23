@@ -23,6 +23,8 @@ export function statementProblem(statement: string): string | null {
 	if ([...text].some((char) => char.charCodeAt(0) < 32 || char.charCodeAt(0) === 127)) {
 		return "A fact can't contain control characters.";
 	}
+	// Half of a surrogate pair isn't a character; it only arrives from broken input, never from typing.
+	if (/\p{Cs}/u.test(text)) return "A fact can't contain broken characters.";
 	const normalized = normalizeStatement(text);
 	if (normalized.length < MIN_STATEMENT_CHARS) return "Write the fact as a sentence.";
 	if (normalized.length > MAX_STATEMENT_CHARS) return `Keep a fact under ${MAX_STATEMENT_CHARS} characters.`;
