@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { atomicityHints, statementProblem } from "@/lib/fact-statement";
+import { atomicityHints, statementProblem } from "./fact-statement";
 
 describe("fact statements", () => {
 	it("accepts a plain assertion", () => {
@@ -10,6 +10,11 @@ describe("fact statements", () => {
 	it("rejects questions however they're punctuated", () => {
 		expect(statementProblem("Acme can be self-hosted?")).toMatch(/question/);
 		expect(statementProblem("What does Acme cost")).toMatch(/question/);
+	});
+
+	it("rejects half of a surrogate pair, but not an emoji", () => {
+		expect(statementProblem("Acme ships \ud83d weekly.")).toMatch(/broken characters/);
+		expect(statementProblem("Acme ships \u{1f680} weekly.")).toBeNull();
 	});
 
 	it("prompts, without refusing, when a statement may hold two claims", () => {

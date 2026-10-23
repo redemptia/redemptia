@@ -34,6 +34,7 @@
 		"./text-extraction": "./src/text-extraction.ts",
 		"./onboarding": "./src/onboarding/index.ts",
 		"./mentions": "./src/mentions.ts",
+		"./perception/fact-statement": "./src/perception/fact-statement.ts",
 		"./analysis-versions": "./src/analysis-versions.ts",
 		"./tag-utils": "./src/tag-utils.ts",
 		"./bulk-prompts": "./src/bulk-prompts.ts",
