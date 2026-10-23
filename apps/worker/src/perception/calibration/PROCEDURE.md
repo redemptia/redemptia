@@ -195,6 +195,15 @@ committed before the corresponding answers were read or collected. Natural and p
 ordered with the perturbed ones spread evenly, never clustered, and every answer appears under a
 neutral id (`W01`…) with no prompt, model or origin shown.
 
+## 6b. Corpus rate is not product rate
+
+The gate asks whether the judge **recognises** a contradiction when shown one, and that accuracy
+transfers however often contradictions occur in the wild. So a corpus may deliberately over-sample
+the answers where contradictions live, such as ungrounded answers about recently changed facts, to
+harvest enough natural contradictions to measure. That is not a bias in the gate. The corpus's
+contradiction rate, though, is **never** presented as an expected product rate: no write-up may
+quote it as how often AI gets a brand wrong.
+
 ## 7. The gate
 
 For `contradicts`, computed on the gold labels (§2a says whose):
