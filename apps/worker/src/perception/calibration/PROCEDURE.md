@@ -39,7 +39,10 @@ What follows from that:
 - **Claude's labels are never gold labels.** Claude is a model. It writes a sealed second set
   (`labels.claude.jsonl`) before the human starts labelling. Its SHA-256 is committed in `SEALS`
   at that point. The file is opened only after the human labels are frozen, and is used only to find
-  guideline wording that confuses: every disagreement is re-read. It never enters a metric.
+  guideline wording that confuses: every disagreement is re-read. **It is never used in the gate's
+  precision or recall, and agreement with it is never reported as an accuracy figure.** The subagent
+  that wrote Claude's labels also planted the perturbations, so it knows which items are perturbed,
+  and its agreement on those items is inflated by construction.
 - **Sealed files stay closed until the freeze.** Perturbations, the worksheet key, the bases they
   were made from and Claude's labels live outside the repository (in the gitignored
   `docs/calibration-sealed/`), with only their SHA-256 in `SEALS`. They are written by a subagent
