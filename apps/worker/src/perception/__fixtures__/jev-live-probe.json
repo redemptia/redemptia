@@ -1,0 +1,572 @@
+{
+	"note": "Live Jev probe, 2026-10-23 (EXECUTION-PLAN 0.2). Passage: a real Claude answer about Redis from the premise probe, not a calibration-corpus item. The first request was rejected (422: score criteria must be a list); the second, with only that fixed, succeeded. Account-identifying headers (cookie, cf-ray, request id) removed.",
+	"rejected": {
+		"capturedAt": "2026-10-23T11:36:13.709Z",
+		"endpoint": "https://api.typesafe.ai/v1/systemone",
+		"elapsedMs": 407,
+		"status": 422,
+		"responseHeaders": {
+			"content-type": "application/json"
+		},
+		"requestBytes": 10116,
+		"estimatedInputTokens": 2529,
+		"request": {
+			"model": "jev-1.13.0",
+			"state": {
+				"rules": "Answer about the brand named in each question, using state.answer (an AI assistant's answer to state.question).",
+				"question": "Can I use the latest Redis in a commercial SaaS product? What does its license allow?",
+				"answer": "Yes, you can use the latest Redis in a commercial SaaS product, as long as you use it as a backend component and don't resell Redis itself. This isn't legal advice.\n\n**Which license applies**\n\nStarting with Redis 8, you choose one of three licenses: RSALv2, SSPLv1, or AGPLv3. Redis 7.2 and earlier are BSD-3-Clause, and 7.4 is RSALv2 or SSPLv1. One third-party source lists Redis 8.10.2 (September 2026) as the latest patch, and another lists 8.8 as the current line, so the 8.x series is the one to look at.\n\n**What each license means for a SaaS**\n\n- **RSALv2:** This is the simplest option for most SaaS companies. It allows you to \"use, copy, distribute, make available, and prepare derivative works\", with two main limits. You may not commercialize the software or provide it to others as a managed service, and you may not remove licensing notices. Redis says that if you're building a solution that uses Redis but doesn't specifically compete with Redis itself, there's no impact. Using Redis as the cache, queue, or session store behind your application is fine.\n- **SSPLv1:** If you provide the product as a service, you must publicly release any modifications and the source code of your management layers under SSPL. This is a heavy obligation, and most SaaS companies would avoid it.\n- **AGPLv3:** This is an OSI-approved open-source license. If you run a modified version as a network service, you must make the source code available to users of that service. If you run unmodified Redis as a separate process, the obligations are generally light. Modifying Redis, or embedding or linking it into your own code, is where copyleft could reach your code, so get legal review in those cases.\n\n**What you can't do without a commercial license**\n\nOffering managed Redis hosting to others requires a commercial license. Redis offers commercial licensing terms for use cases beyond the RSALv2 and SSPLv1 limits. A product that is essentially \"Redis as a service\" or a direct competitor to Redis falls in this category.\n\n**Practical recommendation**\n\n- If you run unmodified Redis as a backend, RSALv2 or AGPLv3 both work. Many teams pick AGPLv3 because it is OSI-approved. Others pick RSALv2 to avoid copyleft questions.\n- If you want no restrictions, there are two options. Valkey is a BSD-3-Clause fork of Redis 7.2.4 run by the Linux Foundation. Redis 7.2.x and earlier are also still BSD.\n- Check the current text at redis.io/legal/licenses before you commit. Also check whether any modules or tools you use, such as Redis Insight, carry different terms. Redis Insight is commercially licensed for paying customers and SSPLv1 for community users.\n\nIf you tell me whether you'll modify Redis, bundle it into something you distribute, or just run it as a backend, I can say which option fits best."
+			},
+			"questions": {
+				"brand__verdict": {
+					"type": "choice",
+					"instructions": "How does the answer portray Redis? A link to its website counts as a mention.",
+					"criteria": {
+						"positive": "Redis or its product is recommended, praised, or described favourably.",
+						"neutral": "Redis or its product is mentioned factually without evaluation, or only cited as a source.",
+						"negative": "Redis or its product is criticised, warned against, or compared unfavourably.",
+						"mixed": "Redis gets clear praise and clear criticism of similar weight.",
+						"other_meaning": "The name is used as an ordinary word, not for any entity.",
+						"other_company": "The name refers to a different entity (company, product, person or place) with the same name.",
+						"no_info": "The answer says it has no information about Redis."
+					}
+				},
+				"brand__evidence": {
+					"type": "choice",
+					"instructions": "Which passage best represents the answer's sentiment toward Redis?",
+					"criteria": {
+						"p1": "Yes, you can use the latest Redis in a commercial SaaS product, as long as you use it as a backend component and don't resell Redis itself.",
+						"p2": "**Which license applies**\n\nStarting with Redis 8, you choose one of three licenses: RSALv2, SSPLv1, or AGPLv3.",
+						"p3": "Redis 7.2 and earlier are BSD-3-Clause, and 7.4 is RSALv2 or SSPLv1.",
+						"p4": "One third-party source lists Redis 8.10.2 (September 2026) as the latest patch, and another lists 8.8 as the current line, so the 8.x series is the one to look at.",
+						"p5": "Redis says that if you're building a solution that uses Redis but doesn't specifically compete with Redis itself, there's no impact.",
+						"p6": "Using Redis as the cache, queue, or session store behind your application is fine.",
+						"p7": "If you run unmodified Redis as a separate process, the obligations are generally light.",
+						"p8": "Modifying Redis, or embedding or linking it into your own code, is where copyleft could reach your code, so get legal review in those cases.",
+						"p9": "**What you can't do without a commercial license**\n\nOffering managed Redis hosting to others requires a commercial license.",
+						"p10": "Redis offers commercial licensing terms for use cases beyond the RSALv2 and SSPLv1 limits.",
+						"p11": "A product that is essentially \"Redis as a service\" or a direct competitor to Redis falls in this category.",
+						"p12": "**Practical recommendation**\n\n- If you run unmodified Redis as a backend, RSALv2 or AGPLv3 both work."
+					}
+				},
+				"attr__pricing": {
+					"type": "choice",
+					"instructions": "How does the answer describe Redis's pricing?",
+					"criteria": {
+						"positive": "Redis's pricing is described favourably.",
+						"negative": "Redis's pricing is described unfavourably.",
+						"mixed": "Redis's pricing gets both praise and criticism.",
+						"not_discussed": "The answer does not discuss Redis's pricing.",
+						"other": "The answer discusses Redis's pricing in a way none of the other options fit."
+					}
+				},
+				"attr__ease_of_use": {
+					"type": "choice",
+					"instructions": "How does the answer describe Redis's ease of use?",
+					"criteria": {
+						"positive": "Redis's ease of use is described favourably.",
+						"negative": "Redis's ease of use is described unfavourably.",
+						"mixed": "Redis's ease of use gets both praise and criticism.",
+						"not_discussed": "The answer does not discuss Redis's ease of use.",
+						"other": "The answer discusses Redis's ease of use in a way none of the other options fit."
+					}
+				},
+				"attr__support": {
+					"type": "choice",
+					"instructions": "How does the answer describe Redis's customer support?",
+					"criteria": {
+						"positive": "Redis's customer support is described favourably.",
+						"negative": "Redis's customer support is described unfavourably.",
+						"mixed": "Redis's customer support gets both praise and criticism.",
+						"not_discussed": "The answer does not discuss Redis's customer support.",
+						"other": "The answer discusses Redis's customer support in a way none of the other options fit."
+					}
+				},
+				"attr__integrations": {
+					"type": "choice",
+					"instructions": "How does the answer describe Redis's integrations?",
+					"criteria": {
+						"positive": "Redis's integrations is described favourably.",
+						"negative": "Redis's integrations is described unfavourably.",
+						"mixed": "Redis's integrations gets both praise and criticism.",
+						"not_discussed": "The answer does not discuss Redis's integrations.",
+						"other": "The answer discusses Redis's integrations in a way none of the other options fit."
+					}
+				},
+				"attr__enterprise_readiness": {
+					"type": "choice",
+					"instructions": "How does the answer describe Redis's enterprise readiness?",
+					"criteria": {
+						"positive": "Redis's enterprise readiness is described favourably.",
+						"negative": "Redis's enterprise readiness is described unfavourably.",
+						"mixed": "Redis's enterprise readiness gets both praise and criticism.",
+						"not_discussed": "The answer does not discuss Redis's enterprise readiness.",
+						"other": "The answer discusses Redis's enterprise readiness in a way none of the other options fit."
+					}
+				},
+				"attr__documentation": {
+					"type": "choice",
+					"instructions": "How does the answer describe Redis's documentation?",
+					"criteria": {
+						"positive": "Redis's documentation is described favourably.",
+						"negative": "Redis's documentation is described unfavourably.",
+						"mixed": "Redis's documentation gets both praise and criticism.",
+						"not_discussed": "The answer does not discuss Redis's documentation.",
+						"other": "The answer discusses Redis's documentation in a way none of the other options fit."
+					}
+				},
+				"attr__performance": {
+					"type": "choice",
+					"instructions": "How does the answer describe Redis's performance?",
+					"criteria": {
+						"positive": "Redis's performance is described favourably.",
+						"negative": "Redis's performance is described unfavourably.",
+						"mixed": "Redis's performance gets both praise and criticism.",
+						"not_discussed": "The answer does not discuss Redis's performance.",
+						"other": "The answer discusses Redis's performance in a way none of the other options fit."
+					}
+				},
+				"objection__primary": {
+					"type": "choice",
+					"instructions": "What is the main reservation the answer raises about Redis, if any?",
+					"criteria": {
+						"price": "Cost or pricing.",
+						"complexity": "Hard to set up or use.",
+						"support": "Weak support.",
+						"missing_feature": "Lacks a needed capability.",
+						"lock_in": "Hard to leave or proprietary.",
+						"security_compliance": "Security or compliance concerns.",
+						"reliability": "Reliability or accuracy concerns.",
+						"none": "No reservation is raised."
+					}
+				},
+				"fact__self_hostable": {
+					"type": "choice",
+					"instructions": "Fact: \"Redis can be self-hosted.\" Does the answer support or contradict it?",
+					"criteria": {
+						"supports": "The answer states or clearly implies the fact.",
+						"contradicts": "The answer states something incompatible with the fact.",
+						"not_mentioned": "The answer doesn't address it.",
+						"unclear": "The answer discusses the topic but doesn't commit."
+					}
+				},
+				"score__recommendation": {
+					"type": "score",
+					"instructions": "How strongly does the answer recommend Redis?",
+					"criteria": {
+						"1": "Advises against it.",
+						"2": "Lukewarm.",
+						"3": "Neutral.",
+						"4": "Recommends it.",
+						"5": "Its top pick."
+					}
+				},
+				"score__specificity": {
+					"type": "score",
+					"instructions": "How specific is what the answer says about Redis?",
+					"criteria": {
+						"1": "Name only.",
+						"2": "Vague.",
+						"3": "Some detail.",
+						"4": "Concrete detail.",
+						"5": "Precise, checkable claims."
+					}
+				},
+				"noul__compares": {
+					"type": "noul",
+					"instructions": "Does the answer compare Redis directly with another named product?"
+				}
+			}
+		},
+		"responseBody": {
+			"detail": [
+				{
+					"type": "list_type",
+					"loc": ["body", "questions", "score__recommendation", "score", "criteria"],
+					"msg": "Input should be a valid list",
+					"input": {
+						"1": "Advises against it.",
+						"2": "Lukewarm.",
+						"3": "Neutral.",
+						"4": "Recommends it.",
+						"5": "Its top pick."
+					}
+				},
+				{
+					"type": "list_type",
+					"loc": ["body", "questions", "score__specificity", "score", "criteria"],
+					"msg": "Input should be a valid list",
+					"input": {
+						"1": "Name only.",
+						"2": "Vague.",
+						"3": "Some detail.",
+						"4": "Concrete detail.",
+						"5": "Precise, checkable claims."
+					}
+				}
+			]
+		}
+	},
+	"accepted": {
+		"capturedAt": "2026-10-23T11:37:26.150Z",
+		"endpoint": "https://api.typesafe.ai/v1/systemone",
+		"elapsedMs": 434,
+		"status": 200,
+		"responseHeaders": {
+			"content-encoding": "gzip",
+			"content-type": "application/json"
+		},
+		"requestBytes": 10076,
+		"estimatedInputTokens": 2519,
+		"request": {
+			"model": "jev-1.13.0",
+			"state": {
+				"rules": "Answer about the brand named in each question, using state.answer (an AI assistant's answer to state.question).",
+				"question": "Can I use the latest Redis in a commercial SaaS product? What does its license allow?",
+				"answer": "Yes, you can use the latest Redis in a commercial SaaS product, as long as you use it as a backend component and don't resell Redis itself. This isn't legal advice.\n\n**Which license applies**\n\nStarting with Redis 8, you choose one of three licenses: RSALv2, SSPLv1, or AGPLv3. Redis 7.2 and earlier are BSD-3-Clause, and 7.4 is RSALv2 or SSPLv1. One third-party source lists Redis 8.10.2 (September 2026) as the latest patch, and another lists 8.8 as the current line, so the 8.x series is the one to look at.\n\n**What each license means for a SaaS**\n\n- **RSALv2:** This is the simplest option for most SaaS companies. It allows you to \"use, copy, distribute, make available, and prepare derivative works\", with two main limits. You may not commercialize the software or provide it to others as a managed service, and you may not remove licensing notices. Redis says that if you're building a solution that uses Redis but doesn't specifically compete with Redis itself, there's no impact. Using Redis as the cache, queue, or session store behind your application is fine.\n- **SSPLv1:** If you provide the product as a service, you must publicly release any modifications and the source code of your management layers under SSPL. This is a heavy obligation, and most SaaS companies would avoid it.\n- **AGPLv3:** This is an OSI-approved open-source license. If you run a modified version as a network service, you must make the source code available to users of that service. If you run unmodified Redis as a separate process, the obligations are generally light. Modifying Redis, or embedding or linking it into your own code, is where copyleft could reach your code, so get legal review in those cases.\n\n**What you can't do without a commercial license**\n\nOffering managed Redis hosting to others requires a commercial license. Redis offers commercial licensing terms for use cases beyond the RSALv2 and SSPLv1 limits. A product that is essentially \"Redis as a service\" or a direct competitor to Redis falls in this category.\n\n**Practical recommendation**\n\n- If you run unmodified Redis as a backend, RSALv2 or AGPLv3 both work. Many teams pick AGPLv3 because it is OSI-approved. Others pick RSALv2 to avoid copyleft questions.\n- If you want no restrictions, there are two options. Valkey is a BSD-3-Clause fork of Redis 7.2.4 run by the Linux Foundation. Redis 7.2.x and earlier are also still BSD.\n- Check the current text at redis.io/legal/licenses before you commit. Also check whether any modules or tools you use, such as Redis Insight, carry different terms. Redis Insight is commercially licensed for paying customers and SSPLv1 for community users.\n\nIf you tell me whether you'll modify Redis, bundle it into something you distribute, or just run it as a backend, I can say which option fits best."
+			},
+			"questions": {
+				"brand__verdict": {
+					"type": "choice",
+					"instructions": "How does the answer portray Redis? A link to its website counts as a mention.",
+					"criteria": {
+						"positive": "Redis or its product is recommended, praised, or described favourably.",
+						"neutral": "Redis or its product is mentioned factually without evaluation, or only cited as a source.",
+						"negative": "Redis or its product is criticised, warned against, or compared unfavourably.",
+						"mixed": "Redis gets clear praise and clear criticism of similar weight.",
+						"other_meaning": "The name is used as an ordinary word, not for any entity.",
+						"other_company": "The name refers to a different entity (company, product, person or place) with the same name.",
+						"no_info": "The answer says it has no information about Redis."
+					}
+				},
+				"brand__evidence": {
+					"type": "choice",
+					"instructions": "Which passage best represents the answer's sentiment toward Redis?",
+					"criteria": {
+						"p1": "Yes, you can use the latest Redis in a commercial SaaS product, as long as you use it as a backend component and don't resell Redis itself.",
+						"p2": "**Which license applies**\n\nStarting with Redis 8, you choose one of three licenses: RSALv2, SSPLv1, or AGPLv3.",
+						"p3": "Redis 7.2 and earlier are BSD-3-Clause, and 7.4 is RSALv2 or SSPLv1.",
+						"p4": "One third-party source lists Redis 8.10.2 (September 2026) as the latest patch, and another lists 8.8 as the current line, so the 8.x series is the one to look at.",
+						"p5": "Redis says that if you're building a solution that uses Redis but doesn't specifically compete with Redis itself, there's no impact.",
+						"p6": "Using Redis as the cache, queue, or session store behind your application is fine.",
+						"p7": "If you run unmodified Redis as a separate process, the obligations are generally light.",
+						"p8": "Modifying Redis, or embedding or linking it into your own code, is where copyleft could reach your code, so get legal review in those cases.",
+						"p9": "**What you can't do without a commercial license**\n\nOffering managed Redis hosting to others requires a commercial license.",
+						"p10": "Redis offers commercial licensing terms for use cases beyond the RSALv2 and SSPLv1 limits.",
+						"p11": "A product that is essentially \"Redis as a service\" or a direct competitor to Redis falls in this category.",
+						"p12": "**Practical recommendation**\n\n- If you run unmodified Redis as a backend, RSALv2 or AGPLv3 both work."
+					}
+				},
+				"attr__pricing": {
+					"type": "choice",
+					"instructions": "How does the answer describe Redis's pricing?",
+					"criteria": {
+						"positive": "Redis's pricing is described favourably.",
+						"negative": "Redis's pricing is described unfavourably.",
+						"mixed": "Redis's pricing gets both praise and criticism.",
+						"not_discussed": "The answer does not discuss Redis's pricing.",
+						"other": "The answer discusses Redis's pricing in a way none of the other options fit."
+					}
+				},
+				"attr__ease_of_use": {
+					"type": "choice",
+					"instructions": "How does the answer describe Redis's ease of use?",
+					"criteria": {
+						"positive": "Redis's ease of use is described favourably.",
+						"negative": "Redis's ease of use is described unfavourably.",
+						"mixed": "Redis's ease of use gets both praise and criticism.",
+						"not_discussed": "The answer does not discuss Redis's ease of use.",
+						"other": "The answer discusses Redis's ease of use in a way none of the other options fit."
+					}
+				},
+				"attr__support": {
+					"type": "choice",
+					"instructions": "How does the answer describe Redis's customer support?",
+					"criteria": {
+						"positive": "Redis's customer support is described favourably.",
+						"negative": "Redis's customer support is described unfavourably.",
+						"mixed": "Redis's customer support gets both praise and criticism.",
+						"not_discussed": "The answer does not discuss Redis's customer support.",
+						"other": "The answer discusses Redis's customer support in a way none of the other options fit."
+					}
+				},
+				"attr__integrations": {
+					"type": "choice",
+					"instructions": "How does the answer describe Redis's integrations?",
+					"criteria": {
+						"positive": "Redis's integrations is described favourably.",
+						"negative": "Redis's integrations is described unfavourably.",
+						"mixed": "Redis's integrations gets both praise and criticism.",
+						"not_discussed": "The answer does not discuss Redis's integrations.",
+						"other": "The answer discusses Redis's integrations in a way none of the other options fit."
+					}
+				},
+				"attr__enterprise_readiness": {
+					"type": "choice",
+					"instructions": "How does the answer describe Redis's enterprise readiness?",
+					"criteria": {
+						"positive": "Redis's enterprise readiness is described favourably.",
+						"negative": "Redis's enterprise readiness is described unfavourably.",
+						"mixed": "Redis's enterprise readiness gets both praise and criticism.",
+						"not_discussed": "The answer does not discuss Redis's enterprise readiness.",
+						"other": "The answer discusses Redis's enterprise readiness in a way none of the other options fit."
+					}
+				},
+				"attr__documentation": {
+					"type": "choice",
+					"instructions": "How does the answer describe Redis's documentation?",
+					"criteria": {
+						"positive": "Redis's documentation is described favourably.",
+						"negative": "Redis's documentation is described unfavourably.",
+						"mixed": "Redis's documentation gets both praise and criticism.",
+						"not_discussed": "The answer does not discuss Redis's documentation.",
+						"other": "The answer discusses Redis's documentation in a way none of the other options fit."
+					}
+				},
+				"attr__performance": {
+					"type": "choice",
+					"instructions": "How does the answer describe Redis's performance?",
+					"criteria": {
+						"positive": "Redis's performance is described favourably.",
+						"negative": "Redis's performance is described unfavourably.",
+						"mixed": "Redis's performance gets both praise and criticism.",
+						"not_discussed": "The answer does not discuss Redis's performance.",
+						"other": "The answer discusses Redis's performance in a way none of the other options fit."
+					}
+				},
+				"objection__primary": {
+					"type": "choice",
+					"instructions": "What is the main reservation the answer raises about Redis, if any?",
+					"criteria": {
+						"price": "Cost or pricing.",
+						"complexity": "Hard to set up or use.",
+						"support": "Weak support.",
+						"missing_feature": "Lacks a needed capability.",
+						"lock_in": "Hard to leave or proprietary.",
+						"security_compliance": "Security or compliance concerns.",
+						"reliability": "Reliability or accuracy concerns.",
+						"none": "No reservation is raised."
+					}
+				},
+				"fact__self_hostable": {
+					"type": "choice",
+					"instructions": "Fact: \"Redis can be self-hosted.\" Does the answer support or contradict it?",
+					"criteria": {
+						"supports": "The answer states or clearly implies the fact.",
+						"contradicts": "The answer states something incompatible with the fact.",
+						"not_mentioned": "The answer doesn't address it.",
+						"unclear": "The answer discusses the topic but doesn't commit."
+					}
+				},
+				"score__recommendation": {
+					"type": "score",
+					"instructions": "How strongly does the answer recommend Redis?",
+					"criteria": ["Advises against it.", "Lukewarm.", "Neutral.", "Recommends it.", "Its top pick."]
+				},
+				"score__specificity": {
+					"type": "score",
+					"instructions": "How specific is what the answer says about Redis?",
+					"criteria": ["Name only.", "Vague.", "Some detail.", "Concrete detail.", "Precise, checkable claims."]
+				},
+				"noul__compares": {
+					"type": "noul",
+					"instructions": "Does the answer compare Redis directly with another named product?"
+				}
+			}
+		},
+		"responseBody": {
+			"model": "jev-1.13.0",
+			"answers": {
+				"brand__verdict": {
+					"type": "choice",
+					"choice": "neutral",
+					"confidence": 0.74,
+					"probabilities": {
+						"positive": 0.18,
+						"neutral": 0.78,
+						"negative": 0.01,
+						"mixed": 0.03,
+						"other_meaning": 0,
+						"other_company": 0,
+						"no_info": 0
+					}
+				},
+				"brand__evidence": {
+					"type": "choice",
+					"choice": "p1",
+					"confidence": 0.33,
+					"probabilities": {
+						"p1": 0.39,
+						"p2": 0.01,
+						"p3": 0,
+						"p4": 0,
+						"p5": 0.07,
+						"p6": 0.36,
+						"p7": 0.03,
+						"p8": 0.02,
+						"p9": 0,
+						"p10": 0.01,
+						"p11": 0,
+						"p12": 0.11
+					}
+				},
+				"attr__pricing": {
+					"type": "choice",
+					"choice": "not_discussed",
+					"confidence": 0.94,
+					"probabilities": {
+						"positive": 0,
+						"negative": 0,
+						"mixed": 0,
+						"not_discussed": 0.95,
+						"other": 0.05
+					}
+				},
+				"attr__ease_of_use": {
+					"type": "choice",
+					"choice": "not_discussed",
+					"confidence": 1,
+					"probabilities": {
+						"positive": 0,
+						"negative": 0,
+						"mixed": 0,
+						"not_discussed": 1,
+						"other": 0
+					}
+				},
+				"attr__support": {
+					"type": "choice",
+					"choice": "not_discussed",
+					"confidence": 1,
+					"probabilities": {
+						"positive": 0,
+						"negative": 0,
+						"mixed": 0,
+						"not_discussed": 1,
+						"other": 0
+					}
+				},
+				"attr__integrations": {
+					"type": "choice",
+					"choice": "not_discussed",
+					"confidence": 0.55,
+					"probabilities": {
+						"positive": 0.1,
+						"negative": 0.01,
+						"mixed": 0.03,
+						"not_discussed": 0.64,
+						"other": 0.22
+					}
+				},
+				"attr__enterprise_readiness": {
+					"type": "choice",
+					"choice": "not_discussed",
+					"confidence": 0.37,
+					"probabilities": {
+						"positive": 0.17,
+						"negative": 0.01,
+						"mixed": 0.28,
+						"not_discussed": 0.5,
+						"other": 0.04
+					}
+				},
+				"attr__documentation": {
+					"type": "choice",
+					"choice": "not_discussed",
+					"confidence": 0.85,
+					"probabilities": {
+						"positive": 0,
+						"negative": 0,
+						"mixed": 0,
+						"not_discussed": 0.88,
+						"other": 0.12
+					}
+				},
+				"attr__performance": {
+					"type": "choice",
+					"choice": "not_discussed",
+					"confidence": 1,
+					"probabilities": {
+						"positive": 0,
+						"negative": 0,
+						"mixed": 0,
+						"not_discussed": 1,
+						"other": 0
+					}
+				},
+				"objection__primary": {
+					"type": "choice",
+					"choice": "none",
+					"confidence": 0.27,
+					"probabilities": {
+						"price": 0.02,
+						"complexity": 0.01,
+						"support": 0,
+						"missing_feature": 0.01,
+						"lock_in": 0.35,
+						"security_compliance": 0.24,
+						"reliability": 0.01,
+						"none": 0.36
+					}
+				},
+				"fact__self_hostable": {
+					"type": "choice",
+					"choice": "supports",
+					"confidence": 0.97,
+					"probabilities": {
+						"supports": 0.98,
+						"contradicts": 0,
+						"not_mentioned": 0.02,
+						"unclear": 0
+					}
+				},
+				"score__recommendation": {
+					"type": "score",
+					"score": 2.43,
+					"confidence": 0.51,
+					"legend": {
+						"0": "Advises against it.",
+						"1": "Lukewarm.",
+						"2": "Neutral.",
+						"3": "Recommends it.",
+						"4": "Its top pick."
+					},
+					"probabilities": {
+						"0": 0,
+						"1": 0.11,
+						"2": 0.36,
+						"3": 0.52,
+						"4": 0.01
+					}
+				},
+				"score__specificity": {
+					"type": "score",
+					"score": 3.86,
+					"confidence": 0.89,
+					"legend": {
+						"0": "Name only.",
+						"1": "Vague.",
+						"2": "Some detail.",
+						"3": "Concrete detail.",
+						"4": "Precise, checkable claims."
+					},
+					"probabilities": {
+						"0": 0,
+						"1": 0,
+						"2": 0,
+						"3": 0.13,
+						"4": 0.87
+					}
+				},
+				"noul__compares": {
+					"type": "noul",
+					"noul": 0.93
+				}
+			},
+			"usage": {
+				"input_tokens": 3172,
+				"output_tokens": 777
+			}
+		}
+	}
+}
