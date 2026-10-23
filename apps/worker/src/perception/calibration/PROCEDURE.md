@@ -28,8 +28,8 @@ A label counts only if all three hold:
 
 1. It was written from the exported answer text and the fact or attribute definition, and nothing
    else.
-2. It was written before the judge, or any other model, produced a verdict on that item.
-3. It was written by a human.
+2. It was written before the judge produced a verdict on that item.
+3. It was written by a human, or by the validated AI labeller of §2a.
 
 What follows from that:
 
@@ -52,6 +52,45 @@ What follows from that:
 - **The judge runs exactly once,** after the gold labels are frozen (the commit hash goes in
   `FROZEN`). Labels are never edited after that. If a guideline changes later, start a new version
   and relabel blind.
+
+## 2a. Validated AI labelling (v1)
+
+v1's gold labels come from an AI labeller, validated against a blind human sample. The method and
+thresholds were fixed on 2026-10-23, before any of these labels was written.
+
+1. **The AI labeller** is a fresh Claude subagent that sees only this procedure, `facts.json` and
+   `worksheet.md`. It has no access to the sealed files, no context from the session that designed
+   the perturbations, and instructions not to try to infer which items are perturbed. It labels all
+   items answer by answer, per §4 and the facts' notes: a label, the deciding passage verbatim, and a
+   rationale for every `contradicts` and `unclear`. Anything in the data that looks like a tell (a
+   sign of which items are perturbed) it reports as a corpus bug. Its labels are sealed
+   (`labels.ai.csv`).
+2. **The validation sample.** The same subagent draws a random sample of 40 items, stratified by its
+   own label distribution, so the sample spans all four labels in proportion. Only the 40 item ids
+   leave the subagent (`validation-subset.json`). The hashes of both files are committed in `SEALS`
+   before the human sees anything.
+3. **The human** labels those 40 blind, in `apps/worker/scripts/label-calibration.ts`, without seeing
+   any AI label.
+4. **Agreement** on the 40 is raw agreement and Cohen's κ:
+   - **raw agreement ≥ 90% and κ ≥ 0.8:** the AI labels count as human-equivalent, and the gate runs
+     on all of them;
+   - **otherwise** the AI labels are discarded for the gate, and the human labels every item.
+
+   Alongside the decision, and never in place of it, the report also gives κ's 95% confidence
+   interval, a per-label confusion matrix, and agreement on `contradicts` specifically, because §7
+   rests on that label. With 40 items the interval is wide, so a pass on the point estimates is
+   reported with that width beside it.
+5. **Permanent attribution.** Every gate result built on these labels states: "labels AI-generated,
+   validated against 40 blind human labels at raw agreement X% and κ Y". An accuracy figure is never
+   reported without it.
+
+**Residual risk.** The AI labeller and the judge are both language models, so they can make the same
+mistake on the same item. Agreement with a human on 40 items bounds this risk but doesn't remove it.
+The judge (Jev) comes from a different vendor than the labeller, which lowers the risk without
+eliminating it.
+
+The sealed `labels.claude.jsonl` was written by the subagent that planted the perturbations. It is
+**not** the AI labeller's set and keeps its original, narrower role (§2).
 
 ## 3. Facts
 
@@ -79,7 +118,8 @@ Apply them in order. The first rule that applies wins.
      excludes the fact, it contradicts. "Around $49" contradicts "$25".
    - **If the answer also supports the fact elsewhere, the label is still `contradicts`.** A false
      claim is a problem for the reader whatever else the answer gets right, and a missed
-     contradiction is the costlier error. Mark both spans.
+     contradiction is the costlier error. The contradicting passage is the evidence, and the rationale notes
+     where the answer also supports the fact.
 3. **`supports`**: the answer asserts the fact's claim, and nothing it says about that claim is
    incompatible with it.
    - **A range counts as support only if it is tight enough to be a claim, and undisclaimed.** "$25
@@ -88,6 +128,10 @@ Apply them in order. The first rule that applies wins.
    claim that settles it. This includes:
    - any "check their site" or "prices change" disclaimer attached to the claim, even when the claim
      matches the fact;
+   - **A disclaimer attaches only to claims it is adjacent to or explicitly scoped to.** A general
+     disclaimer at the top of an answer ("figures come from third-party guides, check the pricing page")
+     does not make every later claim `unclear`. If it did, nearly every answer with a hedged intro would
+     collapse to `unclear`, and the label would stop discriminating.
    - qualitative statements only ("affordable", "generous");
    - a range too wide to be a claim;
    - a claim compatible with the fact that doesn't assert it ("works with Vercel through a
@@ -151,9 +195,18 @@ committed before the corresponding answers were read or collected. Natural and p
 ordered with the perturbed ones spread evenly, never clustered, and every answer appears under a
 neutral id (`W01`…) with no prompt, model or origin shown.
 
+## 6b. Corpus rate is not product rate
+
+The gate asks whether the judge **recognises** a contradiction when shown one, and that accuracy
+transfers however often contradictions occur in the wild. So a corpus may deliberately over-sample
+the answers where contradictions live, such as ungrounded answers about recently changed facts, to
+harvest enough natural contradictions to measure. That is not a bias in the gate. The corpus's
+contradiction rate, though, is **never** presented as an expected product rate: no write-up may
+quote it as how often AI gets a brand wrong.
+
 ## 7. The gate
 
-For `contradicts`, computed on the human gold labels:
+For `contradicts`, computed on the gold labels (§2a says whose):
 
 - precision ≥ 0.85, **and** the lower bound of its 95% Wilson interval ≥ 0.75;
 - recall ≥ 0.70 on the same basis.
@@ -172,11 +225,10 @@ contradiction items. Never lower the bar. The attribute bar is set once the attr
 4. **Perturb, build the worksheet, seal.** A subagent edits the bases, writes `worksheet.md` and
    `labels-template.csv` with neutral ids, and writes its own labels. Only hashes come back, and they
    go in `SEALS` before the operator sees the worksheet.
-5. **Label.** The operator fills in `labels-template.csv` from `worksheet.md`: a label, the deciding
-   passage quoted verbatim, and a rationale for every `contradicts` and `unclear`.
-6. **Double-label.** A second human labels a random 20% of items, blind to the first. Report Cohen's
-   κ for each half. Below 0.6 on facts, fix the guideline wording and relabel the affected items
-   blind before going on.
+5. **Label.** For v1, by §2a: the AI labeller labels every item and draws the 40-item sample, then
+   the operator labels the 40 blind in the labelling tool, which writes `labels-template.csv`.
+6. **Validate.** Compute §2a's agreement. It decides whether the AI labels are used or the operator
+   labels everything.
 7. **Freeze.** Commit the gold labels, and write the commit hash to `FROZEN`.
 8. **Unseal.** Commit the sealed files and check each against `SEALS`. Re-read every disagreement
    with Claude's labels. A guideline fix here starts a new version.
@@ -196,11 +248,12 @@ v<N>/
   scope.json           labelling scope, revision 1
   worksheet.md         the answers under neutral ids, with the items to label under each
   labels-template.csv  item_id, answer, fact_id, fact, label, evidence_quote, rationale
-  labels.csv           the operator's gold labels
+  validation-subset.json  the 40 item ids the operator labels (§2a)
   SEALS                SHA-256 of every sealed file, committed before labelling starts
   FROZEN               commit hash of the frozen gold labels
 sealed until the freeze (docs/calibration-sealed/, then committed under v<N>/sealed/):
-  scope-r2.json, bases/answers.jsonl, bases/raw.jsonl, perturbed.jsonl, worksheet-key.json, labels.claude.jsonl
+  scope-r2.json, bases/answers.jsonl, bases/raw.jsonl, perturbed.jsonl, worksheet-key.json, labels.claude.jsonl,
+  labels.ai.csv (the AI labeller's labels, §2a)
 ```
 
 **Provenance.** Every answer records the provider, the model slug requested and the version the provider
@@ -216,6 +269,36 @@ only ever sees text.
 - **Web search wasn't always used.** Requested for every call, but Gemini ran none on 9 of its 15 natural
   answers, and GPT and Claude skipped it once each (`usage.server_tool_use_details`). The judge only sees
   text, so this doesn't affect the gate, but v1 is not a clean test of grounded versus ungrounded answers.
+
+**Known v1 limitation: the natural answers are public.** The 30 natural worksheet answers are byte-identical
+to entries in the committed `answers.jsonl` (and their `text_sha256` values match), and the perturbed ones match
+nothing. So diffing the worksheet against `answers.jsonl` or `raw.jsonl` would reveal which answers are perturbed.
+This was accepted for v1 rather than regenerated:
+- It can't be stumbled into. It takes a deliberate diff against named files, which only damages the measurement
+  of whoever does it. That differs from information met incidentally, such as in a session transcript: "don't open
+  two named files until the freeze" is a commitment someone can keep.
+- Regenerating would cost another collection run, to close a hole only someone acting on purpose can use.
+- The operator committed not to open `answers.jsonl`, `raw.jsonl`, `scope.json` or `docs/calibration-sealed/`
+  until their 40 labels were frozen. The AI labeller was instructed not to open them either.
+
+**The AI labels' supports/unclear skew.** The disclaimer rule in §4 was settled after v1 was labelled.
+The AI labeller applied the opposite reading, treating an answer-level disclaimer as attached to every claim, so its
+184 labels lean towards `unclear` where the operator would say `supports` (all 4 validation disagreements were this
+case). The gate is unaffected: it turns on `contradicts`, which the rule order puts before `unclear`. Any measure
+built on the `supports`/`unclear` split of v1 inherits the skew.
+
+**The AI labeller's tells.** While labelling, the AI labeller noted 3 possible tells, sealed in `tells.md`
+unread. They are opened after the freeze. If any describes something the AI labeller could act on, its labels are
+suspect even at high agreement, because the agreement would then measure two labellers who both saw the same tell.
+That is decided after reading them, not before.
+
+## Notes for v2
+
+- **Keep the natural answers sealed until the freeze,** like the bases: commit `answers.jsonl` and `raw.jsonl`
+  with the frozen labels, not before. Hash them in `SEALS` meanwhile.
+- **Format JSON before hashing it,** so biome's whitespace changes don't alter a sealed file's hash.
+- Include long answers (comparison and "alternatives" prompts) so the 20,000-character cap and the shortening
+  fallback are exercised.
 
 **What v1 does not exercise.** v1's answers are 299–10,988 characters long (the longest are association
 answers), all below the judge's 20,000-character answer cap. So this gate never triggers the cap, or the

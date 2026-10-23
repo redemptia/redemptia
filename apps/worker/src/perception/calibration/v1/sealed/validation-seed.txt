@@ -1,0 +1,2 @@
+seed (os.urandom(32).hex(), random.Random): 37ee3897cb400d2b62b9dfcdced2b368d5bbb9d5e436b6b956e3ef9036ba9980
+allocation: proportional, largest remainder, min 1 per label; uniform within label (random.sample over sorted ids, labels in sorted order)
