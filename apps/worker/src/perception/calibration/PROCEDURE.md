@@ -209,7 +209,11 @@ quote it as how often AI gets a brand wrong.
 For `contradicts`, computed on the gold labels (§2a says whose):
 
 - precision ≥ 0.85, **and** the lower bound of its 95% Wilson interval ≥ 0.75;
-- recall ≥ 0.70 on the same basis.
+- recall ≥ 0.70, **and** the lower bound of its 95% Wilson interval ≥ 0.60.
+
+Both bounds were fixed on 23 October 2026, before the v1 run. The asymmetry is deliberate: a false
+contradiction accuses the customer's facts of being wrong and costs their trust in the product, while a
+missed contradiction costs them one finding. So precision carries the stricter bar.
 
 Report both, for both the natural and the enriched set. If the interval is too wide to pass, add
 contradiction items. Never lower the bar. The attribute bar is set once the attribute half exists.
