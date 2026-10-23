@@ -104,6 +104,22 @@ The page itself (`routes/…/settings/perception.tsx`, `components/perception-fa
 is ours. It holds the per-brand switch the perception job obeys, and the facts editor: add, record a change (a new record;
 the old one ends the day before), retire, and delete only an unjudged, unchanged fact.
 
+It also suggests facts and tracks fact prompts, with no elmo file edited:
+- **Suggestions.** "Suggest facts" enqueues `perception-propose-facts`, a worker job registered in
+  `registerPerceptionJobs` (`retryLimit: 0`, at most three runs per brand a day). It calls
+  `resolveResearchProvider` inside our own fallback chain (`packages/lib/src/perception/propose-facts.ts`), and reads
+  pages through elmo's `getWebsiteExcerpt`, which keeps 200 lines a page. It uses elmo's `brand-jobs.ts` helpers to
+  find a brand's job.
+- **Fact prompts** (`server/perception-prompts-core.ts`) are created the way elmo's `createPrompts` creates a prompt,
+  under `withQuotaLock` with `assertPromptSaveAllowed`. It adds `decidePromptCap` and our cap of 24 perception prompts,
+  and writes the `perception_prompts` row in the same transaction. Stopping one calls elmo's `updatePrompt` to disable
+  it, because `deletePrompt` removes the prompt's runs, and their verdicts with them.
+
+**When merging:** a change to the signatures of `createPrompts`, `withQuotaLock`, `assertPromptSaveAllowed`,
+`decidePromptCap`, `updatePrompt`, `createPromptJobScheduler`, `resolveResearchProvider`, `getWebsiteExcerpt` or
+`brand-jobs.ts` breaks the type check here. A change to what elmo does when a prompt is created doesn't, so read
+elmo's `createPrompts` diff at each catch-up.
+
 ### Headline exclusion
 
 Visibility, share of voice, position, sentiment, the overview cards and the Opportunities digest leave perception

@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { db } from "@workspace/lib/db/db";
 import { brands, prompts } from "@workspace/lib/db/schema";
 import { perceptionPrompts } from "@workspace/lib/db/schema-perception";
@@ -134,8 +135,8 @@ describe("stopping a fact prompt", () => {
 	});
 
 	it("reports a broken rule as a rule, not a crash", async () => {
-		expect(await rejection(stopTrackingFactPrompt(brand, crypto.randomUUID()))).toMatch(/isn't one of/);
-		await expect(stopTrackingFactPrompt(brand, crypto.randomUUID())).rejects.toBeInstanceOf(FactRuleError);
+		expect(await rejection(stopTrackingFactPrompt(brand, randomUUID()))).toMatch(/isn't one of/);
+		await expect(stopTrackingFactPrompt(brand, randomUUID())).rejects.toBeInstanceOf(FactRuleError);
 	});
 });
 
