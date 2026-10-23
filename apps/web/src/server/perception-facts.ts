@@ -11,6 +11,7 @@ import {
 	getFactSuggestions,
 	suggestionRunsLeft as suggestionRunsLeftFor,
 } from "@/lib/propose-facts-job";
+import { getPerceptionCostEstimate } from "@/server/perception-cost";
 import {
 	addFact,
 	deleteFact,
@@ -154,4 +155,11 @@ export const stopTrackingFactPromptFn = createServerFn({ method: "POST" })
 	.handler(async ({ data }) => {
 		await requireBrandSession(data.brandId);
 		await stopTrackingFactPrompt(await promptBrand(data.brandId), data.promptId);
+	});
+
+export const getPerceptionCostFn = createServerFn({ method: "GET" })
+	.validator(z.object({ brandId: z.string() }))
+	.handler(async ({ data }) => {
+		await requireBrandSession(data.brandId);
+		return getPerceptionCostEstimate(db, data.brandId);
 	});
