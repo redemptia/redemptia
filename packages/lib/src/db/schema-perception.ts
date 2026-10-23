@@ -165,7 +165,10 @@ export const perceptionVerdicts = pgTable(
 		probabilities: jsonb("probabilities").$type<Record<string, number>>().notNull(),
 		/** The judge's own confidence, which isn't its top probability. Stored, not used, until calibrated. */
 		confidence: real("confidence"),
+		/** The answer's sentence the verdict rests on, as the judge picked it; null when none was about it, or none named the subject. */
 		passage: text("passage"),
+		/** The judge's confidence in that pick, its own number, separate from the verdict's; null when it wasn't asked. */
+		passageConfidence: real("passage_confidence"),
 		stamp: text("stamp").notNull(),
 		/** The answer length the judge saw, when the answer was cut to fit; null when it saw the whole answer. */
 		truncatedAt: integer("truncated_at"),
