@@ -73,7 +73,7 @@ This map is derived from the pull-request workflows in `.github/workflows/`. `sc
 | **Vercel**, **Vercel Preview Comments** | | External; no local command |
 <!-- gate:end -->
 
-- **Baseline:** 1,526 unit tests (config 119, cli 32, deployment 52, lib 697, worker 66, web 560), 154 integration tests (web 94, worker 34, lib 26) and 160 Storybook tests, all green, no expected failures. A fresh `_test` database applies 33 migrations.
+- **Baseline:** 1,526 unit tests (config 119, cli 32, deployment 52, lib 697, worker 66, web 560), 162 integration tests (web 102, worker 34, lib 26) and 160 Storybook tests, all green, no expected failures. A fresh `_test` database applies 34 migrations.
 - **CI sets no `DEPLOYMENT_MODE`.** An integration test that reaches deployment or entitlement code (`getDeploymentFeatures`, `getOrgEntitlements`) must `vi.stubEnv("DEPLOYMENT_MODE", …)`, and before anything it starts (the worker creates some pg-boss queues, such as `generate-report`, only when a deployment feature is on). A local `.env` hides the failure, so it shows up only in CI. To reproduce one, move both `.env` files aside and run the file alone against a fresh `_test` database: another file can create shared state, such as a queue, that masks it.
 - **Known flaky tests:**
   - `e2e/tests/shared/api-keys.spec.ts` (brand multi-select vs the Create click) and `e2e/tests/shared/overview.spec.ts` (sidebar links) can flake. `failOnFlakyTests` makes a flake red.
@@ -100,11 +100,12 @@ This map is derived from the pull-request workflows in `.github/workflows/`. `sc
   - Brand-scoped analytics cores take a brand id the edge has already gated.
   - Dashboard server functions gate with `requireBrandSession`, and that gate has no test (#21).
 - **Migrations (drizzle 0.45.2).** The only gate is the journal `when` against the newest applied migration; filenames and `idx` don't matter, and skipped migrations are silent.
-  - 0000–0030 are elmo's; 0031 (`0031_prompt_runs_brand_created_at_idx`) and 0032 (`0032_perception_prompts`) are ours. Our next is 0033, and elmo's next is 0031: the numbers clash loudly, but an elmo migration dated before our 0032 (`when` 1792681629886) is skipped silently on every upgraded database. Every catch-up renumbers and re-dates elmo's migrations after ours, by the procedure in UPSTREAM.md.
+  - 0000–0030 are elmo's; 0031 (`0031_prompt_runs_brand_created_at_idx`), 0032 (`0032_perception_prompts`) and 0033 (`0033_perception_core_tables`) are ours. Our next is 0034, and elmo's next is 0031: the numbers clash loudly, but an elmo migration dated before our 0033 (`when` 1792728759177) is skipped silently on every upgraded database. Every catch-up renumbers and re-dates elmo's migrations after ours, by the procedure in UPSTREAM.md.
   - Everything runs in one transaction, so no `CREATE INDEX CONCURRENTLY`.
   - Never run `drizzle-kit push`.
 - **Indexes drizzle can't declare live in `RAW_INDEXES`** (`packages/lib/scripts/index-census.mjs`): `idx_prompt_runs_admin`, because drizzle 0.45 can't express `INCLUDE`, and two on better-auth tables, because the generated `schema-auth.ts` carries no indexes. Don't duplicate them. The migration check fails when a migrated database's indexes differ from the latest snapshot plus that list, or when an upgrade loses an index its own SQL doesn't drop, so a new raw index joins the list in the PR that creates it. Dropping a column drops every index that uses it, `INCLUDE` columns too, without a `DROP INDEX` in the SQL: that is how 0024 lost two (#86), which 0031's `(brand_id, created_at)` replaced on measured evidence.
 - **`prompt_runs` is append-only.** A trigger (0024) rejects updates; derived data lives in `run_extractions`, `run_mentions` and `citations`.
+- **`brand_facts` is immutable.** A hand-written trigger in 0033, which drizzle doesn't track, allows only setting `valid_to` once; a change is a new row that `supersedes` the old one. Never regenerate 0033.
 - **Competitor names and ids.**
   - `run_mentions.competitors_mentioned` stores names, not ids, and the rollups are keyed by `competitor_name`.
   - Saving a brand's competitor list from the dashboard deletes and re-inserts it, so every save mints new ids; the API PATCH keeps the id (#24).
