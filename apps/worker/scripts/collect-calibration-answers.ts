@@ -40,8 +40,8 @@ interface Inputs {
 	webSearch: boolean;
 	models: { model: string; version: string }[];
 	capUsd: number;
-	/** `models`, when set, limits a prompt to those model labels. */
-	prompts: { id: string; class: string; text: string; models?: string[] }[];
+	/** `models`, when set, limits a prompt to those model labels; `webSearch` overrides the version's setting. */
+	prompts: { id: string; class: string; text: string; models?: string[]; webSearch?: boolean }[];
 }
 
 interface Price {
@@ -100,7 +100,10 @@ async function collectOne(
 	const capturedAt = new Date().toISOString();
 	let result: Awaited<ReturnType<typeof provider.run>>;
 	try {
-		result = await provider.run(target.model, prompt.text, { version: target.version, webSearch: inputs.webSearch });
+		result = await provider.run(target.model, prompt.text, {
+			version: target.version,
+			webSearch: prompt.webSearch ?? inputs.webSearch,
+		});
 	} catch (error) {
 		const message = (error instanceof Error ? error.message : String(error)).replace(
 			/"user_id":"[^"]*"/g,
@@ -138,7 +141,7 @@ async function collectOne(
 			provider: inputs.provider,
 			requested_version: target.version,
 			model_version: result.modelVersion,
-			web_search: inputs.webSearch,
+			web_search: prompt.webSearch ?? inputs.webSearch,
 			captured_at: capturedAt,
 			extractor_version: EXTRACTOR_VERSION,
 			origin: "natural",

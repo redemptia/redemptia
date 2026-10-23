@@ -1,0 +1,22 @@
+{
+	"method": "PROCEDURE.md §2a, fixed in 65689a9e before any label was written",
+	"operator_labels_frozen": "e4956d36678c5ad9941dc64b8f29499403ebb79f",
+	"items": 40,
+	"raw_agreement": 0.9,
+	"agreed": 36,
+	"cohens_kappa": 0.852,
+	"kappa_95ci_bootstrap": [0.709, 0.962],
+	"kappa_ci_method": "10,000 bootstrap resamples of the 40 pairs, seed 20261023",
+	"thresholds": { "raw_agreement": 0.9, "cohens_kappa": 0.8 },
+	"decision": "pass: AI labels used for the gate",
+	"confusion_operator_rows_ai_columns": {
+		"labels": ["supports", "contradicts", "not_mentioned", "unclear"],
+		"supports": [15, 0, 0, 4],
+		"contradicts": [0, 8, 0, 0],
+		"not_mentioned": [0, 0, 13, 0],
+		"unclear": [0, 0, 0, 0]
+	},
+	"contradicts": { "operator": 8, "ai": 8, "both": 8, "all_on_planted_items": true },
+	"disagreements": "all 4 are operator supports / AI unclear, on answers that open with a general 'check the pricing page' disclaimer",
+	"attribution": "Labels AI-generated, validated against 40 blind human labels at raw agreement 90.0% and Cohen's kappa 0.852 (95% CI 0.709-0.962)."
+}

@@ -1,0 +1,1264 @@
+{
+	"revision": 2,
+	"supersedes": "scope.json",
+	"seed": 202610232,
+	"bases": [
+		{
+			"base_id": "B01",
+			"prompt_id": "P03",
+			"model": "chatgpt"
+		},
+		{
+			"base_id": "B02",
+			"prompt_id": "P08",
+			"model": "chatgpt"
+		},
+		{
+			"base_id": "B03",
+			"prompt_id": "P05",
+			"model": "chatgpt"
+		},
+		{
+			"base_id": "B04",
+			"prompt_id": "P07",
+			"model": "claude"
+		},
+		{
+			"base_id": "B05",
+			"prompt_id": "P02",
+			"model": "gemini"
+		},
+		{
+			"base_id": "B06",
+			"prompt_id": "P06",
+			"model": "claude"
+		},
+		{
+			"base_id": "B07",
+			"prompt_id": "P03",
+			"model": "claude"
+		},
+		{
+			"base_id": "B08",
+			"prompt_id": "P07",
+			"model": "gemini"
+		},
+		{
+			"base_id": "B09",
+			"prompt_id": "P04",
+			"model": "gemini"
+		},
+		{
+			"base_id": "B10",
+			"prompt_id": "P08",
+			"model": "claude"
+		},
+		{
+			"base_id": "B11",
+			"prompt_id": "P10",
+			"model": "chatgpt"
+		},
+		{
+			"base_id": "B12",
+			"prompt_id": "P01",
+			"model": "gemini"
+		},
+		{
+			"base_id": "B13",
+			"prompt_id": "P09",
+			"model": "gemini"
+		},
+		{
+			"base_id": "B14",
+			"prompt_id": "P04",
+			"model": "chatgpt"
+		},
+		{
+			"base_id": "B15",
+			"prompt_id": "P05",
+			"model": "claude"
+		}
+	],
+	"perturb": {
+		"B05": ["F01", "F04", "F05"],
+		"B11": ["F09", "F02"],
+		"B12": ["F01", "F02", "F03"],
+		"B06": ["F02", "F04", "F05"],
+		"B01": ["F07", "F08"],
+		"B02": ["F03", "F10", "F13"],
+		"B03": ["F06", "F12"],
+		"B04": ["F14", "F15", "F11"],
+		"B07": ["F08", "F12", "F06"],
+		"B08": ["F06", "F14", "F15"],
+		"B09": ["F09", "F11"],
+		"B10": ["F10", "F13"],
+		"B13": ["F07", "F09"],
+		"B14": ["F11", "F10"],
+		"B15": ["F12"]
+	},
+	"items": [
+		{
+			"answer_id": "P01-chatgpt",
+			"fact_id": "F01",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P01-chatgpt",
+			"fact_id": "F02",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P01-chatgpt",
+			"fact_id": "F03",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P01-chatgpt",
+			"fact_id": "F09",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P01-gemini",
+			"fact_id": "F01",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P01-gemini",
+			"fact_id": "F02",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P01-gemini",
+			"fact_id": "F03",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P01-gemini",
+			"fact_id": "F09",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P01-claude",
+			"fact_id": "F01",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P01-claude",
+			"fact_id": "F02",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P01-claude",
+			"fact_id": "F03",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P01-claude",
+			"fact_id": "F09",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P02-chatgpt",
+			"fact_id": "F01",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P02-chatgpt",
+			"fact_id": "F04",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P02-chatgpt",
+			"fact_id": "F05",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P02-chatgpt",
+			"fact_id": "F06",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P02-chatgpt",
+			"fact_id": "F07",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P02-chatgpt",
+			"fact_id": "F08",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P02-gemini",
+			"fact_id": "F01",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P02-gemini",
+			"fact_id": "F04",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P02-gemini",
+			"fact_id": "F05",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P02-gemini",
+			"fact_id": "F06",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P02-gemini",
+			"fact_id": "F07",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P02-gemini",
+			"fact_id": "F08",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P02-claude",
+			"fact_id": "F01",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P02-claude",
+			"fact_id": "F04",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P02-claude",
+			"fact_id": "F05",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P02-claude",
+			"fact_id": "F06",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P02-claude",
+			"fact_id": "F07",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P02-claude",
+			"fact_id": "F08",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P03-chatgpt",
+			"fact_id": "F08",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P03-gemini",
+			"fact_id": "F08",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P03-claude",
+			"fact_id": "F08",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P04-chatgpt",
+			"fact_id": "F10",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P04-chatgpt",
+			"fact_id": "F11",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P04-gemini",
+			"fact_id": "F10",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P04-gemini",
+			"fact_id": "F11",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P04-claude",
+			"fact_id": "F10",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P04-claude",
+			"fact_id": "F11",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P05-chatgpt",
+			"fact_id": "F12",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P05-gemini",
+			"fact_id": "F12",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P05-claude",
+			"fact_id": "F12",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P06-chatgpt",
+			"fact_id": "F02",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P06-chatgpt",
+			"fact_id": "F04",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P06-chatgpt",
+			"fact_id": "F05",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P06-chatgpt",
+			"fact_id": "F06",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P06-chatgpt",
+			"fact_id": "F07",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P06-chatgpt",
+			"fact_id": "F09",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P06-gemini",
+			"fact_id": "F02",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P06-gemini",
+			"fact_id": "F04",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P06-gemini",
+			"fact_id": "F05",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P06-gemini",
+			"fact_id": "F06",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P06-gemini",
+			"fact_id": "F07",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P06-gemini",
+			"fact_id": "F09",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P06-claude",
+			"fact_id": "F02",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P06-claude",
+			"fact_id": "F04",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P06-claude",
+			"fact_id": "F05",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P06-claude",
+			"fact_id": "F06",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P06-claude",
+			"fact_id": "F07",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P06-claude",
+			"fact_id": "F09",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P07-chatgpt",
+			"fact_id": "F14",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P07-chatgpt",
+			"fact_id": "F15",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P07-gemini",
+			"fact_id": "F14",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P07-gemini",
+			"fact_id": "F15",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P07-claude",
+			"fact_id": "F14",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P07-claude",
+			"fact_id": "F15",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P08-chatgpt",
+			"fact_id": "F10",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P08-chatgpt",
+			"fact_id": "F13",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P08-gemini",
+			"fact_id": "F10",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P08-gemini",
+			"fact_id": "F13",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P08-claude",
+			"fact_id": "F10",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P08-claude",
+			"fact_id": "F13",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P09-chatgpt",
+			"fact_id": "F07",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P09-gemini",
+			"fact_id": "F07",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P09-claude",
+			"fact_id": "F07",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P10-chatgpt",
+			"fact_id": "F01",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P10-chatgpt",
+			"fact_id": "F02",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P10-gemini",
+			"fact_id": "F01",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P10-gemini",
+			"fact_id": "F02",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P10-claude",
+			"fact_id": "F01",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P10-claude",
+			"fact_id": "F02",
+			"selection": "targeted",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P01-chatgpt",
+			"fact_id": "F12",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P01-chatgpt",
+			"fact_id": "F15",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P01-claude",
+			"fact_id": "F12",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P01-gemini",
+			"fact_id": "F11",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P02-chatgpt",
+			"fact_id": "F14",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P02-chatgpt",
+			"fact_id": "F12",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P02-claude",
+			"fact_id": "F10",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P02-claude",
+			"fact_id": "F13",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P02-gemini",
+			"fact_id": "F10",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P02-gemini",
+			"fact_id": "F13",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P03-chatgpt",
+			"fact_id": "F11",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P03-claude",
+			"fact_id": "F14",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P03-gemini",
+			"fact_id": "F12",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P04-chatgpt",
+			"fact_id": "F14",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P04-claude",
+			"fact_id": "F07",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P04-claude",
+			"fact_id": "F01",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P04-gemini",
+			"fact_id": "F01",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P04-gemini",
+			"fact_id": "F14",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P05-chatgpt",
+			"fact_id": "F03",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P05-chatgpt",
+			"fact_id": "F08",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P05-claude",
+			"fact_id": "F03",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P05-gemini",
+			"fact_id": "F14",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P05-gemini",
+			"fact_id": "F07",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P06-chatgpt",
+			"fact_id": "F15",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P06-claude",
+			"fact_id": "F14",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P06-claude",
+			"fact_id": "F13",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P06-gemini",
+			"fact_id": "F12",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P07-chatgpt",
+			"fact_id": "F05",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P07-claude",
+			"fact_id": "F01",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P07-gemini",
+			"fact_id": "F12",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P08-chatgpt",
+			"fact_id": "F01",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P08-chatgpt",
+			"fact_id": "F05",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P08-claude",
+			"fact_id": "F09",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P08-claude",
+			"fact_id": "F15",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P08-gemini",
+			"fact_id": "F05",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P08-gemini",
+			"fact_id": "F03",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P09-chatgpt",
+			"fact_id": "F14",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P09-claude",
+			"fact_id": "F12",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P09-claude",
+			"fact_id": "F14",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P09-gemini",
+			"fact_id": "F15",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P10-chatgpt",
+			"fact_id": "F15",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P10-chatgpt",
+			"fact_id": "F12",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P10-claude",
+			"fact_id": "F10",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "P10-gemini",
+			"fact_id": "F12",
+			"selection": "off_topic",
+			"set": "natural"
+		},
+		{
+			"answer_id": "B01",
+			"fact_id": "F08",
+			"selection": "targeted",
+			"set": "perturbed_base",
+			"perturbed": true
+		},
+		{
+			"answer_id": "B01",
+			"fact_id": "F07",
+			"selection": "planted",
+			"set": "perturbed_base",
+			"perturbed": true
+		},
+		{
+			"answer_id": "B01",
+			"fact_id": "F12",
+			"selection": "off_topic",
+			"set": "perturbed_base",
+			"perturbed": false
+		},
+		{
+			"answer_id": "B02",
+			"fact_id": "F10",
+			"selection": "targeted",
+			"set": "perturbed_base",
+			"perturbed": true
+		},
+		{
+			"answer_id": "B02",
+			"fact_id": "F13",
+			"selection": "targeted",
+			"set": "perturbed_base",
+			"perturbed": true
+		},
+		{
+			"answer_id": "B02",
+			"fact_id": "F03",
+			"selection": "planted",
+			"set": "perturbed_base",
+			"perturbed": true
+		},
+		{
+			"answer_id": "B02",
+			"fact_id": "F15",
+			"selection": "off_topic",
+			"set": "perturbed_base",
+			"perturbed": false
+		},
+		{
+			"answer_id": "B03",
+			"fact_id": "F12",
+			"selection": "targeted",
+			"set": "perturbed_base",
+			"perturbed": true
+		},
+		{
+			"answer_id": "B03",
+			"fact_id": "F06",
+			"selection": "planted",
+			"set": "perturbed_base",
+			"perturbed": true
+		},
+		{
+			"answer_id": "B03",
+			"fact_id": "F14",
+			"selection": "off_topic",
+			"set": "perturbed_base",
+			"perturbed": false
+		},
+		{
+			"answer_id": "B04",
+			"fact_id": "F14",
+			"selection": "targeted",
+			"set": "perturbed_base",
+			"perturbed": true
+		},
+		{
+			"answer_id": "B04",
+			"fact_id": "F15",
+			"selection": "targeted",
+			"set": "perturbed_base",
+			"perturbed": true
+		},
+		{
+			"answer_id": "B04",
+			"fact_id": "F11",
+			"selection": "planted",
+			"set": "perturbed_base",
+			"perturbed": true
+		},
+		{
+			"answer_id": "B04",
+			"fact_id": "F02",
+			"selection": "off_topic",
+			"set": "perturbed_base",
+			"perturbed": false
+		},
+		{
+			"answer_id": "B05",
+			"fact_id": "F01",
+			"selection": "targeted",
+			"set": "perturbed_base",
+			"perturbed": true
+		},
+		{
+			"answer_id": "B05",
+			"fact_id": "F04",
+			"selection": "targeted",
+			"set": "perturbed_base",
+			"perturbed": true
+		},
+		{
+			"answer_id": "B05",
+			"fact_id": "F05",
+			"selection": "targeted",
+			"set": "perturbed_base",
+			"perturbed": true
+		},
+		{
+			"answer_id": "B05",
+			"fact_id": "F06",
+			"selection": "targeted",
+			"set": "perturbed_base",
+			"perturbed": false
+		},
+		{
+			"answer_id": "B05",
+			"fact_id": "F07",
+			"selection": "targeted",
+			"set": "perturbed_base",
+			"perturbed": false
+		},
+		{
+			"answer_id": "B05",
+			"fact_id": "F08",
+			"selection": "targeted",
+			"set": "perturbed_base",
+			"perturbed": false
+		},
+		{
+			"answer_id": "B05",
+			"fact_id": "F12",
+			"selection": "off_topic",
+			"set": "perturbed_base",
+			"perturbed": false
+		},
+		{
+			"answer_id": "B06",
+			"fact_id": "F02",
+			"selection": "targeted",
+			"set": "perturbed_base",
+			"perturbed": true
+		},
+		{
+			"answer_id": "B06",
+			"fact_id": "F04",
+			"selection": "targeted",
+			"set": "perturbed_base",
+			"perturbed": true
+		},
+		{
+			"answer_id": "B06",
+			"fact_id": "F05",
+			"selection": "targeted",
+			"set": "perturbed_base",
+			"perturbed": true
+		},
+		{
+			"answer_id": "B06",
+			"fact_id": "F06",
+			"selection": "targeted",
+			"set": "perturbed_base",
+			"perturbed": false
+		},
+		{
+			"answer_id": "B06",
+			"fact_id": "F07",
+			"selection": "targeted",
+			"set": "perturbed_base",
+			"perturbed": false
+		},
+		{
+			"answer_id": "B06",
+			"fact_id": "F09",
+			"selection": "targeted",
+			"set": "perturbed_base",
+			"perturbed": false
+		},
+		{
+			"answer_id": "B06",
+			"fact_id": "F10",
+			"selection": "off_topic",
+			"set": "perturbed_base",
+			"perturbed": false
+		},
+		{
+			"answer_id": "B07",
+			"fact_id": "F08",
+			"selection": "targeted",
+			"set": "perturbed_base",
+			"perturbed": true
+		},
+		{
+			"answer_id": "B07",
+			"fact_id": "F12",
+			"selection": "planted",
+			"set": "perturbed_base",
+			"perturbed": true
+		},
+		{
+			"answer_id": "B07",
+			"fact_id": "F06",
+			"selection": "planted",
+			"set": "perturbed_base",
+			"perturbed": true
+		},
+		{
+			"answer_id": "B08",
+			"fact_id": "F14",
+			"selection": "targeted",
+			"set": "perturbed_base",
+			"perturbed": true
+		},
+		{
+			"answer_id": "B08",
+			"fact_id": "F15",
+			"selection": "targeted",
+			"set": "perturbed_base",
+			"perturbed": true
+		},
+		{
+			"answer_id": "B08",
+			"fact_id": "F06",
+			"selection": "planted",
+			"set": "perturbed_base",
+			"perturbed": true
+		},
+		{
+			"answer_id": "B08",
+			"fact_id": "F11",
+			"selection": "off_topic",
+			"set": "perturbed_base",
+			"perturbed": false
+		},
+		{
+			"answer_id": "B09",
+			"fact_id": "F10",
+			"selection": "targeted",
+			"set": "perturbed_base",
+			"perturbed": false
+		},
+		{
+			"answer_id": "B09",
+			"fact_id": "F11",
+			"selection": "targeted",
+			"set": "perturbed_base",
+			"perturbed": true
+		},
+		{
+			"answer_id": "B09",
+			"fact_id": "F09",
+			"selection": "planted",
+			"set": "perturbed_base",
+			"perturbed": true
+		},
+		{
+			"answer_id": "B09",
+			"fact_id": "F14",
+			"selection": "off_topic",
+			"set": "perturbed_base",
+			"perturbed": false
+		},
+		{
+			"answer_id": "B10",
+			"fact_id": "F10",
+			"selection": "targeted",
+			"set": "perturbed_base",
+			"perturbed": true
+		},
+		{
+			"answer_id": "B10",
+			"fact_id": "F13",
+			"selection": "targeted",
+			"set": "perturbed_base",
+			"perturbed": true
+		},
+		{
+			"answer_id": "B10",
+			"fact_id": "F08",
+			"selection": "off_topic",
+			"set": "perturbed_base",
+			"perturbed": false
+		},
+		{
+			"answer_id": "B11",
+			"fact_id": "F01",
+			"selection": "targeted",
+			"set": "perturbed_base",
+			"perturbed": false
+		},
+		{
+			"answer_id": "B11",
+			"fact_id": "F02",
+			"selection": "targeted",
+			"set": "perturbed_base",
+			"perturbed": true
+		},
+		{
+			"answer_id": "B11",
+			"fact_id": "F09",
+			"selection": "planted",
+			"set": "perturbed_base",
+			"perturbed": true
+		},
+		{
+			"answer_id": "B11",
+			"fact_id": "F11",
+			"selection": "off_topic",
+			"set": "perturbed_base",
+			"perturbed": false
+		},
+		{
+			"answer_id": "B12",
+			"fact_id": "F01",
+			"selection": "targeted",
+			"set": "perturbed_base",
+			"perturbed": true
+		},
+		{
+			"answer_id": "B12",
+			"fact_id": "F02",
+			"selection": "targeted",
+			"set": "perturbed_base",
+			"perturbed": true
+		},
+		{
+			"answer_id": "B12",
+			"fact_id": "F03",
+			"selection": "targeted",
+			"set": "perturbed_base",
+			"perturbed": true
+		},
+		{
+			"answer_id": "B12",
+			"fact_id": "F09",
+			"selection": "targeted",
+			"set": "perturbed_base",
+			"perturbed": false
+		},
+		{
+			"answer_id": "B12",
+			"fact_id": "F12",
+			"selection": "off_topic",
+			"set": "perturbed_base",
+			"perturbed": false
+		},
+		{
+			"answer_id": "B13",
+			"fact_id": "F07",
+			"selection": "targeted",
+			"set": "perturbed_base",
+			"perturbed": true
+		},
+		{
+			"answer_id": "B13",
+			"fact_id": "F09",
+			"selection": "planted",
+			"set": "perturbed_base",
+			"perturbed": true
+		},
+		{
+			"answer_id": "B13",
+			"fact_id": "F12",
+			"selection": "off_topic",
+			"set": "perturbed_base",
+			"perturbed": false
+		},
+		{
+			"answer_id": "B14",
+			"fact_id": "F10",
+			"selection": "targeted",
+			"set": "perturbed_base",
+			"perturbed": true
+		},
+		{
+			"answer_id": "B14",
+			"fact_id": "F11",
+			"selection": "targeted",
+			"set": "perturbed_base",
+			"perturbed": true
+		},
+		{
+			"answer_id": "B14",
+			"fact_id": "F06",
+			"selection": "off_topic",
+			"set": "perturbed_base",
+			"perturbed": false
+		},
+		{
+			"answer_id": "B15",
+			"fact_id": "F12",
+			"selection": "targeted",
+			"set": "perturbed_base",
+			"perturbed": true
+		},
+		{
+			"answer_id": "B15",
+			"fact_id": "F05",
+			"selection": "off_topic",
+			"set": "perturbed_base",
+			"perturbed": false
+		}
+	]
+}
