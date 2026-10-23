@@ -1,9 +1,11 @@
 import { randomUUID } from "node:crypto";
+import { resetDeploymentCache } from "@workspace/deployment";
 import { db } from "@workspace/lib/db/db";
 import { brands, prompts } from "@workspace/lib/db/schema";
 import { perceptionPrompts } from "@workspace/lib/db/schema-perception";
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { getPerceptionCostEstimate } from "@/server/perception-cost";
 import { FactRuleError, listFacts } from "@/server/perception-facts-core";
 import {
 	acceptFactSuggestion,
@@ -179,5 +181,24 @@ describe("accepting a suggestion", () => {
 			/assertion/,
 		);
 		expect(await listFactPrompts(db, brand.id)).toEqual([]);
+	});
+});
+
+describe("the cost estimate", () => {
+	it("counts the brand's fact prompts on its configured models, in dollars only for the operator", async () => {
+		vi.stubEnv("SCRAPE_TARGETS", "stub:stub");
+		await addFactPrompt(brand, "Is Acme self-hostable?");
+		resetDeploymentCache();
+
+		const local = await getPerceptionCostEstimate(db, brand.id);
+		expect(local.inputs).toMatchObject({ factPrompts: 1, targets: [{ model: "stub", costPerRunUsd: 0 }] });
+		expect(local.showsDollars).toBe(true);
+
+		vi.stubEnv("DEPLOYMENT_MODE", "demo");
+		resetDeploymentCache();
+		const demo = await getPerceptionCostEstimate(db, brand.id);
+		expect(demo.showsDollars).toBe(false);
+		expect(demo.inputs.targets).toEqual([{ model: "stub", costPerRunUsd: null }]);
+		resetDeploymentCache();
 	});
 });

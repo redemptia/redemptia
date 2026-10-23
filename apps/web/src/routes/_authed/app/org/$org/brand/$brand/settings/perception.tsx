@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Label } from "@workspace/ui/components/label";
 import { Switch } from "@workspace/ui/components/switch";
 import { useState } from "react";
+import { PerceptionCostEstimateView } from "@/components/perception-cost-estimate";
 import { PerceptionFactPrompts } from "@/components/perception-fact-prompts";
 import { PerceptionFactSuggestions } from "@/components/perception-fact-suggestions";
 import { type FactActions, PerceptionFactsEditor } from "@/components/perception-facts-editor";
@@ -17,6 +18,7 @@ import {
 	deleteFactFn,
 	getFactPromptsFn,
 	getFactSuggestionsFn,
+	getPerceptionCostFn,
 	getPerceptionSettingsFn,
 	recordFactChangeFn,
 	retireFactFn,
@@ -33,6 +35,7 @@ export const Route = createFileRoute("/_authed/app/org/$org/brand/$brand/setting
 
 const settingsKey = (brandId: string) => ["perception-settings", brandId] as const;
 const promptsKey = (brandId: string) => ["perception-fact-prompts", brandId] as const;
+const costKey = (brandId: string) => ["perception-cost", brandId] as const;
 const suggestionsKey = (brandId: string) => ["perception-fact-suggestions", brandId] as const;
 const SUGGESTIONS_POLL_MS = 3000;
 
@@ -50,6 +53,10 @@ function PerceptionSettingsPage() {
 		queryKey: promptsKey(brandId),
 		queryFn: () => getFactPromptsFn({ data: { brandId } }),
 	});
+	const { data: cost } = useQuery({
+		queryKey: costKey(brandId),
+		queryFn: () => getPerceptionCostFn({ data: { brandId } }),
+	});
 	const { data: suggestions } = useQuery({
 		queryKey: suggestionsKey(brandId),
 		queryFn: () => getFactSuggestionsFn({ data: { brandId } }),
@@ -59,6 +66,7 @@ function PerceptionSettingsPage() {
 		Promise.all([
 			queryClient.invalidateQueries({ queryKey: settingsKey(brandId) }),
 			queryClient.invalidateQueries({ queryKey: promptsKey(brandId) }),
+			queryClient.invalidateQueries({ queryKey: costKey(brandId) }),
 		]);
 	const today = new Date().toISOString().slice(0, 10);
 
@@ -103,6 +111,7 @@ function PerceptionSettingsPage() {
 						When on, answers to your fact prompts are judged against these facts with Jev, a paid service, at up to
 						2,000 checks per organization per day. When off, nothing is judged or billed.
 					</p>
+					{cost && <PerceptionCostEstimateView estimate={cost} />}
 					{switchError && <p className="text-sm text-destructive">{switchError}</p>}
 				</div>
 				<Switch
