@@ -256,6 +256,30 @@ only ever sees text.
   answers, and GPT and Claude skipped it once each (`usage.server_tool_use_details`). The judge only sees
   text, so this doesn't affect the gate, but v1 is not a clean test of grounded versus ungrounded answers.
 
+**Known v1 limitation: the natural answers are public.** The 30 natural worksheet answers are byte-identical
+to entries in the committed `answers.jsonl` (and their `text_sha256` values match), and the perturbed ones match
+nothing. So diffing the worksheet against `answers.jsonl` or `raw.jsonl` would reveal which answers are perturbed.
+This was accepted for v1 rather than regenerated:
+- It can't be stumbled into. It takes a deliberate diff against named files, which only damages the measurement
+  of whoever does it. That differs from information met incidentally, such as in a session transcript: "don't open
+  two named files until the freeze" is a commitment someone can keep.
+- Regenerating would cost another collection run, to close a hole only someone acting on purpose can use.
+- The operator committed not to open `answers.jsonl`, `raw.jsonl`, `scope.json` or `docs/calibration-sealed/`
+  until their 40 labels were frozen. The AI labeller was instructed not to open them either.
+
+**The AI labeller's tells.** While labelling, the AI labeller noted 3 possible tells, sealed in `tells.md`
+unread. They are opened after the freeze. If any describes something the AI labeller could act on, its labels are
+suspect even at high agreement, because the agreement would then measure two labellers who both saw the same tell.
+That is decided after reading them, not before.
+
+## Notes for v2
+
+- **Keep the natural answers sealed until the freeze,** like the bases: commit `answers.jsonl` and `raw.jsonl`
+  with the frozen labels, not before. Hash them in `SEALS` meanwhile.
+- **Format JSON before hashing it,** so biome's whitespace changes don't alter a sealed file's hash.
+- Include long answers (comparison and "alternatives" prompts) so the 20,000-character cap and the shortening
+  fallback are exercised.
+
 **What v1 does not exercise.** v1's answers are 299–10,988 characters long (the longest are association
 answers), all below the judge's 20,000-character answer cap. So this gate never triggers the cap, or the
 fallback that shortens an answer when the judge reports it too long. Both stay in the job. They will
