@@ -11,7 +11,7 @@ import { dedupeKey } from "@workspace/lib/bulk-prompts";
 import { MAX_PROMPTS } from "@workspace/lib/constants";
 import { db } from "@workspace/lib/db/db";
 import type { DbConnection } from "@workspace/lib/db/db-connection";
-import { brands, competitors, prompts } from "@workspace/lib/db/schema";
+import { prompts } from "@workspace/lib/db/schema";
 import { perceptionPrompts } from "@workspace/lib/db/schema-perception";
 import {
 	assertAllowed,
@@ -20,13 +20,11 @@ import {
 	WriteDeniedError,
 	withQuotaLock,
 } from "@workspace/lib/entitlements";
-import { attributeQuestion, failureStateProblem } from "@workspace/lib/perception/attribute-question";
-import { marketPromptProblem } from "@workspace/lib/perception/propose-attributes";
 import { factPromptProblem } from "@workspace/lib/perception/propose-facts";
 import { computeSystemTags } from "@workspace/lib/tag-utils";
 import { and, asc, count, eq } from "drizzle-orm";
 import { createPromptJobScheduler } from "@/lib/job-scheduler";
-import { AttributeRuleError, addAttributes } from "@/server/perception-attributes-core";
+import { AttributeRuleError, addAttributes, checkWording } from "@/server/perception-attributes-core";
 import { addFact, FactRuleError, type FactSourceInput } from "@/server/perception-facts-core";
 import { type PromptBrand, updatePrompt } from "@/server/prompts-core";
 
@@ -256,18 +254,10 @@ export async function confirmAttributes(
 	brand: PromptBrand,
 	inputs: ConfirmedAttribute[],
 ): Promise<{ attributeIds: string[]; associationPrompts: number; promptError: string | null }> {
-	const [brandRow] = await db.select({ aliases: brands.aliases }).from(brands).where(eq(brands.id, brand.id));
-	const rivals = await db.select({ name: competitors.name }).from(competitors).where(eq(competitors.brandId, brand.id));
-	const names = [brand.name, ...(brandRow?.aliases ?? []), ...rivals.map((rival) => rival.name)];
-	const checked = inputs.map((input) => {
-		const problem = failureStateProblem(input.quality) ?? marketPromptProblem(input.marketPromptText, names);
-		if (problem) throw new AttributeRuleError(`${input.label}: ${problem}`);
-		return {
-			label: input.label,
-			questionText: attributeQuestion(input.quality),
-			marketPromptText: input.marketPromptText,
-		};
-	});
+	const checked = [];
+	for (const input of inputs) {
+		checked.push({ label: input.label, ...(await checkWording(db, brand.id, input)) });
+	}
 	const attributeIds = await addAttributes(db, brand.id, checked);
 	try {
 		return { attributeIds, associationPrompts: await addAssociationPrompts(brand), promptError: null };

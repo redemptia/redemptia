@@ -10,7 +10,10 @@
  */
 import { randomBytes } from "node:crypto";
 import type { DbConnection } from "@workspace/lib/db/db-connection";
+import { brands, competitors } from "@workspace/lib/db/schema";
 import { perceptionAttributes, perceptionAttributeVersions } from "@workspace/lib/db/schema-perception";
+import { attributeQuestion, failureStateProblem } from "@workspace/lib/perception/attribute-question";
+import { marketPromptProblem } from "@workspace/lib/perception/propose-attributes";
 import { and, asc, eq, isNull, sql } from "drizzle-orm";
 import { forBrand } from "@/server/perception-facts-core";
 
@@ -52,6 +55,45 @@ function oneLine(value: string, what: string, max: number): string {
 const checkLabel = (label: string) => oneLine(label, "a name", MAX_LABEL_CHARS);
 const checkQuestion = (text: string) => oneLine(text, "a question", MAX_TEXT_CHARS);
 const checkMarketPrompt = (text: string) => oneLine(text, "a market prompt", MAX_TEXT_CHARS);
+
+/** The judge's question for a quality the user wrote: a dimension, never a complaint. */
+export function checkQualityWording(quality: string, label?: string): string {
+	const problem = failureStateProblem(quality);
+	if (problem) throw new AttributeRuleError(label ? `${label}: ${problem}` : problem);
+	return checkQuestion(attributeQuestion(quality));
+}
+
+/**
+ * A market prompt the user wrote, checked: it may not name the brand, an alias or a competitor, so
+ * its answer shows who comes to mind unprompted.
+ */
+export async function checkMarketPromptWording(
+	db: DbConnection,
+	brandId: string,
+	marketPromptText: string,
+	label?: string,
+): Promise<string> {
+	const [brand] = await db
+		.select({ name: brands.name, aliases: brands.aliases })
+		.from(brands)
+		.where(eq(brands.id, brandId));
+	const rivals = await db.select({ name: competitors.name }).from(competitors).where(eq(competitors.brandId, brandId));
+	const names = [brand?.name ?? "", ...(brand?.aliases ?? []), ...rivals.map((rival) => rival.name)];
+	const problem = marketPromptProblem(marketPromptText, names);
+	if (problem) throw new AttributeRuleError(label ? `${label}: ${problem}` : problem);
+	return checkMarketPrompt(marketPromptText);
+}
+
+export async function checkWording(
+	db: DbConnection,
+	brandId: string,
+	input: { label?: string; quality: string; marketPromptText: string },
+): Promise<{ questionText: string; marketPromptText: string }> {
+	return {
+		questionText: checkQualityWording(input.quality, input.label),
+		marketPromptText: await checkMarketPromptWording(db, brandId, input.marketPromptText, input.label),
+	};
+}
 
 export async function listAttributes(db: DbConnection, brandId: string): Promise<AttributeRecord[]> {
 	return db
@@ -158,6 +200,23 @@ export async function editAttributeQuestion(
 ): Promise<number> {
 	const checked = checkQuestion(questionText);
 	return forBrand(db, brandId, async (tx) => setQuestion(tx, await lockedActive(tx, brandId, attributeId), checked));
+}
+
+/** The market prompt is only text until market prompts are tracked, so changing it moves no history. */
+export async function setMarketPromptText(
+	db: DbConnection,
+	brandId: string,
+	attributeId: string,
+	marketPromptText: string,
+): Promise<void> {
+	const checked = checkMarketPrompt(marketPromptText);
+	await forBrand(db, brandId, async (tx) => {
+		await lockedActive(tx, brandId, attributeId);
+		await tx
+			.update(perceptionAttributes)
+			.set({ marketPromptText: checked, updatedAt: sql`now()` })
+			.where(eq(perceptionAttributes.id, attributeId));
+	});
 }
 
 /** Takes the attribute off the judge's list. Its row and every verdict stay, so history views keep it. */

@@ -17,6 +17,15 @@ export function attributeQuestion(quality: string): string {
 		.replace(/[?.]+$/, "")}?`;
 }
 
+const QUESTION_PREFIX = "How does this answer characterise {subject}'s ";
+
+/** The quality a question asks about, or the whole question when it isn't in the usual shape. */
+export function qualityOf(questionText: string): string {
+	return questionText.startsWith(QUESTION_PREFIX) && questionText.endsWith("?")
+		? questionText.slice(QUESTION_PREFIX.length, -1)
+		: questionText;
+}
+
 /**
  * How many qualities a question asks about, given the qualities it was built from (one, or the two a
  * merge joined). An "and" inside one quality is part of its name ("pricing and value for money",
