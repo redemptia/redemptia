@@ -37,7 +37,7 @@ import {
 
 export const Route = createFileRoute("/_authed/app/org/$org/brand/$brand/settings/perception")({
 	staticData: { crumb: "Perception" },
-	head: pageHead({ description: "Record your brand's facts and turn perception on." }),
+	head: pageHead({ description: "Record your brand's facts and attributes, and turn perception on." }),
 	component: PerceptionSettingsPage,
 });
 
@@ -121,7 +121,9 @@ function PerceptionSettingsPage() {
 		<div className="max-w-2xl space-y-8">
 			<div>
 				<h1 className="text-3xl font-bold">Perception</h1>
-				<p className="text-muted-foreground">Check what AI answers say against the facts you record.</p>
+				<p className="text-muted-foreground">
+					Check what AI answers say against the facts you record, and choose the qualities they judge your brand on.
+				</p>
 			</div>
 
 			<div className="flex items-start justify-between gap-4 rounded-lg border p-4">

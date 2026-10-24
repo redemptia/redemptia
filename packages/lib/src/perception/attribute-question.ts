@@ -17,13 +17,21 @@ export function attributeQuestion(quality: string): string {
 		.replace(/[?.]+$/, "")}?`;
 }
 
-/** A pattern can't count qualities exactly: two joiners usually means three qualities. */
-export function joinsTooManyQualities(text: string): boolean {
-	return (text.match(/\b(and|or)\b|[,;]/gi) ?? []).length >= 2;
+/**
+ * How many qualities a question asks about, given the qualities it was built from (one, or the two a
+ * merge joined). An "and" inside one quality is part of its name ("pricing and value for money",
+ * "size and vitality of its community"), so it doesn't count; a list does: "a, b and c" is written
+ * with commas or semicolons, and is that many plus two.
+ */
+export function qualityCount(qualities: string[]): number {
+	return qualities.reduce((sum, quality) => {
+		const separators = (quality.match(/[,;]/g) ?? []).length;
+		return sum + (separators > 0 ? separators + 2 : 1);
+	}, 0);
 }
 
-export function clauseNotes(questionText: string): string[] {
-	return joinsTooManyQualities(questionText)
+export function clauseNotes(qualities: string[]): string[] {
+	return qualityCount(qualities) > 2
 		? ["It may ask about more than two qualities; keep a question to two at most."]
 		: [];
 }
@@ -52,6 +60,8 @@ export interface MergeableAttribute {
 	label: string;
 	/** The noun phrase the question asks about, such as "ease of getting started". */
 	quality: string;
+	/** The qualities it was built from, when it is already a merge; otherwise its one quality. */
+	qualities?: string[];
 	marketPromptText: string;
 }
 
@@ -59,14 +69,15 @@ export interface MergeableAttribute {
  * Two proposals as one attribute, before anything is saved: both qualities in one question, which
  * is as many as a question may hold, and the first one's market prompt, which the user can change.
  */
-export function mergeAttributes<T extends MergeableAttribute>(
-	first: T,
-	second: T,
-): MergeableAttribute & { questionText: string } {
+export function mergeAttributes(
+	first: MergeableAttribute,
+	second: MergeableAttribute,
+): MergeableAttribute & { questionText: string; qualities: string[] } {
 	const quality = `${first.quality.trim()} and ${second.quality.trim()}`;
 	return {
 		label: `${first.label.trim()} & ${second.label.trim()}`,
 		quality,
+		qualities: [...(first.qualities ?? [first.quality.trim()]), ...(second.qualities ?? [second.quality.trim()])],
 		questionText: attributeQuestion(quality),
 		marketPromptText: first.marketPromptText,
 	};

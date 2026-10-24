@@ -1,9 +1,4 @@
-import {
-	attributeQuestion,
-	clauseNotes,
-	failureStateProblem,
-	mergeAttributes,
-} from "@workspace/lib/perception/attribute-question";
+import { clauseNotes, failureStateProblem, mergeAttributes } from "@workspace/lib/perception/attribute-question";
 import type { AttributeProposalResult, ProposedAttribute } from "@workspace/lib/perception/propose-attributes";
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
@@ -37,6 +32,8 @@ interface Draft {
 	id: string;
 	label: string;
 	quality: string;
+	/** What the question was built from: one quality, or the qualities merges joined. */
+	qualities: string[];
 	marketPromptText: string;
 	quotes: string[];
 	kept: boolean;
@@ -51,6 +48,7 @@ const draftOf = (proposal: ProposedAttribute, i: number, held: boolean): Draft =
 	held,
 	label: proposal.label,
 	quality: proposal.quality,
+	qualities: [proposal.quality],
 	marketPromptText: proposal.marketPromptText,
 	quotes: proposal.quote ? [proposal.quote] : [],
 	kept: false,
@@ -75,7 +73,8 @@ function Grounding({
 		return (
 			<p className="text-sm text-muted-foreground">
 				A starting guess from your market: there aren't enough answers about your brand yet (15 across 5 prompts) to
-				read its own vocabulary. Ask again once answers have been collected.
+				read its own vocabulary. Answers to your association prompts start being collected once you save attributes, and
+				the attributes can be revised as they come in.
 			</p>
 		);
 	}
@@ -104,8 +103,7 @@ function DraftRow({
 	onMergeInto: () => void;
 	onUnmerge: () => void;
 }) {
-	const question = attributeQuestion(draft.quality);
-	const warnings = [failureStateProblem(draft.quality), ...clauseNotes(question)].filter(
+	const warnings = [failureStateProblem(draft.quality), ...clauseNotes(draft.qualities)].filter(
 		(warning): warning is string => warning !== null,
 	);
 	const picking = mergeFrom !== null;
@@ -137,7 +135,7 @@ function DraftRow({
 							id={`quality-${draft.id}`}
 							className="h-8"
 							value={draft.quality}
-							onChange={(event) => onChange({ ...draft, quality: event.target.value })}
+							onChange={(event) => onChange({ ...draft, quality: event.target.value, qualities: [event.target.value] })}
 						/>
 					</div>
 					<div className="space-y-1">
@@ -238,6 +236,7 @@ export function PerceptionAttributeSuggestions({
 			id: `m${mergeFrom.id}${target.id}`,
 			label: merged.label,
 			quality: merged.quality,
+			qualities: merged.qualities,
 			marketPromptText: merged.marketPromptText,
 			quotes: [...mergeFrom.quotes, ...target.quotes],
 			kept: mergeFrom.kept || target.kept,
@@ -288,7 +287,7 @@ export function PerceptionAttributeSuggestions({
 			</div>
 			{error && <p className="text-sm text-destructive">{error}</p>}
 			{state.status === "pending" && (
-				<p className="text-sm text-muted-foreground">Reading your answers. This takes a minute or two.</p>
+				<p className="text-sm text-muted-foreground">Working out your attributes. This takes a minute or two.</p>
 			)}
 			{state.status === "failed" && <p className="text-sm text-destructive">{state.error}</p>}
 			{done && (
