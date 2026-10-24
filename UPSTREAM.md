@@ -85,7 +85,7 @@ join the headline metrics.
 | File | Change | Why |
 |---|---|---|
 | `packages/lib/drizzle.config.ts` | `./src/db/schema-perception.ts` added to `schema` | So drizzle-kit generates our tables. One upstream commit in six months |
-| `packages/lib/package.json` | an `exports` line for `./db/schema-perception` | So the apps can import our tables. Of 88 upstream commits to this file in six months, 18 touched `exports`, so a conflict here is possible; keep both sides |
+| `packages/lib/package.json` | `exports` lines for `./db/schema-perception` and each `./perception/*` module | So the apps can import our tables. Of 88 upstream commits to this file in six months, 18 touched `exports`, so a conflict here is possible; keep both sides |
 
 ### The perception job
 
