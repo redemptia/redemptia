@@ -66,7 +66,7 @@ export async function listAttributes(db: DbConnection, brandId: string): Promise
 		})
 		.from(perceptionAttributes)
 		.where(eq(perceptionAttributes.brandId, brandId))
-		.orderBy(asc(perceptionAttributes.createdAt), asc(perceptionAttributes.id));
+		.orderBy(asc(perceptionAttributes.createdAt), asc(perceptionAttributes.label));
 }
 
 async function lockedActive(tx: DbConnection, brandId: string, attributeId: string) {
@@ -81,25 +81,39 @@ async function lockedActive(tx: DbConnection, brandId: string, attributeId: stri
 }
 
 export async function addAttribute(db: DbConnection, brandId: string, input: AttributeInput): Promise<string> {
-	const label = checkLabel(input.label);
-	const questionText = checkQuestion(input.questionText);
-	const marketPromptText = checkMarketPrompt(input.marketPromptText);
+	const [id] = await addAttributes(db, brandId, [input]);
+	return id;
+}
+
+/** Adds every attribute or none, so a set the user confirmed never lands half-saved. */
+export async function addAttributes(db: DbConnection, brandId: string, inputs: AttributeInput[]): Promise<string[]> {
+	const checked = inputs.map((input) => ({
+		label: checkLabel(input.label),
+		questionText: checkQuestion(input.questionText),
+		marketPromptText: checkMarketPrompt(input.marketPromptText),
+	}));
 	return forBrand(db, brandId, async (tx) => {
 		const [{ active }] = await tx
 			.select({ active: sql<number>`count(*)::int` })
 			.from(perceptionAttributes)
 			.where(and(eq(perceptionAttributes.brandId, brandId), isNull(perceptionAttributes.retiredAt)));
-		if (active >= MAX_ACTIVE_ATTRIBUTES) {
+		if (active + checked.length > MAX_ACTIVE_ATTRIBUTES) {
 			throw new AttributeRuleError(
-				`A brand can have at most ${MAX_ACTIVE_ATTRIBUTES} active attributes. Retire or merge one first.`,
+				`A brand can have at most ${MAX_ACTIVE_ATTRIBUTES} active attributes, and has ${active}. Retire or merge one first.`,
 			);
 		}
-		const [row] = await tx
-			.insert(perceptionAttributes)
-			.values({ brandId, key: newKey(), label, questionText, marketPromptText })
-			.returning({ id: perceptionAttributes.id });
-		await tx.insert(perceptionAttributeVersions).values({ attributeId: row.id, questionVersion: 1, questionText });
-		return row.id;
+		const ids: string[] = [];
+		for (const attribute of checked) {
+			const [row] = await tx
+				.insert(perceptionAttributes)
+				.values({ brandId, key: newKey(), ...attribute })
+				.returning({ id: perceptionAttributes.id });
+			await tx
+				.insert(perceptionAttributeVersions)
+				.values({ attributeId: row.id, questionVersion: 1, questionText: attribute.questionText });
+			ids.push(row.id);
+		}
+		return ids;
 	});
 }
 

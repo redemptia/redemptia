@@ -1,5 +1,5 @@
 /**
- * Fact prompts: ordinary rows in elmo's `prompts` table, marked as perception prompts by a row in
+ * Fact and association prompts: ordinary rows in elmo's `prompts` table, marked as perception prompts by a row in
  * ours, so elmo schedules, scrapes and retries them like any other prompt. Created the way elmo's
  * own `createPrompts` creates a prompt (under the org's quota lock, with its quota check), plus
  * elmo's 100-prompt cap, which that path leaves to its callers, and our own perception cap.
@@ -11,7 +11,7 @@ import { dedupeKey } from "@workspace/lib/bulk-prompts";
 import { MAX_PROMPTS } from "@workspace/lib/constants";
 import { db } from "@workspace/lib/db/db";
 import type { DbConnection } from "@workspace/lib/db/db-connection";
-import { prompts } from "@workspace/lib/db/schema";
+import { brands, competitors, prompts } from "@workspace/lib/db/schema";
 import { perceptionPrompts } from "@workspace/lib/db/schema-perception";
 import {
 	assertAllowed,
@@ -20,10 +20,13 @@ import {
 	WriteDeniedError,
 	withQuotaLock,
 } from "@workspace/lib/entitlements";
+import { attributeQuestion, failureStateProblem } from "@workspace/lib/perception/attribute-question";
+import { marketPromptProblem } from "@workspace/lib/perception/propose-attributes";
 import { factPromptProblem } from "@workspace/lib/perception/propose-facts";
 import { computeSystemTags } from "@workspace/lib/tag-utils";
 import { and, asc, count, eq } from "drizzle-orm";
 import { createPromptJobScheduler } from "@/lib/job-scheduler";
+import { AttributeRuleError, addAttributes } from "@/server/perception-attributes-core";
 import { addFact, FactRuleError, type FactSourceInput } from "@/server/perception-facts-core";
 import { type PromptBrand, updatePrompt } from "@/server/prompts-core";
 
@@ -34,6 +37,31 @@ import { type PromptBrand, updatePrompt } from "@/server/prompts-core";
 export const PERCEPTION_PROMPT_CAP = 24;
 /** Fact prompts a brand starts with: well inside both caps, leaving room for the other classes. */
 export const FACT_PROMPT_START = 10;
+
+/**
+ * What a brand's association prompts ask, `{brand}` standing for its name. Each asks for a
+ * characterisation, so answers use attribute language; 6 is the low end of the spec's 6–10, leaving
+ * room under the perception cap for fact and market prompts.
+ *
+ * Half are comparison or alternatives prompts because that is where the negatives are: generic
+ * prompts about a brand come back almost entirely positive, while "alternatives to" prompts carry
+ * most of the criticism.
+ *
+ * No template names a competitor. Association is judged for the brand alone, and it must not move
+ * when the competitor list changes: prominence already re-ranks on every competitor-set change, and
+ * the gap between the two is only readable if association holds still.
+ *
+ * Never edit this list once any brand has confirmed attributes. Prompts have no versions, so an
+ * edited template would continue the old one's line across a change in what it asks.
+ */
+export const ASSOCIATION_PROMPT_TEMPLATES = [
+	"What is {brand} known for?",
+	"What are {brand}'s main strengths and weaknesses?",
+	"How would you describe {brand} to someone deciding whether to use it?",
+	"How does {brand} compare with the alternatives in its market?",
+	"What are the best alternatives to {brand}, and why would someone switch?",
+	"Why do people choose other options over {brand}?",
+] as const;
 
 export interface FactPrompt {
 	id: string;
@@ -79,6 +107,16 @@ export async function promptHeadroom(conn: DbConnection, brandId: string): Promi
 		factPrompts: facts?.n ?? 0,
 		factPromptStart: FACT_PROMPT_START,
 	};
+}
+
+/** Association prompts the brand tracks, enabled or not. */
+export async function associationPromptCount(conn: DbConnection, brandId: string): Promise<number> {
+	const [row] = await conn
+		.select({ n: count() })
+		.from(prompts)
+		.innerJoin(perceptionPrompts, eq(perceptionPrompts.promptId, prompts.id))
+		.where(and(eq(prompts.brandId, brandId), eq(perceptionPrompts.class, "association")));
+	return row?.n ?? 0;
 }
 
 /** Tracks a buyer-style question as a fact prompt. Returns its prompt id. */
@@ -159,5 +197,82 @@ export async function acceptFactSuggestion(
 	} catch (error) {
 		if (!(error instanceof FactRuleError || error instanceof WriteDeniedError)) throw error;
 		return { factId, promptId: null, promptError: error.message };
+	}
+}
+
+/**
+ * Tracks the association prompts the brand doesn't have yet, all or none. One the brand already
+ * tracks, as any kind of prompt, is skipped. Returns how many were added.
+ */
+export async function addAssociationPrompts(brand: PromptBrand): Promise<number> {
+	const wanted = ASSOCIATION_PROMPT_TEMPLATES.map((template) => template.replaceAll("{brand}", brand.name));
+	const ids = await withQuotaLock(brand.organizationId, async (tx) => {
+		const existing = await tx.select({ value: prompts.value }).from(prompts).where(eq(prompts.brandId, brand.id));
+		const tracked = new Set(existing.map((row) => dedupeKey(row.value)));
+		const values = wanted.filter((value) => !tracked.has(dedupeKey(value)));
+		if (values.length === 0) return [];
+		assertAllowed(decidePromptCap(existing.length, values.length));
+		const { perception } = await promptHeadroom(tx, brand.id);
+		if (perception.used + values.length > PERCEPTION_PROMPT_CAP) {
+			throw new AttributeRuleError(
+				`Tracking the ${values.length} association prompts would pass the ${PERCEPTION_PROMPT_CAP} perception prompts a brand can track (it has ${perception.used}). Stop tracking some first.`,
+			);
+		}
+		await assertPromptSaveAllowed(brand.organizationId, { prompts: values.length, premiumPairings: 0 }, tx);
+		const rows = await tx
+			.insert(prompts)
+			.values(
+				values.map((value) => ({
+					brandId: brand.id,
+					value,
+					enabled: true,
+					tags: [],
+					systemTags: computeSystemTags(value, brand.name, brand.website),
+					premiumModels: [],
+				})),
+			)
+			.returning({ id: prompts.id });
+		await tx.insert(perceptionPrompts).values(rows.map((row) => ({ promptId: row.id, class: "association" as const })));
+		return rows.map((row) => row.id);
+	});
+	for (const id of ids) await createPromptJobScheduler(id);
+	return ids.length;
+}
+
+export interface ConfirmedAttribute {
+	label: string;
+	/** The noun phrase the judge's question asks about. */
+	quality: string;
+	marketPromptText: string;
+}
+
+/**
+ * Saves the attributes a user kept from a proposal, all or none, then tracks the association
+ * prompts. The question is built from the quality, so every attribute asks in the one shape the
+ * judge expects. The attributes stay saved if the prompts can't be tracked (a cap reached, say);
+ * the reason comes back with them.
+ */
+export async function confirmAttributes(
+	brand: PromptBrand,
+	inputs: ConfirmedAttribute[],
+): Promise<{ attributeIds: string[]; associationPrompts: number; promptError: string | null }> {
+	const [brandRow] = await db.select({ aliases: brands.aliases }).from(brands).where(eq(brands.id, brand.id));
+	const rivals = await db.select({ name: competitors.name }).from(competitors).where(eq(competitors.brandId, brand.id));
+	const names = [brand.name, ...(brandRow?.aliases ?? []), ...rivals.map((rival) => rival.name)];
+	const checked = inputs.map((input) => {
+		const problem = failureStateProblem(input.quality) ?? marketPromptProblem(input.marketPromptText, names);
+		if (problem) throw new AttributeRuleError(`${input.label}: ${problem}`);
+		return {
+			label: input.label,
+			questionText: attributeQuestion(input.quality),
+			marketPromptText: input.marketPromptText,
+		};
+	});
+	const attributeIds = await addAttributes(db, brand.id, checked);
+	try {
+		return { attributeIds, associationPrompts: await addAssociationPrompts(brand), promptError: null };
+	} catch (error) {
+		if (!(error instanceof AttributeRuleError || error instanceof WriteDeniedError)) throw error;
+		return { attributeIds, associationPrompts: 0, promptError: error.message };
 	}
 }

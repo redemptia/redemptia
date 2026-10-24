@@ -3,6 +3,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Label } from "@workspace/ui/components/label";
 import { Switch } from "@workspace/ui/components/switch";
 import { useState } from "react";
+import { PerceptionAttributeSuggestions } from "@/components/perception-attribute-suggestions";
+import { PerceptionAttributes } from "@/components/perception-attributes";
 import { PerceptionCostEstimateView } from "@/components/perception-cost-estimate";
 import { PerceptionFactPrompts } from "@/components/perception-fact-prompts";
 import { PerceptionFactSuggestions } from "@/components/perception-fact-suggestions";
@@ -11,6 +13,12 @@ import { useBrandId } from "@/hooks/use-brand-id";
 import { useBrand } from "@/hooks/use-brands";
 import { pageHead } from "@/lib/route-head";
 import { useWriteErrorMessage } from "@/lib/write-errors";
+import {
+	confirmAttributesFn,
+	getAttributeSuggestionsFn,
+	getAttributesFn,
+	suggestAttributesFn,
+} from "@/server/perception-attributes";
 import {
 	acceptFactSuggestionFn,
 	addFactFn,
@@ -37,6 +45,8 @@ const settingsKey = (brandId: string) => ["perception-settings", brandId] as con
 const promptsKey = (brandId: string) => ["perception-fact-prompts", brandId] as const;
 const costKey = (brandId: string) => ["perception-cost", brandId] as const;
 const suggestionsKey = (brandId: string) => ["perception-fact-suggestions", brandId] as const;
+const attributesKey = (brandId: string) => ["perception-attributes", brandId] as const;
+const attributeSuggestionsKey = (brandId: string) => ["perception-attribute-suggestions", brandId] as const;
 const SUGGESTIONS_POLL_MS = 3000;
 
 function PerceptionSettingsPage() {
@@ -62,8 +72,18 @@ function PerceptionSettingsPage() {
 		queryFn: () => getFactSuggestionsFn({ data: { brandId } }),
 		refetchInterval: (query) => (query.state.data?.status === "pending" ? SUGGESTIONS_POLL_MS : false),
 	});
+	const { data: attributeState } = useQuery({
+		queryKey: attributesKey(brandId),
+		queryFn: () => getAttributesFn({ data: { brandId } }),
+	});
+	const { data: attributeSuggestions } = useQuery({
+		queryKey: attributeSuggestionsKey(brandId),
+		queryFn: () => getAttributeSuggestionsFn({ data: { brandId } }),
+		refetchInterval: (query) => (query.state.data?.status === "pending" ? SUGGESTIONS_POLL_MS : false),
+	});
 	const refresh = () =>
 		Promise.all([
+			queryClient.invalidateQueries({ queryKey: attributesKey(brandId) }),
 			queryClient.invalidateQueries({ queryKey: settingsKey(brandId) }),
 			queryClient.invalidateQueries({ queryKey: promptsKey(brandId) }),
 			queryClient.invalidateQueries({ queryKey: costKey(brandId) }),
@@ -150,6 +170,30 @@ function PerceptionSettingsPage() {
 						return outcome;
 					}}
 				/>
+			)}
+
+			{attributeState && (
+				<>
+					<PerceptionAttributes attributes={attributeState.attributes} maxActive={attributeState.maxActive} />
+					<PerceptionAttributeSuggestions
+						state={attributeSuggestions ?? { status: "none" }}
+						runsLeft={attributeState.suggestionRunsLeft}
+						room={attributeState.maxActive - attributeState.attributes.filter((a) => !a.retired).length}
+						associationPromptsToAdd={attributeState.associationPromptsToAdd}
+						headroom={attributeState.headroom}
+						onSuggest={async (category) => {
+							await write(() => suggestAttributesFn({ data: { brandId, category } }), "Couldn't start suggestions.");
+							await queryClient.invalidateQueries({ queryKey: attributeSuggestionsKey(brandId) });
+						}}
+						onConfirm={async (attributes) => {
+							let outcome = { associationPrompts: 0, promptError: null as string | null };
+							await write(async () => {
+								outcome = await confirmAttributesFn({ data: { brandId, attributes } });
+							}, "Couldn't save the attributes.");
+							return outcome;
+						}}
+					/>
+				</>
 			)}
 
 			{promptState && (
