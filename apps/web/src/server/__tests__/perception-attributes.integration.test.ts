@@ -9,14 +9,17 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
 	AttributeRuleError,
 	addAttribute,
+	checkMarketPromptWording,
+	checkQualityWording,
 	editAttributeQuestion,
 	listAttributes,
 	MAX_ACTIVE_ATTRIBUTES,
 	mergeAttributes,
 	renameAttribute,
 	retireAttribute,
+	setMarketPromptText,
 } from "@/server/perception-attributes-core";
-import { createBrand, createPrompt, createRun, deleteBrand } from "@/test/integration/stats-fixtures";
+import { createBrand, createCompetitor, createPrompt, createRun, deleteBrand } from "@/test/integration/stats-fixtures";
 
 let brandId: string;
 
@@ -221,5 +224,39 @@ describe("merging", () => {
 		} finally {
 			await deleteBrand(other);
 		}
+	});
+});
+
+describe("editing the market prompt", () => {
+	it("changes only its text: no new question version, no history moved", async () => {
+		const id = await add("Pricing");
+		await judge(await newRun(), id, 1);
+		await setMarketPromptText(db, brandId, id, "Which hosted databases are cheapest at scale?");
+		const after = await attribute(id);
+		expect(after.marketPromptText).toBe("Which hosted databases are cheapest at scale?");
+		expect(after.questionVersion).toBe(1);
+		expect(await versions(id)).toHaveLength(1);
+		expect(await verdictCount(id)).toBe(1);
+		await retireAttribute(db, brandId, id);
+		expect(await rejection(setMarketPromptText(db, brandId, id, "Which are cheapest?"))).toMatch(/retired/);
+	});
+});
+
+describe("what a user may write", () => {
+	it("builds the judge's question from a quality, and refuses one named for a complaint", () => {
+		expect(checkQualityWording("ease of getting started")).toBe(
+			"How does this answer characterise {subject}'s ease of getting started?",
+		);
+		expect(() => checkQualityWording("free project pausing", "Uptime")).toThrow(/Uptime: "pausing" names a complaint/);
+	});
+
+	it("refuses a market prompt naming the brand, an alias or a competitor", async () => {
+		await createCompetitor(brandId, "Globex");
+		for (const prompt of ["Is Acme cheap?", "Is Globex cheap?"]) {
+			expect(await rejection(checkMarketPromptWording(db, brandId, prompt))).toMatch(/Name no brand/);
+		}
+		expect(await checkMarketPromptWording(db, brandId, "  Which hosted databases are cheapest?  ")).toBe(
+			"Which hosted databases are cheapest?",
+		);
 	});
 });

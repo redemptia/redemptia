@@ -10,7 +10,19 @@ import {
 	enqueueAttributeSuggestions,
 	getAttributeSuggestions,
 } from "@/lib/propose-attributes-job";
-import { AttributeRuleError, listAttributes, MAX_ACTIVE_ATTRIBUTES } from "@/server/perception-attributes-core";
+import {
+	AttributeRuleError,
+	checkMarketPromptWording,
+	checkQualityWording,
+	checkWording,
+	editAttributeQuestion,
+	listAttributes,
+	MAX_ACTIVE_ATTRIBUTES,
+	mergeAttributes,
+	renameAttribute,
+	retireAttribute,
+	setMarketPromptText,
+} from "@/server/perception-attributes-core";
 import {
 	ASSOCIATION_PROMPT_TEMPLATES,
 	associationPromptCount,
@@ -73,4 +85,54 @@ export const confirmAttributesFn = createServerFn({ method: "POST" })
 	.handler(async ({ data }) => {
 		await requireBrandSession(data.brandId);
 		return confirmAttributes(await promptBrand(data.brandId), data.attributes);
+	});
+
+const attributeId = z.string().uuid();
+const wording = { quality: z.string().max(500), marketPromptText: z.string().max(500) };
+
+/** One attribute the user writes: saved like a confirmed suggestion, association prompts included. */
+export const addAttributeFn = createServerFn({ method: "POST" })
+	.validator(z.object({ brandId: z.string(), label: z.string().max(200), ...wording }))
+	.handler(async ({ data }) => {
+		await requireBrandSession(data.brandId);
+		const { brandId, ...input } = data;
+		return confirmAttributes(await promptBrand(brandId), [input]);
+	});
+
+export const renameAttributeFn = createServerFn({ method: "POST" })
+	.validator(z.object({ brandId: z.string(), attributeId, label: z.string().max(200) }))
+	.handler(async ({ data }) => {
+		await requireBrandSession(data.brandId);
+		await renameAttribute(db, data.brandId, data.attributeId, data.label);
+	});
+
+export const editAttributeQuestionFn = createServerFn({ method: "POST" })
+	.validator(z.object({ brandId: z.string(), attributeId, quality: z.string().max(500) }))
+	.handler(async ({ data }) => {
+		await requireBrandSession(data.brandId);
+		const questionText = checkQualityWording(data.quality);
+		return { questionVersion: await editAttributeQuestion(db, data.brandId, data.attributeId, questionText) };
+	});
+
+export const setMarketPromptTextFn = createServerFn({ method: "POST" })
+	.validator(z.object({ brandId: z.string(), attributeId, marketPromptText: z.string().max(500) }))
+	.handler(async ({ data }) => {
+		await requireBrandSession(data.brandId);
+		const text = await checkMarketPromptWording(db, data.brandId, data.marketPromptText);
+		await setMarketPromptText(db, data.brandId, data.attributeId, text);
+	});
+
+export const retireAttributeFn = createServerFn({ method: "POST" })
+	.validator(z.object({ brandId: z.string(), attributeId }))
+	.handler(async ({ data }) => {
+		await requireBrandSession(data.brandId);
+		await retireAttribute(db, data.brandId, data.attributeId);
+	});
+
+export const mergeAttributesFn = createServerFn({ method: "POST" })
+	.validator(z.object({ brandId: z.string(), keepId: attributeId, retireId: attributeId, ...wording }))
+	.handler(async ({ data }) => {
+		await requireBrandSession(data.brandId);
+		const checked = await checkWording(db, data.brandId, data);
+		await mergeAttributes(db, data.brandId, { keepId: data.keepId, retireId: data.retireId, ...checked });
 	});
