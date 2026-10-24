@@ -216,7 +216,56 @@ contradiction accuses the customer's facts of being wrong and costs their trust 
 missed contradiction costs them one finding. So precision carries the stricter bar.
 
 Report both, for both the natural and the enriched set. If the interval is too wide to pass, add
-contradiction items. Never lower the bar. The attribute bar is set once the attribute half exists.
+contradiction items. Never lower the bar.
+
+### 7a. The attribute bar
+
+Fixed on 24 October 2026, before any attribute item was labelled. Computed on the gold labels of the
+attribute half (§7b), for the brand subject only.
+
+| Measure | Bar |
+|---|---|
+| **Discussed vs not discussed**, scored as two classes (`positive`, `negative` and `mixed` are all discussed) | accuracy ≥ 0.90, and the lower bound of its 95% Wilson interval ≥ 0.84; discussed precision ≥ 0.85 and discussed recall ≥ 0.85 |
+| **`negative` precision** | ≥ 0.85, and its Wilson lower bound ≥ 0.70 |
+| **`negative` recall** | ≥ 0.70, and its Wilson lower bound ≥ 0.50 |
+| **Drift `yes` precision** | ≥ 0.80 on the corpus, with every false `yes` listed; then at Checkpoint 7, at least 16 of 20 drift passages from the live review queue, read by eye, describe a quality no attribute covers |
+
+Why these and not the fact bar:
+- **Discussed vs not discussed** is the boundary every association score and every coverage figure rests
+  on: a false "discussed" inflates coverage, a false "not discussed" shrinks n. So it gets its own
+  accuracy, and precision and recall so neither error hides inside the other.
+- **`negative`** is the class a customer acts on, so it carries the precision bar, as `contradicts` does.
+  A gold `mixed` that the judge calls `negative` counts as a false `negative`. Recall is looser for the
+  same reason as the fact bar's: a missed negative costs one finding, a false one costs trust.
+- **Drift** has 15 items, too few for a meaningful lower bound (4 of 5 correct has a lower bound of
+  0.38), so the corpus bar is a point estimate with every false `yes` shown, and Checkpoint 7's reading
+  of real queue passages is the second check.
+- `positive` and `mixed` have no bar; they are reported in the full confusion matrix.
+
+Rules:
+- **Natural and perturbed items are reported separately.** The gate is decided on both together, and if
+  the natural items alone fall below a bar that the combined set passes, the result is a stop and a
+  report, not a pass.
+- **The negative class is counted before the judge runs.** Once the AI labeller has labelled every item,
+  the natural gold `negative`s are counted. Fewer than 30 is reported then, and the operator chooses
+  between perturbed copies (one characterisation in a copy of an answer flipped to negative) and
+  labelling the fact-prompt answers' attribute items. The judge runs only after that choice.
+- **An interval too wide to pass is fixed with more items,** never a lower bar.
+- **Every figure carries the attribution line** of §2a, with the attribute half's own sample size,
+  agreement and κ.
+
+### 7b. Labelling the attribute half (v1)
+
+The items are the 15 natural association answers (P11–P15, three models each): one item per answer
+and frozen attribute (150), and one drift item per answer (15). Labels follow §5, against each
+attribute's `question_text`. The method is §2a's, with two changes:
+- the validation sample is 40 attribute items, stratified by the AI labeller's own labels;
+- the operator also labels all 15 drift items blind, since 15 is too few to sample.
+
+The AI labels count only at raw agreement ≥ 90% and κ ≥ 0.8 on the 40 attribute items. Agreement on
+`negative` and on discussed vs not discussed is reported on its own, as is drift agreement. Otherwise the
+operator labels every item. The files live in `v1/attributes/`, sealed ones in
+`docs/calibration-sealed/attributes/` until the freeze, with hashes in `v1/SEALS` as before.
 
 ## 8. Steps
 
