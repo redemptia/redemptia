@@ -43,3 +43,7 @@ sealed/attributes/tells.perturbed.md 28c4c21b25c96a8f9a9e1344a88bf84c69ff712e1f2
 sealed/attributes/labeller-scripts/fill.py aaa9f561603654888e4a0736a45f44d3d624a8d47a96f2b9529be88d7fcdfe76  (labellers' working scripts, which hold labels)
 sealed/attributes/labeller-scripts/label.py f20db7c459b2cc36406c24c0649eedf5cfd9128bf598e8b687bceaac226fff3b
 sealed/attributes/labeller-scripts/label2.py c937a7df2ad1032334849e78f8ebfec3e43610c3c02af10833a4d740a4013a75
+v1/attributes/validation-subset.json VOIDED  (the 40-item draw from all 450, validation-seed-2.txt above, withdrawn on 2026-10-24 before any operator label was written: the operator's sample became 15 hard attribute items plus the 15 drift items, §7b)
+v1/attributes/validation-subset.json bd82c83cc77cb0443c2fdb4d0a49b06fe0c326502a1e3cefd1fd661c60ca3eea  (the 15 hard attribute items, drawn by the AI labeller from the natural items: 10 negative, 5 discussed-boundary; with all 15 drift items; 2026-10-24)
+v1/attributes/validation-subset.json 90fea3c3e0b4132e2be8ff45f240dbd72d83df1275b43b604f32b2639ddef2cb  (bytes after biome formatting; whitespace only, the same 15 ids)
+sealed/attributes/validation-seed-3.txt 7e9a53ea69f0632c35226d2052269b9eaf76afadb5fc4262695684eee24e2267  (the hard draw's method and each item's group; 2026-10-24)

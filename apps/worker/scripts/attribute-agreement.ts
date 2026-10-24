@@ -1,7 +1,8 @@
 #!/usr/bin/env tsx
 /**
  * PROCEDURE.md §7b's validation: compares the operator's blind labels with the AI labeller's on the
- * operator's 40 attribute items and 15 drift items, and says whether the AI labels count as gold.
+ * operator's 15 hard attribute items and 15 drift items, and says whether the AI attribute labels count
+ * as gold. Drift's gold is the operator's own labels, so drift agreement is reported, not decided on.
  * Run it once the operator's labels are frozen. It prints only agreement figures and confusion counts,
  * never an item's label.
  *
@@ -84,6 +85,19 @@ function specificAgreement(pairs: Pair[], label: string) {
 	return { both, either, agreement: either ? (2 * both) / (2 * both + (either - both)) : null };
 }
 
+/**
+ * §7b's rule at 15 hard items: at least 14 in agreement, and at most one disagreement on negative. κ is
+ * reported beside it, never decided on: at 15 items its interval is about ±0.25.
+ */
+function decide(pairs: Pair[]): string {
+	const agree = pairs.filter((p) => p.human === p.ai).length;
+	const negative = specificAgreement(pairs, "negative");
+	const negativeDisagreements = negative.either - negative.both;
+	return agree >= 14 && negativeDisagreements <= 1
+		? `AI attribute labels count as gold (${agree} of ${pairs.length} in agreement, ${negativeDisagreements} disagreement on negative)`
+		: `AI attribute labels are discarded: the operator labels every natural attribute item (${agree} of ${pairs.length} in agreement, ${negativeDisagreements} disagreements on negative)`;
+}
+
 const discussed = (label: string) => (label === "not_discussed" ? "not_discussed" : "discussed");
 const LABELS = ["positive", "negative", "mixed", "not_discussed"];
 const attributes = kappa(attributePairs);
@@ -101,10 +115,7 @@ const report = {
 		discussedVsNot: kappa(attributePairs.map((p) => ({ human: discussed(p.human), ai: discussed(p.ai) }))),
 	},
 	driftItems: { ...kappa(driftPairs), yes: specificAgreement(driftPairs, "yes") },
-	decision:
-		attributes.rawAgreement >= 0.9 && attributes.kappa >= 0.8
-			? "AI labels count as gold (raw agreement ≥ 90% and κ ≥ 0.8 on the attribute sample)"
-			: "AI labels are discarded for the gate: the operator labels every item (§2a)",
-	note: "The sample over-represents negative (at least 10 of 40), so these figures describe the sample, not the population.",
+	decision: decide(attributePairs),
+	note: "A hard sample (10 negatives, 5 discussed-boundary items): κ and agreement describe these items, not the population.",
 };
 console.log(JSON.stringify(report, null, 2));

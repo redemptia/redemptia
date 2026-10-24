@@ -262,20 +262,38 @@ natural negatives by the AI labeller's count, below §7a's 30, so the 30 natural
 were added: one item per answer and frozen attribute (300 more), and no drift items, since drift is
 asked of association answers only. That makes 450 attribute items. Labels follow §5, against each
 attribute's `question_text`. The method is §2a's, with these changes:
-- the validation sample is 40 attribute items drawn from all 450, stratified by the AI labeller's own
-  labels but with at least 10 `negative`s, so agreement on `negative` rests on more than a handful.
-  The sample therefore over-represents `negative`; its raw agreement and κ describe the sample, and
-  are reported with its label mix beside them;
-- the operator also labels all 15 drift items blind, since 15 is too few to sample.
+- the validation sample is **15 hard attribute items** from the 450 natural ones, drawn by the AI
+  labeller from its own labels: 10 it labelled `negative`, spread across answers and attributes, and
+  5 genuine discussed vs not discussed boundary cases (at least 2 it called `not_discussed` despite a
+  mention of the topic, at least 2 it called discussed on thin evidence). Obvious `not_discussed`
+  items are left out: they are most of the population and only inflate raw agreement;
+- the operator also labels all 15 drift items blind, and **those are drift's gold labels**: the human
+  labels every drift item, so the AI's drift labels aren't used for the gate. Agreement between the two
+  is still reported.
 
-The AI labels count only at raw agreement ≥ 90% and κ ≥ 0.8 on the 40 attribute items. Agreement on
-`negative` and on discussed vs not discussed is reported on its own, as is drift agreement. Otherwise the
-operator labels every item.
+**Why 15 hard items, decided 2026-10-24, before any operator label.** The first design, 40 items
+stratified by label with at least 10 negatives, spent most of the operator's time on items no one
+disagrees about. A hard sample spends it where the gate's figures can go wrong: the `negative` class
+the bar rests on, and the discussed boundary that every coverage figure rests on. A pass on hard items
+is stronger evidence than the same rate on a random sample. It doesn't validate the easy
+`not_discussed` items directly; their main risk, a bare mention called discussed, is what the boundary
+items test.
 
-**Attribution for the attribute half.** Every figure states: "labels AI-generated, validated against
-40 blind human attribute labels (≥ 10 negative) and 15 drift labels at raw agreement X% and κ Y; the
-human labeller had previously seen quotes from the 15 association answers in the Checkpoint 6
-reports." That exposure is a real limit on the blindness of those labels, so it travels with the
+**The decision rule at 15 items.** κ stops being a decision criterion. On a hard, negative-heavy
+sample, chance agreement is not the population's, and at 15 items κ's 95% interval is about ±0.25:
+14 of 15 in agreement gives κ ≈ 0.87 with an interval of roughly 0.63–1.0, and 13 of 15 gives κ ≈ 0.74
+with roughly 0.41–1.0. A κ ≥ 0.8 threshold would pass or fail on a single item, so it would carry no
+information that the count doesn't. The rule is:
+- the AI attribute labels count as gold when the operator agrees with them on **at least 14 of the 15**
+  hard items (the ≥ 90% rule's only passing results at 15 items are 14 and 15), **and** on `negative`
+  they disagree on at most one item (of the items either labelled `negative`, both did on all but one);
+- κ, its interval and the confusion matrix are reported beside the decision, never in place of it;
+- otherwise the AI labels are discarded and the operator labels every natural attribute item.
+
+**Attribution for the attribute half.** Every figure states: "attribute labels AI-generated, validated
+against 15 blind human labels on hard items (10 negative, 5 discussed-boundary) at X of 15 in agreement
+(κ Y); drift labels are the human's own, on all 15 drift items; the human labeller had previously seen
+quotes from the 15 association answers in the Checkpoint 6 reports." That exposure is a real limit on the blindness of those labels, so it travels with the
 figure. The files live in `v1/attributes/`, sealed ones in
 `docs/calibration-sealed/attributes/` until the freeze, with hashes in `v1/SEALS` as before.
 
