@@ -1,7 +1,12 @@
 import { db } from "@workspace/lib/db/db";
 import { brands } from "@workspace/lib/db/schema";
-import { brandFacts, perceptionVerdicts } from "@workspace/lib/db/schema-perception";
-import { eq } from "drizzle-orm";
+import {
+	brandFacts,
+	perceptionAttributes,
+	perceptionAttributeVersions,
+	perceptionVerdicts,
+} from "@workspace/lib/db/schema-perception";
+import { and, eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createBrand, createPrompt, createRun, deleteBrand } from "@/test/integration/stats-fixtures";
 
@@ -117,5 +122,72 @@ describe("a perception judgement is stored once", () => {
 		expect(
 			await failure(db.insert(perceptionVerdicts).values({ ...verdict, runId, kind: "fact", stamp: "p3+e1" })),
 		).toMatch(/perception_verdicts_ref/);
+	});
+});
+
+describe("an attribute's history keys can't be broken by a direct write", () => {
+	async function createAttribute(key: string) {
+		const [row] = await db
+			.insert(perceptionAttributes)
+			.values({ brandId, key, label: "Pricing", questionText: "How is {subject}'s pricing?", marketPromptText: "P?" })
+			.returning({ id: perceptionAttributes.id });
+		await db
+			.insert(perceptionAttributeVersions)
+			.values({ attributeId: row.id, questionVersion: 1, questionText: "How is {subject}'s pricing?" });
+		return row.id;
+	}
+	const update = (id: string, set: Partial<typeof perceptionAttributes.$inferInsert>) =>
+		failure(db.update(perceptionAttributes).set(set).where(eq(perceptionAttributes.id, id)));
+
+	it("rejects changing an attribute's key or moving it to another brand", async () => {
+		const id = await createAttribute("attr_key1");
+		expect(await update(id, { key: "attr_other" })).toMatch(/never change/);
+		const other = await createBrand({ name: "Other" });
+		try {
+			expect(await update(id, { brandId: other })).toMatch(/never change/);
+		} finally {
+			await deleteBrand(other);
+		}
+	});
+
+	it("rejects a new question without a new version, and a version that moves alone or skips", async () => {
+		const id = await createAttribute("attr_key2");
+		expect(await update(id, { questionText: "Is {subject} cheap?" })).toMatch(/question_version/);
+		expect(await update(id, { questionVersion: 2 })).toMatch(/question_version/);
+		expect(await update(id, { questionText: "Is {subject} cheap?", questionVersion: 3 })).toMatch(/question_version/);
+		expect(await update(id, { questionText: "Is {subject} cheap?", questionVersion: 0 })).toMatch(/question_version/);
+	});
+
+	it("allows renaming, retiring, a new market prompt, and a question with its next version", async () => {
+		const id = await createAttribute("attr_key3");
+		expect(await update(id, { label: "Cost", retiredAt: new Date(), marketPromptText: "Q?" })).toBe("succeeded");
+		expect(await update(id, { questionText: "Is {subject} cheap?", questionVersion: 2 })).toBe("succeeded");
+	});
+
+	it("rejects rewriting what an old version asked", async () => {
+		const id = await createAttribute("attr_key4");
+		expect(
+			await failure(
+				db
+					.update(perceptionAttributeVersions)
+					.set({ questionText: "Something else?" })
+					.where(
+						and(eq(perceptionAttributeVersions.attributeId, id), eq(perceptionAttributeVersions.questionVersion, 1)),
+					),
+			),
+		).toMatch(/immutable/);
+	});
+
+	it("still lets a brand with attributes and versions be deleted", async () => {
+		const other = await createBrand({ name: "Doomed" });
+		const [row] = await db
+			.insert(perceptionAttributes)
+			.values({ brandId: other, key: "attr_key5", label: "L", questionText: "Q?", marketPromptText: "P?" })
+			.returning({ id: perceptionAttributes.id });
+		await db
+			.insert(perceptionAttributeVersions)
+			.values({ attributeId: row.id, questionVersion: 1, questionText: "Q?" });
+		await deleteBrand(other);
+		expect(await db.select().from(perceptionAttributes).where(eq(perceptionAttributes.id, row.id))).toEqual([]);
 	});
 });

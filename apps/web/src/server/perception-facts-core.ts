@@ -102,7 +102,11 @@ export async function listFacts(db: DbConnection, brandId: string): Promise<Fact
  * Runs `work` holding this brand's row in our own settings table, so two writes for one brand (two
  * adds racing past the cap, say) happen one after the other.
  */
-async function forBrand<T>(db: DbConnection, brandId: string, work: (tx: DbConnection) => Promise<T>): Promise<T> {
+export async function forBrand<T>(
+	db: DbConnection,
+	brandId: string,
+	work: (tx: DbConnection) => Promise<T>,
+): Promise<T> {
 	return db.transaction(async (tx) => {
 		await tx.insert(perceptionBrandSettings).values({ brandId }).onConflictDoNothing();
 		await tx.execute(

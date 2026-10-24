@@ -267,6 +267,13 @@
       "when": 1792774854884,
       "tag": "0037_perception_passage_confidence",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1792814861106,
+      "tag": "0038_perception_attribute_rules",
+      "breakpoints": true
     }
   ]
 }
