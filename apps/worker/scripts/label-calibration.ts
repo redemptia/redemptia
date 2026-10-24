@@ -1,15 +1,20 @@
 #!/usr/bin/env tsx
 /**
  * A local page for labelling a calibration corpus version: one answer per screen, its items beside it.
- * Keys 1–4 set the label, a mouse selection in the answer becomes the deciding passage verbatim, and
- * every change is written straight back to `labels-template.csv` in its committed format.
+ * Number keys set the label, a mouse selection in the answer becomes the deciding passage verbatim,
+ * and every change is written straight back to `labels-template.csv` in its committed format.
  *
  * It shows only what the worksheet shows (the answer's neutral id and text, and each item's id and
- * fact), never an origin, model or source, and every item starts as the file has it. When the version
- * has a `validation-subset.json`, only those items are shown.
+ * fact or attribute question), never an origin, model or source, and every item starts as the file has
+ * it. When the directory has a `validation-subset.json`, only those items are shown, plus every drift
+ * item in the attribute half (PROCEDURE.md §7b).
+ *
+ * The directory decides the half: a version directory (`v1`) holds the fact items, its `attributes`
+ * directory the attribute and drift items.
  *
  * Usage, from apps/worker:
  *   pnpm exec tsx scripts/label-calibration.ts src/perception/calibration/v1
+ *   pnpm exec tsx scripts/label-calibration.ts src/perception/calibration/v1/attributes
  * then open http://127.0.0.1:4317. Stop it with Ctrl-C; nothing is lost, since every change is saved.
  */
 import { existsSync, readFileSync, renameSync, writeFileSync } from "node:fs";
@@ -17,9 +22,26 @@ import { createServer, type IncomingMessage, type ServerResponse } from "node:ht
 import path from "node:path";
 
 const PORT = 4317;
-const LABELS = ["supports", "contradicts", "not_mentioned", "unclear"] as const;
-const COLUMNS = ["item_id", "answer", "fact_id", "fact", "label", "evidence_quote", "rationale"] as const;
-type Row = Record<(typeof COLUMNS)[number], string>;
+const FACT_COLUMNS = ["item_id", "answer", "fact_id", "fact", "label", "evidence_quote", "rationale"];
+const ATTRIBUTE_COLUMNS = ["item_id", "answer", "attribute_key", "question", "label", "evidence_quote", "rationale"];
+type Row = Record<string, string>;
+
+/** How one half of the corpus is labelled: its columns, each item's labels, and what a label requires. */
+interface Half {
+	columns: string[];
+	answerPattern: string;
+	itemPattern: string;
+	/** The labels an item may take, in key order. */
+	labels: (row: Row) => string[];
+	/** The id and text the item is shown with. */
+	reference: (row: Row) => { id: string; text: string };
+	/** Labels that take no passage. */
+	noPassage: string[];
+	/** Labels that need a rationale. */
+	rationale: string[];
+	alwaysShown: (row: Row) => boolean;
+	rules: () => string;
+}
 
 const dir = process.argv[2];
 if (!dir) {
@@ -28,23 +50,66 @@ if (!dir) {
 }
 const csvPath = path.join(dir, "labels-template.csv");
 const worksheet = readFileSync(path.join(dir, "worksheet.md"), "utf8");
-const procedure = readFileSync(path.join(dir, "..", "PROCEDURE.md"), "utf8");
-const facts = JSON.parse(readFileSync(path.join(dir, "facts.json"), "utf8")) as {
-	id: string;
-	statement: string;
-	notes: string | null;
-}[];
+const attributeHalf = path.basename(dir) === "attributes";
+const procedure = readFileSync(path.join(dir, attributeHalf ? "../.." : "..", "PROCEDURE.md"), "utf8");
+const section = (from: string, to: string) => procedure.slice(procedure.indexOf(from), procedure.indexOf(to)).trim();
+const ignoreRules = () => section("## 5a.", "## 6. Item origin");
+
+const FACT_HALF: Half = {
+	columns: FACT_COLUMNS,
+	answerPattern: "W\\d+",
+	itemPattern: "I\\d+",
+	labels: () => ["supports", "contradicts", "not_mentioned", "unclear"],
+	reference: (row) => ({ id: row.fact_id, text: row.fact }),
+	noPassage: ["not_mentioned"],
+	rationale: ["contradicts", "unclear"],
+	alwaysShown: () => false,
+	rules: () => {
+		const facts = JSON.parse(readFileSync(path.join(dir, "facts.json"), "utf8")) as {
+			id: string;
+			statement: string;
+			notes: string | null;
+		}[];
+		const notes = facts.filter((fact) => fact.notes).map((fact) => `${fact.id} (${fact.statement}) — ${fact.notes}`);
+		return `${section("## 4. Fact label rules", "## 5. Attribute")}\n\n${ignoreRules()}\n\n## Fact notes\n\n${notes.join("\n\n")}`;
+	},
+};
+
+const isDrift = (row: Row) => row.attribute_key === "drift";
+const ATTRIBUTE_HALF: Half = {
+	columns: ATTRIBUTE_COLUMNS,
+	answerPattern: "A\\d+",
+	itemPattern: "[TD]\\d+",
+	labels: (row) => (isDrift(row) ? ["yes", "no"] : ["positive", "negative", "mixed", "not_discussed"]),
+	reference: (row) => ({ id: row.attribute_key, text: row.question }),
+	noPassage: ["not_discussed", "no"],
+	rationale: ["negative", "mixed", "yes"],
+	alwaysShown: isDrift,
+	rules: () =>
+		`${section("## 5. Attribute", "## 5a.")}\n\nThe subject rule (§4): judge only what the answer says about the brand; ignore claims about other companies, and sentences that name the brand only to contrast it with something else.\n\n${ignoreRules()}`,
+};
+
+const half = attributeHalf ? ATTRIBUTE_HALF : FACT_HALF;
 const subsetPath = path.join(dir, "validation-subset.json");
+/** The sample's item ids, written either as a bare array or as `{ items: [...] }`. */
 const subset = existsSync(subsetPath)
-	? new Set((JSON.parse(readFileSync(subsetPath, "utf8")) as { items: string[] }).items)
+	? new Set(
+			((parsed: string[] | { items: string[] }) => (Array.isArray(parsed) ? parsed : parsed.items))(
+				JSON.parse(readFileSync(subsetPath, "utf8")),
+			),
+		)
 	: null;
 
 /** Each answer's verbatim text and the item ids listed under it, in worksheet order. */
 function parseWorksheet(source: string): { id: string; text: string; items: string[] }[] {
 	const answers: { id: string; text: string; items: string[] }[] = [];
-	const pattern = /^## (W\d+)\n\n~~~~text\n([\s\S]*?)\n~~~~\n([\s\S]*?)(?=^## W\d+\n|(?![\s\S]))/gm;
+	const answer = half.answerPattern;
+	const pattern = new RegExp(
+		`^## (${answer})\\n\\n~~~~text\\n([\\s\\S]*?)\\n~~~~\\n([\\s\\S]*?)(?=^## ${answer}\\n|(?![\\s\\S]))`,
+		"gm",
+	);
 	for (const match of source.matchAll(pattern)) {
-		const items = [...match[3].matchAll(/^- (I\d+) — /gm)].map((item) => item[1]);
+		const items = [...match[3].matchAll(new RegExp(`^- (${half.itemPattern}) — `, "gm"))].map((item) => item[1]);
 		answers.push({ id: match[1], text: match[2], items });
 	}
 	return answers;
@@ -69,15 +134,16 @@ function parseCsv(source: string): string[][] {
 /** Minimal quoting, LF endings and a trailing newline: the format the template was committed in. */
 function toCsv(rows: Row[]): string {
 	const cell = (value: string) => (/[",\n\r]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value);
-	return [COLUMNS.join(","), ...rows.map((row) => COLUMNS.map((column) => cell(row[column])).join(","))]
+	const columns = half.columns;
+	return [columns.join(","), ...rows.map((row) => columns.map((column) => cell(row[column])).join(","))]
 		.map((line) => `${line}\n`)
 		.join("");
 }
 
 function loadRows(): Row[] {
 	const [header, ...body] = parseCsv(readFileSync(csvPath, "utf8"));
-	if (header.join(",") !== COLUMNS.join(",")) throw new Error(`${csvPath} doesn't have the expected columns.`);
-	return body.map((cells) => Object.fromEntries(COLUMNS.map((column, i) => [column, cells[i] ?? ""])) as Row);
+	if (header.join(",") !== half.columns.join(",")) throw new Error(`${csvPath} doesn't have the expected columns.`);
+	return body.map((cells) => Object.fromEntries(half.columns.map((column, i) => [column, cells[i] ?? ""])) as Row);
 }
 
 const answers = parseWorksheet(worksheet);
@@ -87,18 +153,15 @@ if (answers.length === 0 || rows.some((row) => !textOf.has(row.answer))) {
 	throw new Error("worksheet.md and labels-template.csv don't describe the same answers.");
 }
 
-function rulesText(): string {
-	const start = procedure.indexOf("## 4. Fact label rules");
-	const end = procedure.indexOf("## 5. Attribute");
-	const ignore = procedure.slice(procedure.indexOf("## 5a."), procedure.indexOf("## 6. Item origin"));
-	const notes = facts.filter((fact) => fact.notes).map((fact) => `${fact.id} (${fact.statement}) — ${fact.notes}`);
-	return `${procedure.slice(start, end).trim()}\n\n${ignore.trim()}\n\n## Fact notes\n\n${notes.join("\n\n")}`;
-}
-
 function data() {
-	const shown = (id: string) => !subset || subset.has(id);
+	const shown = (id: string) => {
+		const row = rows.find((candidate) => candidate.item_id === id) as Row;
+		return !subset || subset.has(id) || half.alwaysShown(row);
+	};
 	return {
-		rules: rulesText(),
+		rules: half.rules(),
+		noPassage: half.noPassage,
+		rationale: half.rationale,
 		answers: answers
 			.map((answer) => ({
 				id: answer.id,
@@ -108,8 +171,9 @@ function data() {
 					.map((id) => rows.find((row) => row.item_id === id) as Row)
 					.map((row) => ({
 						item_id: row.item_id,
-						fact_id: row.fact_id,
-						fact: row.fact,
+						ref_id: half.reference(row).id,
+						ref: half.reference(row).text,
+						labels: half.labels(row),
 						label: row.label,
 						evidence_quote: row.evidence_quote,
 						rationale: row.rationale,
@@ -122,8 +186,8 @@ function data() {
 /** Validates one item's labelling and writes the whole file atomically. */
 function save(update: { item_id: string; label: string; evidence_quote: string; rationale: string }): string | null {
 	const row = rows.find((candidate) => candidate.item_id === update.item_id);
-	if (!row || (subset && !subset.has(row.item_id))) return "unknown item";
-	if (update.label && !LABELS.includes(update.label as (typeof LABELS)[number])) return "unknown label";
+	if (!row || (subset && !subset.has(row.item_id) && !half.alwaysShown(row))) return "unknown item";
+	if (update.label && !half.labels(row).includes(update.label)) return "unknown label";
 	if (update.evidence_quote && !textOf.get(row.answer)?.includes(update.evidence_quote)) {
 		return "the passage isn't verbatim answer text";
 	}
@@ -198,48 +262,47 @@ details pre{white-space:pre-wrap;font:13px/1.5 system-ui,sans-serif}
 kbd{border:1px solid var(--line);border-radius:4px;padding:0 4px;font-size:12px}
 @media (max-width:800px){main{grid-template-columns:1fr}#answer{border-right:0;border-bottom:1px solid var(--line);max-height:50vh}}
 </style></head><body>
-<header><b id="where"></b><span class="meta"><kbd>1</kbd> supports <kbd>2</kbd> contradicts <kbd>3</kbd> not_mentioned <kbd>4</kbd> unclear · select text in the answer for the passage · <kbd>Enter</kbd> next · <kbd>Backspace</kbd> back · <kbd>Esc</kbd> leave the rationale box</span><span id="status"></span></header>
+<header><b id="where"></b><span class="meta"><kbd>1</kbd>–<kbd>4</kbd> the item's labels, in order · select text in the answer for the passage · <kbd>Enter</kbd> next · <kbd>Backspace</kbd> back · <kbd>Esc</kbd> leave the rationale box</span><span id="status"></span></header>
 <main><pre id="answer"></pre><div id="side"></div></main>
-<details><summary>Rules (PROCEDURE.md §4) and fact notes</summary><pre id="rules"></pre></details>
+<details><summary>Rules (PROCEDURE.md)</summary><pre id="rules"></pre></details>
 <script>
-const LABELS=["supports","contradicts","not_mentioned","unclear"];
-let answers=[],flat=[],cur=0;
+let answers=[],flat=[],cur=0,noPassage=[],needsRationale=[];
 const $=id=>document.getElementById(id);
 function status(t,err){const s=$("status");s.textContent=t;s.className=err?"err":"";}
-async function load(){const d=await (await fetch("/data")).json();answers=d.answers;$("rules").textContent=d.rules;
+async function load(){const d=await (await fetch("/data")).json();answers=d.answers;noPassage=d.noPassage;needsRationale=d.rationale;$("rules").textContent=d.rules;
  flat=[];answers.forEach((a,ai)=>a.items.forEach((it,ii)=>flat.push({ai,ii})));
  const first=flat.findIndex(f=>!item(f).label);cur=first<0?0:first;render();}
 function item(f){return answers[f.ai].items[f.ii];}
 async function save(it){const r=await fetch("/label",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({item_id:it.item_id,label:it.label,evidence_quote:it.evidence_quote,rationale:it.rationale})});
  const j=await r.json();if(j.error)status("Not saved: "+j.error,true);else status("Saved · "+flat.filter(f=>item(f).label).length+" of "+flat.length+" labelled");}
-function needs(it){if(!it.label)return "choose a label";if(it.label!=="not_mentioned"&&!it.evidence_quote)return "select the deciding passage in the answer";
- if((it.label==="contradicts"||it.label==="unclear")&&!it.rationale.trim())return "a rationale is required for "+it.label;return null;}
+function needs(it){if(!it.label)return "choose a label";if(!noPassage.includes(it.label)&&!it.evidence_quote)return "select the deciding passage in the answer";
+ if(needsRationale.includes(it.label)&&!it.rationale.trim())return "a rationale is required for "+it.label;return null;}
 function render(){const f=flat[cur],a=answers[f.ai];
  $("where").textContent="answer "+(f.ai+1)+" of "+answers.length+" · item "+(cur+1)+" of "+flat.length;
  if($("answer").dataset.id!==a.id){$("answer").textContent=a.text;$("answer").dataset.id=a.id;$("answer").scrollTop=0;}
  const side=$("side");side.textContent="";
  a.items.forEach((it,ii)=>{const box=document.createElement("div");box.className="item"+(ii===f.ii?" current":"");
   box.onclick=()=>{cur=flat.findIndex(x=>x.ai===f.ai&&x.ii===ii);render();};
-  const head=document.createElement("div");head.className="meta";head.textContent=it.item_id+" · "+it.fact_id;box.append(head);
-  const fact=document.createElement("div");fact.className="fact";fact.textContent=it.fact;box.append(fact);
+  const head=document.createElement("div");head.className="meta";head.textContent=it.item_id+" · "+it.ref_id;box.append(head);
+  const fact=document.createElement("div");fact.className="fact";fact.textContent=it.ref;box.append(fact);
   const row=document.createElement("div");row.className="labels";
-  LABELS.forEach((l,li)=>{const b=document.createElement("button");b.textContent=(li+1)+" "+l;if(it.label===l)b.className="on";
+  it.labels.forEach((l,li)=>{const b=document.createElement("button");b.textContent=(li+1)+" "+l;if(it.label===l)b.className="on";
    b.onclick=e=>{e.stopPropagation();cur=flat.findIndex(x=>x.ai===f.ai&&x.ii===ii);setLabel(l);};row.append(b);});
   box.append(row);
   const q=document.createElement("div");q.className="quote";q.textContent=it.evidence_quote?"“"+it.evidence_quote+"”":"no passage selected";box.append(q);
-  const ta=document.createElement("textarea");ta.rows=2;ta.placeholder="rationale (required for contradicts and unclear)";ta.value=it.rationale;
+  const ta=document.createElement("textarea");ta.rows=2;ta.placeholder="rationale (required for "+needsRationale.join(", ")+")";ta.value=it.rationale;
   ta.oninput=()=>{it.rationale=ta.value.replace(/[\\r\\n]+/g," ");};ta.onchange=()=>save(it);ta.onclick=e=>e.stopPropagation();
   ta.onkeydown=e=>{if(e.key==="Escape"){ta.blur();}else if(e.key==="Enter"){e.preventDefault();save(it);ta.blur();next();}};
   box.append(ta);side.append(box);if(ii===f.ii)setTimeout(()=>box.scrollIntoView({block:"nearest"}));});}
-function setLabel(l){const it=item(flat[cur]);it.label=l;if(l==="not_mentioned"&&it.evidence_quote){it.evidence_quote="";status("not_mentioned takes no passage, so the passage was cleared");}
+function setLabel(l){const it=item(flat[cur]);it.label=l;if(noPassage.includes(l)&&it.evidence_quote){it.evidence_quote="";status(l+" takes no passage, so the passage was cleared");}
  save(it);render();}
 function next(){const it=item(flat[cur]),n=needs(it);if(n){status("Can't move on: "+n,true);return;}if(cur<flat.length-1){cur++;render();}else status("Last item. Every change is already saved.");}
 function back(){if(cur>0){cur--;render();}}
 document.addEventListener("keydown",e=>{if(e.target.tagName==="TEXTAREA")return;
- if(["1","2","3","4"].includes(e.key)){setLabel(LABELS[+e.key-1]);}
+ const labels=item(flat[cur]).labels;if(/^[1-9]$/.test(e.key)&&+e.key<=labels.length){setLabel(labels[+e.key-1]);}
  else if(e.key==="Enter"){e.preventDefault();next();}else if(e.key==="Backspace"){e.preventDefault();back();}});
 $("answer").addEventListener("mouseup",()=>{const s=window.getSelection().toString();if(!s)return;const a=answers[flat[cur].ai];
  if(!a.text.includes(s)){status("That selection isn't verbatim answer text; select within the answer only",true);return;}
- const it=item(flat[cur]);if(it.label==="not_mentioned"){status("not_mentioned takes no passage",true);return;}it.evidence_quote=s;save(it);render();});
+ const it=item(flat[cur]);if(noPassage.includes(it.label)){status(it.label+" takes no passage",true);return;}it.evidence_quote=s;save(it);render();});
 load();
 </script></body></html>`;
