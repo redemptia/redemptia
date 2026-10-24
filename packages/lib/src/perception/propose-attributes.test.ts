@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import type { Provider } from "../providers";
-import { clauseNotes, failureStateProblem, mergeAttributes } from "./attribute-question";
+import { clauseNotes, failureStateProblem, mergeAttributes, qualityCount } from "./attribute-question";
 import {
 	marketPromptProblem,
 	PROPOSED_ATTRIBUTES_MAX,
@@ -199,18 +199,45 @@ describe("attribute questions", () => {
 		expect(merged).toEqual({
 			label: "Self-hosting & Portability",
 			quality: "ease of self-hosting and data portability",
+			qualities: ["ease of self-hosting", "data portability"],
 			questionText: "How does this answer characterise {subject}'s ease of self-hosting and data portability?",
 			marketPromptText: "Which can you self-host?",
 		});
-		expect(clauseNotes(merged.questionText)).toEqual([]);
+		expect(clauseNotes(merged.qualities)).toEqual([]);
 	});
 
-	it("warns when a merge joins three qualities", () => {
+	it("counts a quality whose name contains 'and' as one, alone or merged", () => {
+		const community = "size and vitality of its community and ecosystem";
+		const pricing = "pricing and value for money";
+		expect(qualityCount([community])).toBe(1);
+		expect(qualityCount([pricing])).toBe(1);
 		const merged = mergeAttributes(
-			{ label: "A", quality: "speed and reliability", marketPromptText: "Which?" },
+			{ label: "Community", quality: community, marketPromptText: "Which?" },
+			{ label: "Pricing", quality: pricing, marketPromptText: "Which?" },
+		);
+		expect(qualityCount(merged.qualities)).toBe(2);
+		expect(clauseNotes(merged.qualities)).toEqual([]);
+		expect(
+			screenAttributes([raw({ label: "Community", quality: community })], CONTEXT, null, []).proposals,
+		).toHaveLength(1);
+	});
+
+	it("warns when a merge or a list reaches three qualities", () => {
+		expect(qualityCount(["security, permissions and compliance controls"])).toBe(3);
+		const merged = mergeAttributes(
+			{ label: "A", quality: "speed, uptime and support", marketPromptText: "Which?" },
 			{ label: "B", quality: "price", marketPromptText: "Which?" },
 		);
-		expect(clauseNotes(merged.questionText)).toHaveLength(1);
+		expect(clauseNotes(merged.qualities)).toHaveLength(1);
+		const twice = mergeAttributes(
+			mergeAttributes(
+				{ label: "A", quality: "speed", marketPromptText: "Which?" },
+				{ label: "B", quality: "uptime", marketPromptText: "Which?" },
+			),
+			{ label: "C", quality: "price", marketPromptText: "Which?" },
+		);
+		expect(twice.qualities).toEqual(["speed", "uptime", "price"]);
+		expect(clauseNotes(twice.qualities)).toHaveLength(1);
 	});
 
 	it("accepts neutral dimensions", () => {

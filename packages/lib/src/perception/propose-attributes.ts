@@ -16,7 +16,7 @@ import { promptRuns, prompts, runExtractions, runMentions } from "../db/schema";
 import { perceptionPrompts } from "../db/schema-perception";
 import { wholeWordPattern } from "../mentions";
 import type { Provider } from "../providers";
-import { attributeQuestion, failureStateProblem, joinsTooManyQualities } from "./attribute-question";
+import { attributeQuestion, failureStateProblem, qualityCount } from "./attribute-question";
 import { researchProviders } from "./propose-facts";
 
 /** The proposal runs as a worker job; the web app enqueues it and polls for the result. */
@@ -281,7 +281,7 @@ function rejectionReason(
 	if (quality.length < 3 || quality.length > MAX_QUALITY_CHARS) return "quality missing or too long";
 	const failure = failureStateProblem(label, quality);
 	if (failure) return failure;
-	if (joinsTooManyQualities(quality)) return "joins more than two qualities";
+	if (qualityCount([quality]) > 2) return "joins more than two qualities";
 	const promptIssue = marketPromptProblem(item.marketPrompt, [
 		context.brandName,
 		...context.aliases,
