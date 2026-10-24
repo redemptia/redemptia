@@ -220,21 +220,26 @@ function measures(rows: Row[], drift: (Row & { passage: string | null })[]) {
 	};
 }
 
-/** PROCEDURE.md §7a, every threshold as fixed on 24 October 2026. */
-function passes(m: ReturnType<typeof measures>) {
-	const at = (r: { value: number | null; lower95: number | null }, value: number, lower?: number) =>
-		r.value !== null && r.value >= value && (lower === undefined || (r.lower95 !== null && r.lower95 >= lower));
+const at = (r: { value: number | null; lower95: number | null }, value: number, lower?: number) =>
+	r.value !== null && r.value >= value && (lower === undefined || (r.lower95 !== null && r.lower95 >= lower));
+
+/** PROCEDURE.md §7a's negative bars, as fixed on 24 October 2026. */
+function negativePasses(m: ReturnType<typeof measures>) {
+	return { negativePrecision: at(m.negativePrecision, 0.85, 0.7), negativeRecall: at(m.negativeRecall, 0.7, 0.5) };
+}
+
+/** PROCEDURE.md §7a's discussed and drift bars, measured on the association items alone. */
+function associationPasses(m: ReturnType<typeof measures>) {
 	return {
 		discussed: at(m.discussedAccuracy, 0.9, 0.84) && at(m.discussedPrecision, 0.85) && at(m.discussedRecall, 0.85),
-		negativePrecision: at(m.negativePrecision, 0.85, 0.7),
-		negativeRecall: at(m.negativeRecall, 0.7, 0.5),
 		driftCorpus: at(m.driftYesPrecision, 0.8),
 	};
 }
 
 /** Each gold item beside the judge's verdict on it; items the judge didn't answer are left out. */
 function judgedRows(byAnswer: Map<string, Judged>) {
-	const origin = (answer: string) => sources.get(answer)?.origin ?? "natural";
+	const origin = (answer: string) =>
+		sources.get(answer)?.origin ?? (association.has(answer) ? "association" : "fact_prompt");
 	const attributeRows: Row[] = [];
 	const driftRows: (Row & { passage: string | null })[] = [];
 	for (const item of items) {
@@ -263,19 +268,22 @@ function score(): void {
 		.filter(Boolean)
 		.map((line) => JSON.parse(line) as Judged);
 	const { attributeRows, driftRows } = judgedRows(new Map(judged.map((j) => [j.answer, j])));
-	const all = measures(attributeRows, driftRows);
-	const natural = measures(
-		attributeRows.filter((r) => r.origin === "natural"),
-		driftRows.filter((r) => r.origin === "natural"),
-	);
-	const allPass = passes(all);
-	const naturalPass = passes(natural);
-	const corpusPass = Object.values(allPass).every(Boolean);
-	// §7a: a natural result below a bar the combined set passes is a stop, not a pass.
-	const naturalShort = Object.entries(allPass).filter(([k, v]) => v && !naturalPass[k as keyof typeof naturalPass]);
+	const of = (set: string) => attributeRows.filter((r) => r.origin === set);
+	// The headline: the only items shaped like what the association path judges in production.
+	const association = measures(of("association"), driftRows);
+	// Negative bars need more negatives than the association answers hold, so planted ones join them.
+	const associationAndPerturbed = measures([...of("association"), ...of("perturbed")], []);
+	const factPrompt = measures(of("fact_prompt"), []);
+	const perturbed = measures(of("perturbed"), []);
+	const headline = { ...associationPasses(association), ...negativePasses(associationAndPerturbed) };
+	const naturalNegative = negativePasses(association);
+	const corpusPass = Object.values(headline).every(Boolean);
+	// §7a: a natural result below a bar the enriched set passes is a stop, not a pass.
+	const naturalShort = Object.entries(naturalNegative).filter(([k, v]) => headline[k as keyof typeof headline] && !v);
 	const report = {
 		attribution: ATTRIBUTION,
-		negativeRecall: `Negative recall on all items is carried by planted negatives and is therefore optimistic, as v1's contradicts recall was. Natural negative recall rests on ${natural.negativeRecall.n} natural negatives.`,
+		negativeRecall: `Negative recall is carried by planted negatives and is therefore optimistic, as v1's contradicts recall was. Natural negative recall rests on the association answers' ${association.negativeRecall.n} natural negatives.`,
+		sets: "Headline: the 15 association answers' attribute and drift items. Negative bars: association plus perturbed items. Fact-prompt and perturbed items are reported apart and don't gate.",
 		judge: [...new Set(judged.map((j) => j.model))],
 		calls: judged.length,
 		failedCalls: judged.filter((j) => j.status !== 200).map((j) => ({ answer: j.answer, error: j.error })),
@@ -289,10 +297,12 @@ function score(): void {
 			}),
 			{ input: 0, output: 0 },
 		),
-		all,
-		naturalOnly: natural,
-		passesAll: allPass,
-		passesNaturalOnly: naturalPass,
+		association,
+		associationAndPerturbed,
+		factPrompt,
+		perturbed,
+		passesHeadline: headline,
+		passesNaturalNegativeOnly: naturalNegative,
 		gate: !corpusPass ? "fail" : naturalShort.length ? "stop: natural items fall short" : "pass on the corpus",
 		pending: "Drift's second check, 16 of 20 live review-queue passages read by eye, happens at Checkpoint 7.",
 	};
