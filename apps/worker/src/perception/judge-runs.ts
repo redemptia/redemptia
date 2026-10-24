@@ -1,7 +1,12 @@
 /**
- * The perception job: finds fact-prompt runs with facts not yet judged at the current stamp, extracts
- * each run's text itself from `raw_output` (so it doesn't depend on elmo's judge having succeeded),
- * asks Jev every missing fact in one call per answer, and writes the verdicts.
+ * The perception job: finds fact-prompt runs with facts not yet judged at the current stamp, and
+ * association-prompt runs not yet judged at it, extracts each run's text itself from `raw_output` (so
+ * it doesn't depend on elmo's judge having succeeded), asks Jev every question in one call per answer,
+ * and writes the verdicts.
+ *
+ * An association answer is judged once, against the attributes active when it is judged: a new
+ * attribute or question applies to answers judged after it, and only a new stamp re-judges the window.
+ * So the drift question's "none of these" is exactly the attribute verdicts stored on the same run.
  *
  * Paid work is guarded three ways: a call is made only after the organization's daily ceiling has a
  * slot for it, a verdict's unique key makes a re-sent judgement fail rather than be stored twice, and
@@ -12,6 +17,7 @@ import { brands, promptRuns, prompts } from "@workspace/lib/db/schema";
 import {
 	brandFacts,
 	type PerceptionRunOutcome,
+	perceptionAttributes,
 	perceptionBrandSettings,
 	perceptionPrompts,
 	perceptionRollupDirty,
@@ -19,7 +25,7 @@ import {
 	perceptionVerdicts,
 } from "@workspace/lib/db/schema-perception";
 import { EXTRACTOR_VERSION, extractorFor, extractRun } from "@workspace/lib/text-extraction";
-import { and, desc, eq, gte, isNull, lte, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, isNull, lte, or, sql } from "drizzle-orm";
 import {
 	JEV_MODEL,
 	type JevRequest,
@@ -28,6 +34,14 @@ import {
 	RateLimited,
 	TooLarge,
 } from "../mention-judge/jev";
+import {
+	attributeJudgeQuestion,
+	attributeKey,
+	DRIFT_EVIDENCE_KEY,
+	DRIFT_KEY,
+	driftEvidenceQuestion,
+	driftQuestion,
+} from "./association-questions";
 import { reserveJevCall } from "./budget";
 import {
 	type EvidenceSubject,
@@ -80,7 +94,9 @@ interface PendingRun {
 	rawOutput: unknown;
 	day: string;
 	attempts: number;
+	/** A fact prompt's run asks the facts; an association prompt's run asks the attributes and drift. */
 	facts: { id: string; statement: string }[];
+	attributes: { id: string; questionText: string; questionVersion: number }[];
 }
 
 /**
@@ -152,20 +168,105 @@ async function pendingRuns(db: DbConnection, stamp: string, limit: number): Prom
 				rawOutput: null,
 				attempts: Number(row.attempts),
 				facts: [],
+				attributes: [],
 			};
 			byRun.set(row.runId, run);
 		}
 		run.facts.push({ id: row.factId, statement: row.statement });
 	}
-	// raw_output is read only for the runs being judged, not for every candidate row.
-	for (const run of byRun.values()) {
+	return withRawOutput(db, [...byRun.values()]);
+}
+
+/** raw_output is read only for the runs being judged, not for every candidate row. */
+async function withRawOutput(db: DbConnection, runs: PendingRun[]): Promise<PendingRun[]> {
+	for (const run of runs) {
 		const [raw] = await db
 			.select({ rawOutput: promptRuns.rawOutput })
 			.from(promptRuns)
 			.where(eq(promptRuns.id, run.runId));
 		run.rawOutput = raw?.rawOutput ?? null;
 	}
-	return [...byRun.values()];
+	return runs;
+}
+
+/**
+ * Association-prompt runs of brands with perception on and at least one active attribute, from the
+ * last `LOOKBACK_DAYS`, with no verdict at `stamp` yet, newest first, skipping runs set aside at it.
+ * Each carries the brand's active attributes as they stand now.
+ */
+async function pendingAssociationRuns(db: DbConnection, stamp: string, limit: number): Promise<PendingRun[]> {
+	if (limit <= 0) return [];
+	const rows = await db
+		.select({
+			runId: promptRuns.id,
+			brandId: promptRuns.brandId,
+			organizationId: brands.organizationId,
+			subject: brands.name,
+			aliases: brands.aliases,
+			website: brands.website,
+			additionalDomains: brands.additionalDomains,
+			prompt: prompts.value,
+			model: promptRuns.model,
+			provider: promptRuns.provider,
+			day: sql<string>`((${promptRuns.createdAt} AT TIME ZONE 'UTC')::date)::text`,
+			attempts: sql<number>`coalesce(${perceptionRunStatus.attempts}, 0)`,
+		})
+		.from(promptRuns)
+		.innerJoin(
+			perceptionPrompts,
+			and(eq(perceptionPrompts.promptId, promptRuns.promptId), eq(perceptionPrompts.class, "association")),
+		)
+		.innerJoin(prompts, eq(prompts.id, promptRuns.promptId))
+		.innerJoin(brands, eq(brands.id, promptRuns.brandId))
+		.innerJoin(
+			perceptionBrandSettings,
+			and(eq(perceptionBrandSettings.brandId, promptRuns.brandId), eq(perceptionBrandSettings.enabled, true)),
+		)
+		.leftJoin(
+			perceptionRunStatus,
+			and(eq(perceptionRunStatus.runId, promptRuns.id), eq(perceptionRunStatus.stamp, stamp)),
+		)
+		.where(
+			and(
+				gte(promptRuns.createdAt, sql`now() - make_interval(days => ${LOOKBACK_DAYS})`),
+				isNull(perceptionRunStatus.outcome),
+				sql`EXISTS (SELECT 1 FROM ${perceptionAttributes} WHERE ${perceptionAttributes.brandId} = ${promptRuns.brandId}
+					AND ${perceptionAttributes.retiredAt} IS NULL)`,
+				sql`NOT EXISTS (SELECT 1 FROM ${perceptionVerdicts} WHERE ${perceptionVerdicts.runId} = ${promptRuns.id}
+					AND ${perceptionVerdicts.stamp} = ${stamp})`,
+			),
+		)
+		.orderBy(desc(promptRuns.createdAt), promptRuns.id)
+		.limit(limit);
+	if (rows.length === 0) return [];
+	const attributes = await db
+		.select({
+			brandId: perceptionAttributes.brandId,
+			id: perceptionAttributes.id,
+			questionText: perceptionAttributes.questionText,
+			questionVersion: perceptionAttributes.questionVersion,
+		})
+		.from(perceptionAttributes)
+		.where(
+			and(
+				inArray(perceptionAttributes.brandId, [...new Set(rows.map((row) => row.brandId))]),
+				isNull(perceptionAttributes.retiredAt),
+			),
+		)
+		.orderBy(asc(perceptionAttributes.createdAt), asc(perceptionAttributes.id));
+	return withRawOutput(
+		db,
+		rows.map(({ aliases, website, additionalDomains, ...row }) => ({
+			...row,
+			names: { name: row.subject, aliases: aliases ?? [], domains: [website, ...(additionalDomains ?? [])] },
+			rawOutput: null,
+			attempts: Number(row.attempts),
+			facts: [],
+			attributes: attributes
+				.filter((attribute) => attribute.brandId === row.brandId)
+				.map(({ brandId: _, ...attribute }) => attribute),
+		})),
+	);
 }
 
 async function setAside(
@@ -243,33 +344,66 @@ type JudgedResponse = JevResponse & {
 	answers: Record<string, { choice: string; probabilities: Record<string, number>; confidence?: number }>;
 };
 
-async function record(
-	db: DbConnection,
+/** The verdict rows an answer's judgement makes, for whichever class of prompt the run is. */
+function verdictRows(
 	run: PendingRun,
 	stamp: string,
 	response: JudgedResponse,
 	truncatedAt: number | null,
 	passages: string[],
 ) {
-	const rows = run.facts.map((fact) => {
+	const base = { runId: run.runId, subject: run.subject, stamp, truncatedAt };
+	const confidence = (answer?: { confidence?: number }) =>
+		typeof answer?.confidence === "number" ? answer.confidence : null;
+	const pick = (evidence?: { choice: string }) =>
+		evidence && evidence.choice !== NO_PASSAGE ? (passages[Number(evidence.choice.slice(1)) - 1] ?? null) : null;
+	if (run.attributes.length > 0) {
+		const drift = response.answers[DRIFT_KEY];
+		const evidence = response.answers[DRIFT_EVIDENCE_KEY];
+		return [
+			...run.attributes.map((attribute) => {
+				const answer = response.answers[attributeKey(attribute.id)];
+				return {
+					...base,
+					kind: "attribute" as const,
+					attributeId: attribute.id,
+					questionVersion: attribute.questionVersion,
+					verdict: answer.choice,
+					probabilities: answer.probabilities,
+					confidence: confidence(answer),
+					passage: null,
+					passageConfidence: null,
+				};
+			}),
+			{
+				...base,
+				kind: "drift" as const,
+				verdict: drift.choice,
+				probabilities: drift.probabilities,
+				confidence: confidence(drift),
+				// The passage names the uncovered quality, so it is kept only when there is one.
+				passage: drift.choice === "yes" ? pick(evidence) : null,
+				passageConfidence: drift.choice === "yes" ? confidence(evidence) : null,
+			},
+		];
+	}
+	return run.facts.map((fact) => {
 		const answer = response.answers[factKey(fact.id)];
 		const evidence = response.answers[factEvidenceKey(fact.id)];
-		const picked =
-			evidence && evidence.choice !== NO_PASSAGE ? passages[Number(evidence.choice.slice(1)) - 1] : undefined;
 		return {
-			runId: run.runId,
-			subject: run.subject,
+			...base,
 			kind: "fact" as const,
 			factId: fact.id,
 			verdict: answer.choice,
 			probabilities: answer.probabilities,
-			confidence: typeof answer.confidence === "number" ? answer.confidence : null,
-			passage: picked ?? null,
-			passageConfidence: typeof evidence?.confidence === "number" ? evidence.confidence : null,
-			stamp,
-			truncatedAt,
+			confidence: confidence(answer),
+			passage: pick(evidence),
+			passageConfidence: confidence(evidence),
 		};
 	});
+}
+
+async function record(db: DbConnection, run: PendingRun, rows: ReturnType<typeof verdictRows>) {
 	return db.transaction(async (tx) => {
 		// A re-sent judgement of the same question at the same stamp is already stored.
 		const written = await tx
@@ -283,9 +417,35 @@ async function record(
 	});
 }
 
+/**
+ * Every question for one answer. A fact run asks each fact and which passage it rests on; an
+ * association run asks each attribute, the drift question, and which passage the drift is in. With
+ * no sentence naming the subject there is nothing to offer, and no evidence question is asked.
+ */
+function questionsOf(run: PendingRun, passages: string[]): JevRequest["questions"] {
+	const offers = passages.length > 0;
+	if (run.attributes.length > 0) {
+		const texts = run.attributes.map((attribute) => attribute.questionText);
+		return Object.fromEntries([
+			...run.attributes.map((attribute) => [
+				attributeKey(attribute.id),
+				attributeJudgeQuestion(run.subject, attribute.questionText),
+			]),
+			[DRIFT_KEY, driftQuestion(run.subject, texts)],
+			...(offers ? [[DRIFT_EVIDENCE_KEY, driftEvidenceQuestion(run.subject, texts, passages)]] : []),
+		]);
+	}
+	return Object.fromEntries(
+		run.facts.flatMap((fact) => [
+			[factKey(fact.id), factQuestion(run.subject, fact.statement)],
+			...(offers ? [[factEvidenceKey(fact.id), factEvidenceQuestion(run.subject, fact.statement, passages)]] : []),
+		]),
+	);
+}
+
 type RunResult = { calls: number; verdicts: number; stop?: "over_ceiling" | "rate_limited" };
 
-/** Judges one run's missing facts in one call, and records what came of it. */
+/** Judges one run's missing questions in one call, and records what came of it. */
 async function judgeRun(
 	db: DbConnection,
 	transport: JevTransport,
@@ -300,16 +460,7 @@ async function judgeRun(
 	}
 	const questionsFor = (judged: string): Questions => {
 		const passages = evidencePassages(judged, run.names);
-		// With no sentence naming the subject there is nothing to offer, and no evidence question is asked.
-		const questions = Object.fromEntries(
-			run.facts.flatMap((fact) => [
-				[factKey(fact.id), factQuestion(run.subject, fact.statement)],
-				...(passages.length > 0
-					? [[factEvidenceKey(fact.id), factEvidenceQuestion(run.subject, fact.statement, passages)]]
-					: []),
-			]),
-		);
-		return { questions, passages };
+		return { questions: questionsOf(run, passages), passages };
 	};
 	let asked: Asked;
 	try {
@@ -332,15 +483,13 @@ async function judgeRun(
 		await failed(db, run, stamp, `Jev answered as ${response.model ?? "an unnamed model"}, not ${judge}`);
 		return { calls: asked.calls, verdicts: 0 };
 	}
-	const asks = asked.passages.length > 0;
-	const unanswered = run.facts.find(
-		(fact) => !response.answers[factKey(fact.id)] || (asks && !response.answers[factEvidenceKey(fact.id)]),
-	);
+	const unanswered = Object.keys(questionsOf(run, asked.passages)).find((key) => !response.answers[key]);
 	if (unanswered) {
-		await failed(db, run, stamp, `no answer for ${unanswered.id}`);
+		await failed(db, run, stamp, `no answer for ${unanswered}`);
 		return { calls: asked.calls, verdicts: 0 };
 	}
-	return { calls: asked.calls, verdicts: await record(db, run, stamp, response, asked.truncatedAt, asked.passages) };
+	const rows = verdictRows(run, stamp, response, asked.truncatedAt, asked.passages);
+	return { calls: asked.calls, verdicts: await record(db, run, rows) };
 }
 
 /** One job's worth of judging. `judge` names the transport for the stamp: the Jev model, or "stub". */
@@ -352,7 +501,9 @@ export async function judgePendingRuns(
 ): Promise<JudgeOutcome> {
 	const stamp = perceptionStamp(judge);
 	const outcome: JudgeOutcome = { runs: 0, calls: 0, verdicts: 0, overCeiling: false, rateLimited: false };
-	for (const run of await pendingRuns(db, stamp, limit)) {
+	const factRuns = await pendingRuns(db, stamp, limit);
+	const runs = [...factRuns, ...(await pendingAssociationRuns(db, stamp, limit - factRuns.length))];
+	for (const run of runs) {
 		const result = await judgeRun(db, transport, run, stamp, judge);
 		outcome.calls += result.calls;
 		outcome.verdicts += result.verdicts;
