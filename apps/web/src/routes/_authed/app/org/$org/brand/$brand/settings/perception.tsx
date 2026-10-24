@@ -4,7 +4,7 @@ import { Label } from "@workspace/ui/components/label";
 import { Switch } from "@workspace/ui/components/switch";
 import { useState } from "react";
 import { PerceptionAttributeSuggestions } from "@/components/perception-attribute-suggestions";
-import { PerceptionAttributes } from "@/components/perception-attributes";
+import { type AttributeActions, PerceptionAttributesEditor } from "@/components/perception-attributes-editor";
 import { PerceptionCostEstimateView } from "@/components/perception-cost-estimate";
 import { PerceptionFactPrompts } from "@/components/perception-fact-prompts";
 import { PerceptionFactSuggestions } from "@/components/perception-fact-suggestions";
@@ -14,9 +14,15 @@ import { useBrand } from "@/hooks/use-brands";
 import { pageHead } from "@/lib/route-head";
 import { useWriteErrorMessage } from "@/lib/write-errors";
 import {
+	addAttributeFn,
 	confirmAttributesFn,
+	editAttributeQuestionFn,
 	getAttributeSuggestionsFn,
 	getAttributesFn,
+	mergeAttributesFn,
+	renameAttributeFn,
+	retireAttributeFn,
+	setMarketPromptTextFn,
 	suggestAttributesFn,
 } from "@/server/perception-attributes";
 import {
@@ -108,6 +114,31 @@ function PerceptionSettingsPage() {
 		remove: (factId) => write(() => deleteFactFn({ data: { brandId, factId } }), "Couldn't delete the fact."),
 	};
 
+	const attributeActions: AttributeActions = {
+		add: async (input) => {
+			let promptError: string | null = null;
+			await write(async () => {
+				({ promptError } = await addAttributeFn({ data: { brandId, ...input } }));
+			}, "Couldn't add the attribute.");
+			if (promptError) throw new Error(`Added. The association prompts weren't tracked: ${promptError}`);
+		},
+		rename: (attributeId, label) =>
+			write(() => renameAttributeFn({ data: { brandId, attributeId, label } }), "Couldn't rename the attribute."),
+		editQuestion: (attributeId, quality) =>
+			write(
+				() => editAttributeQuestionFn({ data: { brandId, attributeId, quality } }),
+				"Couldn't change the question.",
+			),
+		setMarketPrompt: (attributeId, marketPromptText) =>
+			write(
+				() => setMarketPromptTextFn({ data: { brandId, attributeId, marketPromptText } }),
+				"Couldn't change the market prompt.",
+			),
+		retire: (attributeId) =>
+			write(() => retireAttributeFn({ data: { brandId, attributeId } }), "Couldn't retire the attribute."),
+		merge: (input) => write(() => mergeAttributesFn({ data: { brandId, ...input } }), "Couldn't merge the attributes."),
+	};
+
 	if (isLoading || !data) {
 		return (
 			<div className="space-y-6">
@@ -174,9 +205,27 @@ function PerceptionSettingsPage() {
 				/>
 			)}
 
+			{promptState && (
+				<PerceptionFactPrompts
+					prompts={promptState.factPrompts}
+					headroom={promptState.headroom}
+					onAdd={(question) =>
+						write(() => addFactPromptFn({ data: { brandId, question } }), "Couldn't add the question.")
+					}
+					onStop={(promptId) =>
+						write(() => stopTrackingFactPromptFn({ data: { brandId, promptId } }), "Couldn't stop the question.")
+					}
+				/>
+			)}
+
 			{attributeState && (
 				<>
-					<PerceptionAttributes attributes={attributeState.attributes} maxActive={attributeState.maxActive} />
+					<PerceptionAttributesEditor
+						attributes={attributeState.attributes}
+						maxActive={attributeState.maxActive}
+						headroom={attributeState.headroom}
+						actions={attributeActions}
+					/>
 					<PerceptionAttributeSuggestions
 						state={attributeSuggestions ?? { status: "none" }}
 						runsLeft={attributeState.suggestionRunsLeft}
@@ -196,19 +245,6 @@ function PerceptionSettingsPage() {
 						}}
 					/>
 				</>
-			)}
-
-			{promptState && (
-				<PerceptionFactPrompts
-					prompts={promptState.factPrompts}
-					headroom={promptState.headroom}
-					onAdd={(question) =>
-						write(() => addFactPromptFn({ data: { brandId, question } }), "Couldn't add the question.")
-					}
-					onStop={(promptId) =>
-						write(() => stopTrackingFactPromptFn({ data: { brandId, promptId } }), "Couldn't stop the question.")
-					}
-				/>
 			)}
 		</div>
 	);

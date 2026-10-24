@@ -5,6 +5,7 @@ import { Button } from "@workspace/ui/components/button";
 import { Checkbox } from "@workspace/ui/components/checkbox";
 import { Input } from "@workspace/ui/components/input";
 import { Label } from "@workspace/ui/components/label";
+import { Textarea } from "@workspace/ui/components/textarea";
 import { useEffect, useState } from "react";
 
 export type AttributeSuggestionsState =
@@ -119,8 +120,9 @@ function DraftRow({
 				/>
 				<div className="min-w-0 flex-1 space-y-2">
 					<div className="flex flex-wrap items-center gap-2">
-						<Input
-							className="h-8 max-w-xs font-medium"
+						<Textarea
+							className="min-h-9 max-w-md font-medium"
+							rows={1}
 							value={draft.label}
 							aria-label="Name"
 							onChange={(event) => onChange({ ...draft, label: event.target.value })}
@@ -131,9 +133,10 @@ function DraftRow({
 						<Label htmlFor={`quality-${draft.id}`} className="text-xs text-muted-foreground">
 							The judge asks: How does this answer characterise your brand's…
 						</Label>
-						<Input
+						<Textarea
 							id={`quality-${draft.id}`}
-							className="h-8"
+							className="min-h-9"
+							rows={1}
 							value={draft.quality}
 							onChange={(event) => onChange({ ...draft, quality: event.target.value, qualities: [event.target.value] })}
 						/>
@@ -142,9 +145,10 @@ function DraftRow({
 						<Label htmlFor={`market-${draft.id}`} className="text-xs text-muted-foreground">
 							Market prompt (saved now, tracked once market prompts arrive)
 						</Label>
-						<Input
+						<Textarea
 							id={`market-${draft.id}`}
-							className="h-8"
+							className="min-h-9"
+							rows={1}
 							value={draft.marketPromptText}
 							onChange={(event) => onChange({ ...draft, marketPromptText: event.target.value })}
 						/>
