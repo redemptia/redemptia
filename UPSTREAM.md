@@ -73,8 +73,8 @@ existing rollup table.
 **Tables:** `perception_prompts` (0032); `perception_attributes`, `perception_attribute_versions`, `brand_facts`,
 `perception_verdicts`, `rollup_perception_daily` and `perception_stamps` (0033); `perception_jev_calls`,
 `perception_run_status` and `perception_rollup_dirty` (0034); `perception_brand_settings` (0035); a fact's source columns on `brand_facts` (0036); a verdict's `passage_confidence` (0037), which 0035 also uses to
-make a judged fact undeletable (its verdicts' foreign key no longer cascades) and a fact supersedable only once. None touches an elmo table except
-through foreign keys to `brands`, `prompts` and `prompt_runs`. `brand_facts` is immutable by trigger.
+make a judged fact undeletable (its verdicts' foreign key no longer cascades) and a fact supersedable only once. 0038 adds an attribute's confirmed market prompt text and a market prompt's `attribute_key`, and guards attributes by trigger. None touches an elmo table except
+through foreign keys to `brands`, `prompts` and `prompt_runs`. `brand_facts` is immutable by trigger; an attribute's key and brand never change, its question changes only with its version, and a stored version's text never changes.
 
 **Not a marker:** `prompts.system_tags` is rewritten from the prompt text by every prompt save and by the worker's
 reprocess pass, and users can delete `prompts.tags`. A marker in either would be lost, and the prompt would silently

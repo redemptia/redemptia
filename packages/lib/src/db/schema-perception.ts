@@ -46,6 +46,8 @@ export const perceptionPrompts = pgTable(
 			.primaryKey()
 			.references(() => prompts.id, { onDelete: "cascade" }),
 		class: text("class").$type<PerceptionPromptClass>().notNull(),
+		/** For a market prompt, the `perceptionAttributes.key` it elicits; null for the other classes. */
+		attributeKey: text("attribute_key"),
 		createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 	},
 	() => [check("perception_prompts_class", sql`class IN ('association', 'market', 'fact')`)],
@@ -56,7 +58,9 @@ export const perceptionPrompts = pgTable(
  * shown and never reused, so a rename (`label`) changes nothing in it. Editing
  * `questionText` bumps `questionVersion` and starts a new series; the text of
  * every version is kept in `perceptionAttributeVersions`. A retired attribute
- * keeps its row, which is also what stops its key being reused.
+ * keeps its row, which is also what stops its key being reused. A trigger written
+ * by hand in migration 0038 holds the key, the brand and the version rule in the
+ * database, and makes every stored version's text permanent.
  */
 export const perceptionAttributes = pgTable(
 	"perception_attributes",
@@ -70,6 +74,12 @@ export const perceptionAttributes = pgTable(
 		/** The judge's question; `{subject}` stands for the brand's name. */
 		questionText: text("question_text").notNull(),
 		questionVersion: integer("question_version").notNull().default(1),
+		/**
+		 * The market prompt the user confirmed alongside the attribute: the wording is how they
+		 * judged the attribute real. Only the text is kept here; the prompt row that runs it is
+		 * created from this when market prompts are built.
+		 */
+		marketPromptText: text("market_prompt_text").notNull(),
 		retiredAt: timestamp("retired_at", { withTimezone: true }),
 		createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 		updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
