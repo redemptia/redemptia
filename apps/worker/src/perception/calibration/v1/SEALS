@@ -47,3 +47,7 @@ v1/attributes/validation-subset.json VOIDED  (the 40-item draw from all 450, val
 v1/attributes/validation-subset.json bd82c83cc77cb0443c2fdb4d0a49b06fe0c326502a1e3cefd1fd661c60ca3eea  (the 15 hard attribute items, drawn by the AI labeller from the natural items: 10 negative, 5 discussed-boundary; with all 15 drift items; 2026-10-24)
 v1/attributes/validation-subset.json 90fea3c3e0b4132e2be8ff45f240dbd72d83df1275b43b604f32b2639ddef2cb  (bytes after biome formatting; whitespace only, the same 15 ids)
 sealed/attributes/validation-seed-3.txt 7e9a53ea69f0632c35226d2052269b9eaf76afadb5fc4262695684eee24e2267  (the hard draw's method and each item's group; 2026-10-24)
+v1/attributes/validation-subset.json VOIDED  (the 15 hard items drawn from all 450, validation-seed-3.txt above, withdrawn on 2026-10-24 before any operator label: the headline became the 150 association items and the sample is drawn from them, §7a, §7b)
+v1/attributes/validation-subset.json 7c2c0be5cc8b37514d9dbcc03f2be1a8a37a8412842faec4333858afe3f7ab0c  (the 15 hard items from the 150 association items: 10 negative of the 12 there, 5 discussed-boundary; with all 15 drift items; 2026-10-24)
+v1/attributes/validation-subset.json 163c5fb66da500d7b0a09125cb0375c4d3881d37e1e40b0187a950ca8d4ee2c9  (bytes after biome formatting; whitespace only, the same 15 ids)
+sealed/attributes/validation-seed-4.txt 501b129ffad0b5cfd3f8442d01209ac7a45a16972326894ccf410bc5cfda7fee  (the association-only hard draw's method and each item's group; 2026-10-24)

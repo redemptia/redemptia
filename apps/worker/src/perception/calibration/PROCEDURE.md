@@ -223,6 +223,17 @@ contradiction items. Never lower the bar.
 Fixed on 24 October 2026, before any attribute item was labelled. Computed on the gold labels of the
 attribute half (§7b), for the brand subject only.
 
+**Which items each bar is measured on (decided 2026-10-24, before any operator label or judge run).**
+The headline is the 150 attribute items and 15 drift items from the 15 association answers: they are
+the only items shaped like what the association path judges in production. The discussed bars and the
+drift bar are measured on them alone. The negative bars are measured on the association items plus the
+perturbed copies, because the association answers hold too few natural negatives; the natural-only
+check below then applies to the association items. The 300 items from the fact-prompt answers come
+from a prompt class the association path never sees, and contributed 275 of the 345 `not_discussed`
+labels, so measuring the discussed boundary mostly on them would measure the wrong thing. They are
+reported apart, like the perturbed copies, and gate nothing. A shortfall on the headline stops the gate
+whatever the other sets show.
+
 | Measure | Bar |
 |---|---|
 | **Discussed vs not discussed**, scored as two classes (`positive`, `negative` and `mixed` are all discussed) | accuracy ≥ 0.90, and the lower bound of its 95% Wilson interval ≥ 0.84; discussed precision ≥ 0.85 and discussed recall ≥ 0.85 |
@@ -243,9 +254,9 @@ Why these and not the fact bar:
 - `positive` and `mixed` have no bar; they are reported in the full confusion matrix.
 
 Rules:
-- **Natural and perturbed items are reported separately.** The gate is decided on both together, and if
-  the natural items alone fall below a bar that the combined set passes, the result is a stop and a
-  report, not a pass.
+- **Natural and perturbed items are reported separately.** The negative bars are decided on the
+  association and perturbed items together, and if the association items alone fall below a negative bar
+  that the combined set passes, the result is a stop and a report, not a pass.
 - **The negative class is counted before the judge runs.** Once the AI labeller has labelled every item,
   the natural gold `negative`s are counted. Fewer than 30 is reported then, and the operator chooses
   between perturbed copies (one characterisation in a copy of an answer flipped to negative) and
@@ -262,8 +273,8 @@ natural negatives by the AI labeller's count, below §7a's 30, so the 30 natural
 were added: one item per answer and frozen attribute (300 more), and no drift items, since drift is
 asked of association answers only. That makes 450 attribute items. Labels follow §5, against each
 attribute's `question_text`. The method is §2a's, with these changes:
-- the validation sample is **15 hard attribute items** from the 450 natural ones, drawn by the AI
-  labeller from its own labels: 10 it labelled `negative`, spread across answers and attributes, and
+- the validation sample is **15 hard attribute items** from the 150 association items (the headline
+  set; the fact-prompt items gate nothing), drawn by the AI labeller from its own labels: 10 it labelled `negative`, spread across answers and attributes, and
   5 genuine discussed vs not discussed boundary cases (at least 2 it called `not_discussed` despite a
   mention of the topic, at least 2 it called discussed on thin evidence). Obvious `not_discussed`
   items are left out: they are most of the population and only inflate raw agreement;
