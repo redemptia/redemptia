@@ -19,6 +19,10 @@ import { judgePendingRuns, MAX_ANSWER_CHARS, perceptionStamp } from "./judge-run
 
 let brandId: string;
 
+/** The verdict questions of a request, without the evidence question asked beside each. */
+const verdictKeys = (request: JevRequest) =>
+	Object.keys(request.questions).filter((key) => !key.endsWith("__evidence"));
+
 /** A judge that answers every question it is asked, and remembers each request. */
 function recordingJudge(answer = "supports", fail?: (request: JevRequest) => Error | undefined, model?: string) {
 	const requests: JevRequest[] = [];
@@ -111,7 +115,7 @@ describe("finding work", () => {
 		const outcome = await judgePendingRuns(db, judge.transport, "stub");
 
 		expect(judge.requests).toHaveLength(1);
-		expect(Object.keys(judge.requests[0].questions).sort()).toEqual([`fact__${free}`, `fact__${pro}`].sort());
+		expect(verdictKeys(judge.requests[0]).sort()).toEqual([`fact__${free}`, `fact__${pro}`].sort());
 		expect(judge.requests[0].state.answer).toBe("Acme starts at $25 a month.");
 		const verdicts = await verdictsOf(runId);
 		expect(verdicts.map((v) => [v.factId, v.verdict, v.stamp, v.truncatedAt]).sort()).toEqual(
@@ -165,7 +169,7 @@ describe("finding work", () => {
 		const added = await fact("Acme can be self-hosted.");
 		const third = recordingJudge();
 		await judgePendingRuns(db, third.transport, "stub");
-		expect(third.requests.map((r) => Object.keys(r.questions))).toEqual([[`fact__${added}`]]);
+		expect(third.requests.map(verdictKeys)).toEqual([[`fact__${added}`]]);
 		expect(await verdictsOf(runId)).toHaveLength(2);
 	});
 
@@ -279,7 +283,7 @@ describe("long answers", () => {
 		const quarter = Math.floor(half / 2);
 		expect(judge.requests.map((r) => String(r.state.answer).length)).toEqual([text.length, half, quarter]);
 		for (const request of judge.requests) {
-			expect(Object.keys(request.questions).sort()).toEqual(facts.map((id) => `fact__${id}`).sort());
+			expect(verdictKeys(request).sort()).toEqual(facts.map((id) => `fact__${id}`).sort());
 		}
 		expect(outcome.calls).toBe(3);
 		expect(await callsToday()).toBe(3);
@@ -327,5 +331,101 @@ describe("runs that produce no verdict", () => {
 		expect(broken.requests).toHaveLength(3);
 		const [status] = await db.select().from(perceptionRunStatus).where(eq(perceptionRunStatus.runId, runId));
 		expect(status).toMatchObject({ outcome: "failed", attempts: 3 });
+	});
+});
+
+describe("the evidence passage", () => {
+	/** Answers every verdict with `verdict`, and every evidence question with `pick`. */
+	function evidenceJudge(verdict: string, pick: string) {
+		const requests: JevRequest[] = [];
+		const transport = async (request: JevRequest): Promise<JevResponse> => {
+			requests.push(request);
+			return {
+				answers: Object.fromEntries(
+					Object.keys(request.questions).map((key) =>
+						key.endsWith("__evidence")
+							? [key, { choice: pick, probabilities: { [pick]: 0.7 }, confidence: 0.7 }]
+							: [key, { choice: verdict, probabilities: { [verdict]: 0.9 }, confidence: 0.9 }],
+					),
+				),
+			};
+		};
+		return { requests, transport };
+	}
+
+	it("offers only sentences that name the brand, and stores the one picked with its own confidence", async () => {
+		const id = await fact("Acme Pro costs $25 per month.");
+		const runId = await run(
+			await prompt(),
+			"Acme Pro costs $40 a month. Globex is cheaper at $10. You can also try Acme for free.",
+		);
+		const judge = evidenceJudge("contradicts", "p1");
+
+		await judgePendingRuns(db, judge.transport, "stub");
+
+		expect(Object.values(judge.requests[0].questions[`fact__${id}__evidence`].criteria).slice(0, -1)).toEqual([
+			"Acme Pro costs $40 a month.",
+			"You can also try Acme for free.",
+		]);
+		expect(await verdictsOf(runId)).toMatchObject([
+			{ verdict: "contradicts", passage: "Acme Pro costs $40 a month.", passageConfidence: 0.7, confidence: 0.9 },
+		]);
+	});
+
+	it("stores no passage when the judge says none is about the fact, but keeps its confidence", async () => {
+		await fact("Acme can be self-hosted.");
+		const runId = await run(await prompt(), "Acme Pro costs $40 a month.");
+
+		await judgePendingRuns(db, evidenceJudge("not_mentioned", "none").transport, "stub");
+
+		expect(await verdictsOf(runId)).toMatchObject([
+			{ verdict: "not_mentioned", passage: null, passageConfidence: 0.7 },
+		]);
+	});
+
+	it("asks no evidence question when no sentence names the brand, and still records the verdict", async () => {
+		const id = await fact("Acme can be self-hosted.");
+		const runId = await run(await prompt(), "Most tools in this space can be self-hosted.");
+		const judge = evidenceJudge("not_mentioned", "p1");
+
+		await judgePendingRuns(db, judge.transport, "stub");
+
+		expect(Object.keys(judge.requests[0].questions)).toEqual([`fact__${id}`]);
+		expect(await verdictsOf(runId)).toMatchObject([{ passage: null, passageConfidence: null }]);
+	});
+
+	it("offers no passage from text the judge wasn't shown, when a too-large answer is shortened", async () => {
+		const id = await fact("Acme can be self-hosted.");
+		const filler = "Some general background on this topic. ".repeat(400);
+		const runId = await run(await prompt(), `Acme can run on your servers. ${filler}Acme also has a cloud.`);
+		let first = true;
+		const judge = recordingJudge("supports", () => {
+			if (!first) return undefined;
+			first = false;
+			return new TooLarge();
+		});
+
+		await judgePendingRuns(db, judge.transport, "stub");
+
+		const offered = (request: JevRequest) => Object.values(request.questions[`fact__${id}__evidence`].criteria);
+		expect(offered(judge.requests[0])).toContain("Acme also has a cloud.");
+		expect(offered(judge.requests[1])).not.toContain("Acme also has a cloud.");
+		expect((await verdictsOf(runId))[0].truncatedAt).not.toBeNull();
+	});
+});
+
+describe("a cut answer", () => {
+	it("never splits a character in two where it is cut", async () => {
+		await fact("Acme can be self-hosted.");
+		// An emoji straddles the 20,000-unit cut, and again each halving.
+		const text = `Acme ${"\u{1f680}".repeat(MAX_ANSWER_CHARS)}`;
+		await run(await prompt(), text);
+		let calls = 0;
+		const judge = recordingJudge("supports", () => (++calls < 3 ? new TooLarge() : undefined));
+
+		await judgePendingRuns(db, judge.transport, "stub");
+
+		expect(judge.requests).toHaveLength(3);
+		for (const request of judge.requests) expect(/\p{Cs}/u.test(String(request.state.answer))).toBe(false);
 	});
 });

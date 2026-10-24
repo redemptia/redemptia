@@ -29,10 +29,18 @@ import {
 	TooLarge,
 } from "../mention-judge/jev";
 import { reserveJevCall } from "./budget";
-import { factKey, factQuestion } from "./fact-questions";
+import {
+	type EvidenceSubject,
+	evidencePassages,
+	factEvidenceKey,
+	factEvidenceQuestion,
+	factKey,
+	factQuestion,
+	NO_PASSAGE,
+} from "./fact-questions";
 
 /** Bumped whenever the questions or how answers are read change, which re-judges everything. */
-export const PERCEPTION_VERSION = 1;
+export const PERCEPTION_VERSION = 2;
 /** The judge sees at most this much of an answer, from its beginning. */
 export const MAX_ANSWER_CHARS = 20_000;
 /** Shortening on "too large" stops here; below it the run is recorded as too large. */
@@ -64,6 +72,8 @@ interface PendingRun {
 	brandId: string;
 	organizationId: string;
 	subject: string;
+	/** The subject's names and domains, which decide the passages the judge may quote. */
+	names: EvidenceSubject;
 	prompt: string;
 	model: string;
 	provider: string | null;
@@ -85,6 +95,9 @@ async function pendingRuns(db: DbConnection, stamp: string, limit: number): Prom
 			brandId: promptRuns.brandId,
 			organizationId: brands.organizationId,
 			subject: brands.name,
+			aliases: brands.aliases,
+			website: brands.website,
+			additionalDomains: brands.additionalDomains,
 			prompt: prompts.value,
 			model: promptRuns.model,
 			provider: promptRuns.provider,
@@ -132,7 +145,14 @@ async function pendingRuns(db: DbConnection, stamp: string, limit: number): Prom
 		let run = byRun.get(row.runId);
 		if (!run) {
 			if (byRun.size === limit) break;
-			run = { ...row, rawOutput: null, attempts: Number(row.attempts), facts: [] };
+			const { aliases, website, additionalDomains, ...rest } = row;
+			run = {
+				...rest,
+				names: { name: row.subject, aliases: aliases ?? [], domains: [website, ...(additionalDomains ?? [])] },
+				rawOutput: null,
+				attempts: Number(row.attempts),
+				facts: [],
+			};
 			byRun.set(row.runId, run);
 		}
 		run.facts.push({ id: row.factId, statement: row.statement });
@@ -165,10 +185,19 @@ async function setAside(
 		});
 }
 
+/** Questions over the answer as the judge will see it, and the passages its evidence questions offer. */
+type Questions = { questions: JevRequest["questions"]; passages: string[] };
+
 type Asked =
-	| { kind: "answered"; response: JevResponse; truncatedAt: number | null; calls: number }
+	| { kind: "answered"; response: JevResponse; truncatedAt: number | null; calls: number; passages: string[] }
 	| { kind: "over_ceiling"; calls: number }
 	| { kind: "too_large"; calls: number };
+
+/** The first `length` UTF-16 units, one fewer when that would split an emoji into half a pair. */
+function cut(text: string, length: number): string {
+	const code = text.charCodeAt(length - 1);
+	return text.slice(0, code >= 0xd800 && code <= 0xdbff ? length - 1 : length);
+}
 
 /**
  * Asks every question over the answer, cut to `MAX_ANSWER_CHARS`. When the judge finds the request too
@@ -180,21 +209,20 @@ async function ask(
 	transport: JevTransport,
 	run: PendingRun,
 	text: string,
-	questions: JevRequest["questions"],
+	questionsFor: (judged: string) => Questions,
 ): Promise<Asked> {
 	let length = Math.min(text.length, MAX_ANSWER_CHARS);
 	let calls = 0;
 	for (;;) {
 		if (!(await reserveJevCall(db, run.organizationId))) return { kind: "over_ceiling", calls };
 		calls++;
-		const request: JevRequest = {
-			model: JEV_MODEL,
-			state: { question: run.prompt, answer: text.slice(0, length) },
-			questions,
-		};
+		const judged = cut(text, length);
+		// Rebuilt at every length, so no passage is offered from text the judge wasn't shown.
+		const { questions, passages } = questionsFor(judged);
+		const request: JevRequest = { model: JEV_MODEL, state: { question: run.prompt, answer: judged }, questions };
 		try {
 			const response = await transport(request);
-			return { kind: "answered", response, truncatedAt: length < text.length ? length : null, calls };
+			return { kind: "answered", response, truncatedAt: length < text.length ? length : null, calls, passages };
 		} catch (error) {
 			if (!(error instanceof TooLarge)) throw Object.assign(error as Error, { calls });
 			if (length <= MIN_ANSWER_CHARS) return { kind: "too_large", calls };
@@ -221,9 +249,13 @@ async function record(
 	stamp: string,
 	response: JudgedResponse,
 	truncatedAt: number | null,
+	passages: string[],
 ) {
 	const rows = run.facts.map((fact) => {
 		const answer = response.answers[factKey(fact.id)];
+		const evidence = response.answers[factEvidenceKey(fact.id)];
+		const picked =
+			evidence && evidence.choice !== NO_PASSAGE ? passages[Number(evidence.choice.slice(1)) - 1] : undefined;
 		return {
 			runId: run.runId,
 			subject: run.subject,
@@ -232,6 +264,8 @@ async function record(
 			verdict: answer.choice,
 			probabilities: answer.probabilities,
 			confidence: typeof answer.confidence === "number" ? answer.confidence : null,
+			passage: picked ?? null,
+			passageConfidence: typeof evidence?.confidence === "number" ? evidence.confidence : null,
 			stamp,
 			truncatedAt,
 		};
@@ -264,12 +298,22 @@ async function judgeRun(
 		await setAside(db, run.runId, stamp, "no_text", run.attempts);
 		return { calls: 0, verdicts: 0 };
 	}
-	const questions = Object.fromEntries(
-		run.facts.map((fact) => [factKey(fact.id), factQuestion(run.subject, fact.statement)]),
-	);
+	const questionsFor = (judged: string): Questions => {
+		const passages = evidencePassages(judged, run.names);
+		// With no sentence naming the subject there is nothing to offer, and no evidence question is asked.
+		const questions = Object.fromEntries(
+			run.facts.flatMap((fact) => [
+				[factKey(fact.id), factQuestion(run.subject, fact.statement)],
+				...(passages.length > 0
+					? [[factEvidenceKey(fact.id), factEvidenceQuestion(run.subject, fact.statement, passages)]]
+					: []),
+			]),
+		);
+		return { questions, passages };
+	};
 	let asked: Asked;
 	try {
-		asked = await ask(db, transport, run, text, questions);
+		asked = await ask(db, transport, run, text, questionsFor);
 	} catch (error) {
 		const calls = (error as { calls?: number }).calls ?? 0;
 		// A rate limit says nothing about the run, so it doesn't count as one of its attempts.
@@ -288,12 +332,15 @@ async function judgeRun(
 		await failed(db, run, stamp, `Jev answered as ${response.model ?? "an unnamed model"}, not ${judge}`);
 		return { calls: asked.calls, verdicts: 0 };
 	}
-	const unanswered = run.facts.find((fact) => !response.answers[factKey(fact.id)]);
+	const asks = asked.passages.length > 0;
+	const unanswered = run.facts.find(
+		(fact) => !response.answers[factKey(fact.id)] || (asks && !response.answers[factEvidenceKey(fact.id)]),
+	);
 	if (unanswered) {
 		await failed(db, run, stamp, `no answer for ${unanswered.id}`);
 		return { calls: asked.calls, verdicts: 0 };
 	}
-	return { calls: asked.calls, verdicts: await record(db, run, stamp, response, asked.truncatedAt) };
+	return { calls: asked.calls, verdicts: await record(db, run, stamp, response, asked.truncatedAt, asked.passages) };
 }
 
 /** One job's worth of judging. `judge` names the transport for the stamp: the Jev model, or "stub". */

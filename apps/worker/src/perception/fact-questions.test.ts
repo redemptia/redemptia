@@ -2,7 +2,7 @@ import { statementProblem } from "@workspace/lib/perception/fact-statement";
 import { describe, expect, it } from "vitest";
 import { JEV_MODEL, type JevRequest } from "../mention-judge/jev";
 import probe from "./__fixtures__/jev-live-probe.json";
-import { FACT_VERDICTS, factKey, factQuestion } from "./fact-questions";
+import { evidencePassages, FACT_VERDICTS, factEvidenceQuestion, factKey, factQuestion } from "./fact-questions";
 
 // Characters that break serialisers, quoting or encodings, plus ordinary text.
 const ALPHABET = [
@@ -81,5 +81,39 @@ describe("a fact that passes validation", () => {
 			expect(JSON.parse(decoded)).toEqual(request);
 		}
 		expect(checked).toBeGreaterThan(1000);
+	});
+});
+
+describe("an evidence question", () => {
+	it("is a legal question for any answer text, and never offers a broken character", () => {
+		let seed = 6;
+		const random = () => {
+			seed = (seed * 1103515245 + 12345) % 2 ** 31;
+			return seed / 2 ** 31;
+		};
+		for (let i = 0; i < 500; i++) {
+			// Emoji at every offset, so some land exactly where a long passage is cut.
+			const answer = Array.from(
+				{ length: 4 },
+				() => `Acme ${"y".repeat(Math.floor(random() * 3))}${"x\u{1f680}".repeat(Math.floor(random() * 400))}.`,
+			).join(" ");
+			const passages = evidencePassages(answer, { name: "Acme", aliases: [], domains: [] });
+			const question = factEvidenceQuestion("Acme", "Acme can be self-hosted.", passages);
+
+			expect(Object.keys(question.criteria)).toEqual([...passages.map((_, j) => `p${j + 1}`), "none"]);
+			for (const text of Object.values(question.criteria)) {
+				expect(text.trim()).not.toBe("");
+				expect(/\p{Cs}/u.test(text)).toBe(false);
+			}
+		}
+	});
+
+	it("offers only sentences that name the subject, its alias or its domain", () => {
+		const answer = "Globex is cheap. AcmeCo has a free tier. See acme.example for more. Acme is self-hostable.";
+		expect(evidencePassages(answer, { name: "Acme", aliases: ["AcmeCo"], domains: ["acme.example"] })).toEqual([
+			"AcmeCo has a free tier.",
+			"See acme.example for more.",
+			"Acme is self-hostable.",
+		]);
 	});
 });

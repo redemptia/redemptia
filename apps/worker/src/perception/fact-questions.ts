@@ -1,4 +1,5 @@
 import type { JevChoiceQuestion } from "../mention-judge/jev";
+import { matcher, sentences } from "../mention-judge/passages";
 
 export const FACT_VERDICTS = ["supports", "contradicts", "not_mentioned", "unclear"] as const;
 export type FactVerdict = (typeof FACT_VERDICTS)[number];
@@ -34,6 +35,53 @@ export function factQuestion(subject: string, statement: string): JevChoiceQuest
 				'attaches a "check their site" or "prices may change" disclaimer to the claim, stays qualitative, ' +
 				"gives a range too wide to be a claim, or says something compatible with the statement without " +
 				"asserting it.",
+		},
+	};
+}
+
+/** The evidence question for a fact; its answer names the passage behind the verdict. */
+export const factEvidenceKey = (factId: string) => `fact__${factId}__evidence`;
+
+/** Passages offered per evidence question, in the order the answer gives them. */
+export const MAX_EVIDENCE_PASSAGES = 12;
+/** A passage longer than this is cut: a table row can run on. */
+export const MAX_PASSAGE_CHARS = 500;
+export const NO_PASSAGE = "none";
+
+export interface EvidenceSubject {
+	name: string;
+	aliases: string[];
+	domains: string[];
+}
+
+/**
+ * The answer's sentences that name the subject (SPEC §6.1): unlike elmo's three-sentence window,
+ * a passage here never runs on into a neighbour's, because the passage is what a user checks the
+ * verdict against.
+ */
+export function evidencePassages(text: string, subject: EvidenceSubject): string[] {
+	const names = matcher(subject);
+	return sentences(text)
+		.map((sentence) => sentence.text)
+		.filter(names)
+		.slice(0, MAX_EVIDENCE_PASSAGES)
+		.map((passage) => {
+			// Cut by character, not UTF-16 unit, so an emoji at the cut isn't split into half a pair.
+			const chars = Array.from(passage);
+			return chars.length > MAX_PASSAGE_CHARS ? `${chars.slice(0, MAX_PASSAGE_CHARS).join("")}…` : passage;
+		});
+}
+
+/** Which passage the verdict rests on, or none: the judge may say no passage is about it. */
+export function factEvidenceQuestion(subject: string, statement: string, passages: string[]): JevChoiceQuestion {
+	return {
+		type: "choice",
+		instructions:
+			`Which passage is where this answer says what it says about the following statement about ${subject}? ` +
+			`Statement: "${statement}" Pick "${NO_PASSAGE}" if no passage addresses it.`,
+		criteria: {
+			...Object.fromEntries(passages.map((passage, i) => [`p${i + 1}`, passage])),
+			[NO_PASSAGE]: `None of these passages says anything about this statement for ${subject}.`,
 		},
 	};
 }
