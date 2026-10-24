@@ -40,16 +40,27 @@ export const FACT_PROMPT_START = 10;
 
 /**
  * What a brand's association prompts ask, `{brand}` standing for its name. Each asks for a
- * characterisation, so answers use attribute language; together they are the 6 the spec's 6–10
- * allows, leaving room under the perception cap for fact and market prompts.
+ * characterisation, so answers use attribute language; 6 is the low end of the spec's 6–10, leaving
+ * room under the perception cap for fact and market prompts.
+ *
+ * Half are comparison or alternatives prompts because that is where the negatives are: generic
+ * prompts about a brand come back almost entirely positive, while "alternatives to" prompts carry
+ * most of the criticism.
+ *
+ * No template names a competitor. Association is judged for the brand alone, and it must not move
+ * when the competitor list changes: prominence already re-ranks on every competitor-set change, and
+ * the gap between the two is only readable if association holds still.
+ *
+ * Never edit this list once any brand has confirmed attributes. Prompts have no versions, so an
+ * edited template would continue the old one's line across a change in what it asks.
  */
 export const ASSOCIATION_PROMPT_TEMPLATES = [
 	"What is {brand} known for?",
 	"What are {brand}'s main strengths and weaknesses?",
 	"How would you describe {brand} to someone deciding whether to use it?",
-	"What do people praise and criticise about {brand}?",
 	"How does {brand} compare with the alternatives in its market?",
-	"What reputation does {brand} have among the people who use it?",
+	"What are the best alternatives to {brand}, and why would someone switch?",
+	"Why do people choose other options over {brand}?",
 ] as const;
 
 export interface FactPrompt {
