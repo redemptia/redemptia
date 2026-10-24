@@ -1,12 +1,22 @@
 import * as Sentry from "@sentry/node";
 import { getDeployment } from "@workspace/deployment";
 import { db } from "@workspace/lib/db/db";
+import { prompts } from "@workspace/lib/db/schema";
+import { perceptionPrompts } from "@workspace/lib/db/schema-perception";
+import {
+	brandAnswerCandidates,
+	PROPOSE_ATTRIBUTES_QUEUE,
+	PROPOSE_ATTRIBUTES_QUEUE_OPTIONS,
+	type ProposeAttributesJobData,
+	proposeAttributes,
+} from "@workspace/lib/perception/propose-attributes";
 import {
 	PROPOSE_FACTS_QUEUE,
 	PROPOSE_FACTS_QUEUE_OPTIONS,
 	type ProposeFactsJobData,
 	proposeFacts,
 } from "@workspace/lib/perception/propose-facts";
+import { and, eq, isNull } from "drizzle-orm";
 import type { PgBoss } from "pg-boss";
 import { JEV_MODEL, type JevTransport, stubTransport, typesafeTransport } from "../mention-judge/jev";
 import { judgePendingRuns } from "./judge-runs";
@@ -45,6 +55,7 @@ export async function registerPerceptionJobs(boss: PgBoss): Promise<void> {
 		console.error("[perception] Not registered:", error);
 	}
 	await registerFactProposer(boss);
+	await registerAttributeProposer(boss);
 }
 
 /** Separate from the judge, so a missing judge key doesn't take fact suggestions down with it. */
@@ -59,5 +70,33 @@ async function registerFactProposer(boss: PgBoss): Promise<void> {
 	} catch (error) {
 		Sentry.captureException(error);
 		console.error("[perception] Fact proposer not registered:", error);
+	}
+}
+
+/** The brand's own enabled prompts, not perception's: they show the market it competes in. */
+async function trackedPrompts(brandId: string): Promise<string[]> {
+	const rows = await db
+		.select({ value: prompts.value })
+		.from(prompts)
+		.leftJoin(perceptionPrompts, eq(perceptionPrompts.promptId, prompts.id))
+		.where(and(eq(prompts.brandId, brandId), eq(prompts.enabled, true), isNull(perceptionPrompts.promptId)));
+	return rows.map((row) => row.value);
+}
+
+async function registerAttributeProposer(boss: PgBoss): Promise<void> {
+	try {
+		if (getDeployment().mode === "cloud") return;
+		await boss.createQueue(PROPOSE_ATTRIBUTES_QUEUE, PROPOSE_ATTRIBUTES_QUEUE_OPTIONS);
+		await boss.work<ProposeAttributesJobData>(PROPOSE_ATTRIBUTES_QUEUE, { localConcurrency: 2 }, async ([job]) => {
+			if (!job) throw new Error("perception-propose-attributes received an empty batch");
+			const [sample, tracked] = await Promise.all([
+				brandAnswerCandidates(db, job.data.brandId),
+				trackedPrompts(job.data.brandId),
+			]);
+			return proposeAttributes({ ...job.data, sample, trackedPrompts: tracked });
+		});
+	} catch (error) {
+		Sentry.captureException(error);
+		console.error("[perception] Attribute proposer not registered:", error);
 	}
 }

@@ -9,16 +9,38 @@
  * marketing, not what the market says about it. When every research provider fails, the proposal
  * degrades to a seeded list of generic qualities, labelled as such.
  */
+import { and, desc, eq, gte, isNotNull, sql } from "drizzle-orm";
 import { z } from "zod";
+import type { DbConnection } from "../db/db-connection";
+import { promptRuns, prompts, runExtractions, runMentions } from "../db/schema";
+import { perceptionPrompts } from "../db/schema-perception";
 import { wholeWordPattern } from "../mentions";
 import type { Provider } from "../providers";
 import { attributeQuestion, failureStateProblem, joinsTooManyQualities } from "./attribute-question";
 import { researchProviders } from "./propose-facts";
 
+/** The proposal runs as a worker job; the web app enqueues it and polls for the result. */
+export const PROPOSE_ATTRIBUTES_QUEUE = "perception-propose-attributes";
+/** It spends money, so it never retries on its own; the user can ask again. */
+export const PROPOSE_ATTRIBUTES_QUEUE_OPTIONS = { retryLimit: 0, expireInSeconds: 60 * 15 } as const;
+/** Each run is one paid research call, about $0.05 warm and less cold. */
+export const ATTRIBUTE_SUGGESTION_RUNS_PER_DAY = 3;
+
+export interface ProposeAttributesJobData {
+	brandId: string;
+	brandName: string;
+	aliases: string[];
+	competitors: string[];
+	/** What the brand is, in the user's words; null when they gave none. */
+	category: string | null;
+	existingLabels: string[];
+}
+
 export const PROPOSED_ATTRIBUTES_MAX = 15;
 const CANDIDATES_MIN = 16;
 const CANDIDATES_MAX = 20;
 
+const SAMPLE_DAYS = 30;
 /** About 15–30k tokens: enough answers to show the market's vocabulary, cheap enough to ask on demand. */
 export const WARM_SAMPLE_CHARS = 60_000;
 /** Per answer, so one long answer can't fill the sample. */
@@ -138,6 +160,35 @@ export function selectSample(candidates: SampleAnswer[]): SampleAnswer[] {
 		}
 	}
 	return sample;
+}
+
+/**
+ * The latest answer per prompt and model from the last 30 days that names the brand, each with its
+ * prompt's perception class: the candidates `selectSample` chooses from.
+ */
+export async function brandAnswerCandidates(db: DbConnection, brandId: string): Promise<SampleAnswer[]> {
+	return db
+		.selectDistinctOn([promptRuns.promptId, promptRuns.model], {
+			promptId: promptRuns.promptId,
+			prompt: prompts.value,
+			promptClass: perceptionPrompts.class,
+			model: promptRuns.model,
+			text: sql<string>`left(${runExtractions.textContent}, ${WARM_ANSWER_CHARS})`,
+		})
+		.from(promptRuns)
+		.innerJoin(prompts, eq(prompts.id, promptRuns.promptId))
+		.leftJoin(perceptionPrompts, eq(perceptionPrompts.promptId, promptRuns.promptId))
+		.innerJoin(runExtractions, eq(runExtractions.runId, promptRuns.id))
+		.innerJoin(runMentions, eq(runMentions.runId, promptRuns.id))
+		.where(
+			and(
+				eq(promptRuns.brandId, brandId),
+				gte(promptRuns.createdAt, sql`now() - make_interval(days => ${SAMPLE_DAYS})`),
+				eq(runMentions.brandMentioned, true),
+				isNotNull(runExtractions.textContent),
+			),
+		)
+		.orderBy(promptRuns.promptId, promptRuns.model, desc(promptRuns.createdAt));
 }
 
 interface BrandContext {
