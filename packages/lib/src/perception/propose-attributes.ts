@@ -12,6 +12,7 @@
 import { z } from "zod";
 import { wholeWordPattern } from "../mentions";
 import type { Provider } from "../providers";
+import { attributeQuestion, failureStateProblem, joinsTooManyQualities } from "./attribute-question";
 import { researchProviders } from "./propose-facts";
 
 export const PROPOSED_ATTRIBUTES_MAX = 15;
@@ -22,8 +23,11 @@ const CANDIDATES_MAX = 20;
 export const WARM_SAMPLE_CHARS = 60_000;
 /** Per answer, so one long answer can't fill the sample. */
 export const WARM_ANSWER_CHARS = 3_000;
-/** Fewer answers than this describe a handful of prompts, not the market: start cold instead. */
-export const WARM_MIN_ANSWERS = 5;
+/** Fewer answers or prompts than this describe a handful of questions, not the market: start cold instead. */
+export const WARM_MIN_ANSWERS = 15;
+export const WARM_MIN_PROMPTS = 5;
+/** Shown proposals per theme, so the sample's loudest topic can't fill the list. */
+export const SHOWN_PER_THEME = 2;
 
 const MAX_LABEL_CHARS = 40;
 const MAX_QUALITY_CHARS = 120;
@@ -33,6 +37,8 @@ const MIN_QUOTE_CHARS = 8;
 export interface SampleAnswer {
 	promptId: string;
 	prompt: string;
+	/** The prompt's perception class, or null for an ordinary prompt. */
+	promptClass: string | null;
 	model: string;
 	text: string;
 }
@@ -41,14 +47,16 @@ export type ProposalGrounding = "warm" | "cold" | "seeded";
 
 export interface ProposedAttribute {
 	label: string;
+	/** The noun phrase the question asks about; what a merge joins. */
+	quality: string;
+	/** The broad topic it belongs to, shared by related proposals, such as pricing. */
+	theme: string;
 	/** The judge's question; `{subject}` stands for the brand's name. */
 	questionText: string;
 	/** The question a buyer would ask about the market, naming no brand. */
 	marketPromptText: string;
 	/** Warm start only: words from a sampled answer that characterise the brand on this quality. */
 	quote: string | null;
-	/** Signs the question asks about more than one quality: shown, never a reason to drop it. */
-	notes: string[];
 }
 
 export interface RejectedAttribute {
@@ -73,6 +81,11 @@ const proposalSchema = z.object({
 		.array(
 			z.object({
 				label: z.string().describe("A short display name, one to four words, such as 'Developer experience'."),
+				theme: z
+					.string()
+					.describe(
+						"A short lowercase key for the broad topic, shared by related attributes, such as pricing or openness.",
+					),
 				quality: z
 					.string()
 					.describe(
@@ -93,38 +106,17 @@ const proposalSchema = z.object({
 
 type RawAttribute = z.infer<typeof proposalSchema>["attributes"][number];
 
-/** The judge's question for a quality, in the one shape every attribute question takes. */
-export function attributeQuestion(quality: string): string {
-	return `How does this answer characterise {subject}'s ${quality
-		.trim()
-		.replace(/\s+/g, " ")
-		.replace(/[?.]+$/, "")}?`;
-}
-
-/** A merged attribute asks about both qualities, and no more: two clauses at most. */
-export function mergedAttributeQuestion(first: string, second: string): string {
-	return attributeQuestion(`${first.trim()} and ${second.trim()}`);
-}
-
-/**
- * Signs a question asks about more than two qualities. A four-state verdict over three qualities
- * is unanswerable: positive on one, negative on another and silent on the third has no right
- * label. A pattern can't count qualities exactly, so this warns rather than blocks.
- */
-export function clauseNotes(questionText: string): string[] {
-	const joiners = questionText.match(/\b(and|or)\b|[,;]/gi) ?? [];
-	return joiners.length >= 2 ? ["It may ask about more than two qualities; keep a question to two at most."] : [];
-}
-
 /**
  * Up to `WARM_SAMPLE_CHARS` of answer text, one answer per prompt in turn, so a brand with many
  * prompts is sampled across all of them rather than through the first few. Each prompt starts at a
- * different model, so a sample that stops part-way still hears from every model.
+ * different model, so a sample that stops part-way still hears from every model. Answers to fact
+ * prompts are left out: those prompts are written to draw out facts, which would come back as
+ * attributes ("open source", quoted from "Yes, it is open source").
  */
 export function selectSample(candidates: SampleAnswer[]): SampleAnswer[] {
 	const byPrompt = new Map<string, SampleAnswer[]>();
 	for (const answer of candidates) {
-		if (!answer.text.trim()) continue;
+		if (!answer.text.trim() || answer.promptClass === "fact") continue;
 		byPrompt.set(answer.promptId, [...(byPrompt.get(answer.promptId) ?? []), answer]);
 	}
 	const models = [...new Set(candidates.map((answer) => answer.model))].sort();
@@ -161,12 +153,14 @@ function marketLine(context: BrandContext): string {
 }
 
 const SHARED_RULES = (brandName: string) => `Each attribute must be:
+- A neutral dimension an answer can be positive, negative or mixed about, never a complaint or a failure. Name what is being judged, not what goes wrong: "reliability of projects that stay online", not "project pausing"; "portability", not "vendor lock-in"; "ease of learning", not "learning curve". The quote may be a complaint; the label and quality must not be.
 - One quality, not a feature list or a fact. "Pricing and value for money" is an attribute an answer can be positive, negative or mixed about; "has a free plan" is a fact, and doesn't belong here.
 - A quality buyers compare brands in this market on, so a question about the market can rank brands on it.
 - Distinct from every other attribute you propose. Don't split one idea in two ("ease of setup" and "onboarding"), but keep qualities apart that an answer could praise one of and criticise the other.
 
 For each, give:
-- label: a short display name.
+- label: a short, neutral display name.
+- theme: a short lowercase key for the broad topic, shared by related attributes ("pricing" for both value for money and cost predictability).
 - quality: a noun phrase that completes "How does this answer characterise ${brandName}'s ...?", such as "ease of getting started" or "pricing and value for money". One quality; never more than two joined by "and".
 - marketPrompt: the question a buyer would ask an AI assistant whose answer would name and rank brands on this quality, such as "Which backend-as-a-service platforms are easiest to get started with?". Name no brand in it, neither ${brandName} nor a competitor.`;
 
@@ -178,7 +172,7 @@ export function buildWarmPrompt(context: BrandContext, sample: SampleAnswer[]): 
 
 The brand: ${marketLine(context)}
 
-Below are ${sample.length} answers AI assistants gave to questions this brand tracks. Read how they characterise ${context.brandName}: what they praise, what they criticise, what they compare it on. Propose between ${CANDIDATES_MIN} and ${CANDIDATES_MAX} attributes in the answers' own vocabulary, most often discussed first. Use the words the answers use, not the brand's own marketing language.
+Below are ${sample.length} answers AI assistants gave to questions this brand tracks. Read how they characterise ${context.brandName}: what they praise, what they criticise, what they compare it on. Propose between ${CANDIDATES_MIN} and ${CANDIDATES_MAX} attributes in the answers' own vocabulary, most often discussed first, and spread across every topic the answers discuss rather than many angles on one. Use the words the answers use, not the brand's own marketing language.
 
 ${SHARED_RULES(context.brandName)}
 - quote: a phrase copied word for word from one answer where ${context.brandName} is characterised on this quality. Every attribute needs one, so propose only qualities the answers actually discuss.
@@ -234,6 +228,9 @@ function rejectionReason(
 	const quality = oneLine(item.quality);
 	if (!label || label.length > MAX_LABEL_CHARS) return `label must be 1 to ${MAX_LABEL_CHARS} characters`;
 	if (quality.length < 3 || quality.length > MAX_QUALITY_CHARS) return "quality missing or too long";
+	const failure = failureStateProblem(label, quality);
+	if (failure) return failure;
+	if (joinsTooManyQualities(quality)) return "joins more than two qualities";
 	const promptIssue = marketPromptProblem(item.marketPrompt, [
 		context.brandName,
 		...context.aliases,
@@ -277,16 +274,34 @@ export function screenAttributes(
 		seen.labels.add(comparable(label));
 		seen.qualities.add(comparable(quality));
 		seen.prompts.add(comparable(item.marketPrompt));
-		const questionText = attributeQuestion(quality);
 		kept.push({
 			label,
-			questionText,
+			quality,
+			theme: comparable(item.theme) || comparable(quality),
+			questionText: attributeQuestion(quality),
 			marketPromptText: oneLine(item.marketPrompt),
 			quote: sampleText !== null ? oneLine(item.quote) : null,
-			notes: clauseNotes(questionText),
 		});
 	}
-	return { proposals: kept.slice(0, PROPOSED_ATTRIBUTES_MAX), heldBack: kept.slice(PROPOSED_ATTRIBUTES_MAX), rejected };
+	return { ...selectShown(kept), rejected };
+}
+
+/**
+ * Up to the shown maximum, one per theme in turn (themes in the order the model first raised them),
+ * and at most `SHOWN_PER_THEME` from any theme. The rest are held back, not discarded.
+ */
+function selectShown(kept: ProposedAttribute[]): Pick<AttributeProposalResult, "proposals" | "heldBack"> {
+	const themes = new Map<string, ProposedAttribute[]>();
+	for (const proposal of kept) themes.set(proposal.theme, [...(themes.get(proposal.theme) ?? []), proposal]);
+	const queues = [...themes.values()].map((queue) => queue.slice(0, SHOWN_PER_THEME));
+	const proposals: ProposedAttribute[] = [];
+	while (proposals.length < PROPOSED_ATTRIBUTES_MAX && queues.some((queue) => queue.length > 0)) {
+		for (const queue of queues) {
+			const next = queue.shift();
+			if (next && proposals.length < PROPOSED_ATTRIBUTES_MAX) proposals.push(next);
+		}
+	}
+	return { proposals, heldBack: kept.filter((proposal) => !proposals.includes(proposal)) };
 }
 
 /** Generic qualities most markets compare on: what the user starts from when no provider answered. */
@@ -310,11 +325,21 @@ export function seededAttributes(category: string | null, existingLabels: string
 	const existing = new Set(existingLabels.map(comparable));
 	return SEEDED.filter((seed) => !existing.has(comparable(seed.label))).map((seed) => ({
 		label: seed.label,
+		quality: seed.quality,
+		theme: comparable(seed.label),
 		questionText: attributeQuestion(seed.quality),
 		marketPromptText: `Which ${market} ${seed.asks}?`,
 		quote: null,
-		notes: [],
 	}));
+}
+
+function sampleSize(sample: SampleAnswer[]): AttributeProposalResult["sample"] {
+	return {
+		answers: sample.length,
+		prompts: new Set(sample.map((answer) => answer.promptId)).size,
+		models: new Set(sample.map((answer) => answer.model)).size,
+		chars: sample.reduce((sum, answer) => sum + answer.text.length, 0),
+	};
 }
 
 export async function proposeAttributes(input: {
@@ -323,21 +348,18 @@ export async function proposeAttributes(input: {
 	competitors: string[];
 	category: string | null;
 	existingLabels: string[];
+	/** Candidate answers; the proposer samples them, and starts cold when too few qualify. */
 	sample: SampleAnswer[];
 	/** The brand's tracked prompts, read for the market they show when there are too few answers. */
 	trackedPrompts: string[];
 	providers?: Provider[];
 }): Promise<AttributeProposalResult> {
-	const warm = input.sample.length >= WARM_MIN_ANSWERS;
-	const sample = warm ? input.sample : [];
+	const offered = selectSample(input.sample);
+	const warm = offered.length >= WARM_MIN_ANSWERS && sampleSize(offered).prompts >= WARM_MIN_PROMPTS;
+	const sample = warm ? offered : [];
 	const result: AttributeProposalResult = {
 		grounding: warm ? "warm" : "cold",
-		sample: {
-			answers: sample.length,
-			prompts: new Set(sample.map((answer) => answer.promptId)).size,
-			models: new Set(sample.map((answer) => answer.model)).size,
-			chars: sample.reduce((sum, answer) => sum + answer.text.length, 0),
-		},
+		sample: sampleSize(sample),
 		proposals: [],
 		heldBack: [],
 		rejected: [],
@@ -345,15 +367,31 @@ export async function proposeAttributes(input: {
 		failures: [],
 	};
 	const prompt = warm ? buildWarmPrompt(input, sample) : buildColdPrompt(input, input.trackedPrompts);
-	for (const provider of input.providers ?? researchProviders()) {
+	const { answer, failures } = await askInTurn(prompt, input.providers ?? researchProviders());
+	if (!answer) {
+		return {
+			...result,
+			failures,
+			grounding: "seeded",
+			proposals: seededAttributes(input.category, input.existingLabels),
+		};
+	}
+	const screened = screenAttributes(answer.attributes, input, warm ? sample : null, input.existingLabels);
+	return { ...result, ...screened, failures, answeredBy: answer.answeredBy };
+}
+
+/** Each provider in turn until one answers in the expected shape. */
+async function askInTurn(prompt: string, providers: Provider[]) {
+	const failures: AttributeProposalResult["failures"] = [];
+	for (const provider of providers) {
 		if (!provider.runStructuredResearch) continue;
 		try {
 			const answer = await provider.runStructuredResearch({ prompt, schema: proposalSchema, webSearch: false });
-			const screened = screenAttributes(answer.object.attributes, input, warm ? sample : null, input.existingLabels);
-			return { ...result, ...screened, answeredBy: { provider: provider.id, model: answer.modelVersion ?? "unknown" } };
+			const answeredBy = { provider: provider.id, model: answer.modelVersion ?? "unknown" };
+			return { answer: { attributes: answer.object.attributes, answeredBy }, failures };
 		} catch (error) {
-			result.failures.push({ provider: provider.id, error: error instanceof Error ? error.message : String(error) });
+			failures.push({ provider: provider.id, error: error instanceof Error ? error.message : String(error) });
 		}
 	}
-	return { ...result, grounding: "seeded", proposals: seededAttributes(input.category, input.existingLabels) };
+	return { answer: null, failures };
 }
