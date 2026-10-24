@@ -90,12 +90,12 @@ function parseCsv(source: string): string[][] {
 	}
 	return rows;
 }
-/** Gold labels: the natural answers' and, when they exist, the perturbed copies' (labelled separately). */
-const labelFiles = [
-	path.join(dir, "sealed", "labels.ai.csv"),
-	path.join(dir, "sealed", "labels.ai.perturbed.csv"),
-].filter((file) => existsSync(file));
-const items = labelFiles.flatMap((file) => {
+/**
+ * Gold labels: the AI labeller's for the natural answers' attribute items and, when they exist, the
+ * perturbed copies' (labelled separately). Drift's gold is the operator's own labels, since the operator
+ * labels every drift item (PROCEDURE.md §7b).
+ */
+function goldLabels(file: string) {
 	const [header, ...goldRows] = parseCsv(readFileSync(file, "utf8"));
 	const column = (name: string) => header.indexOf(name);
 	return goldRows.map((cells) => ({
@@ -104,7 +104,16 @@ const items = labelFiles.flatMap((file) => {
 		attributeKey: cells[column("attribute_key")],
 		gold: cells[column("label")],
 	}));
-});
+}
+const operatorDrift = new Map(
+	goldLabels(path.join(dir, "labels-template.csv"))
+		.filter((item) => item.attributeKey === "drift")
+		.map((item) => [item.itemId, item.gold]),
+);
+const items = [path.join(dir, "sealed", "labels.ai.csv"), path.join(dir, "sealed", "labels.ai.perturbed.csv")]
+	.filter((file) => existsSync(file))
+	.flatMap(goldLabels)
+	.map((item) => (item.attributeKey === "drift" ? { ...item, gold: operatorDrift.get(item.itemId) ?? "" } : item));
 
 interface Judged {
 	answer: string;
