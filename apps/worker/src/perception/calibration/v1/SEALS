@@ -32,3 +32,14 @@ sealed/attributes/validation-seed-2.txt 7d00aee3110f3143f7c55315d110a6670639e67a
 sealed/attributes/tells.md dd614ee0af71b371f791b9b623eca5c5bace118adff6f1e2746e73a5f0a3898c  (with the second pass's note; unread)
 v1/attributes/validation-subset.json af48f6463f37b7aecf7ceb864de8715cd7bc7d85ed30eb534ac753f86eeccbb0  (the 40 attribute items the operator labels blind, drawn from all 450 with at least 10 negatives, §7b; with all 15 drift items)
 v1/attributes/validation-subset.json 91eaadae67ab9806947a01a7a937744c1c72a5720c78f094fa27dc160cdb909f  (bytes after biome formatting; whitespace only, the same 40 ids)
+v1/attributes/worksheet-perturbed.md 2763d47460a6232a0b400d90393bc66309d01bfdb268add42ad119b24015a864  (attribute half, perturbed copies, §7a: 20 copies of the sealed fact-prompt bases, A46–A65, one negative characterisation planted on one frozen attribute in each, 2 per attribute, 17 buried and 3 standalone; items T451–T650; header corrected by the operator's assistant before labelling; 2026-10-24)
+v1/attributes/labels-template-perturbed.csv 34bd32c02f596f4aa0365db40c2f6fba79a34f3357dbf1ea2bd4bb87268fbee5  (unlabelled template for the perturbed copies)
+sealed/attributes/perturbed-key.json 5730a5819e3a08526880feefb74e3d62d47fe4d1f141dd0b1b466ce852924efb  (which base and attribute each copy plants, and the edit)
+sealed/attributes/perturbed-seed.txt e0715fe0f9ee8b5fe03031373282b91c1f400381497fb9b0e8a56f20e6a10c7a  (the copies' shuffle seed)
+sealed/attributes/labels.claude.perturbed.jsonl 77986e6b952d8c3f6cbd7b16285a845d6f3db7bd6b8397fdc73e4b7c0246557a  (the planting subagent's intended labels; for reviewing disagreements after the freeze, never gold)
+sealed/attributes/perturb-build.py d721e11faa6dd9634efd083870c5152ce5b5283e904fe2b723b77fc1077ea798  (the planting subagent's build script, which holds the edits)
+sealed/attributes/labels.ai.perturbed.csv 83171896d71bc84c34953a40ed4ec4a4d7de0cb6af019c48d69837f2cd4859f0  (gold for the perturbed copies: a fresh AI labeller that saw none of the 45 natural answers, labelling blind; 2026-10-24)
+sealed/attributes/tells.perturbed.md 28c4c21b25c96a8f9a9e1344a88bf84c69ff712e1f2ca2566b647075a5219aa6  (that labeller's possible tells; unread)
+sealed/attributes/labeller-scripts/fill.py aaa9f561603654888e4a0736a45f44d3d624a8d47a96f2b9529be88d7fcdfe76  (labellers' working scripts, which hold labels)
+sealed/attributes/labeller-scripts/label.py f20db7c459b2cc36406c24c0649eedf5cfd9128bf598e8b687bceaac226fff3b
+sealed/attributes/labeller-scripts/label2.py c937a7df2ad1032334849e78f8ebfec3e43610c3c02af10833a4d740a4013a75
