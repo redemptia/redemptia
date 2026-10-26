@@ -353,6 +353,18 @@ blind; sealed before comparison):
 
 The stratified sample fails §7b by two items. Four of its six disagreements involve `mixed`.
 
+Cross-model results under §5 version 2 (both families relabelled from scratch; sealed before comparison):
+
+| Set | Agreement | κ | Negative disagreements | Discussed vs not | Negative and mixed as one |
+|---|---|---|---|---|---|
+| Stratified 40 (gate) | 32 of 40 (80%), 36 needed | 0.72 (0.55–0.89) | 3 (2 allowed) | 90.0%, κ 0.79 (0.60–0.99) | 85%, κ 0.77 |
+| Hard 30 (diagnostic) | 22 of 30 (73%) | 0.52 (0.24–0.80) | 4 | 86.7%, κ 0.52 | 83%, κ 0.65 |
+
+**Result: the gate fails, and so does the fallback fixed in SPEC §12 beforehand** (it needed discussed vs
+not discussed at ≥ 90% with κ ≥ 0.8; κ is 0.79). Version 2 improved the hard items (negative agreement
+0.60 → 0.89) but not the stratified sample (34 → 32 of 40). Drift, version 2: the AI says yes on 12 of
+the operator's 15 drift items, the operator on 7; they agree on 10.
+
 **Drift's human labels (2026-10-26).** The operator's human attribute sample was dropped for
 cross-model validation; one human step stays: 15 drift items drawn at random from the shipped-template
 answers (`validation-drift.json`), labelled yes or no alone. These are drift's gold. The operator first
