@@ -59,9 +59,12 @@ const against =
 		? (JSON.parse(readFileSync(process.argv[againstFlag + 1], "utf8")) as { labels: Record<string, string> }).labels
 		: null;
 /** Part 1 shows every drift item beside its sample; part 2's sample names each item to show. */
+/** `--version 2` compares the labelling-version-2 files (`labels.ai.v2.csv`, `labels.ai-2.v2.csv`). */
+const versionFlag = process.argv.indexOf("--version");
+const v = versionFlag > 0 && process.argv[versionFlag + 1] !== "1" ? `.v${process.argv[versionFlag + 1]}` : "";
 const parts = [
-	{ human: "labels-template.csv", ai: "labels.ai.csv", sample: "validation-subset.json", allDrift: true },
-	{ human: "labels-template-2.csv", ai: "labels.ai-2.csv", sample: "validation-subset-2.json", allDrift: false },
+	{ human: "labels-template.csv", ai: `labels.ai${v}.csv`, sample: "validation-subset.json", allDrift: true },
+	{ human: "labels-template-2.csv", ai: `labels.ai-2${v}.csv`, sample: "validation-subset-2.json", allDrift: false },
 ].filter((part) => existsSync(path.join(dir, part.sample)));
 for (const part of parts) {
 	const human = labels(path.join(dir, part.human));
@@ -84,7 +87,7 @@ for (const part of parts) {
 }
 if (against && existsSync(path.join(dir, "validation-drift.json"))) {
 	const human = labels(path.join(dir, "labels-template-2.csv"));
-	const ai = labels(path.join(aiDir, "labels.ai-2.csv"));
+	const ai = labels(path.join(aiDir, `labels.ai-2${v}.csv`));
 	for (const id of JSON.parse(readFileSync(path.join(dir, "validation-drift.json"), "utf8")) as string[]) {
 		const label = human.get(id)?.label;
 		if (label) driftPairs.push({ human: label, ai: ai.get(id)?.label ?? "", key: "drift" });
