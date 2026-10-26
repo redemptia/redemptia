@@ -14,10 +14,10 @@
  */
 import { createHash } from "node:crypto";
 import type { DbConnection } from "@workspace/lib/db/db-connection";
-import { brands, promptRuns, runMentions } from "@workspace/lib/db/schema";
+import { brands, citations, promptRuns, runMentions } from "@workspace/lib/db/schema";
 import { perceptionAttributes, perceptionPrompts } from "@workspace/lib/db/schema-perception";
 import type { RunMentionAssessments } from "@workspace/lib/mentions";
-import { and, eq, gte, lt, sql } from "drizzle-orm";
+import { and, countDistinct, desc, eq, gte, lt, sql } from "drizzle-orm";
 
 export interface ProminenceCell {
 	/** Judged answers to this attribute's market prompts in the period, under this competitor set. */
@@ -134,4 +134,69 @@ export async function marketProminence(
 		brand: brand?.name ?? "",
 		rows,
 	};
+}
+
+export interface AttributeSource {
+	url: string;
+	domain: string;
+	title: string | null;
+	/** Answers to this attribute's market prompts that cite the page. */
+	citingAnswers: number;
+}
+
+export interface AttributeSources {
+	attributeKey: string;
+	/** Answers to the attribute's market prompts in the period, judged or not: the denominator for each source. */
+	answers: number;
+	sources: AttributeSource[];
+}
+
+/**
+ * The pages answers cite when asked each attribute's market prompt, most-cited first: where the
+ * market's view of the attribute comes from. Counts answers that cite a page, not citations, so one
+ * answer citing a page twice counts once.
+ */
+export async function attributeSources(
+	conn: DbConnection,
+	brandId: string,
+	filters: { from?: Date; to?: Date; model?: string } = {},
+	limit = 5,
+): Promise<AttributeSources[]> {
+	const inRange = and(
+		eq(promptRuns.brandId, brandId),
+		filters.from ? gte(promptRuns.createdAt, filters.from) : sql`true`,
+		filters.to ? lt(promptRuns.createdAt, filters.to) : sql`true`,
+		filters.model ? eq(promptRuns.model, filters.model) : sql`true`,
+	);
+	const market = and(eq(perceptionPrompts.promptId, promptRuns.promptId), eq(perceptionPrompts.class, "market"));
+	const totals = await conn
+		.select({ key: perceptionPrompts.attributeKey, answers: countDistinct(promptRuns.id) })
+		.from(promptRuns)
+		.innerJoin(perceptionPrompts, market)
+		.where(inRange)
+		.groupBy(perceptionPrompts.attributeKey);
+	const cited = await conn
+		.select({
+			key: perceptionPrompts.attributeKey,
+			url: citations.url,
+			domain: citations.domain,
+			title: sql<string | null>`max(${citations.title})`,
+			citingAnswers: countDistinct(citations.promptRunId),
+		})
+		.from(citations)
+		.innerJoin(promptRuns, eq(promptRuns.id, citations.promptRunId))
+		.innerJoin(perceptionPrompts, market)
+		.where(and(inRange, eq(citations.brandId, brandId)))
+		.groupBy(perceptionPrompts.attributeKey, citations.url, citations.domain)
+		.orderBy(desc(countDistinct(citations.promptRunId)), citations.url);
+	return totals
+		.filter((t): t is typeof t & { key: string } => t.key !== null)
+		.map((t) => ({
+			attributeKey: t.key,
+			answers: t.answers,
+			sources: cited
+				.filter((c) => c.key === t.key)
+				.slice(0, limit)
+				.map(({ key: _, ...source }) => source),
+		}));
 }

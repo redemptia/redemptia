@@ -2,8 +2,8 @@ import { db } from "@workspace/lib/db/db";
 import { perceptionAttributes, perceptionPrompts } from "@workspace/lib/db/schema-perception";
 import type { MentionAssessment, RunMentionAssessments } from "@workspace/lib/mentions";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { competitorSetFingerprint, marketProminence } from "@/server/perception-prominence-core";
-import { createBrand, createPrompt, createRun, deleteBrand } from "@/test/integration/stats-fixtures";
+import { attributeSources, competitorSetFingerprint, marketProminence } from "@/server/perception-prominence-core";
+import { createBrand, createCitation, createPrompt, createRun, deleteBrand } from "@/test/integration/stats-fixtures";
 
 let brandId: string;
 let marketPrompt: string;
@@ -100,5 +100,25 @@ describe("market prominence", () => {
 			Acme: { answers: 0, mentioned: 0, positionSum: 0, positioned: 0, prominence: null },
 		});
 		expect(result.competitorSet).toBeNull();
+	});
+});
+
+describe("attribute sources", () => {
+	it("counts the answers citing each page, once per answer, over all the attribute's answers", async () => {
+		const first = await answer({ brand: 1 });
+		const second = await answer({ brand: 2 });
+		await answer({});
+		await createCitation(first, "https://example.com/fast", { title: "Fast databases" });
+		await createCitation(first, "https://example.com/fast", { index: 2 });
+		await createCitation(second, "https://example.com/fast");
+		await createCitation(second, "https://other.example/list");
+
+		const [speed] = await attributeSources(db, brandId);
+		expect(speed.attributeKey).toBe("attr_speed");
+		expect(speed.answers).toBe(3);
+		expect(speed.sources).toEqual([
+			{ url: "https://example.com/fast", domain: "example.com", title: "Fast databases", citingAnswers: 2 },
+			{ url: "https://other.example/list", domain: "other.example", title: null, citingAnswers: 1 },
+		]);
 	});
 });
