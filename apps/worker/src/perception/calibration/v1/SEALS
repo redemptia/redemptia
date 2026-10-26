@@ -93,3 +93,5 @@ sealed/attributes/labeller-3-scripts/labels-22.tsv 289de36429371a7d5c2d2e6a78631
 sealed/attributes/labeller-3-scripts/verify.py 2a3fab75a9b6f5edcd4ca22ae2225e057c1740de4117ceb41c0bc2eb28a4d49d
 v1/attributes/validation-drift.json fd039b635d9585aac204717ad6e8d22985bdfffdf2cf12929f2bfa7e730f12d6  (the operator's drift-only check: 15 drift items drawn at random, seed 20261027, from the 36 shipped-template answers, labelled yes or no alone; 2026-10-26)
 sealed/attributes/labels.gemini.json 1f3776cb14c9b76514afe952491461cc0150330589461b3fef1d0fbc9a1fbf2f  (cross-model validation, §7b: google/gemini-3.8-flash labelling the 30 hard attribute items blind, $0.115; sealed before any comparison; 2026-10-26)
+v1/attributes/validation-stratified.json 0ca9f5b0df51be2fa9356e17f7e72ad516c4e20427ac90ca6a3f63efc615801c  (§7b's gating sample: 40 of the 510 natural association attribute items, stratified by the AI labels in corpus proportion, seed 20261028; the 30 hard items become a diagnostic set; 2026-10-26)
+sealed/attributes/validation-stratified-seed.txt 103df5b0df20652addb916834adb4d1758ef10bf7690dc9909bca9d4f0b14fca  (that draw's method and strata)
