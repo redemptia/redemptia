@@ -147,13 +147,31 @@ display label never reaches the judge. The attribute list is frozen (version 1 o
 `question_text`) before any answer is collected. Labels made against a list that has since changed
 are void.
 
-- **`positive`** / **`negative`**: the answer characterises the brand favourably or unfavourably on
-  this attribute.
-- **`mixed`**: both, or a conditional ("a good choice only if …").
-- **`not_discussed`**: no characterisation on this attribute. A bare mention of the topic with no
-  judgement is `not_discussed`.
-- **Drift `yes`**: the answer characterises the brand on a quality that no frozen attribute covers.
-  Mark the span. Otherwise `no`.
+Every rule below is about **this attribute only**: a judgement of another attribute never moves this
+label. (Labelling version 2, approved 2026-10-26. Version 1, the first labels, read `mixed` as "both,
+or a conditional", which two model families read differently; the cross-model results in §7b under
+version 1 are kept as they were.)
+
+- **`positive`**: every judgement the answer makes of the brand on this attribute is favourable. A
+  neutral fact beside it ("the free tier includes 500 MB") or a hedge ("generally", "usually") doesn't
+  make it mixed. Judgements that are all favourable but differ in strength are `positive`.
+- **`negative`**: every judgement on this attribute is unfavourable, including a limitation stated as a
+  drawback ("pauses after a week of inactivity", "gets expensive at scale"). It stays `negative` however
+  much the answer praises other attributes.
+- **`mixed`**: the answer makes at least one favourable **and** at least one unfavourable judgement on
+  this same attribute ("cheap to start, expensive at scale"), or makes its judgement conditional on the
+  buyer ("a good choice only if you're comfortable with SQL"). Criticism here beside praise of a
+  different attribute is `negative`, not `mixed`; praise here beside criticism of a different attribute
+  is `positive`, not `mixed`.
+- **`not_discussed`**: no favourable or unfavourable judgement on this attribute: a bare mention, or a
+  feature named in a neutral list or a factual sentence. An item in a list the answer frames as
+  strengths or pros, or as weaknesses or cons, is a judgement in that direction.
+- **Two-quality questions** (the frozen list has some, §4.1 of the spec): if the answer judges one
+  quality and is silent on the other, label by the one it judges; if it judges the two in opposite
+  directions, `mixed`.
+- **Drift `yes`**: the answer makes a favourable or unfavourable judgement of the brand on a quality no
+  frozen attribute covers, alone or together. A neutrally named feature or a summary phrase ("in one
+  integrated platform") is `no`. Mark the span. Otherwise `no`.
 
 The subject rule from §4 applies.
 
@@ -334,6 +352,15 @@ blind; sealed before comparison):
 | Hard 30 (diagnostic) | 14 of 30 (47%) | 0.26 (0.01–0.50) | 12 | 77%, κ 0.32 | 77%, κ 0.55 |
 
 The stratified sample fails §7b by two items. Four of its six disagreements involve `mixed`.
+
+**Drift's human labels (2026-10-26).** The operator's human attribute sample was dropped for
+cross-model validation; one human step stays: 15 drift items drawn at random from the shipped-template
+answers (`validation-drift.json`), labelled yes or no alone. These are drift's gold. The operator first
+said yes on 4 of 15, then, after a consistency check showed three no's on qualities they had called yes
+elsewhere (Edge Functions' limits in D39 against D34; offline-first mobile sync in D54 and D64 against
+D66), revised D39, D54 and D64 to yes: **7 of 15**. The AI labeller said yes on 15 of 15. The drift
+question's wording stands; the gap is the finding: the AI counted neutrally named features and summary
+phrases, which the version 2 drift rule (§5) now excludes.
 
 **Attribution for the attribute half.** Every figure states: "attribute labels AI-generated, validated
 against 15 blind human labels on hard items (10 negative, 5 discussed-boundary) at X of 15 in agreement
