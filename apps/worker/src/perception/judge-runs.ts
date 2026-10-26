@@ -24,6 +24,7 @@ import {
 	perceptionRunStatus,
 	perceptionVerdicts,
 } from "@workspace/lib/db/schema-perception";
+import { ASSOCIATION_ENABLED } from "@workspace/lib/perception/association";
 import { EXTRACTOR_VERSION, extractorFor, extractRun } from "@workspace/lib/text-extraction";
 import { and, asc, desc, eq, gte, inArray, isNull, lte, or, sql } from "drizzle-orm";
 import {
@@ -498,11 +499,13 @@ export async function judgePendingRuns(
 	transport: JevTransport,
 	judge: string,
 	limit = RUNS_PER_JOB,
+	options: { association: boolean } = { association: ASSOCIATION_ENABLED },
 ): Promise<JudgeOutcome> {
 	const stamp = perceptionStamp(judge);
 	const outcome: JudgeOutcome = { runs: 0, calls: 0, verdicts: 0, overCeiling: false, rateLimited: false };
 	const factRuns = await pendingRuns(db, stamp, limit);
-	const runs = [...factRuns, ...(await pendingAssociationRuns(db, stamp, limit - factRuns.length))];
+	const associationRuns = options.association ? await pendingAssociationRuns(db, stamp, limit - factRuns.length) : [];
+	const runs = [...factRuns, ...associationRuns];
 	for (const run of runs) {
 		const result = await judgeRun(db, transport, run, stamp, judge);
 		outcome.calls += result.calls;

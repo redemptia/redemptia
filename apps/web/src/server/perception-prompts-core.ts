@@ -12,7 +12,7 @@ import { MAX_PROMPTS } from "@workspace/lib/constants";
 import { db } from "@workspace/lib/db/db";
 import type { DbConnection } from "@workspace/lib/db/db-connection";
 import { prompts } from "@workspace/lib/db/schema";
-import { perceptionPrompts } from "@workspace/lib/db/schema-perception";
+import { perceptionAttributes, perceptionPrompts } from "@workspace/lib/db/schema-perception";
 import {
 	assertAllowed,
 	assertPromptSaveAllowed,
@@ -20,9 +20,10 @@ import {
 	WriteDeniedError,
 	withQuotaLock,
 } from "@workspace/lib/entitlements";
+import { ASSOCIATION_ENABLED } from "@workspace/lib/perception/association";
 import { factPromptProblem } from "@workspace/lib/perception/propose-facts";
 import { computeSystemTags } from "@workspace/lib/tag-utils";
-import { and, asc, count, eq } from "drizzle-orm";
+import { and, asc, count, eq, isNull } from "drizzle-orm";
 import { createPromptJobScheduler } from "@/lib/job-scheduler";
 import { AttributeRuleError, addAttributes, checkWording } from "@/server/perception-attributes-core";
 import { addFact, FactRuleError, type FactSourceInput } from "@/server/perception-facts-core";
@@ -237,6 +238,74 @@ export async function addAssociationPrompts(brand: PromptBrand): Promise<number>
 	return ids.length;
 }
 
+/**
+ * Makes the brand's market prompts match its active attributes: one enabled prompt per attribute,
+ * asking that attribute's `market_prompt_text` and marked with its key. A new wording is a new prompt
+ * (the old one is stopped, keeping its answers), so one prompt never asks two questions over its
+ * history. A retired attribute's prompt is stopped. Returns how many were started and stopped.
+ */
+export async function syncMarketPrompts(brand: PromptBrand): Promise<{ started: number; stopped: number }> {
+	const plan = await withQuotaLock(brand.organizationId, async (tx) => {
+		const attributes = await tx
+			.select({ key: perceptionAttributes.key, text: perceptionAttributes.marketPromptText })
+			.from(perceptionAttributes)
+			.where(and(eq(perceptionAttributes.brandId, brand.id), isNull(perceptionAttributes.retiredAt)));
+		const market = await tx
+			.select({ id: prompts.id, value: prompts.value, enabled: prompts.enabled, key: perceptionPrompts.attributeKey })
+			.from(prompts)
+			.innerJoin(perceptionPrompts, eq(perceptionPrompts.promptId, prompts.id))
+			.where(and(eq(prompts.brandId, brand.id), eq(perceptionPrompts.class, "market")));
+		const wanted = new Map(attributes.map((a) => [a.key, a.text]));
+		const current = (key: string | null, value: string) => key !== null && wanted.get(key) === value;
+		const toStop = market.filter((m) => m.enabled && !current(m.key, m.value)).map((m) => m.id);
+		const toResume = market.filter((m) => !m.enabled && current(m.key, m.value)).map((m) => m.id);
+		const covered = new Set(market.filter((m) => current(m.key, m.value)).map((m) => m.key));
+		const toCreate = attributes.filter((a) => !covered.has(a.key));
+		if (toCreate.length === 0) return { created: [] as string[], toStop, toResume };
+
+		const existing = await tx.select({ value: prompts.value }).from(prompts).where(eq(prompts.brandId, brand.id));
+		const taken = new Set(existing.map((row) => dedupeKey(row.value)));
+		const clash = toCreate.find((a) => taken.has(dedupeKey(a.text)));
+		if (clash) {
+			throw new AttributeRuleError(
+				`The brand already tracks "${clash.text}" as another prompt. Reword this attribute's market prompt.`,
+			);
+		}
+		assertAllowed(decidePromptCap(existing.length, toCreate.length));
+		const { perception } = await promptHeadroom(tx, brand.id);
+		const after = perception.used - toStop.length + toResume.length + toCreate.length;
+		if (after > PERCEPTION_PROMPT_CAP) {
+			throw new AttributeRuleError(
+				`Tracking a market prompt for each attribute would pass the ${PERCEPTION_PROMPT_CAP} perception prompts a brand can track. Stop tracking some fact prompts first.`,
+			);
+		}
+		await assertPromptSaveAllowed(brand.organizationId, { prompts: toCreate.length, premiumPairings: 0 }, tx);
+		const rows = await tx
+			.insert(prompts)
+			.values(
+				toCreate.map((a) => ({
+					brandId: brand.id,
+					value: a.text,
+					enabled: true,
+					tags: [],
+					systemTags: computeSystemTags(a.text, brand.name, brand.website),
+					premiumModels: [],
+				})),
+			)
+			.returning({ id: prompts.id, value: prompts.value });
+		await tx
+			.insert(perceptionPrompts)
+			.values(rows.map((row, i) => ({ promptId: row.id, class: "market" as const, attributeKey: toCreate[i].key })));
+		return { created: rows.map((row) => row.id), toStop, toResume };
+	});
+	// Outside the lock, as elmo does: stopping and resuming go through elmo's own prompt update, which
+	// takes the lock itself and manages each prompt's schedule.
+	for (const id of plan.toStop) await updatePrompt(brand, id, { enabled: false });
+	for (const id of plan.toResume) await updatePrompt(brand, id, { enabled: true });
+	for (const id of plan.created) await createPromptJobScheduler(id);
+	return { started: plan.created.length + plan.toResume.length, stopped: plan.toStop.length };
+}
+
 export interface ConfirmedAttribute {
 	label: string;
 	/** The noun phrase the judge's question asks about. */
@@ -245,24 +314,26 @@ export interface ConfirmedAttribute {
 }
 
 /**
- * Saves the attributes a user kept from a proposal, all or none, then tracks the association
- * prompts. The question is built from the quality, so every attribute asks in the one shape the
- * judge expects. The attributes stay saved if the prompts can't be tracked (a cap reached, say);
- * the reason comes back with them.
+ * Saves the attributes a user kept from a proposal, all or none, then tracks a market prompt for
+ * each (and the association prompts, while association is on). The question is built from the
+ * quality, so every attribute asks in the one shape the judge expects. The attributes stay saved if
+ * the prompts can't be tracked (a cap reached, say); the reason comes back with them.
  */
 export async function confirmAttributes(
 	brand: PromptBrand,
 	inputs: ConfirmedAttribute[],
-): Promise<{ attributeIds: string[]; associationPrompts: number; promptError: string | null }> {
+): Promise<{ attributeIds: string[]; marketPrompts: number; associationPrompts: number; promptError: string | null }> {
 	const checked = [];
 	for (const input of inputs) {
 		checked.push({ label: input.label, ...(await checkWording(db, brand.id, input)) });
 	}
 	const attributeIds = await addAttributes(db, brand.id, checked);
 	try {
-		return { attributeIds, associationPrompts: await addAssociationPrompts(brand), promptError: null };
+		const associationPrompts = ASSOCIATION_ENABLED ? await addAssociationPrompts(brand) : 0;
+		const { started } = await syncMarketPrompts(brand);
+		return { attributeIds, marketPrompts: started, associationPrompts, promptError: null };
 	} catch (error) {
 		if (!(error instanceof AttributeRuleError || error instanceof WriteDeniedError)) throw error;
-		return { attributeIds, associationPrompts: 0, promptError: error.message };
+		return { attributeIds, marketPrompts: 0, associationPrompts: 0, promptError: error.message };
 	}
 }

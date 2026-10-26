@@ -23,12 +23,7 @@ import {
 	retireAttribute,
 	setMarketPromptText,
 } from "@/server/perception-attributes-core";
-import {
-	ASSOCIATION_PROMPT_TEMPLATES,
-	associationPromptCount,
-	confirmAttributes,
-	promptHeadroom,
-} from "@/server/perception-prompts-core";
+import { confirmAttributes, promptHeadroom, syncMarketPrompts } from "@/server/perception-prompts-core";
 import type { PromptBrand } from "@/server/prompts-core";
 
 async function promptBrand(brandId: string): Promise<PromptBrand> {
@@ -41,16 +36,14 @@ export const getAttributesFn = createServerFn({ method: "GET" })
 	.validator(z.object({ brandId: z.string() }))
 	.handler(async ({ data }) => {
 		await requireBrandSession(data.brandId);
-		const [attributes, headroom, suggestionRunsLeft, associationPrompts] = await Promise.all([
+		const [attributes, headroom, suggestionRunsLeft] = await Promise.all([
 			listAttributes(db, data.brandId),
 			promptHeadroom(db, data.brandId),
 			attributeSuggestionRunsLeft(data.brandId),
-			associationPromptCount(db, data.brandId),
 		]);
 		return {
 			attributes: attributes.map(({ retiredAt, ...attribute }) => ({ ...attribute, retired: retiredAt !== null })),
 			maxActive: MAX_ACTIVE_ATTRIBUTES,
-			associationPromptsToAdd: Math.max(0, ASSOCIATION_PROMPT_TEMPLATES.length - associationPrompts),
 			headroom,
 			suggestionRunsLeft,
 		};
@@ -120,6 +113,7 @@ export const setMarketPromptTextFn = createServerFn({ method: "POST" })
 		await requireBrandSession(data.brandId);
 		const text = await checkMarketPromptWording(db, data.brandId, data.marketPromptText);
 		await setMarketPromptText(db, data.brandId, data.attributeId, text);
+		await syncMarketPrompts(await promptBrand(data.brandId));
 	});
 
 export const retireAttributeFn = createServerFn({ method: "POST" })
@@ -127,6 +121,7 @@ export const retireAttributeFn = createServerFn({ method: "POST" })
 	.handler(async ({ data }) => {
 		await requireBrandSession(data.brandId);
 		await retireAttribute(db, data.brandId, data.attributeId);
+		await syncMarketPrompts(await promptBrand(data.brandId));
 	});
 
 export const mergeAttributesFn = createServerFn({ method: "POST" })
@@ -135,4 +130,5 @@ export const mergeAttributesFn = createServerFn({ method: "POST" })
 		await requireBrandSession(data.brandId);
 		const checked = await checkWording(db, data.brandId, data);
 		await mergeAttributes(db, data.brandId, { keepId: data.keepId, retireId: data.retireId, ...checked });
+		await syncMarketPrompts(await promptBrand(data.brandId));
 	});
