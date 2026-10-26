@@ -96,3 +96,21 @@ sealed/attributes/labels.gemini.json 1f3776cb14c9b76514afe952491461cc01503305894
 v1/attributes/validation-stratified.json 0ca9f5b0df51be2fa9356e17f7e72ad516c4e20427ac90ca6a3f63efc615801c  (§7b's gating sample: 40 of the 510 natural association attribute items, stratified by the AI labels in corpus proportion, seed 20261028; the 30 hard items become a diagnostic set; 2026-10-26)
 sealed/attributes/validation-stratified-seed.txt 103df5b0df20652addb916834adb4d1758ef10bf7690dc9909bca9d4f0b14fca  (that draw's method and strata)
 sealed/attributes/labels.gemini-stratified.json 8f9bafe76cb290b208c1c58ae911735a010b4a9a88e1bd91b6fa0f188f6ccc94  (google/gemini-3.8-flash labelling the stratified 40 blind, $0.097; sealed before comparison; 2026-10-26)
+v1/attributes/labels-template-2.csv f01d4f2317943c697ccf2478db2c09f61387b53ce6fb7df6f8cabdd09a59021b  (the operator's 15 drift labels, yes or no alone; D39, D54 and D64 revised to yes by the operator after a consistency check: 7 of 15 yes; 2026-10-26)
+sealed/attributes/labels.ai.v2.csv 3a4c77c3017ae211b46c0b258b78103f85990a28784da3ec61192e916c866b2b  (labelling version 2, §5: fresh AI labeller; 2026-10-26)
+sealed/attributes/labels.ai-2.v2.csv 1a92c05574a1c92ca0f0132d293dbaec43c420e68842d255e4829fde290f28c5  (labelling version 2, §5: fresh AI labeller; 2026-10-26)
+sealed/attributes/labels.ai.perturbed.v2.csv 0f89465175ca400b47f4c29378fad93b960397d9949cdcc5ac3d8eb4d03774d1  (labelling version 2, §5: fresh AI labeller; 2026-10-26)
+sealed/attributes/tells.v2-part1.md d171fb273b37e5157834d6c81739deac9d340d59535e1a378dd03fe7ed439f93  (labelling version 2, §5: fresh AI labeller; 2026-10-26)
+sealed/attributes/tells.v2-part2.md 4b1b01741ddd9f434c6fd31b3f3429bfaa756804fa509093db17828d8499c96a  (labelling version 2, §5: fresh AI labeller; 2026-10-26)
+sealed/attributes/tells.v2-perturbed.md c78b17d2021d0f78baa1f4d1b9fb237175e4beb9c9ead730be1d51a32c724db3  (labelling version 2, §5: fresh AI labeller; 2026-10-26)
+sealed/attributes/labels.gemini-stratified.v2.json a555d333020d0662ab0dd0e453ded28fd7a85a81b219dac62b0780e5139bc354  (google/gemini-3.8-flash, version 2 rules, the stratified 40, $0.180; sealed before comparison)
+sealed/attributes/labels.gemini.v2.json 7bad3e266d3d54c98df2668f0c1e261212acd07e6326bfc50341b239ca025caf  (google/gemini-3.8-flash, version 2 rules, the hard 30 diagnostic, $0.150; sealed before comparison)
+sealed/attributes/v2-scripts-part1/__pycache__ 
+sealed/attributes/v2-scripts-part1/b01.py a0a4557b040c1622c2f2ce039fb6f36c65890d0630fa57e75e87d8230bbe791a
+sealed/attributes/v2-scripts-part1/build.py e345859ec50fe84d69af3e3ba0c3d436ab64adabfd97090d16732b91f7ae3b67
+sealed/attributes/v2-scripts-part1/counts.py e6e93fb7ebdde89f9e554b7789bb3bad7a3d692be32cc8ce0adcfa1657b47ff2
+sealed/attributes/v2-scripts-part2/build.py bcfeb0366defe2933cae6b92e93f781a748e694e21d2870fbf18ba81cc3d6e8e
+sealed/attributes/v2-scripts-part2/labels-01.txt 60c1129ee81fb507aba55c2212d246fa2bf99fd26a2758889be6b89c4d6fa38c
+sealed/attributes/v2-scripts-part2/show.sh 5ff0d2be7445ac2897e5a094206046fa4e2047226cffb2ffa428a97288196838
+sealed/attributes/v2-scripts-perturbed/check.py f5cf69b6bdd5721d4314e98cfdd6ca46d1abc255b10f99225c00add043eb6add
+sealed/attributes/v2-scripts-perturbed/fill.py 06cc5192f73a0bd93f0305735b60c0e6f96acfa0f0b1de6892c37e1e996152ec
