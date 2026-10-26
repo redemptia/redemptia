@@ -226,9 +226,10 @@ attribute half (§7b), for the brand subject only.
 **Which items each bar is measured on (decided 2026-10-24, before any operator label or judge run).**
 The headline is the 150 attribute items and 15 drift items from the 15 association answers: they are
 the only items shaped like what the association path judges in production. The discussed bars and the
-drift bar are measured on them alone. The negative bars are measured on the association items plus the
-perturbed copies, because the association answers hold too few natural negatives; the natural-only
-check below then applies to the association items. The 300 items from the fact-prompt answers come
+drift bar are measured on them alone. The negative bars are measured on the natural association items too: with
+part 2 (§7b) they hold 61 natural negatives by the AI labels, so no planted negative is needed (decided
+2026-10-26). Both sets of perturbed copies are reported apart and gate nothing, and negative recall
+rests on natural negatives alone. The 300 items from the fact-prompt answers come
 from a prompt class the association path never sees, and contributed 275 of the 345 `not_discussed`
 labels, so measuring the discussed boundary mostly on them would measure the wrong thing. They are
 reported apart, like the perturbed copies, and gate nothing. A shortfall on the headline stops the gate
@@ -254,9 +255,8 @@ Why these and not the fact bar:
 - `positive` and `mixed` have no bar; they are reported in the full confusion matrix.
 
 Rules:
-- **Natural and perturbed items are reported separately.** The negative bars are decided on the
-  association and perturbed items together, and if the association items alone fall below a negative bar
-  that the combined set passes, the result is a stop and a report, not a pass.
+- **Natural and perturbed items are reported separately.** Every bar is decided on natural association
+  items; perturbed copies are reported for comparison only.
 - **The negative class is counted before the judge runs.** Once the AI labeller has labelled every item,
   the natural gold `negative`s are counted. Fewer than 30 is reported then, and the operator chooses
   between perturbed copies (one characterisation in a copy of an answer flipped to negative) and
