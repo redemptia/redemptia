@@ -44,10 +44,16 @@ function labels(file: string): Map<string, { key: string; label: string }> {
 	return new Map(rows.map((r) => [r[at("item_id")], { key: r[at("attribute_key")], label: r[at("label")] }]));
 }
 
-type Pair = { human: string; ai: string };
+/** `human` is the checking labeller: the operator, or with `--against`, a second model family. */
+type Pair = { human: string; ai: string; key: string };
 const attributePairs: Pair[] = [];
 const driftPairs: Pair[] = [];
 const unlabelled: string[] = [];
+const againstFlag = process.argv.indexOf("--against");
+const against =
+	againstFlag > 0
+		? (JSON.parse(readFileSync(process.argv[againstFlag + 1], "utf8")) as { labels: Record<string, string> }).labels
+		: null;
 /** Part 1 shows every drift item beside its sample; part 2's sample names each item to show. */
 const parts = [
 	{ human: "labels-template.csv", ai: "labels.ai.csv", sample: "validation-subset.json", allDrift: true },
@@ -59,18 +65,36 @@ for (const part of parts) {
 	const sample = new Set(JSON.parse(readFileSync(path.join(dir, part.sample), "utf8")) as string[]);
 	for (const [id, row] of human) {
 		const isDrift = row.key === "drift";
+		// With --against, the second model checks the hard attribute items, and the operator's drift-only
+		// labels (validation-drift.json) check drift.
+		if (against && isDrift) continue;
 		if (!sample.has(id) && !(isDrift && part.allDrift)) continue;
-		if (!row.label) {
+		const label = against ? against[id] : row.label;
+		if (!label) {
 			unlabelled.push(id);
 			continue;
 		}
-		(isDrift ? driftPairs : attributePairs).push({ human: row.label, ai: ai.get(id)?.label ?? "" });
+		(isDrift ? driftPairs : attributePairs).push({ human: label, ai: ai.get(id)?.label ?? "", key: row.key });
+	}
+}
+if (against && existsSync(path.join(dir, "validation-drift.json"))) {
+	const human = labels(path.join(dir, "labels-template-2.csv"));
+	const ai = labels(path.join(aiDir, "labels.ai-2.csv"));
+	for (const id of JSON.parse(readFileSync(path.join(dir, "validation-drift.json"), "utf8")) as string[]) {
+		const label = human.get(id)?.label;
+		if (label) driftPairs.push({ human: label, ai: ai.get(id)?.label ?? "", key: "drift" });
 	}
 }
 if (unlabelled.length > 0) {
-	console.error(`${unlabelled.length} of the operator's items have no label yet.`);
+	console.error(`${unlabelled.length} of the checking labeller's items have no label yet.`);
 	process.exit(1);
 }
+
+/**
+ * Frozen attributes whose question joins two qualities that an answer can judge differently: a
+ * disagreement on one is a question-design problem first, so these are reported apart.
+ */
+const TWO_QUALITY = new Set(["dx", "self_host", "scale", "ai_vector", "ecosystem"]);
 
 /** Cohen's κ, with a 95% interval from its large-sample standard error. */
 function kappa(pairs: Pair[]) {
@@ -123,9 +147,23 @@ const report = {
 			]),
 		),
 		negative: specificAgreement(attributePairs, "negative"),
-		discussedVsNot: kappa(attributePairs.map((p) => ({ human: discussed(p.human), ai: discussed(p.ai) }))),
+		discussedVsNot: kappa(attributePairs.map((p) => ({ ...p, human: discussed(p.human), ai: discussed(p.ai) }))),
 	},
-	driftItems: { ...kappa(driftPairs), yes: specificAgreement(driftPairs, "yes") },
+	twoQualityQuestions: {
+		keys: [...TWO_QUALITY],
+		items: attributePairs.filter((p) => TWO_QUALITY.has(p.key)).length,
+		agreeing: attributePairs.filter((p) => TWO_QUALITY.has(p.key) && p.human === p.ai).length,
+		singleQualityItems: attributePairs.filter((p) => !TWO_QUALITY.has(p.key)).length,
+		singleQualityAgreeing: attributePairs.filter((p) => !TWO_QUALITY.has(p.key) && p.human === p.ai).length,
+	},
+	driftItems: driftPairs.length
+		? {
+				...kappa(driftPairs),
+				yes: specificAgreement(driftPairs, "yes"),
+				checkYesRate: `${driftPairs.filter((p) => p.human === "yes").length} of ${driftPairs.length}`,
+				aiYesRate: `${driftPairs.filter((p) => p.ai === "yes").length} of ${driftPairs.length}`,
+			}
+		: "not labelled yet",
 	decision: decide(attributePairs),
 	note: "A hard sample (10 negatives, 5 discussed-boundary items): κ and agreement describe these items, not the population.",
 };
