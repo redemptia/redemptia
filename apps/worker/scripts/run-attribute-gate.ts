@@ -318,22 +318,17 @@ function score(): void {
 	// The headline: the natural association answers, the only items shaped like what the association
 	// path judges in production.
 	const association = measures(of(...NATURAL_ASSOCIATION), driftOf(...NATURAL_ASSOCIATION));
-	// Negative bars need more negatives than the natural answers hold, so association-shaped plants join them.
-	const associationAndPerturbed = measures(of(...NATURAL_ASSOCIATION, "perturbed_association"), []);
 	const bySet = Object.fromEntries(
 		["association_p11", "association_templates", "fact_prompt", "perturbed_fact", "perturbed_association"].map(
 			(set) => [set, measures(of(set), driftOf(set))],
 		),
 	);
-	const headline = { ...associationPasses(association), ...negativePasses(associationAndPerturbed) };
-	const naturalNegative = negativePasses(association);
+	// Every bar on the natural association items: they hold enough real negatives (§7a), so no planted set gates.
+	const headline = { ...associationPasses(association), ...negativePasses(association) };
 	const corpusPass = Object.values(headline).every(Boolean);
-	// §7a: a natural result below a bar the enriched set passes is a stop, not a pass.
-	const naturalShort = Object.entries(naturalNegative).filter(([k, v]) => headline[k as keyof typeof headline] && !v);
 	const report = {
 		attribution: ATTRIBUTION,
-		negativeRecall: `Negative recall is carried by planted negatives and is therefore optimistic, as v1's contradicts recall was. Natural negative recall rests on the association answers' ${association.negativeRecall.n} natural negatives.`,
-		sets: "Headline: the natural association answers (P11–P15 and the shipped templates), attribute and drift items. Negative bars: those plus the association-based perturbed copies. Every set is also reported on its own; fact-prompt items and fact-based copies gate nothing.",
+		sets: "Every bar is measured on the natural association answers (P11–P15 and the shipped templates). Every set is also reported on its own; fact-prompt items and both sets of perturbed copies gate nothing.",
 		judge: [...new Set(judged.map((j) => j.model))],
 		calls: judged.length,
 		failedCalls: judged.filter((j) => j.status !== 200).map((j) => ({ answer: j.answer, error: j.error })),
@@ -348,11 +343,9 @@ function score(): void {
 			{ input: 0, output: 0 },
 		),
 		association,
-		associationAndPerturbed,
 		bySet,
 		passesHeadline: headline,
-		passesNaturalNegativeOnly: naturalNegative,
-		gate: !corpusPass ? "fail" : naturalShort.length ? "stop: natural items fall short" : "pass on the corpus",
+		gate: corpusPass ? "pass on the corpus" : "fail",
 		pending: "Drift's second check, 16 of 20 live review-queue passages read by eye, happens at Checkpoint 7.",
 	};
 	writeFileSync(path.join(gateDir, "results.json"), `${JSON.stringify(report, null, "\t")}\n`);
