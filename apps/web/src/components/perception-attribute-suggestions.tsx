@@ -24,7 +24,7 @@ export interface ConfirmInput {
 }
 
 export interface ConfirmOutcome {
-	associationPrompts: number;
+	marketPrompts: number;
 	promptError: string | null;
 }
 
@@ -74,8 +74,8 @@ function Grounding({
 		return (
 			<p className="text-sm text-muted-foreground">
 				A starting guess from your market: there aren't enough answers about your brand yet (15 across 5 prompts) to
-				read its own vocabulary. Answers to your association prompts start being collected once you save attributes, and
-				the attributes can be revised as they come in.
+				read its own vocabulary. Each attribute you save starts tracking its market prompt, and the attributes can be
+				revised as they come in.
 			</p>
 		);
 	}
@@ -143,7 +143,7 @@ function DraftRow({
 					</div>
 					<div className="space-y-1">
 						<Label htmlFor={`market-${draft.id}`} className="text-xs text-muted-foreground">
-							Market prompt (saved now, tracked once market prompts arrive)
+							Market prompt (tracked once you save)
 						</Label>
 						<Textarea
 							id={`market-${draft.id}`}
@@ -195,7 +195,6 @@ export function PerceptionAttributeSuggestions({
 	state,
 	runsLeft,
 	room,
-	associationPromptsToAdd,
 	headroom,
 	onSuggest,
 	onConfirm,
@@ -205,7 +204,6 @@ export function PerceptionAttributeSuggestions({
 	/** How many more active attributes the brand can have. */
 	room: number;
 	/** Association prompts confirming will start tracking: 0 once the brand has them. */
-	associationPromptsToAdd: number;
 	headroom: { perception: { used: number; cap: number }; brand: { used: number; cap: number } };
 	onSuggest: (category: string | null) => Promise<void>;
 	onConfirm: (attributes: ConfirmInput[]) => Promise<ConfirmOutcome>;
@@ -327,8 +325,9 @@ export function PerceptionAttributeSuggestions({
 					<div className="space-y-2 rounded-lg border p-4">
 						<p className="text-sm">
 							Keeping {kept.length} of up to {room}.
-							{associationPromptsToAdd > 0 &&
-								` Saving also tracks ${associationPromptsToAdd} association prompts ("What is your brand known for?" and the like), which run at your brand's cadence on every enabled model and are billed like any prompt.`}
+							{
+								" Saving tracks one market prompt per attribute, which runs at your brand's cadence on every enabled model and is billed like any prompt."
+							}
 						</p>
 						<p className="text-sm text-muted-foreground">
 							Perception prompts: {headroom.perception.used} of {headroom.perception.cap}. All prompts:{" "}
@@ -345,8 +344,8 @@ export function PerceptionAttributeSuggestions({
 									);
 									setOutcome(
 										result.promptError
-											? `Saved ${kept.length} attributes. The association prompts weren't tracked: ${result.promptError}`
-											: `Saved ${kept.length} attributes${result.associationPrompts ? ` and started tracking ${result.associationPrompts} association prompts` : ""}.`,
+											? `Saved ${kept.length} attributes. Their market prompts weren't tracked: ${result.promptError}`
+											: `Saved ${kept.length} attributes${result.marketPrompts ? ` and started tracking ${result.marketPrompts} market prompts` : ""}.`,
 									);
 									setDrafts((current) => current.filter((draft) => !draft.kept));
 								} catch (failure) {

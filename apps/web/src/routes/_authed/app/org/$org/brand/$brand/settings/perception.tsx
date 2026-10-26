@@ -120,7 +120,7 @@ function PerceptionSettingsPage() {
 			await write(async () => {
 				({ promptError } = await addAttributeFn({ data: { brandId, ...input } }));
 			}, "Couldn't add the attribute.");
-			if (promptError) throw new Error(`Added. The association prompts weren't tracked: ${promptError}`);
+			if (promptError) throw new Error(`Added. Its market prompt wasn't tracked: ${promptError}`);
 		},
 		rename: (attributeId, label) =>
 			write(() => renameAttributeFn({ data: { brandId, attributeId, label } }), "Couldn't rename the attribute."),
@@ -230,14 +230,13 @@ function PerceptionSettingsPage() {
 						state={attributeSuggestions ?? { status: "none" }}
 						runsLeft={attributeState.suggestionRunsLeft}
 						room={attributeState.maxActive - attributeState.attributes.filter((a) => !a.retired).length}
-						associationPromptsToAdd={attributeState.associationPromptsToAdd}
 						headroom={attributeState.headroom}
 						onSuggest={async (category) => {
 							await write(() => suggestAttributesFn({ data: { brandId, category } }), "Couldn't start suggestions.");
 							await queryClient.invalidateQueries({ queryKey: attributeSuggestionsKey(brandId) });
 						}}
 						onConfirm={async (attributes) => {
-							let outcome = { associationPrompts: 0, promptError: null as string | null };
+							let outcome = { marketPrompts: 0, promptError: null as string | null };
 							await write(async () => {
 								outcome = await confirmAttributesFn({ data: { brandId, attributes } });
 							}, "Couldn't save the attributes.");

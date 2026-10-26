@@ -171,7 +171,7 @@ function AttributeItem({
 					</div>
 					<div className="space-y-1">
 						<Label htmlFor={`market-${attribute.id}`}>
-							Market prompt (saved now, tracked once market prompts arrive)
+							Market prompt (a new wording starts a new prompt; the old one stops and keeps its answers)
 						</Label>
 						<Textarea
 							id={`market-${attribute.id}`}
@@ -387,7 +387,7 @@ export function PerceptionAttributesEditor({
 			<div>
 				<h2 className="text-xl font-semibold">Attributes</h2>
 				<p className="text-sm text-muted-foreground">
-					{active.length} of {maxActive} active. Answers to your association prompts are judged on each one.
+					{active.length} of {maxActive} active. Each one tracks a market prompt.
 				</p>
 				<p className="text-sm text-muted-foreground">
 					Perception prompts: {headroom.perception.used} of {headroom.perception.cap}. All prompts:{" "}

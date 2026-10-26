@@ -53,9 +53,7 @@ export const ShowsCountsVersionsAndRetired: StoryObj = {
 	render: () => editor(ATTRIBUTES, actions()),
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
-		await expect(
-			canvas.getByText("3 of 10 active. Answers to your association prompts are judged on each one."),
-		).toBeInTheDocument();
+		await expect(canvas.getByText("3 of 10 active. Each one tracks a market prompt.")).toBeInTheDocument();
 		await expect(canvas.getByText("Perception prompts: 16 of 24. All prompts: 41 of 100.")).toBeInTheDocument();
 		await expect(canvas.getByText("question v2")).toBeInTheDocument();
 		await expect(canvas.getByText(/Retired: Mobile\. Their history is kept\./)).toBeInTheDocument();

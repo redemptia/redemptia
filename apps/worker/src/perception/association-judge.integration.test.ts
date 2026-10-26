@@ -113,7 +113,7 @@ describe("judging an association answer", () => {
 		const runId = await run(await prompt(), TEXT);
 		const j = judge({ attribute: "negative" });
 
-		const outcome = await judgePendingRuns(db, j.transport, "stub");
+		const outcome = await judgePendingRuns(db, j.transport, "stub", undefined, { association: true });
 
 		expect(j.requests).toHaveLength(1);
 		const { questions } = j.requests[0];
@@ -152,7 +152,9 @@ describe("judging an association answer", () => {
 	it("keeps the drift passage only when the answer has a quality no attribute covers", async () => {
 		await attribute("ease of getting started");
 		const yes = await run(await prompt(), TEXT);
-		await judgePendingRuns(db, judge({ drift: "yes", passage: "p3" }).transport, "stub");
+		await judgePendingRuns(db, judge({ drift: "yes", passage: "p3" }).transport, "stub", undefined, {
+			association: true,
+		});
 		const [drift] = (await verdictsOf(yes)).filter((v) => v.kind === "drift");
 		expect(drift).toMatchObject({ verdict: "yes", passage: "Acme ships with a slick admin dashboard." });
 		expect(drift.passageConfidence).toBe(0.7);
@@ -162,12 +164,12 @@ describe("judging an association answer", () => {
 		const first = await attribute("ease of getting started");
 		const promptId = await prompt();
 		const earlier = await run(promptId, TEXT, new Date(Date.now() - 60_000));
-		await judgePendingRuns(db, judge().transport, "stub");
+		await judgePendingRuns(db, judge().transport, "stub", undefined, { association: true });
 
 		const second = await attribute("pricing and value for money");
 		const later = await run(promptId, TEXT);
 		const j = judge();
-		await judgePendingRuns(db, j.transport, "stub");
+		await judgePendingRuns(db, j.transport, "stub", undefined, { association: true });
 
 		expect(j.requests).toHaveLength(1);
 		expect(Object.keys(j.requests[0].questions)).toContain(attributeKey(second));
@@ -185,14 +187,14 @@ describe("judging an association answer", () => {
 		const retired = await attribute("realtime", { retired: true });
 		await run(await prompt(), TEXT);
 		const j = judge();
-		await judgePendingRuns(db, j.transport, "stub");
+		await judgePendingRuns(db, j.transport, "stub", undefined, { association: true });
 		expect(Object.keys(j.requests[0].questions)).toContain(attributeKey(active));
 		expect(Object.keys(j.requests[0].questions)).not.toContain(attributeKey(retired));
 
 		await db.update(perceptionAttributes).set({ retiredAt: new Date() }).where(eq(perceptionAttributes.id, active));
 		await run(await prompt(), TEXT);
 		const none = judge();
-		await judgePendingRuns(db, none.transport, "stub");
+		await judgePendingRuns(db, none.transport, "stub", undefined, { association: true });
 		expect(none.requests).toEqual([]);
 
 		await attribute("pricing");
@@ -201,15 +203,23 @@ describe("judging an association answer", () => {
 			.set({ enabled: false })
 			.where(eq(perceptionBrandSettings.brandId, brandId));
 		const off = judge();
-		await judgePendingRuns(db, off.transport, "stub");
+		await judgePendingRuns(db, off.transport, "stub", undefined, { association: true });
 		expect(off.requests).toEqual([]);
+	});
+
+	it("judges no association answer while association is off", async () => {
+		await attribute("ease of getting started");
+		await run(await prompt(), TEXT);
+		const j = judge();
+		await judgePendingRuns(db, j.transport, "stub");
+		expect(j.requests).toEqual([]);
 	});
 
 	it(`doesn't judge answers older than ${LOOKBACK_DAYS} days`, async () => {
 		await attribute("ease of getting started");
 		await run(await prompt(), TEXT, new Date(Date.now() - (LOOKBACK_DAYS + 1) * 86_400_000));
 		const j = judge();
-		await judgePendingRuns(db, j.transport, "stub");
+		await judgePendingRuns(db, j.transport, "stub", undefined, { association: true });
 		expect(j.requests).toEqual([]);
 	});
 
@@ -222,7 +232,7 @@ describe("judging an association answer", () => {
 		const factRun = await run(await prompt("fact", "Does Acme have a free plan?"), "Acme has a free plan.");
 		const associationRun = await run(await prompt(), TEXT);
 		const j = judge();
-		await judgePendingRuns(db, j.transport, "stub");
+		await judgePendingRuns(db, j.transport, "stub", undefined, { association: true });
 
 		expect(j.requests).toHaveLength(2);
 		expect((await verdictsOf(factRun)).map((v) => [v.kind, v.factId])).toEqual([["fact", factId]]);

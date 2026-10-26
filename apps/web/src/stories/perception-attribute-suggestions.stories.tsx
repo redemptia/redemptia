@@ -45,10 +45,9 @@ const panel = (
 			state={state}
 			runsLeft={options.runsLeft ?? 3}
 			room={options.room ?? 10}
-			associationPromptsToAdd={6}
 			headroom={{ perception: { used: 10, cap: 24 }, brand: { used: 41, cap: 100 } }}
 			onSuggest={fn(async () => {})}
-			onConfirm={options.onConfirm ?? fn(async () => ({ associationPrompts: 6, promptError: null }))}
+			onConfirm={options.onConfirm ?? fn(async () => ({ marketPrompts: 1, promptError: null }))}
 		/>
 	</div>
 );
@@ -68,7 +67,7 @@ export const ShowsWhatTheProposalWasReadFrom: StoryObj = {
 
 export const MergesTwoSuggestionsIntoOneTwoQualityAttribute: StoryObj = {
 	render: () => {
-		const onConfirm = fn(async () => ({ associationPrompts: 6, promptError: null }));
+		const onConfirm = fn(async () => ({ marketPrompts: 1, promptError: null }));
 		return panel(warm, { onConfirm });
 	},
 	play: async ({ canvasElement }) => {
@@ -86,7 +85,7 @@ export const MergesTwoSuggestionsIntoOneTwoQualityAttribute: StoryObj = {
 		await userEvent.click(canvas.getByRole("checkbox", { name: "Keep Self-hosting & Portability" }));
 		await userEvent.click(canvas.getByRole("button", { name: "Save 1 attribute" }));
 		await expect(
-			await canvas.findByText(/Saved 1 attributes and started tracking 6 association prompts/),
+			await canvas.findByText(/Saved 1 attributes and started tracking 1 market prompts/),
 		).toBeInTheDocument();
 	},
 };
