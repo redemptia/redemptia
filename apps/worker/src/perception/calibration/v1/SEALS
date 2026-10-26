@@ -51,3 +51,43 @@ v1/attributes/validation-subset.json VOIDED  (the 15 hard items drawn from all 4
 v1/attributes/validation-subset.json 7c2c0be5cc8b37514d9dbcc03f2be1a8a37a8412842faec4333858afe3f7ab0c  (the 15 hard items from the 150 association items: 10 negative of the 12 there, 5 discussed-boundary; with all 15 drift items; 2026-10-24)
 v1/attributes/validation-subset.json 163c5fb66da500d7b0a09125cb0375c4d3881d37e1e40b0187a950ca8d4ee2c9  (bytes after biome formatting; whitespace only, the same 15 ids)
 sealed/attributes/validation-seed-4.txt 501b129ffad0b5cfd3f8442d01209ac7a45a16972326894ccf410bc5cfda7fee  (the association-only hard draw's method and each item's group; 2026-10-24)
+v1/attributes/worksheet-2.md 96710987c9a1377882fa6f0398ae4f4baaf165a9cc2b2dc8cc6023223e56d2aa  (part 2, §7b: 36 answers to the six shipped association templates and 20 association-based perturbed copies, shuffled together with seed 20261026 as A66–A121; 10 attribute items and a drift item each, T651–T1210, D16–D71; 2026-10-26)
+v1/attributes/labels-template-2.csv 235767fa85afe30209731289e462d7fa52d7e27e30ebeee8cc833fd7cfe8adea  (part 2's unlabelled template)
+v1/attributes/validation-subset-2.json cc5f45d287592666cc122562d9428649482ed2ca63e5e00f3f60f5ae65fb4c97  (the operator's part-2 items: 15 hard attribute items from the 36 new natural answers, 10 negative and 5 discussed-boundary, and the drift item of each of those 36 answers; formatted)
+sealed/attributes/collection-2/inputs.json cc9173d55a3c804e3f0847bfbad6ed98bf7518c4b4fa79bfdf67c1a4fe877d31  (the collection's prompts: the six shipped templates, two runs each, three models; cap $3)
+sealed/attributes/collection-2/answers.jsonl d02baaab0762d3e8489107e462bab244eb630aaa6b1f0cdde1d6228464f46cc0  (36 natural answers collected 2026-10-26, $0.9753 billed; sealed until the freeze)
+sealed/attributes/collection-2/raw.jsonl 4ccc13b9459e3edc132f6dc43a5b2c30124b798e64819276a12b328c31f4f693  (their raw responses)
+sealed/attributes/perturbed-2-copies.jsonl f9bf679219fe10d7164f0c65ff3326a1529aa88d1dc786ff811eb891f8798465  (20 copies of the P11–P15 answers, one negative planted on one attribute each, 2 per attribute, 18 buried and 2 standalone)
+sealed/attributes/labels.claude.perturbed-2.jsonl 711ddbaef519deececb625d25055b3356e2e3cd2e511d3d1e17c6a80f242a3a7  (the planting subagent's intended labels; never gold)
+sealed/attributes/perturbed-2-build.py e9e3e153f58158da0aee1563871cc41f8d880d2a7be179f635d185e3d647a554
+sealed/attributes/perturbed-2-check.py 79e1f9e5089ec57d11a14da4f0b045eb1fb9c7e17cdaddd578c58f9bf533f1d1
+sealed/attributes/worksheet-2-key.json 5cb5ed6b9f3a75d885a55ed6e7b62eb797cbcb69e4f727701e2f153d90973cc7  (which part-2 answer is natural and which a copy)
+sealed/attributes/build-worksheet-2.py eff5beca3a241f0bc14105d58d9e7aadd4ae7a79f7b39c191b7c5f4c3ee871c6
+sealed/attributes/labels.ai-2.csv eb79160bac29f3e5a19adf2485e81710198f72a3faa38667b87a59eb81f46767  (gold for part 2's attribute items: a fresh AI labeller that saw none of the earlier answers, labelling natural answers and copies together blind)
+sealed/attributes/tells-2.md 308228f66f841f82211db615e880fb8ef6d01a5ecb4adb6d7470c167a9206135  (that labeller's possible tells; unread)
+sealed/attributes/validation-seed-5.txt 72dd029ab5ce71663e59de51c18b9497edaca9b5900eb4fcd63e75bfa8481c20
+sealed/attributes/hard-15-part2.json eb3e966433e357cc4f651e749cf58560d1e3b8462d3353513c9760e462e675f6  (the 15 hard part-2 items, picked by that labeller by judgement, not by seed)
+sealed/attributes/labeller-3-scripts/build.py 61a43e984211870af9918b2c73abae502db355e1a9d48f471fef2ead8c25d2da
+sealed/attributes/labeller-3-scripts/labels-01.tsv 215016165290e76e4113c6ed526006d92a827f30764f9e123e20d561119e65ba
+sealed/attributes/labeller-3-scripts/labels-02.tsv 4465c64f4ba03fc74302d8ea23c3018fd16f5b7493565f3d239d678af37a60ca
+sealed/attributes/labeller-3-scripts/labels-03.tsv ac1ce1ef7d55a0f6763aa1a9bec4eb724c126e630b7e9c037a4b8290ef30eb63
+sealed/attributes/labeller-3-scripts/labels-04.tsv c3c8f72378d2c992af4acbf334dd61b8a1577a4bbfa45facad4905c26a933344
+sealed/attributes/labeller-3-scripts/labels-05.tsv 7e756a095a7d735d06e298cd0d7d7c127c0f3b105758e016e6b031c921f8e607
+sealed/attributes/labeller-3-scripts/labels-06.tsv c4e4a8d87d15d4bffea60c8bd4632713cd186fbc2e5f9506fa0a113a647769a8
+sealed/attributes/labeller-3-scripts/labels-07.tsv de6711782130873a39301ec0a46c68fcf05a2e586ded93620bdb007bc47fbb9b
+sealed/attributes/labeller-3-scripts/labels-08.tsv 72d0d102b6d9ef70ddccbf729ff8baea915a25fa4a68978e16266ad034eb56d1
+sealed/attributes/labeller-3-scripts/labels-09.tsv 7570ab577c66bc5fa108356e5337a58a9a1479d7000c5a6ad508e023a026f707
+sealed/attributes/labeller-3-scripts/labels-10.tsv b59a0f7dab28a070da894ee64bad9f8ef73ad661ca201e2807488f080940ca3a
+sealed/attributes/labeller-3-scripts/labels-11.tsv 68d34d102aec4a57375170e5510350453b9d84486530c6df63b83e63d50493ad
+sealed/attributes/labeller-3-scripts/labels-12.tsv eadae515db7e7fa367c41e32f3b9ebc4a9905a38cacf11c3d2d5147510632757
+sealed/attributes/labeller-3-scripts/labels-13.tsv 10532cef0b49f3e9fb3d3ea720ea43c11c6b5eb60844e401a191d14bb41b10be
+sealed/attributes/labeller-3-scripts/labels-14.tsv 74216a647e51cc3076ad8e789d4e501a89f0b59b0f4b1bfc285dc35e1077fa31
+sealed/attributes/labeller-3-scripts/labels-15.tsv e3f7ec61b1b68c5ae54533226b5b54e2d7a497a579df83dc934f4714bd5596c5
+sealed/attributes/labeller-3-scripts/labels-16.tsv d082c2cd7ac88b8d0c7ecb46ceda9dc30bf0aea91948d420f18464b7bd16b0ea
+sealed/attributes/labeller-3-scripts/labels-17.tsv 2d389cc4ee5b929bcce5e5e97d719cbe7419387e89a313079eeb54e6c9c130d6
+sealed/attributes/labeller-3-scripts/labels-18.tsv 88f03d0087f62b0e9c44f1f18e4e5697fe9af858d8ef869a2707a41a506b7e5f
+sealed/attributes/labeller-3-scripts/labels-19.tsv 3b2759e2d7007392f44bd242505026cd67de2bc133785490495d35ca79a0c979
+sealed/attributes/labeller-3-scripts/labels-20.tsv 7a3178b04e838cfe98c09cab557a7f73950ea73fa7ad78c44c7b8641f07357b7
+sealed/attributes/labeller-3-scripts/labels-21.tsv 58bc44ff50178397ccd16f2b0c16c9a161568ac02cccdbb267c2f3e39cd307d1
+sealed/attributes/labeller-3-scripts/labels-22.tsv 289de36429371a7d5c2d2e6a786315180562aa44360b2fbfada5187bc09df3dc
+sealed/attributes/labeller-3-scripts/verify.py 2a3fab75a9b6f5edcd4ca22ae2225e057c1740de4117ceb41c0bc2eb28a4d49d

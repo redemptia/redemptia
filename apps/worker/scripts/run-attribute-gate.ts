@@ -39,8 +39,14 @@ if (!dir) fail("Pass the attribute half's directory, e.g. src/perception/calibra
 const gateDir = path.join(dir, "gate");
 const responsesPath = path.join(gateDir, "responses.jsonl");
 
-const perturbedWorksheet = path.join(dir, "worksheet-perturbed.md");
-const worksheets = [path.join(dir, "worksheet.md"), ...(existsSync(perturbedWorksheet) ? [perturbedWorksheet] : [])];
+/**
+ * The worksheets: the first part (the P11–P15 association answers and the fact-prompt answers), the
+ * fact-based perturbed copies, and the second part (answers to the shipped association templates,
+ * shuffled together with association-based perturbed copies).
+ */
+const worksheets = ["worksheet.md", "worksheet-perturbed.md", "worksheet-2.md"]
+	.map((file) => path.join(dir, file))
+	.filter((file) => existsSync(file));
 const texts = new Map(
 	worksheets.flatMap((file) =>
 		[...readFileSync(file, "utf8").matchAll(/^## (A\d+)\n\n~~~~text\n([\s\S]*?)\n~~~~\n/gm)].map(
@@ -52,28 +58,61 @@ const attributes = JSON.parse(readFileSync(path.join(dir, "..", "attributes.json
 	key: string;
 	question_text: string;
 }[];
-type KeyAnswer = { answer: string; source_id: string; origin?: string };
-const key = JSON.parse(readFileSync(path.join(dir, "sealed", "worksheet-key.json"), "utf8")) as {
-	answers: KeyAnswer[];
-	extension?: { answers: KeyAnswer[] };
-};
-/** The first block holds the association answers, which drift is asked of; the extension, fact-prompt answers. */
-const association = new Set(key.answers.map((a) => a.answer));
-const sources = new Map([...key.answers, ...(key.extension?.answers ?? [])].map((a) => [a.answer, a]));
-/** Perturbed copies: which base answer each was made from, so the judge sees the base's prompt. */
-const perturbedKeyPath = path.join(dir, "sealed", "perturbed-key.json");
-if (existsSync(perturbedKeyPath)) {
-	const perturbed = JSON.parse(readFileSync(perturbedKeyPath, "utf8")) as { answer: string; base_id: string }[];
-	for (const copy of perturbed) {
-		sources.set(copy.answer, { answer: copy.answer, source_id: copy.base_id, origin: "perturbed" });
+const readJson = <T>(...parts: string[]) => JSON.parse(readFileSync(path.join(dir, "sealed", ...parts), "utf8")) as T;
+const readJsonl = <T>(file: string) =>
+	readFileSync(file, "utf8")
+		.split("\n")
+		.filter(Boolean)
+		.map((line) => JSON.parse(line) as T);
+
+/**
+ * Each answer's set, and the collected answer whose prompt the judge is shown:
+ * - association_p11: the 15 answers to P11–P15, the first association prompts;
+ * - association_templates: answers to the shipped association templates;
+ * - fact_prompt: answers to fact prompts, which the association path never sees;
+ * - perturbed_fact and perturbed_association: copies of fact-prompt bases and of association answers,
+ *   each with one negative planted.
+ */
+type Source = { set: string; sourceId: string };
+const sources = new Map<string, Source>();
+const key = readJson<{
+	answers: { answer: string; source_id: string }[];
+	extension?: { answers: { answer: string; source_id: string }[] };
+}>("worksheet-key.json");
+for (const a of key.answers) sources.set(a.answer, { set: "association_p11", sourceId: a.source_id });
+for (const a of key.extension?.answers ?? []) sources.set(a.answer, { set: "fact_prompt", sourceId: a.source_id });
+if (existsSync(path.join(dir, "sealed", "perturbed-key.json"))) {
+	for (const copy of readJson<{ answer: string; base_id: string }[]>("perturbed-key.json")) {
+		sources.set(copy.answer, { set: "perturbed_fact", sourceId: copy.base_id });
 	}
 }
-const prompts = new Map<string, string>();
-for (const file of [path.join(dir, "..", "answers.jsonl"), path.join(dir, "..", "sealed", "bases", "answers.jsonl")]) {
-	for (const line of readFileSync(file, "utf8").split("\n").filter(Boolean)) {
-		const answer = JSON.parse(line) as { id: string; prompt: string };
-		prompts.set(answer.id, answer.prompt);
+if (existsSync(path.join(dir, "sealed", "worksheet-2-key.json"))) {
+	const bases = new Map(
+		readJsonl<{ copy_id: string; base_id: string }>(path.join(dir, "sealed", "perturbed-2-copies.jsonl")).map((c) => [
+			c.copy_id,
+			c.base_id,
+		]),
+	);
+	for (const a of readJson<{ answers: { answer: string; kind: string; source_id: string }[] }>("worksheet-2-key.json")
+		.answers) {
+		sources.set(
+			a.answer,
+			a.kind === "natural"
+				? { set: "association_templates", sourceId: a.source_id }
+				: { set: "perturbed_association", sourceId: bases.get(a.source_id) ?? "" },
+		);
 	}
+}
+/** Drift is asked of every association-shaped answer, as the perception job asks association runs. */
+const ASSOCIATION_SHAPED = new Set(["association_p11", "association_templates", "perturbed_association"]);
+const association = new Set([...sources].filter(([, s]) => ASSOCIATION_SHAPED.has(s.set)).map(([answer]) => answer));
+const prompts = new Map<string, string>();
+for (const file of [
+	path.join(dir, "..", "answers.jsonl"),
+	path.join(dir, "..", "sealed", "bases", "answers.jsonl"),
+	path.join(dir, "sealed", "collection-2", "answers.jsonl"),
+].filter((f) => existsSync(f))) {
+	for (const answer of readJsonl<{ id: string; prompt: string }>(file)) prompts.set(answer.id, answer.prompt);
 }
 
 /** RFC 4180 fields: quoted (with "" for a quote) or bare, comma-separated, one record per LF. */
@@ -105,15 +144,21 @@ function goldLabels(file: string) {
 		gold: cells[column("label")],
 	}));
 }
+/** The operator's drift labels, from both parts; a copy's drift item has none and isn't scored. */
 const operatorDrift = new Map(
-	goldLabels(path.join(dir, "labels-template.csv"))
-		.filter((item) => item.attributeKey === "drift")
+	["labels-template.csv", "labels-template-2.csv"]
+		.map((file) => path.join(dir, file))
+		.filter((file) => existsSync(file))
+		.flatMap(goldLabels)
+		.filter((item) => item.attributeKey === "drift" && item.gold)
 		.map((item) => [item.itemId, item.gold]),
 );
-const items = [path.join(dir, "sealed", "labels.ai.csv"), path.join(dir, "sealed", "labels.ai.perturbed.csv")]
+const items = ["labels.ai.csv", "labels.ai.perturbed.csv", "labels.ai-2.csv"]
+	.map((file) => path.join(dir, "sealed", file))
 	.filter((file) => existsSync(file))
 	.flatMap(goldLabels)
-	.map((item) => (item.attributeKey === "drift" ? { ...item, gold: operatorDrift.get(item.itemId) ?? "" } : item));
+	.map((item) => (item.attributeKey === "drift" ? { ...item, gold: operatorDrift.get(item.itemId) ?? "" } : item))
+	.filter((item) => item.gold);
 
 interface Judged {
 	answer: string;
@@ -149,7 +194,7 @@ async function judgeAll(apiKey: string): Promise<void> {
 	for (const [answer, full] of texts) {
 		const text = full.slice(0, MAX_ANSWER_CHARS);
 		const { questions, passages } = questionsFor(answer, text);
-		const source = sources.get(answer)?.source_id ?? "";
+		const source = sources.get(answer)?.sourceId ?? "";
 		const request: JevRequest = {
 			model: JEV_MODEL,
 			state: { question: prompts.get(source) ?? "", answer: text },
@@ -238,8 +283,7 @@ function associationPasses(m: ReturnType<typeof measures>) {
 
 /** Each gold item beside the judge's verdict on it; items the judge didn't answer are left out. */
 function judgedRows(byAnswer: Map<string, Judged>) {
-	const origin = (answer: string) =>
-		sources.get(answer)?.origin ?? (association.has(answer) ? "association" : "fact_prompt");
+	const origin = (answer: string) => sources.get(answer)?.set ?? "unknown";
 	const attributeRows: Row[] = [];
 	const driftRows: (Row & { passage: string | null })[] = [];
 	for (const item of items) {
@@ -268,13 +312,19 @@ function score(): void {
 		.filter(Boolean)
 		.map((line) => JSON.parse(line) as Judged);
 	const { attributeRows, driftRows } = judgedRows(new Map(judged.map((j) => [j.answer, j])));
-	const of = (set: string) => attributeRows.filter((r) => r.origin === set);
-	// The headline: the only items shaped like what the association path judges in production.
-	const association = measures(of("association"), driftRows);
-	// Negative bars need more negatives than the association answers hold, so planted ones join them.
-	const associationAndPerturbed = measures([...of("association"), ...of("perturbed")], []);
-	const factPrompt = measures(of("fact_prompt"), []);
-	const perturbed = measures(of("perturbed"), []);
+	const of = (...sets: string[]) => attributeRows.filter((r) => sets.includes(r.origin));
+	const driftOf = (...sets: string[]) => driftRows.filter((r) => sets.includes(r.origin));
+	const NATURAL_ASSOCIATION = ["association_p11", "association_templates"];
+	// The headline: the natural association answers, the only items shaped like what the association
+	// path judges in production.
+	const association = measures(of(...NATURAL_ASSOCIATION), driftOf(...NATURAL_ASSOCIATION));
+	// Negative bars need more negatives than the natural answers hold, so association-shaped plants join them.
+	const associationAndPerturbed = measures(of(...NATURAL_ASSOCIATION, "perturbed_association"), []);
+	const bySet = Object.fromEntries(
+		["association_p11", "association_templates", "fact_prompt", "perturbed_fact", "perturbed_association"].map(
+			(set) => [set, measures(of(set), driftOf(set))],
+		),
+	);
 	const headline = { ...associationPasses(association), ...negativePasses(associationAndPerturbed) };
 	const naturalNegative = negativePasses(association);
 	const corpusPass = Object.values(headline).every(Boolean);
@@ -283,7 +333,7 @@ function score(): void {
 	const report = {
 		attribution: ATTRIBUTION,
 		negativeRecall: `Negative recall is carried by planted negatives and is therefore optimistic, as v1's contradicts recall was. Natural negative recall rests on the association answers' ${association.negativeRecall.n} natural negatives.`,
-		sets: "Headline: the 15 association answers' attribute and drift items. Negative bars: association plus perturbed items. Fact-prompt and perturbed items are reported apart and don't gate.",
+		sets: "Headline: the natural association answers (P11–P15 and the shipped templates), attribute and drift items. Negative bars: those plus the association-based perturbed copies. Every set is also reported on its own; fact-prompt items and fact-based copies gate nothing.",
 		judge: [...new Set(judged.map((j) => j.model))],
 		calls: judged.length,
 		failedCalls: judged.filter((j) => j.status !== 200).map((j) => ({ answer: j.answer, error: j.error })),
@@ -299,8 +349,7 @@ function score(): void {
 		),
 		association,
 		associationAndPerturbed,
-		factPrompt,
-		perturbed,
+		bySet,
 		passesHeadline: headline,
 		passesNaturalNegativeOnly: naturalNegative,
 		gate: !corpusPass ? "fail" : naturalShort.length ? "stop: natural items fall short" : "pass on the corpus",
