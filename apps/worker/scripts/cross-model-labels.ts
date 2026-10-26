@@ -9,7 +9,8 @@
  *
  * Usage (reads OPENROUTER_API_KEY from the environment only; never loads .env):
  *   cd apps/worker
- *   OPENROUTER_API_KEY=... pnpm exec tsx scripts/cross-model-labels.ts src/perception/calibration/v1/attributes <output.json>
+ *   OPENROUTER_API_KEY=... pnpm exec tsx scripts/cross-model-labels.ts src/perception/calibration/v1/attributes <output.json> [--items <ids.json>]
+ * Without `--items` it labels the hard items in each part's sample; with it, the attribute items listed.
  */
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -46,15 +47,20 @@ function parseCsv(source: string): string[][] {
 	return rows;
 }
 
-/** The hard attribute items of both parts: each sample's T-items, with their answer and question. */
+/** The items to label, with their answer and question: those listed, or each part's hard T-items. */
+const itemsFlag = process.argv.indexOf("--items");
+const listed =
+	itemsFlag > 0 ? new Set(JSON.parse(readFileSync(process.argv[itemsFlag + 1], "utf8")) as string[]) : null;
 const items: { id: string; answer: string; question: string }[] = [];
 const texts = new Map<string, string>();
 for (const suffix of ["", "-2"]) {
-	const sample = new Set(
-		(JSON.parse(readFileSync(path.join(dir, `validation-subset${suffix}.json`), "utf8")) as string[]).filter((id) =>
-			id.startsWith("T"),
-		),
-	);
+	const sample =
+		listed ??
+		new Set(
+			(JSON.parse(readFileSync(path.join(dir, `validation-subset${suffix}.json`), "utf8")) as string[]).filter((id) =>
+				id.startsWith("T"),
+			),
+		);
 	const [header, ...rows] = parseCsv(readFileSync(path.join(dir, `labels-template${suffix}.csv`), "utf8"));
 	const at = (name: string) => header.indexOf(name);
 	for (const r of rows) {

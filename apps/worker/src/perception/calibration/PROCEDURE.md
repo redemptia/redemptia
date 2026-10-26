@@ -314,6 +314,27 @@ operator labels every natural association answer's drift item. The two parts' sa
 the decision rule: at least 90% of the hard items in agreement, and at most one disagreement on
 `negative` per 15 hard items (27 of 30 and 2 at 30 items).
 
+**A validation sample must be stratified (recorded 2026-10-26, after an invalid run).** An agreement
+bar means something only on a sample shaped like the corpus: drawn at random within each of the
+labeller's labels, in corpus proportion. The 30 hard items (10 negatives and 5 boundary cases from each
+part) were checked against the ≥ 90% bar first, which measured the draw rather than the labels: one
+labeller had called 20 of them negative and none mixed, by construction. So:
+- the gating sample is **40 of the 510 natural association attribute items, stratified by the AI labels
+  in corpus proportion** (`validation-stratified.json`, seed 20261028: 12 positive, 5 negative, 7 mixed,
+  16 not_discussed);
+- the 30 hard items are a **diagnostic set**: reported beside the gate, gating nothing. A low hard-item
+  agreement under a passing stratified one is a known weakness to state on the figure, not a failure.
+
+Cross-model results under §5 as first written (Claude labels against `google/gemini-3.8-flash`, both
+blind; sealed before comparison):
+
+| Set | Agreement | κ | Negative disagreements | Discussed vs not | Negative and mixed as one |
+|---|---|---|---|---|---|
+| Stratified 40 (gate) | 34 of 40 (85%), 36 needed | 0.79 (0.63–0.94) | 2 (2 allowed) | 92.5%, κ 0.85 | 87.5%, κ 0.81 |
+| Hard 30 (diagnostic) | 14 of 30 (47%) | 0.26 (0.01–0.50) | 12 | 77%, κ 0.32 | 77%, κ 0.55 |
+
+The stratified sample fails §7b by two items. Four of its six disagreements involve `mixed`.
+
 **Attribution for the attribute half.** Every figure states: "attribute labels AI-generated, validated
 against 15 blind human labels on hard items (10 negative, 5 discussed-boundary) at X of 15 in agreement
 (κ Y); drift labels are the human's own, on all 15 drift items; the human labeller had previously seen

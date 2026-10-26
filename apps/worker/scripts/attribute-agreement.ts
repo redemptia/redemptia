@@ -49,6 +49,10 @@ type Pair = { human: string; ai: string; key: string };
 const attributePairs: Pair[] = [];
 const driftPairs: Pair[] = [];
 const unlabelled: string[] = [];
+const itemsFlag = process.argv.indexOf("--items");
+/** With `--items`, the attribute items to compare; otherwise each part's hard sample. */
+const listed =
+	itemsFlag > 0 ? new Set(JSON.parse(readFileSync(process.argv[itemsFlag + 1], "utf8")) as string[]) : null;
 const againstFlag = process.argv.indexOf("--against");
 const against =
 	againstFlag > 0
@@ -68,7 +72,8 @@ for (const part of parts) {
 		// With --against, the second model checks the hard attribute items, and the operator's drift-only
 		// labels (validation-drift.json) check drift.
 		if (against && isDrift) continue;
-		if (!sample.has(id) && !(isDrift && part.allDrift)) continue;
+		const chosen = listed && !isDrift ? listed.has(id) : sample.has(id);
+		if (!chosen && !(isDrift && part.allDrift)) continue;
 		const label = against ? against[id] : row.label;
 		if (!label) {
 			unlabelled.push(id);
@@ -133,6 +138,7 @@ function decide(pairs: Pair[]): string {
 		: `AI attribute labels are discarded, and the operator labels every natural attribute item: ${counts}`;
 }
 
+const unfavourable = (label: string) => (label === "negative" || label === "mixed" ? "unfavourable" : label);
 const discussed = (label: string) => (label === "not_discussed" ? "not_discussed" : "discussed");
 const LABELS = ["positive", "negative", "mixed", "not_discussed"];
 const attributes = kappa(attributePairs);
@@ -149,6 +155,8 @@ const report = {
 		negative: specificAgreement(attributePairs, "negative"),
 		discussedVsNot: kappa(attributePairs.map((p) => ({ ...p, human: discussed(p.human), ai: discussed(p.ai) }))),
 	},
+	/** Negative and mixed counted as one "unfavourable" state: is a three-state scheme measurable where four isn't? */
+	threeState: kappa(attributePairs.map((p) => ({ ...p, human: unfavourable(p.human), ai: unfavourable(p.ai) }))),
 	twoQualityQuestions: {
 		keys: [...TWO_QUALITY],
 		items: attributePairs.filter((p) => TWO_QUALITY.has(p.key)).length,
