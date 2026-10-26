@@ -301,6 +301,19 @@ information that the count doesn't. The rule is:
 - κ, its interval and the confusion matrix are reported beside the decision, never in place of it;
 - otherwise the AI labels are discarded and the operator labels every natural attribute item.
 
+**Part 2: answers to the shipped templates (added 2026-10-26, before the operator labelled anything).**
+P11–P15 are not the association prompts the product ships, so 36 answers to the six shipped
+`ASSOCIATION_PROMPT_TEMPLATES` were collected (Supabase, the same three models, two runs per prompt;
+$0.98). They were shuffled together with 20 association-based perturbed copies (copies of the P11–P15
+answers, one negative planted in each) into `worksheet-2.md`, every answer with 10 attribute items and
+a drift item, so copies can't be told from natural answers by their items. A fresh AI labeller, which
+had seen none of the earlier answers, labelled all of part 2 blind. The P11–P15 answers stay in the
+corpus as their own set. The operator's part-2 sample is 15 hard attribute items from the 36 natural
+answers (10 negative, 5 discussed-boundary) and the drift item of each of those 36 answers, so the
+operator labels every natural association answer's drift item. The two parts' samples are pooled for
+the decision rule: at least 90% of the hard items in agreement, and at most one disagreement on
+`negative` per 15 hard items (27 of 30 and 2 at 30 items).
+
 **Attribution for the attribute half.** Every figure states: "attribute labels AI-generated, validated
 against 15 blind human labels on hard items (10 negative, 5 discussed-boundary) at X of 15 in agreement
 (κ Y); drift labels are the human's own, on all 15 drift items; the human labeller had previously seen

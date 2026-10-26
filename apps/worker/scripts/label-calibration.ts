@@ -12,9 +12,13 @@
  * The directory decides the half: a version directory (`v1`) holds the fact items, its `attributes`
  * directory the attribute and drift items.
  *
+ * A directory can hold a second part (`worksheet-2.md`, `labels-template-2.csv` and
+ * `validation-subset-2.json`), chosen with `--part 2`. Its sample lists every item to show, drift items
+ * included.
+ *
  * Usage, from apps/worker:
  *   pnpm exec tsx scripts/label-calibration.ts src/perception/calibration/v1
- *   pnpm exec tsx scripts/label-calibration.ts src/perception/calibration/v1/attributes
+ *   pnpm exec tsx scripts/label-calibration.ts src/perception/calibration/v1/attributes [--part 2]
  * then open http://127.0.0.1:4317. Stop it with Ctrl-C; nothing is lost, since every change is saved.
  */
 import { existsSync, readFileSync, renameSync, writeFileSync } from "node:fs";
@@ -48,8 +52,10 @@ if (!dir) {
 	console.error("Pass the corpus version directory, e.g. src/perception/calibration/v1.");
 	process.exit(1);
 }
-const csvPath = path.join(dir, "labels-template.csv");
-const worksheet = readFileSync(path.join(dir, "worksheet.md"), "utf8");
+const partFlag = process.argv.indexOf("--part");
+const suffix = partFlag > 0 ? `-${process.argv[partFlag + 1]}` : "";
+const csvPath = path.join(dir, `labels-template${suffix}.csv`);
+const worksheet = readFileSync(path.join(dir, `worksheet${suffix}.md`), "utf8");
 const attributeHalf = path.basename(dir) === "attributes";
 const procedure = readFileSync(path.join(dir, attributeHalf ? "../.." : "..", "PROCEDURE.md"), "utf8");
 const section = (from: string, to: string) => procedure.slice(procedure.indexOf(from), procedure.indexOf(to)).trim();
@@ -84,13 +90,14 @@ const ATTRIBUTE_HALF: Half = {
 	reference: (row) => ({ id: row.attribute_key, text: row.question }),
 	noPassage: ["not_discussed", "no"],
 	rationale: ["negative", "mixed", "yes"],
-	alwaysShown: isDrift,
+	// In a second part, the sample names every item to show, so a drift item isn't shown by default.
+	alwaysShown: (row) => !suffix && isDrift(row),
 	rules: () =>
 		`${section("## 5. Attribute", "## 5a.")}\n\nThe subject rule (§4): judge only what the answer says about the brand; ignore claims about other companies, and sentences that name the brand only to contrast it with something else.\n\n${ignoreRules()}`,
 };
 
 const half = attributeHalf ? ATTRIBUTE_HALF : FACT_HALF;
-const subsetPath = path.join(dir, "validation-subset.json");
+const subsetPath = path.join(dir, `validation-subset${suffix}.json`);
 /** The sample's item ids, written either as a bare array or as `{ items: [...] }`. */
 const subset = existsSync(subsetPath)
 	? new Set(
@@ -150,7 +157,7 @@ const answers = parseWorksheet(worksheet);
 let rows = loadRows();
 const textOf = new Map(answers.map((answer) => [answer.id, answer.text]));
 if (answers.length === 0 || rows.some((row) => !textOf.has(row.answer))) {
-	throw new Error("worksheet.md and labels-template.csv don't describe the same answers.");
+	throw new Error(`worksheet${suffix}.md and labels-template${suffix}.csv don't describe the same answers.`);
 }
 
 function data() {
