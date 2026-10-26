@@ -16,9 +16,12 @@
  * `validation-subset-2.json`), chosen with `--part 2`. Its sample lists every item to show, drift items
  * included.
  *
+ * `--drift-only` labels the drift items in `validation-drift.json` (part 2) as yes or no alone, with no
+ * passage or rationale: a check of how often a person answers the drift question yes.
+ *
  * Usage, from apps/worker:
  *   pnpm exec tsx scripts/label-calibration.ts src/perception/calibration/v1
- *   pnpm exec tsx scripts/label-calibration.ts src/perception/calibration/v1/attributes [--part 2]
+ *   pnpm exec tsx scripts/label-calibration.ts src/perception/calibration/v1/attributes [--part 2 | --drift-only]
  * then open http://127.0.0.1:4317. Stop it with Ctrl-C; nothing is lost, since every change is saved.
  */
 import { existsSync, readFileSync, renameSync, writeFileSync } from "node:fs";
@@ -52,8 +55,9 @@ if (!dir) {
 	console.error("Pass the corpus version directory, e.g. src/perception/calibration/v1.");
 	process.exit(1);
 }
+const driftOnly = process.argv.includes("--drift-only");
 const partFlag = process.argv.indexOf("--part");
-const suffix = partFlag > 0 ? `-${process.argv[partFlag + 1]}` : "";
+const suffix = driftOnly ? "-2" : partFlag > 0 ? `-${process.argv[partFlag + 1]}` : "";
 const csvPath = path.join(dir, `labels-template${suffix}.csv`);
 const worksheet = readFileSync(path.join(dir, `worksheet${suffix}.md`), "utf8");
 const attributeHalf = path.basename(dir) === "attributes";
@@ -88,8 +92,8 @@ const ATTRIBUTE_HALF: Half = {
 	itemPattern: "[TD]\\d+",
 	labels: (row) => (isDrift(row) ? ["yes", "no"] : ["positive", "negative", "mixed", "not_discussed"]),
 	reference: (row) => ({ id: row.attribute_key, text: row.question }),
-	noPassage: ["not_discussed", "no"],
-	rationale: ["negative", "mixed", "yes"],
+	noPassage: driftOnly ? ["yes", "no"] : ["not_discussed", "no"],
+	rationale: driftOnly ? [] : ["negative", "mixed", "yes"],
 	// In a second part, the sample names every item to show, so a drift item isn't shown by default.
 	alwaysShown: (row) => !suffix && isDrift(row),
 	rules: () =>
@@ -97,7 +101,7 @@ const ATTRIBUTE_HALF: Half = {
 };
 
 const half = attributeHalf ? ATTRIBUTE_HALF : FACT_HALF;
-const subsetPath = path.join(dir, `validation-subset${suffix}.json`);
+const subsetPath = path.join(dir, driftOnly ? "validation-drift.json" : `validation-subset${suffix}.json`);
 /** The sample's item ids, written either as a bare array or as `{ items: [...] }`. */
 const subset = existsSync(subsetPath)
 	? new Set(

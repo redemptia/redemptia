@@ -91,3 +91,4 @@ sealed/attributes/labeller-3-scripts/labels-20.tsv 7a3178b04e838cfe98c09cab557a7
 sealed/attributes/labeller-3-scripts/labels-21.tsv 58bc44ff50178397ccd16f2b0c16c9a161568ac02cccdbb267c2f3e39cd307d1
 sealed/attributes/labeller-3-scripts/labels-22.tsv 289de36429371a7d5c2d2e6a786315180562aa44360b2fbfada5187bc09df3dc
 sealed/attributes/labeller-3-scripts/verify.py 2a3fab75a9b6f5edcd4ca22ae2225e057c1740de4117ceb41c0bc2eb28a4d49d
+v1/attributes/validation-drift.json fd039b635d9585aac204717ad6e8d22985bdfffdf2cf12929f2bfa7e730f12d6  (the operator's drift-only check: 15 drift items drawn at random, seed 20261027, from the 36 shipped-template answers, labelled yes or no alone; 2026-10-26)
