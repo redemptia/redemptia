@@ -365,6 +365,14 @@ not discussed at ≥ 90% with κ ≥ 0.8; κ is 0.79). Version 2 improved the ha
 0.60 → 0.89) but not the stratified sample (34 → 32 of 40). Drift, version 2: the AI says yes on 12 of
 the operator's 15 drift items, the operator on 7; they agree on 10.
 
+**Conclusion (2026-10-26): attribute figures are not validated and don't ship in v1.** Two frontier
+model families reach κ 0.72–0.79 on representative items; version 2 of the rules improved the hard set
+and lowered the stratified one; the disagreements now spread across every boundary. That is a
+construct with a low reliability ceiling, not an underpowered sample: a larger draw would measure 0.79
+precisely, not raise it, so no further draw is made. The association path stays built and judges on
+the stub; its verdicts accumulate, undisplayed, against a gate that may be revisited with a different
+question shape.
+
 **Drift's human labels (2026-10-26).** The operator's human attribute sample was dropped for
 cross-model validation; one human step stays: 15 drift items drawn at random from the shipped-template
 answers (`validation-drift.json`), labelled yes or no alone. These are drift's gold. The operator first
