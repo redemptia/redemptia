@@ -7,8 +7,8 @@ import { z } from "zod";
 import { requireBrandSession } from "@/lib/auth/helpers";
 import { lookbackSchema } from "@/lib/lookback";
 import { getTimezoneLookbackRange } from "@/lib/timezone-utils";
-import { getFactReadout } from "@/server/perception-readout-core";
 import { attributeSources, marketProminence } from "@/server/perception-prominence-core";
+import { getFactReadout } from "@/server/perception-readout-core";
 
 export const getPerceptionAuditFn = createServerFn({ method: "GET" })
 	.validator(
@@ -28,12 +28,21 @@ export const getPerceptionAuditFn = createServerFn({ method: "GET" })
 
 		const [brand] = await db.select({ name: brands.name }).from(brands).where(eq(brands.id, data.brandId));
 		const stamps = await db
-			.select({ layer: perceptionStamps.layer, version: perceptionStamps.version, updatedAt: perceptionStamps.updatedAt })
+			.select({
+				layer: perceptionStamps.layer,
+				version: perceptionStamps.version,
+				updatedAt: perceptionStamps.updatedAt,
+			})
 			.from(perceptionStamps)
 			.where(eq(perceptionStamps.brandId, data.brandId));
 
 		const [factReadout, prominence, sources] = await Promise.all([
-			getFactReadout(db, data.brandId, { from: range.fromDateStr, to: range.toDateStr, model: data.model, tags: data.tags }),
+			getFactReadout(db, data.brandId, {
+				from: range.fromDateStr,
+				to: range.toDateStr,
+				model: data.model,
+				tags: data.tags,
+			}),
 			marketProminence(db, data.brandId, filters),
 			attributeSources(db, data.brandId, filters),
 		]);

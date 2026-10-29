@@ -56,7 +56,14 @@ describe("market prominence", () => {
 		const result = await marketProminence(db, brandId);
 		const [row] = result.rows;
 		expect(row.attributeKey).toBe("attr_speed");
-		expect(row.cells.Acme).toEqual({ answers: 3, distinctModelOrderings: 1, mentioned: 2, positionSum: 3, positioned: 2, prominence: 50 });
+		expect(row.cells.Acme).toEqual({
+			answers: 3,
+			distinctModelOrderings: 1,
+			mentioned: 2,
+			positionSum: 3,
+			positioned: 2,
+			prominence: 50,
+		});
 		expect(row.cells.Globex.prominence).toBeCloseTo((100 * (0.5 + 1)) / 3);
 		expect(row.cells.Initech).toMatchObject({ answers: 3, mentioned: 1, prominence: 100 / 3 });
 		expect(result.competitorSet).toEqual({

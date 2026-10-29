@@ -58,7 +58,14 @@ export function competitorSetFingerprint(names: string[]): string {
 		.slice(0, 12);
 }
 
-const emptyCell = (): ProminenceCell => ({ answers: 0, distinctModelOrderings: 0, mentioned: 0, positionSum: 0, positioned: 0, prominence: null });
+const emptyCell = (): ProminenceCell => ({
+	answers: 0,
+	distinctModelOrderings: 0,
+	mentioned: 0,
+	positionSum: 0,
+	positioned: 0,
+	prominence: null,
+});
 
 export async function marketProminence(
 	conn: DbConnection,

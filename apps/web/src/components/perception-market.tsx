@@ -45,8 +45,8 @@ function Heatmap({ prominence }: { prominence: MarketProminence }) {
 				{prominence.competitorSet && (
 					<p className="text-sm text-muted-foreground">
 						Measured against {prominence.competitorSet.competitors.join(", ")} (competitor set{" "}
-						{prominence.competitorSet.fingerprint}). Position is a rank within this competitor set only — adding
-						or removing a competitor changes every brand's rank.
+						{prominence.competitorSet.fingerprint}). Position is a rank within this competitor set only — adding or
+						removing a competitor changes every brand's rank.
 						{prominence.otherSetAnswers > 0 &&
 							` ${prominence.otherSetAnswers} answers judged against an earlier competitor set aren't included.`}
 					</p>
@@ -71,8 +71,8 @@ function Heatmap({ prominence }: { prominence: MarketProminence }) {
 										<td className="px-3 py-2">
 											<div>{row.label}</div>
 											<div className="text-xs text-muted-foreground">
-								n = {answers} answers · {row.cells[prominence.brand]?.distinctModelOrderings ?? 0} models
-							</div>
+												n = {answers} answers · {row.cells[prominence.brand]?.distinctModelOrderings ?? 0} models
+											</div>
 										</td>
 										{subjects.map((subject) => (
 											<Cell key={subject} cell={row.cells[subject]} />
@@ -169,46 +169,51 @@ interface OverviewStat {
 	detail: string;
 }
 
-function deriveOverviewCards(prominence: MarketProminence): OverviewStat[] {
-	const cards: OverviewStat[] = [];
-	const rankable = prominence.rows.filter((row) => {
-		if (row.retired) return false;
-		const brandCell = row.cells[prominence.brand];
-		return brandCell && brandCell.answers >= MIN_ANSWERS && brandCell.prominence !== null;
-	});
-	if (!rankable.length) return cards;
+function rankableRows(prominence: MarketProminence) {
+	return prominence.rows.filter(
+		(row) =>
+			!row.retired &&
+			row.cells[prominence.brand]?.answers !== undefined &&
+			row.cells[prominence.brand].answers >= MIN_ANSWERS &&
+			row.cells[prominence.brand].prominence !== null,
+	);
+}
 
-	const best = rankable.reduce((a, b) =>
+function strongestAttribute(prominence: MarketProminence, rows: typeof prominence.rows): OverviewStat | null {
+	if (!rows.length) return null;
+	const best = rows.reduce((a, b) =>
 		(a.cells[prominence.brand]?.prominence ?? 0) >= (b.cells[prominence.brand]?.prominence ?? 0) ? a : b,
 	);
-	const bestCell = best.cells[prominence.brand];
-	if (bestCell)
-		cards.push({
-			label: "Strongest Attribute",
-			value: best.label,
-			detail: `Prominence ${Math.round(bestCell.prominence ?? 0)} · named ${percent(bestCell.mentioned, bestCell.answers)}`,
-		});
+	const cell = best.cells[prominence.brand];
+	if (!cell) return null;
+	return {
+		label: "Strongest Attribute",
+		value: best.label,
+		detail: `Prominence ${Math.round(cell.prominence ?? 0)} · named ${percent(cell.mentioned, cell.answers)}`,
+	};
+}
 
+function strongestCompetitor(prominence: MarketProminence, rows: typeof prominence.rows): OverviewStat | null {
 	const competitors = prominence.competitorSet?.competitors ?? [];
-	if (competitors.length) {
-		const wins: Record<string, number> = {};
-		for (const c of competitors) wins[c] = 0;
-		for (const row of rankable) {
-			const brandScore = row.cells[prominence.brand]?.prominence ?? 0;
-			for (const c of competitors) {
-				const cell = row.cells[c];
-				if (cell && cell.answers >= MIN_ANSWERS && (cell.prominence ?? 0) > brandScore) wins[c]++;
-			}
+	if (!competitors.length || !rows.length) return null;
+	const wins: Record<string, number> = Object.fromEntries(competitors.map((c) => [c, 0]));
+	for (const row of rows) {
+		const brandScore = row.cells[prominence.brand]?.prominence ?? 0;
+		for (const c of competitors) {
+			const cell = row.cells[c];
+			if (cell && cell.answers >= MIN_ANSWERS && (cell.prominence ?? 0) > brandScore) wins[c]++;
 		}
-		const top = competitors.reduce((a, b) => ((wins[a] ?? 0) >= (wins[b] ?? 0) ? a : b));
-		if ((wins[top] ?? 0) > 0)
-			cards.push({
-				label: "Strongest Competitor",
-				value: top,
-				detail: `Leads on ${wins[top]} of ${rankable.length} attributes`,
-			});
 	}
-	return cards;
+	const top = competitors.reduce((a, b) => ((wins[a] ?? 0) >= (wins[b] ?? 0) ? a : b));
+	if ((wins[top] ?? 0) === 0) return null;
+	return { label: "Strongest Competitor", value: top, detail: `Leads on ${wins[top]} of ${rows.length} attributes` };
+}
+
+function deriveOverviewCards(prominence: MarketProminence): OverviewStat[] {
+	const rows = rankableRows(prominence);
+	return [strongestAttribute(prominence, rows), strongestCompetitor(prominence, rows)].filter(
+		(c): c is OverviewStat => c !== null,
+	);
 }
 
 function OverviewCards({ prominence }: { prominence: MarketProminence }) {
