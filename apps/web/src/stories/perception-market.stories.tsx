@@ -67,7 +67,8 @@ export const HeatmapWithItsInputsAndLimits: StoryObj = {
 			canvas.getByText(/4 answers judged against an earlier competitor set aren't included/),
 		).toBeInTheDocument();
 		// Speed has 12 answers, so it shows; Pricing has 6, so every cell is hidden, not greyed.
-		await expect(canvas.getByText(/n = 12 answers · 3 orderings/)).toBeInTheDocument();
+		await expect(canvas.getByText("n = 12 answers · 3 orderings", { selector: "div" })).toBeInTheDocument();
+		await expect(canvas.getByText("Prominence 57 · named 75% · n = 12 answers · 3 orderings")).toBeInTheDocument();
 		await expect(canvas.getAllByText("—")).toHaveLength(3);
 		await expect(canvas.queryByText("Retired one")).not.toBeInTheDocument();
 		await expect(canvas.getByText(/No gap column/)).toBeInTheDocument();
