@@ -382,6 +382,20 @@ D66), revised D39, D54 and D64 to yes: **7 of 15**. The AI labeller said yes on 
 question's wording stands; the gap is the finding: the AI counted neutrally named features and summary
 phrases, which the version 2 drift rule (§5) now excludes.
 
+**Decision (2026-10-29): the §12 fallback was reconsidered and no further draw is made.** A 150-item
+binary draw (discussed vs not discussed only, from the 470 natural association items outside the
+40-item sample, 89 discussed and 61 not discussed, for a κ interval of about ±0.10) was specced and
+declined, on two grounds:
+- **A larger sample doesn't move the verdict.** The fallback came in at 90% agreement with κ 0.79
+  against κ ≥ 0.8. Simulated at 90% true agreement and the corpus's 59% discussed prevalence, the
+  observed κ clears 0.8 in 46% of draws at n = 40, 45% at n = 150 and 44% at n = 300: the median stays
+  at 0.80 and only the interval narrows. A pass would measure the number, not raise it.
+- **The corpus can't license coverage per attribute.** Outside the 40-item sample, `dx` has 4 not
+  discussed items, `sql_power` 5 and `self_host` 6, so a boundary that cleared overall would still
+  validate nothing per attribute, and coverage per attribute is the figure the fallback would ship.
+
+This confirms the conclusion above. Nothing is pending.
+
 **Attribution for the attribute half.** Every figure states: "attribute labels AI-generated, validated
 against 15 blind human labels on hard items (10 negative, 5 discussed-boundary) at X of 15 in agreement
 (κ Y); drift labels are the human's own, on all 15 drift items; the human labeller had previously seen
