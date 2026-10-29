@@ -163,6 +163,74 @@ function Sources({ prominence, sources }: { prominence: MarketProminence; source
 	);
 }
 
+interface OverviewStat {
+	label: string;
+	value: string;
+	detail: string;
+}
+
+function deriveOverviewCards(prominence: MarketProminence): OverviewStat[] {
+	const cards: OverviewStat[] = [];
+	const rankable = prominence.rows.filter((row) => {
+		if (row.retired) return false;
+		const brandCell = row.cells[prominence.brand];
+		return brandCell && brandCell.answers >= MIN_ANSWERS && brandCell.prominence !== null;
+	});
+	if (!rankable.length) return cards;
+
+	const best = rankable.reduce((a, b) =>
+		(a.cells[prominence.brand]?.prominence ?? 0) >= (b.cells[prominence.brand]?.prominence ?? 0) ? a : b,
+	);
+	const bestCell = best.cells[prominence.brand];
+	if (bestCell)
+		cards.push({
+			label: "Strongest Attribute",
+			value: best.label,
+			detail: `Prominence ${Math.round(bestCell.prominence ?? 0)} · named ${percent(bestCell.mentioned, bestCell.answers)}`,
+		});
+
+	const competitors = prominence.competitorSet?.competitors ?? [];
+	if (competitors.length) {
+		const wins: Record<string, number> = {};
+		for (const c of competitors) wins[c] = 0;
+		for (const row of rankable) {
+			const brandScore = row.cells[prominence.brand]?.prominence ?? 0;
+			for (const c of competitors) {
+				const cell = row.cells[c];
+				if (cell && cell.answers >= MIN_ANSWERS && (cell.prominence ?? 0) > brandScore) wins[c]++;
+			}
+		}
+		const top = competitors.reduce((a, b) => ((wins[a] ?? 0) >= (wins[b] ?? 0) ? a : b));
+		if ((wins[top] ?? 0) > 0)
+			cards.push({
+				label: "Strongest Competitor",
+				value: top,
+				detail: `Leads on ${wins[top]} of ${rankable.length} attributes`,
+			});
+	}
+	return cards;
+}
+
+function OverviewCards({ prominence }: { prominence: MarketProminence }) {
+	const cards = deriveOverviewCards(prominence);
+	if (!cards.length) return null;
+	return (
+		<div className="grid gap-4 sm:grid-cols-2">
+			{cards.map((card) => (
+				<Card key={card.label}>
+					<CardHeader className="pb-2">
+						<CardDescription>{card.label}</CardDescription>
+						<CardTitle className="text-2xl">{card.value}</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<p className="text-sm text-muted-foreground">{card.detail}</p>
+					</CardContent>
+				</Card>
+			))}
+		</div>
+	);
+}
+
 /** The market half of perception: prominence per attribute against the competitor set, and its sources. */
 export function PerceptionMarket({
 	prominence,
@@ -174,6 +242,7 @@ export function PerceptionMarket({
 	if (!prominence.rows.length || !sources.length) return null;
 	return (
 		<div className="space-y-6">
+			<OverviewCards prominence={prominence} />
 			<Heatmap prominence={prominence} />
 			<Sources prominence={prominence} sources={sources} />
 		</div>
