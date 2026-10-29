@@ -45,8 +45,8 @@ function Heatmap({ prominence }: { prominence: MarketProminence }) {
 				{prominence.competitorSet && (
 					<p className="text-sm text-muted-foreground">
 						Measured against {prominence.competitorSet.competitors.join(", ")} (competitor set{" "}
-						{prominence.competitorSet.fingerprint}). Position ranks only these brands, so a different set ranks
-						differently.
+						{prominence.competitorSet.fingerprint}). Position is a rank within this competitor set only — adding or
+						removing a competitor changes every brand's rank.
 						{prominence.otherSetAnswers > 0 &&
 							` ${prominence.otherSetAnswers} answers judged against an earlier competitor set aren't included.`}
 					</p>
@@ -70,7 +70,9 @@ function Heatmap({ prominence }: { prominence: MarketProminence }) {
 									<tr key={row.attributeKey} className="border-b last:border-0">
 										<td className="px-3 py-2">
 											<div>{row.label}</div>
-											<div className="text-xs text-muted-foreground">n = {answers} answers</div>
+											<div className="text-xs text-muted-foreground">
+												n = {answers} answers · {row.cells[prominence.brand]?.distinctModelOrderings ?? 0} orderings
+											</div>
 										</td>
 										{subjects.map((subject) => (
 											<Cell key={subject} cell={row.cells[subject]} />
@@ -116,12 +118,14 @@ function Sources({ prominence, sources }: { prominence: MarketProminence; source
 			<CardContent className="space-y-6">
 				{active.map((attribute) => {
 					const rank = rankOf(prominence, attribute.attributeKey);
+					const promRow = prominence.rows.find((r) => r.attributeKey === attribute.attributeKey);
+					const orderings = promRow?.cells[prominence.brand]?.distinctModelOrderings ?? 0;
 					return (
 						<div key={attribute.attributeKey} className="space-y-2">
 							<div className="flex flex-wrap items-baseline justify-between gap-2">
 								<h3 className="font-medium">{labels.get(attribute.attributeKey)?.label}</h3>
 								<span className="text-sm text-muted-foreground">
-									{rank ?? "not enough answers to rank"} · n = {attribute.answers} answers
+									{rank ?? "not enough answers to rank"} · n = {attribute.answers} answers · {orderings} orderings
 								</span>
 							</div>
 							{attribute.answers < MIN_ANSWERS ? (
@@ -159,6 +163,90 @@ function Sources({ prominence, sources }: { prominence: MarketProminence; source
 	);
 }
 
+interface OverviewStat {
+	label: string;
+	value: string;
+	detail: string;
+}
+
+function rankableRows(prominence: MarketProminence) {
+	return prominence.rows.filter(
+		(row) =>
+			!row.retired &&
+			row.cells[prominence.brand]?.answers !== undefined &&
+			row.cells[prominence.brand].answers >= MIN_ANSWERS &&
+			row.cells[prominence.brand].prominence !== null,
+	);
+}
+
+function strongestAttribute(prominence: MarketProminence, rows: typeof prominence.rows): OverviewStat | null {
+	if (!rows.length) return null;
+	const best = rows.reduce((a, b) =>
+		(a.cells[prominence.brand]?.prominence ?? 0) >= (b.cells[prominence.brand]?.prominence ?? 0) ? a : b,
+	);
+	const cell = best.cells[prominence.brand];
+	if (!cell) return null;
+	return {
+		label: "Strongest Attribute",
+		value: best.label,
+		detail: `Prominence ${Math.round(cell.prominence ?? 0)} · named ${percent(cell.mentioned, cell.answers)} · n = ${cell.answers} answers · ${cell.distinctModelOrderings} orderings`,
+	};
+}
+
+function strongestCompetitor(prominence: MarketProminence, rows: typeof prominence.rows): OverviewStat | null {
+	const competitors = prominence.competitorSet?.competitors ?? [];
+	if (!competitors.length || !rows.length) return null;
+	const wins: Record<string, number> = Object.fromEntries(competitors.map((c) => [c, 0]));
+	const led: Record<string, typeof rows> = Object.fromEntries(competitors.map((c) => [c, []]));
+	for (const row of rows) {
+		const brandScore = row.cells[prominence.brand]?.prominence ?? 0;
+		for (const c of competitors) {
+			const cell = row.cells[c];
+			if (cell && cell.answers >= MIN_ANSWERS && (cell.prominence ?? 0) > brandScore) {
+				wins[c]++;
+				led[c].push(row);
+			}
+		}
+	}
+	const top = competitors.reduce((a, b) => ((wins[a] ?? 0) >= (wins[b] ?? 0) ? a : b));
+	if ((wins[top] ?? 0) === 0) return null;
+	const cells = led[top].map((row) => row.cells[prominence.brand]);
+	const minAnswers = Math.min(...cells.map((c) => c.answers));
+	const minOrderings = Math.min(...cells.map((c) => c.distinctModelOrderings));
+	return {
+		label: "Strongest Competitor",
+		value: top,
+		detail: `Leads on ${wins[top]} of ${rows.length} attributes · n ≥ ${minAnswers} answers · ≥ ${minOrderings} orderings per attribute`,
+	};
+}
+
+function deriveOverviewCards(prominence: MarketProminence): OverviewStat[] {
+	const rows = rankableRows(prominence);
+	return [strongestAttribute(prominence, rows), strongestCompetitor(prominence, rows)].filter(
+		(c): c is OverviewStat => c !== null,
+	);
+}
+
+function OverviewCards({ prominence }: { prominence: MarketProminence }) {
+	const cards = deriveOverviewCards(prominence);
+	if (!cards.length) return null;
+	return (
+		<div className="grid gap-4 sm:grid-cols-2">
+			{cards.map((card) => (
+				<Card key={card.label}>
+					<CardHeader className="pb-2">
+						<CardDescription>{card.label}</CardDescription>
+						<CardTitle className="text-2xl">{card.value}</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<p className="text-sm text-muted-foreground">{card.detail}</p>
+					</CardContent>
+				</Card>
+			))}
+		</div>
+	);
+}
+
 /** The market half of perception: prominence per attribute against the competitor set, and its sources. */
 export function PerceptionMarket({
 	prominence,
@@ -170,6 +258,7 @@ export function PerceptionMarket({
 	if (!prominence.rows.length || !sources.length) return null;
 	return (
 		<div className="space-y-6">
+			<OverviewCards prominence={prominence} />
 			<Heatmap prominence={prominence} />
 			<Sources prominence={prominence} sources={sources} />
 		</div>

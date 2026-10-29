@@ -22,6 +22,8 @@ import { and, countDistinct, desc, eq, gte, lt, sql } from "drizzle-orm";
 export interface ProminenceCell {
 	/** Judged answers to this attribute's market prompts in the period, under this competitor set. */
 	answers: number;
+	/** Distinct (model, position-ordering) pairs that produced those answers. */
+	distinctModelOrderings: number;
 	/** Answers that name the subject. */
 	mentioned: number;
 	/** Sum of the subject's position over the answers that name it and rank it. */
@@ -56,7 +58,14 @@ export function competitorSetFingerprint(names: string[]): string {
 		.slice(0, 12);
 }
 
-const emptyCell = (): ProminenceCell => ({ answers: 0, mentioned: 0, positionSum: 0, positioned: 0, prominence: null });
+const emptyCell = (): ProminenceCell => ({
+	answers: 0,
+	distinctModelOrderings: 0,
+	mentioned: 0,
+	positionSum: 0,
+	positioned: 0,
+	prominence: null,
+});
 
 export async function marketProminence(
 	conn: DbConnection,
@@ -76,6 +85,7 @@ export async function marketProminence(
 		.select({
 			attributeKey: perceptionPrompts.attributeKey,
 			createdAt: promptRuns.createdAt,
+			model: promptRuns.model,
 			assessments: runMentions.assessments,
 		})
 		.from(promptRuns)
@@ -108,7 +118,13 @@ export async function marketProminence(
 	const rows: ProminenceRow[] = attributes.map((attribute) => {
 		const cells = Object.fromEntries(subjects.map((s) => [s, emptyCell()]));
 		const inverseSums = Object.fromEntries(subjects.map((s) => [s, 0]));
+		const orderingSet = new Set<string>();
 		for (const run of inSet.filter((r) => r.attributeKey === attribute.key)) {
+			const positions = subjects.map((s, i) => {
+				const rec = i === 0 ? run.assessments.brand : run.assessments.competitors[s];
+				return rec?.position ?? 0;
+			});
+			orderingSet.add(`${run.model}|${positions.join(",")}`);
 			subjects.forEach((subject, i) => {
 				const cell = cells[subject];
 				const record = i === 0 ? run.assessments.brand : run.assessments.competitors[subject];
@@ -124,6 +140,7 @@ export async function marketProminence(
 		for (const subject of subjects) {
 			const cell = cells[subject];
 			cell.prominence = cell.answers ? (100 * inverseSums[subject]) / cell.answers : null;
+			cell.distinctModelOrderings = orderingSet.size;
 		}
 		return { attributeKey: attribute.key, label: attribute.label, retired: attribute.retiredAt !== null, cells };
 	});

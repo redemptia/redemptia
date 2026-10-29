@@ -9,8 +9,9 @@ const meta = {
 
 export default meta;
 
-const cell = (answers: number, mentioned: number, positions: number[]): ProminenceCell => ({
+const cell = (answers: number, mentioned: number, positions: number[], orderings = 3): ProminenceCell => ({
 	answers,
+	distinctModelOrderings: orderings,
 	mentioned,
 	positionSum: positions.reduce((a, b) => a + b, 0),
 	positioned: positions.length,
@@ -66,12 +67,17 @@ export const HeatmapWithItsInputsAndLimits: StoryObj = {
 			canvas.getByText(/4 answers judged against an earlier competitor set aren't included/),
 		).toBeInTheDocument();
 		// Speed has 12 answers, so it shows; Pricing has 6, so every cell is hidden, not greyed.
-		await expect(canvas.getByText("n = 12 answers")).toBeInTheDocument();
+		await expect(canvas.getByText("n = 12 answers · 3 orderings", { selector: "div" })).toBeInTheDocument();
+		await expect(canvas.getByText("Prominence 57 · named 75% · n = 12 answers · 3 orderings")).toBeInTheDocument();
 		await expect(canvas.getAllByText("—")).toHaveLength(3);
 		await expect(canvas.queryByText("Retired one")).not.toBeInTheDocument();
 		await expect(canvas.getByText(/No gap column/)).toBeInTheDocument();
-		await expect(canvas.getByText(/#2 of 3 · n = 12 answers/)).toBeInTheDocument();
-		await expect(canvas.getByText(/not enough answers to rank · n = 6 answers/)).toBeInTheDocument();
+		await expect(canvas.getByText(/#2 of 3 · n = 12 answers · 3 orderings/)).toBeInTheDocument();
+		await expect(canvas.getByText(/not enough answers to rank · n = 6 answers · 3 orderings/)).toBeInTheDocument();
+		// Overview cards: Speed is the only rankable attribute (12 answers > 10), and Globex beats Acme on it.
+		await expect(canvas.getByText("Strongest Attribute")).toBeInTheDocument();
+		await expect(canvas.getByText("Strongest Competitor")).toBeInTheDocument();
+		await expect(canvas.getByText(/Leads on 1 of 1 attributes/)).toBeInTheDocument();
 		await expect(canvas.getByText(/5 of 12 answers \(42%\)/)).toBeInTheDocument();
 		await expect(canvas.getByText(/Not enough answers yet: sources show from 10/)).toBeInTheDocument();
 	},
