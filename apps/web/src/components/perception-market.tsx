@@ -45,8 +45,8 @@ function Heatmap({ prominence }: { prominence: MarketProminence }) {
 				{prominence.competitorSet && (
 					<p className="text-sm text-muted-foreground">
 						Measured against {prominence.competitorSet.competitors.join(", ")} (competitor set{" "}
-						{prominence.competitorSet.fingerprint}). Position ranks only these brands, so a different set ranks
-						differently.
+						{prominence.competitorSet.fingerprint}). Position is a rank within this competitor set only — adding
+						or removing a competitor changes every brand's rank.
 						{prominence.otherSetAnswers > 0 &&
 							` ${prominence.otherSetAnswers} answers judged against an earlier competitor set aren't included.`}
 					</p>
@@ -70,7 +70,9 @@ function Heatmap({ prominence }: { prominence: MarketProminence }) {
 									<tr key={row.attributeKey} className="border-b last:border-0">
 										<td className="px-3 py-2">
 											<div>{row.label}</div>
-											<div className="text-xs text-muted-foreground">n = {answers} answers</div>
+											<div className="text-xs text-muted-foreground">
+								n = {answers} answers · {row.cells[prominence.brand]?.distinctModelOrderings ?? 0} models
+							</div>
 										</td>
 										{subjects.map((subject) => (
 											<Cell key={subject} cell={row.cells[subject]} />
@@ -116,12 +118,14 @@ function Sources({ prominence, sources }: { prominence: MarketProminence; source
 			<CardContent className="space-y-6">
 				{active.map((attribute) => {
 					const rank = rankOf(prominence, attribute.attributeKey);
+					const promRow = prominence.rows.find((r) => r.attributeKey === attribute.attributeKey);
+					const models = promRow?.cells[prominence.brand]?.distinctModelOrderings ?? 0;
 					return (
 						<div key={attribute.attributeKey} className="space-y-2">
 							<div className="flex flex-wrap items-baseline justify-between gap-2">
 								<h3 className="font-medium">{labels.get(attribute.attributeKey)?.label}</h3>
 								<span className="text-sm text-muted-foreground">
-									{rank ?? "not enough answers to rank"} · n = {attribute.answers} answers
+									{rank ?? "not enough answers to rank"} · n = {attribute.answers} answers · {models} models
 								</span>
 							</div>
 							{attribute.answers < MIN_ANSWERS ? (

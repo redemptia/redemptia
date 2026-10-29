@@ -9,8 +9,9 @@ const meta = {
 
 export default meta;
 
-const cell = (answers: number, mentioned: number, positions: number[]): ProminenceCell => ({
+const cell = (answers: number, mentioned: number, positions: number[], models = 3): ProminenceCell => ({
 	answers,
+	distinctModelOrderings: models,
 	mentioned,
 	positionSum: positions.reduce((a, b) => a + b, 0),
 	positioned: positions.length,
