@@ -36,6 +36,7 @@
 		"./mentions": "./src/mentions.ts",
 		"./perception/fact-statement": "./src/perception/fact-statement.ts",
 		"./perception/association": "./src/perception/association.ts",
+		"./perception/limits": "./src/perception/limits.ts",
 		"./perception/attribute-question": "./src/perception/attribute-question.ts",
 		"./perception/propose-attributes": "./src/perception/propose-attributes.ts",
 		"./perception/propose-facts": "./src/perception/propose-facts.ts",

@@ -3,7 +3,6 @@ import { db } from "@workspace/lib/db/db";
 import { brands } from "@workspace/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { requireBrandSession } from "@/lib/auth/helpers";
 import {
 	type AttributeSuggestionsStatus,
 	attributeSuggestionRunsLeft,
@@ -24,6 +23,7 @@ import {
 	setMarketPromptText,
 } from "@/server/perception-attributes-core";
 import { confirmAttributes, promptHeadroom, syncMarketPrompts } from "@/server/perception-prompts-core";
+import { requirePerceptionSession } from "@/server/perception-session";
 import type { PromptBrand } from "@/server/prompts-core";
 
 async function promptBrand(brandId: string): Promise<PromptBrand> {
@@ -35,7 +35,7 @@ async function promptBrand(brandId: string): Promise<PromptBrand> {
 export const getAttributesFn = createServerFn({ method: "GET" })
 	.validator(z.object({ brandId: z.string() }))
 	.handler(async ({ data }) => {
-		await requireBrandSession(data.brandId);
+		await requirePerceptionSession(data.brandId);
 		const [attributes, headroom, suggestionRunsLeft] = await Promise.all([
 			listAttributes(db, data.brandId),
 			promptHeadroom(db, data.brandId),
@@ -52,14 +52,14 @@ export const getAttributesFn = createServerFn({ method: "GET" })
 export const suggestAttributesFn = createServerFn({ method: "POST" })
 	.validator(z.object({ brandId: z.string(), category: z.string().max(500).nullable() }))
 	.handler(async ({ data }) => {
-		await requireBrandSession(data.brandId);
+		await requirePerceptionSession(data.brandId);
 		await enqueueAttributeSuggestions(data.brandId, data.category);
 	});
 
 export const getAttributeSuggestionsFn = createServerFn({ method: "POST" })
 	.validator(z.object({ brandId: z.string() }))
 	.handler(async ({ data }): Promise<AttributeSuggestionsStatus> => {
-		await requireBrandSession(data.brandId);
+		await requirePerceptionSession(data.brandId);
 		return getAttributeSuggestions(data.brandId);
 	});
 
@@ -76,7 +76,7 @@ export const confirmAttributesFn = createServerFn({ method: "POST" })
 		}),
 	)
 	.handler(async ({ data }) => {
-		await requireBrandSession(data.brandId);
+		await requirePerceptionSession(data.brandId);
 		return confirmAttributes(await promptBrand(data.brandId), data.attributes);
 	});
 
@@ -87,7 +87,7 @@ const wording = { quality: z.string().max(500), marketPromptText: z.string().max
 export const addAttributeFn = createServerFn({ method: "POST" })
 	.validator(z.object({ brandId: z.string(), label: z.string().max(200), ...wording }))
 	.handler(async ({ data }) => {
-		await requireBrandSession(data.brandId);
+		await requirePerceptionSession(data.brandId);
 		const { brandId, ...input } = data;
 		return confirmAttributes(await promptBrand(brandId), [input]);
 	});
@@ -95,14 +95,14 @@ export const addAttributeFn = createServerFn({ method: "POST" })
 export const renameAttributeFn = createServerFn({ method: "POST" })
 	.validator(z.object({ brandId: z.string(), attributeId, label: z.string().max(200) }))
 	.handler(async ({ data }) => {
-		await requireBrandSession(data.brandId);
+		await requirePerceptionSession(data.brandId);
 		await renameAttribute(db, data.brandId, data.attributeId, data.label);
 	});
 
 export const editAttributeQuestionFn = createServerFn({ method: "POST" })
 	.validator(z.object({ brandId: z.string(), attributeId, quality: z.string().max(500) }))
 	.handler(async ({ data }) => {
-		await requireBrandSession(data.brandId);
+		await requirePerceptionSession(data.brandId);
 		const questionText = checkQualityWording(data.quality);
 		return { questionVersion: await editAttributeQuestion(db, data.brandId, data.attributeId, questionText) };
 	});
@@ -110,7 +110,7 @@ export const editAttributeQuestionFn = createServerFn({ method: "POST" })
 export const setMarketPromptTextFn = createServerFn({ method: "POST" })
 	.validator(z.object({ brandId: z.string(), attributeId, marketPromptText: z.string().max(500) }))
 	.handler(async ({ data }) => {
-		await requireBrandSession(data.brandId);
+		await requirePerceptionSession(data.brandId);
 		const text = await checkMarketPromptWording(db, data.brandId, data.marketPromptText);
 		await setMarketPromptText(db, data.brandId, data.attributeId, text);
 		await syncMarketPrompts(await promptBrand(data.brandId));
@@ -119,7 +119,7 @@ export const setMarketPromptTextFn = createServerFn({ method: "POST" })
 export const retireAttributeFn = createServerFn({ method: "POST" })
 	.validator(z.object({ brandId: z.string(), attributeId }))
 	.handler(async ({ data }) => {
-		await requireBrandSession(data.brandId);
+		await requirePerceptionSession(data.brandId);
 		await retireAttribute(db, data.brandId, data.attributeId);
 		await syncMarketPrompts(await promptBrand(data.brandId));
 	});
@@ -127,7 +127,7 @@ export const retireAttributeFn = createServerFn({ method: "POST" })
 export const mergeAttributesFn = createServerFn({ method: "POST" })
 	.validator(z.object({ brandId: z.string(), keepId: attributeId, retireId: attributeId, ...wording }))
 	.handler(async ({ data }) => {
-		await requireBrandSession(data.brandId);
+		await requirePerceptionSession(data.brandId);
 		const checked = await checkWording(db, data.brandId, data);
 		await mergeAttributes(db, data.brandId, { keepId: data.keepId, retireId: data.retireId, ...checked });
 		await syncMarketPrompts(await promptBrand(data.brandId));

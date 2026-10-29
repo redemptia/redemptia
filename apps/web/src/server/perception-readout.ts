@@ -1,10 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import { db } from "@workspace/lib/db/db";
 import { z } from "zod";
-import { requireBrandSession } from "@/lib/auth/helpers";
 import { lookbackSchema } from "@/lib/lookback";
 import { getTimezoneLookbackRange } from "@/lib/timezone-utils";
 import { getFactReadout } from "@/server/perception-readout-core";
+import { requirePerceptionSession } from "@/server/perception-session";
 
 export const getFactReadoutFn = createServerFn({ method: "GET" })
 	.validator(
@@ -16,7 +16,7 @@ export const getFactReadoutFn = createServerFn({ method: "GET" })
 		}),
 	)
 	.handler(async ({ data }) => {
-		await requireBrandSession(data.brandId);
+		await requirePerceptionSession(data.brandId);
 		// Perception days are UTC, whatever the viewer's timezone.
 		const range = getTimezoneLookbackRange(data.lookback, "UTC");
 		return getFactReadout(db, data.brandId, {

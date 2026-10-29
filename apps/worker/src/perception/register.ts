@@ -3,6 +3,7 @@ import { getDeployment } from "@workspace/deployment";
 import { db } from "@workspace/lib/db/db";
 import { prompts } from "@workspace/lib/db/schema";
 import { perceptionPrompts } from "@workspace/lib/db/schema-perception";
+import { perceptionAvailableIn } from "@workspace/lib/perception/limits";
 import {
 	brandAnswerCandidates,
 	PROPOSE_ATTRIBUTES_QUEUE,
@@ -33,11 +34,11 @@ function perceptionJudge(apiKey = process.env.TYPESAFE_API_KEY?.trim()): { trans
 /**
  * Registers the perception job in elmo's worker. It never throws: a failure to register is logged
  * and reported, and the rest of the worker carries on. Not in cloud, where perception prompts aren't
- * priced yet.
+ * priced yet, nor in the read-only demo.
  */
 export async function registerPerceptionJobs(boss: PgBoss): Promise<void> {
 	try {
-		if (getDeployment().mode === "cloud") return;
+		if (!perceptionAvailableIn(getDeployment().mode)) return;
 		const { transport, judge } = perceptionJudge();
 		// One job at a time across every worker, so two can't judge the same run.
 		await boss.createQueue(PERCEPTION_JUDGE_QUEUE, { policy: "singleton", retryLimit: 0, expireInSeconds: 60 * 10 });
@@ -61,7 +62,7 @@ export async function registerPerceptionJobs(boss: PgBoss): Promise<void> {
 /** Separate from the judge, so a missing judge key doesn't take fact suggestions down with it. */
 async function registerFactProposer(boss: PgBoss): Promise<void> {
 	try {
-		if (getDeployment().mode === "cloud") return;
+		if (!perceptionAvailableIn(getDeployment().mode)) return;
 		await boss.createQueue(PROPOSE_FACTS_QUEUE, PROPOSE_FACTS_QUEUE_OPTIONS);
 		await boss.work<ProposeFactsJobData>(PROPOSE_FACTS_QUEUE, { localConcurrency: 2 }, async ([job]) => {
 			if (!job) throw new Error("perception-propose-facts received an empty batch");
@@ -85,7 +86,7 @@ async function trackedPrompts(brandId: string): Promise<string[]> {
 
 async function registerAttributeProposer(boss: PgBoss): Promise<void> {
 	try {
-		if (getDeployment().mode === "cloud") return;
+		if (!perceptionAvailableIn(getDeployment().mode)) return;
 		await boss.createQueue(PROPOSE_ATTRIBUTES_QUEUE, PROPOSE_ATTRIBUTES_QUEUE_OPTIONS);
 		await boss.work<ProposeAttributesJobData>(PROPOSE_ATTRIBUTES_QUEUE, { localConcurrency: 2 }, async ([job]) => {
 			if (!job) throw new Error("perception-propose-attributes received an empty batch");
