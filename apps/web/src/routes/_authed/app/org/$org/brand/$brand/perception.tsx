@@ -1,7 +1,10 @@
+import { IconDownload } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import { Button } from "@workspace/ui/components/button";
 import { Card, CardContent } from "@workspace/ui/components/card";
 import { Skeleton } from "@workspace/ui/components/skeleton";
+import { useCallback, useState } from "react";
 import { ALL_MODELS_VALUE, FilterBar } from "@/components/filter-bar";
 import { FilterSection, PageHeader } from "@/components/page-header";
 import { PerceptionMarket } from "@/components/perception-market";
@@ -12,6 +15,7 @@ import { useListFilters } from "@/hooks/use-list-filters";
 import { usePromptsSummary } from "@/hooks/use-prompts-summary";
 import { useBrandParams } from "@/hooks/use-route-params";
 import { pageHead } from "@/lib/route-head";
+import { getPerceptionAuditFn } from "@/server/perception-audit";
 import { getMarketReadoutFn } from "@/server/perception-market";
 import { getFactReadoutFn } from "@/server/perception-readout";
 
@@ -27,6 +31,23 @@ function PerceptionPage() {
 	const { model, lookback, tags } = useListFilters();
 	const { data: brand } = useBrand(brandId);
 	const modelParam = model === ALL_MODELS_VALUE ? undefined : model;
+	const [downloading, setDownloading] = useState(false);
+
+	const downloadAudit = useCallback(async () => {
+		setDownloading(true);
+		try {
+			const audit = await getPerceptionAuditFn({ data: { brandId, lookback, model: modelParam, tags } });
+			const blob = new Blob([JSON.stringify(audit, null, 2)], { type: "application/json" });
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement("a");
+			a.href = url;
+			a.download = `perception-audit-${(brand?.name ?? brandId).replace(/\s+/g, "-").toLowerCase()}-${new Date().toISOString().slice(0, 10)}.json`;
+			a.click();
+			URL.revokeObjectURL(url);
+		} finally {
+			setDownloading(false);
+		}
+	}, [brandId, lookback, modelParam, tags, brand?.name]);
 	const { data: promptsSummary } = usePromptsSummary(brandId, { lookback, model: modelParam, includePerception: true });
 	const { data, isLoading, error } = useQuery({
 		queryKey: ["perception-readout", brandId, lookback, modelParam, tags],
@@ -78,6 +99,10 @@ function PerceptionPage() {
 					showSearch={false}
 					showModelSelector
 				/>
+				<Button variant="outline" size="sm" disabled={downloading} onClick={downloadAudit}>
+					<IconDownload className="mr-1.5 size-4" />
+					{downloading ? "Downloading…" : "Download Audit"}
+				</Button>
 			</FilterSection>
 			{content}
 			{market && <PerceptionMarket prominence={market.prominence} sources={market.sources} />}
