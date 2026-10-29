@@ -58,7 +58,7 @@ describe("market prominence", () => {
 		expect(row.attributeKey).toBe("attr_speed");
 		expect(row.cells.Acme).toEqual({
 			answers: 3,
-			distinctModelOrderings: 1,
+			distinctModelOrderings: 3,
 			mentioned: 2,
 			positionSum: 3,
 			positioned: 2,

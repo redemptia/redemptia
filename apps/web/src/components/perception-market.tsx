@@ -71,7 +71,7 @@ function Heatmap({ prominence }: { prominence: MarketProminence }) {
 										<td className="px-3 py-2">
 											<div>{row.label}</div>
 											<div className="text-xs text-muted-foreground">
-												n = {answers} answers · {row.cells[prominence.brand]?.distinctModelOrderings ?? 0} models
+												n = {answers} answers · {row.cells[prominence.brand]?.distinctModelOrderings ?? 0} orderings
 											</div>
 										</td>
 										{subjects.map((subject) => (
@@ -119,13 +119,13 @@ function Sources({ prominence, sources }: { prominence: MarketProminence; source
 				{active.map((attribute) => {
 					const rank = rankOf(prominence, attribute.attributeKey);
 					const promRow = prominence.rows.find((r) => r.attributeKey === attribute.attributeKey);
-					const models = promRow?.cells[prominence.brand]?.distinctModelOrderings ?? 0;
+					const orderings = promRow?.cells[prominence.brand]?.distinctModelOrderings ?? 0;
 					return (
 						<div key={attribute.attributeKey} className="space-y-2">
 							<div className="flex flex-wrap items-baseline justify-between gap-2">
 								<h3 className="font-medium">{labels.get(attribute.attributeKey)?.label}</h3>
 								<span className="text-sm text-muted-foreground">
-									{rank ?? "not enough answers to rank"} · n = {attribute.answers} answers · {models} models
+									{rank ?? "not enough answers to rank"} · n = {attribute.answers} answers · {orderings} orderings
 								</span>
 							</div>
 							{attribute.answers < MIN_ANSWERS ? (

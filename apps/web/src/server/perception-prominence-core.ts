@@ -118,13 +118,17 @@ export async function marketProminence(
 	const rows: ProminenceRow[] = attributes.map((attribute) => {
 		const cells = Object.fromEntries(subjects.map((s) => [s, emptyCell()]));
 		const inverseSums = Object.fromEntries(subjects.map((s) => [s, 0]));
-		const modelSets: Record<string, Set<string>> = Object.fromEntries(subjects.map((s) => [s, new Set<string>()]));
+		const orderingSet = new Set<string>();
 		for (const run of inSet.filter((r) => r.attributeKey === attribute.key)) {
+			const positions = subjects.map((s, i) => {
+				const rec = i === 0 ? run.assessments.brand : run.assessments.competitors[s];
+				return rec?.position ?? 0;
+			});
+			orderingSet.add(`${run.model}|${positions.join(",")}`);
 			subjects.forEach((subject, i) => {
 				const cell = cells[subject];
 				const record = i === 0 ? run.assessments.brand : run.assessments.competitors[subject];
 				cell.answers++;
-				modelSets[subject].add(run.model);
 				if (!record?.mentioned) return;
 				cell.mentioned++;
 				if (!record.position) return;
@@ -136,7 +140,7 @@ export async function marketProminence(
 		for (const subject of subjects) {
 			const cell = cells[subject];
 			cell.prominence = cell.answers ? (100 * inverseSums[subject]) / cell.answers : null;
-			cell.distinctModelOrderings = modelSets[subject].size;
+			cell.distinctModelOrderings = orderingSet.size;
 		}
 		return { attributeKey: attribute.key, label: attribute.label, retired: attribute.retiredAt !== null, cells };
 	});
