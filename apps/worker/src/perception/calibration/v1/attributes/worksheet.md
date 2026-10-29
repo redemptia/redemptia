@@ -18,7 +18,7 @@ one-line rationale for every label other than not_discussed and drift `no`, in l
 
 ## A01
 
-~~~~text
+```text
 Supabase is one of the most popular Backend-as-a-Service (BaaS) platforms, largely because it provides a managed PostgreSQL database with built-in authentication, storage, auto-generated APIs, and real-time subscriptions. 
 
 However, teams switch away for several reasons—such as SQL/RLS complexity, the desire for a lighter single-binary setup, or a preference for a TypeScript-first reactive backend.
@@ -89,7 +89,7 @@ Developers usually move away from Supabase due to specific architectural and dev
 * If you want a **lightweight, cheap, solo-developer app:** Use **PocketBase**.
 * If you want a **pure TypeScript, zero-SQL reactive experience:** Use **Convex**.
 * If you are building a **cross-platform mobile app with heavy offline sync:** Use **Firebase**.
-~~~~
+```
 
 - T001 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T002 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -105,7 +105,7 @@ Developers usually move away from Supabase due to specific architectural and dev
 
 ## A02
 
-~~~~text
+```text
 # Supabase vs Neon
 
 **The short version:** Neon is a serverless Postgres database. Supabase is a backend platform built around Postgres. Which one fits depends mostly on whether you want the extra backend services.
@@ -148,7 +148,7 @@ Treat the specific numbers with caution. The sources disagree on Neon's entry pr
 - Using Neon for a full app means adding separate costs for an auth service and object storage, unless you use its newer beta services.
 
 If you tell me your workload (traffic pattern, need for auth or realtime, number of environments), I can give a more specific recommendation.
-~~~~
+```
 
 - T011 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T012 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -164,7 +164,7 @@ If you tell me your workload (traffic pattern, need for auth or realtime, number
 
 ## A03
 
-~~~~text
+```text
 ## Short version
 
 - **Choose Supabase** if you want a batteries-included backend: Postgres + authentication + file storage + realtime + APIs + serverless functions.
@@ -383,7 +383,7 @@ If you use Neon as “just Postgres,” migration is relatively straightforward.
 For a typical new full-stack SaaS built by a small team, I would start with **Supabase** unless there is a specific reason to prefer Neon’s serverless database architecture.
 
 For a Next.js/Rails/Django/etc. application where the backend already owns authentication and business logic, I would lean toward **Neon**.
-~~~~
+```
 
 - T021 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T022 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -399,7 +399,7 @@ For a Next.js/Rails/Django/etc. application where the backend already owns authe
 
 ## A04
 
-~~~~text
+```text
 The best alternative depends on which part of Supabase you're replacing. Supabase bundles Postgres, auth, auto-APIs, storage, and realtime, so the answer changes depending on which of those you care about.
 
 ## Top alternatives
@@ -446,7 +446,7 @@ The best alternative depends on which part of Supabase you're replacing. Supabas
 - TypeScript and reactive apps: **Convex**
 
 If you tell me your stack, scale, and what's frustrating you about Supabase, I can narrow this to one or two options.
-~~~~
+```
 
 - T031 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T032 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -462,7 +462,7 @@ If you tell me your stack, scale, and what's frustrating you about Supabase, I c
 
 ## A05
 
-~~~~text
+```text
 **Short answer:** Choose Supabase for most web apps and SaaS products. Choose Firebase for mobile-first apps that need offline sync, push notifications, or heavy real-time features. Most 2026 comparisons I found reach the same conclusion.
 
 ## Pick Supabase if...
@@ -493,7 +493,7 @@ If you tell me your stack, scale, and what's frustrating you about Supabase, I c
 | You need to self-host or avoid lock-in | Supabase |
 
 If you tell me what you're building (platform, data model, expected scale), I can give a more specific recommendation.
-~~~~
+```
 
 - T041 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T042 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -509,7 +509,7 @@ If you tell me what you're building (platform, data model, expected scale), I ca
 
 ## A06
 
-~~~~text
+```text
 There isn’t one universally better replacement for Supabase. The right alternative depends on **what you like—or dislike—about Supabase**: PostgreSQL, authentication, realtime, self-hosting, serverless functions, or the all-in-one model.
 
 Supabase itself is essentially a managed PostgreSQL platform bundled with Auth, Storage, Realtime, APIs, and Edge Functions. ([supabase.com](https://supabase.com/features?utm_source=openai))
@@ -670,7 +670,7 @@ Someone would generally switch from Supabase for one of these reasons:
 - **Choose PocketBase** for small, simple, self-hosted projects—not high-risk production systems.
 
 For most teams, the strongest Supabase alternatives are **Appwrite**, **Firebase**, and **Neon plus a modular stack**. Convex is the most compelling choice when the application is deeply realtime and TypeScript-centric.
-~~~~
+```
 
 - T051 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T052 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -686,7 +686,7 @@ For most teams, the strongest Supabase alternatives are **Appwrite**, **Firebase
 
 ## A07
 
-~~~~text
+```text
 **Supabase** is an open-source Backend-as-a-Service (BaaS) platform built around **PostgreSQL**, designed as an open-source alternative to Firebase. It provides an instant backend with authentication, database storage, file storage, edge functions, and real-time subscriptions.
 
 Here is a breakdown of the major pros and cons of using Supabase:
@@ -754,7 +754,7 @@ Here is a breakdown of the major pros and cons of using Supabase:
   * Your data model is strictly unstructured and changes wildly without schema constraints.
   * You need a turnkey mobile platform that includes crash reporting, push notifications, and analytics out of the box.
   * You do not want to manage SQL migrations or optimize relational indexes.
-~~~~
+```
 
 - T061 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T062 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -770,7 +770,7 @@ Here is a breakdown of the major pros and cons of using Supabase:
 
 ## A08
 
-~~~~text
+```text
 While both **Supabase** and **Neon** give you standard PostgreSQL under the hood, they have fundamentally different philosophies and scopes:
 
 * **Neon** is a **Serverless Postgres database**. It focuses purely on modernizing the Postgres engine itself (separation of storage and compute, instant database branching, scale-to-zero, and autoscaling).
@@ -830,7 +830,7 @@ While both **Supabase** and **Neon** give you standard PostgreSQL under the hood
 * **You need database branching for CI/CD:** You want ephemeral, data-complete database environments attached to PR preview deployments (e.g., pairing Neon with Vercel or GitHub Actions).
 * **You have spiky, intermittent traffic:** Neon's scale-to-zero and dynamic compute autoscaling make it much more cost-effective for internal tools, development branches, or variable workloads.
 * **You want pure Postgres without platform overhead:** You don't want or need PostgREST, custom client SDKs, or bundled BaaS components—just a modern, high-performance database.
-~~~~
+```
 
 - T071 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T072 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -846,7 +846,7 @@ While both **Supabase** and **Neon** give you standard PostgreSQL under the hood
 
 ## A09
 
-~~~~text
+```text
 Supabase is a hosted backend platform built around **PostgreSQL**, with built-in authentication, file storage, realtime subscriptions, auto-generated APIs, and server-side Edge Functions. ([supabase.com](https://supabase.com/docs/guides/database/overview?utm_source=openai))
 
 ## Pros
@@ -944,7 +944,7 @@ Consider alternatives when you need:
 - Strictly isolated infrastructure without using a hosted SaaS provider
 
 **Bottom line:** Supabase is particularly compelling for relational, API-driven applications where speed of development matters. Its main tradeoff is that the apparent simplicity moves complexity into **database design, RLS security, scaling, and usage monitoring**.
-~~~~
+```
 
 - T081 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T082 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -960,7 +960,7 @@ Consider alternatives when you need:
 
 ## A10
 
-~~~~text
+```text
 Supabase is known as an **open-source alternative to Firebase** that provides a hosted backend platform built around **PostgreSQL**.
 
 Its main features include:
@@ -974,7 +974,7 @@ Its main features include:
 - Developer tools and dashboards
 
 Developers often use it to quickly add a scalable backend to web and mobile apps while retaining the flexibility and SQL capabilities of PostgreSQL.
-~~~~
+```
 
 - T091 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T092 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -990,7 +990,7 @@ Developers often use it to quickly add a scalable backend to web and mobile apps
 
 ## A11
 
-~~~~text
+```text
 ## Pros
 
 - **It's real Postgres.** Every ORM, migration tool, and SQL client works, and your data is portable by design.
@@ -1018,7 +1018,7 @@ Supabase is a good choice when a Postgres-backed application needs several adjac
 Most of these sources are review sites and aggregators, so treat their ratings as opinion. Check current pricing on Supabase's own site before you commit.
 
 I can compare it with Firebase, Neon or Appwrite if that would help.
-~~~~
+```
 
 - T101 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T102 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -1034,7 +1034,7 @@ I can compare it with Firebase, Neon or Appwrite if that would help.
 
 ## A12
 
-~~~~text
+```text
 Supabase is an open-source backend-as-a-service platform. It's often described as an open-source alternative to Google's Firebase, built on PostgreSQL.
 
 **What it's known for**
@@ -1053,7 +1053,7 @@ Supabase is an open-source backend-as-a-service platform. It's often described a
 - It's popular with indie developers, startups, and "vibe coding" or AI-assisted app builders, which often use it as their default backend.
 
 The company was founded in 2020 and has raised significant venture funding. Its valuation and product details have changed quickly, so check the official site for current figures and features.
-~~~~
+```
 
 - T111 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T112 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -1069,7 +1069,7 @@ The company was founded in 2020 and has raised significant venture funding. Its 
 
 ## A13
 
-~~~~text
+```text
 Choosing between **Supabase** and **Firebase** comes down to one fundamental difference: **Relational (PostgreSQL) vs. Document-based NoSQL (Firestore)**, along with how much you care about **vendor lock-in**.
 
 Here is a quick summary, followed by a detailed breakdown and a decision checklist.
@@ -1131,7 +1131,7 @@ Here is a quick summary, followed by a detailed breakdown and a decision checkli
 2. **Your data is truly document-centric:** (e.g., chat logs, feed items, individual user settings) where complex joins and aggregations aren't required.
 3. **You rely on Google's mobile suite:** You want turnkey integration with Google Analytics for Mobile, Crashlytics, Remote Config, and Cloud Messaging (FCM).
 4. **Rapid zero-setup prototyping:** If you don't want to design database schemas upfront and just want to throw JSON into the cloud.
-~~~~
+```
 
 - T121 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T122 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -1147,7 +1147,7 @@ Here is a quick summary, followed by a detailed breakdown and a decision checkli
 
 ## A14
 
-~~~~text
+```text
 **Supabase** is best known as the leading **open-source alternative to Google’s Firebase**. It is a **Backend-as-a-Service (BaaS)** designed to give developers all the backend tools needed to build a modern web or mobile application without having to build and maintain the infrastructure from scratch.
 
 Here are the primary things Supabase is known for:
@@ -1189,7 +1189,7 @@ Supabase was an early and influential adopter of **`pgvector`**, allowing develo
 * **No Vendor Lock-in:** Because it is open-source, you can host Supabase on your own servers (via Docker) or use their managed cloud platform.
 * **Data Portability:** Since the core is just standard Postgres, you can migrate to or from any other Postgres host (like AWS RDS, Neon, or a local instance) using standard SQL dumps.
 * **Developer Experience:** It features an intuitive web dashboard, local development CLI, and comprehensive SDKs (JavaScript/TypeScript, Python, Flutter, Swift, etc.).
-~~~~
+```
 
 - T131 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T132 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -1205,7 +1205,7 @@ Supabase was an early and influential adopter of **`pgvector`**, allowing develo
 
 ## A15
 
-~~~~text
+````text
 ## Short answer
 
 **Choose Supabase for most new web apps, SaaS products, dashboards, and apps with relational data.**  
@@ -1297,7 +1297,7 @@ Usually pick **Supabase** if you need SQL, vector search, user-owned data, relat
 - **SQL, portability, and predictable architecture:** Supabase  
 - **Push notifications, analytics, crash reporting:** Firebase  
 - **Unsure:** Start with **Supabase** for a web product; start with **Firebase** for a mobile product.
-~~~~
+````
 
 - T141 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T142 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -1313,7 +1313,7 @@ Usually pick **Supabase** if you need SQL, vector search, user-owned data, relat
 
 ## A16
 
-~~~~text
+```text
 **Yes, Supabase automatically pauses projects on the Free plan** to conserve server resources if they are inactive.
 
 ### Key Details
@@ -1329,7 +1329,7 @@ Usually pick **Supabase** if you need SQL, vector search, user-owned data, relat
 
 1. **Keep it active:** Any regular database queries or API requests (even a few per week) reset the inactivity timer. Many developers use a simple scheduled job (like a cron job or GitHub Actions workflow) to send a lightweight ping/read query to the project.
 2. **Upgrade to the Pro Plan:** Paid projects are never paused for inactivity.
-~~~~
+```
 
 - T151 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T152 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -1344,7 +1344,7 @@ Usually pick **Supabase** if you need SQL, vector search, user-owned data, relat
 
 ## A17
 
-~~~~text
+```text
 Because Supabase is built on top of standard **PostgreSQL**, it integrates both natively (via official SDKs, integrations, and partners) and broadly with **any tool or language that supports a standard Postgres connection**.
 
 The most popular tools and platforms Supabase integrates with, broken down by category:
@@ -1415,7 +1415,7 @@ Because Supabase is standard Postgres, you can point reporting tools directly to
 * **Infrastructure as Code:** Terraform (official Supabase Terraform Provider), Pulumi.
 * **CI/CD:** GitHub Actions (for automated migrations and branching workflows).
 * **Observability & Logging:** Datadog, Axiom, Grafana, Sentry, Logflare (which powers Supabase's underlying log engine).
-~~~~
+```
 
 - T161 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T162 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -1430,7 +1430,7 @@ Because Supabase is standard Postgres, you can point reporting tools directly to
 
 ## A18
 
-~~~~text
+```text
 Supabase’s **Free plan costs $0/month** and is intended for hobby projects, prototypes, and simple websites. It currently includes:
 
 - **2 active projects** per organization; projects pause after **1 week of inactivity**. ([supabase.com](https://supabase.com/docs/guides/platform/billing-on-supabase?utm_source=openai))
@@ -1455,7 +1455,7 @@ Supabase’s **Free plan costs $0/month** and is intended for hobby projects, pr
 Not included are automatic backups, point-in-time recovery, database branching, image transformations, SSO/SAML, advanced MFA, and removal of Supabase branding from emails. ([supabase.com](https://supabase.com/pricing?trk=public_post_comment-text&utm_source=openai))
 
 One important caveat: the **500 MB database quota is separate from the project’s 1 GB disk allocation**; exceeding the database quota can put the database into read-only mode. ([supabase.com](https://supabase.com/docs/guides/platform/database-size?utm_source=openai))
-~~~~
+```
 
 - T171 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T172 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -1470,7 +1470,7 @@ One important caveat: the **500 MB database quota is separate from the project�
 
 ## A19
 
-~~~~text
+````text
 Yes. Supabase provides an official self-hosted Docker Compose deployment for your own server, VPS, or cloud infrastructure. ([supabase.com](https://supabase.com/docs/guides/self-hosting))
 
 ## Recommended approach: Docker on Linux
@@ -1559,7 +1559,7 @@ Supabase explicitly makes server maintenance, security, backups, disaster recove
 Self-hosted Supabase is generally a **single-project** installation. Some hosted features are unavailable or require you to operate them yourself, including managed backups/PITR, branching, the Management API, some analytics features, and certain platform services. ([supabase.com](https://supabase.com/docs/guides/self-hosting))
 
 Also, `supabase start` from the Supabase CLI is intended for local development and testing—not as a hardened production deployment. Use the official Docker self-hosting setup for production. ([supabase.com](https://supabase.com/docs/guides/self-hosting))
-~~~~
+````
 
 - T181 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T182 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -1574,7 +1574,7 @@ Also, `supabase start` from the Supabase CLI is intended for local development a
 
 ## A20
 
-~~~~text
+```text
 **For a small app, Firebase is usually cheaper at low usage, and Supabase is usually cheaper once usage grows or becomes unpredictable.** The sources below were published at different times, so check the official pricing pages before you commit.
 
 **Free tiers**
@@ -1598,7 +1598,7 @@ One worked estimate puts a Firestore app at about $0 a month at 1,000 MAU, about
 **Non-price factors:** Supabase is Postgres (SQL), and Firebase is NoSQL (Firestore). Your data model may matter more than the price difference.
 
 If you tell me your expected users, reads and writes per session, and whether you need file storage or phone auth, I can estimate costs for both.
-~~~~
+```
 
 - T191 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T192 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -1613,7 +1613,7 @@ If you tell me your expected users, reads and writes per session, and whether yo
 
 ## A21
 
-~~~~text
+```text
 Supabase currently has four main plans:
 
 | Plan | Price | Best for |
@@ -1626,7 +1626,7 @@ Supabase currently has four main plans:
 The **Pro plan includes $10/month in compute credits**, which covers one Micro compute instance, so a typical single-project Pro setup starts at about **$25/month**. Additional projects start at **$10/month**, and usage beyond included quotas—such as database storage, bandwidth, file storage, and monthly active users—can add charges. ([supabase.com](https://supabase.com/pricing?trk=public_post_comment-text&utm_source=openai))
 
 The Free plan includes 500 MB of database storage, 50,000 monthly active users, 5 GB egress, and 1 GB file storage; free projects may pause after one week of inactivity. ([supabase.com](https://supabase.com/pricing?trk=public_post_comment-text&utm_source=openai))
-~~~~
+```
 
 - T201 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T202 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -1641,7 +1641,7 @@ The Free plan includes 500 MB of database storage, 50,000 monthly active users, 
 
 ## A22
 
-~~~~text
+```text
 Here's how the two plans compare, based on third-party pricing guides. Check Supabase's official pricing page for current numbers, because they change.
 
 | Resource | Free ($0) | Pro ($25/month) |
@@ -1664,7 +1664,7 @@ Here's how the two plans compare, based on third-party pricing guides. Check Sup
 - **Billing unit:** Some sources say Pro is $25 per organization per month. Others describe it as per project. Check this on the official page.
 
 A few figures differ between sources, such as the Pro file storage and bandwidth numbers. One source lists 100 GB of monthly bandwidth for Pro, while most list 250 GB of egress. I'd treat the 250 GB figure as the more reliable one.
-~~~~
+```
 
 - T211 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T212 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -1679,7 +1679,7 @@ A few figures differ between sources, such as the Pro file storage and bandwidth
 
 ## A23
 
-~~~~text
+```text
 Supabase integrates with a wide range of tools. Its partner directory lists over 100 of them.
 
 **How integrations work**
@@ -1707,7 +1707,7 @@ Supabase integrates with a wide range of tools. Its partner directory lists over
 - For tools like Stripe webhooks, Slack alerts or OpenAI calls, the standard path is Edge Functions or Database Webhooks.
 
 The full, current list is in the [Partner Catalog](https://supabase.com/partners/integrations). You can also install Dashboard Integrations from inside a project.
-~~~~
+```
 
 - T221 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T222 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -1722,7 +1722,7 @@ The full, current list is in the [Partner Catalog](https://supabase.com/partners
 
 ## A24
 
-~~~~text
+```text
 According to Supabase's self-hosting docs, these managed-platform features aren't available when you self-host:
 
 - **Branching.** The docs list branching, advanced metrics beyond logs, managed backups and PITR, analytics and vector buckets, ETL, and the Management API as unavailable.
@@ -1742,7 +1742,7 @@ According to Supabase's self-hosting docs, these managed-platform features aren'
 The core services are the same software the hosted platform runs. Postgres, Auth, Storage, Realtime, and PostgREST work reliably. The difference is mostly operational tooling. You also take on updates, backups, monitoring, scaling, and security yourself.
 
 The official page is https://supabase.com/docs/guides/self-hosting.
-~~~~
+```
 
 - T231 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T232 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -1757,7 +1757,7 @@ The official page is https://supabase.com/docs/guides/self-hosting.
 
 ## A25
 
-~~~~text
+```text
 ## Short answer
 
 - **Cheapest for a hobby/prototype:** **Both can be $0**, but Firebase’s free tier is often more generous for read-heavy apps.
@@ -1813,7 +1813,7 @@ For a typical small app:
 - **Simple mobile app with modest usage and Firebase integrations:** Choose Firebase.
 
 If you tell me your expected users, database size, monthly API requests, file storage, and whether you need serverless functions, I can estimate the likely monthly bill for both.
-~~~~
+```
 
 - T241 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T242 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -1828,7 +1828,7 @@ If you tell me your expected users, database size, monthly API requests, file st
 
 ## A26
 
-~~~~text
+```text
 Here’s the current **Supabase Free vs. Pro** comparison:
 
 | Feature | Free | Pro |
@@ -1859,7 +1859,7 @@ The main practical differences are **production reliability, storage/database ca
 - The **$25 Pro fee is not necessarily the final monthly bill**: compute, extra projects, and usage beyond included quotas can add charges. Pro includes compute credits, but larger compute instances or additional projects may cost extra. ([supabase.com](https://supabase.com/pricing?trk=public_post_comment-text&utm_source=openai))
 
 **Rule of thumb:** choose Free for development and small personal apps; choose Pro once you need an always-on production project, automatic backups, more than 500 MB of database space, or more than 5 GB of monthly egress.
-~~~~
+```
 
 - T251 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T252 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -1874,7 +1874,7 @@ The main practical differences are **production reliability, storage/database ca
 
 ## A27
 
-~~~~text
+````text
 Yes, you can self-host Supabase. It's open source, and the officially supported route is Docker Compose.
 
 ## Requirements
@@ -1920,7 +1920,7 @@ Logs and Analytics are optional. They aren't in the default Docker Compose confi
 - **Kubernetes.** There is also a community-maintained Kubernetes project. It isn't official.
 
 The official guide is at https://supabase.com/docs/guides/self-hosting/docker. If you tell me your setup (VPS, home server or cloud) and what you plan to use it for, I can give more specific advice.
-~~~~
+````
 
 - T261 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T262 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -1935,7 +1935,7 @@ The official guide is at https://supabase.com/docs/guides/self-hosting/docker. I
 
 ## A28
 
-~~~~text
+```text
 You can have **2 active projects** on Supabase's free plan.
 
 - The limit applies across every organization where you're an Owner or Administrator. You could have two Free Plan organizations with one project each, or one Free Plan organization with two projects.
@@ -1943,7 +1943,7 @@ You can have **2 active projects** on Supabase's free plan.
 - If you need more than two active projects at once, you'll have to upgrade to the Pro plan.
 
 Each free project also gets a 500 MB database, 1 GB file storage, 50,000 monthly active users, and 5 GB egress.
-~~~~
+```
 
 - T271 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T272 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -1958,7 +1958,7 @@ Each free project also gets a 500 MB database, 1 GB file storage, 50,000 monthly
 
 ## A29
 
-~~~~text
+```text
 On Supabase’s Free Plan, you can have up to **2 active projects** at a time.
 
 Key details regarding this limit:
@@ -1966,7 +1966,7 @@ Key details regarding this limit:
 * **Scope:** The limit applies across all organizations where you are an Owner or Administrator. You can split them across two separate free organizations (1 project each) or keep both within a single organization.
 * **Paused projects do not count:** Only active projects count toward the quota. If you already have two projects and want to create a new one without upgrading, you can pause an existing project from the dashboard to free up a slot.
 * **Automatic pausing:** Free-tier projects are automatically paused after **7 days (1 week) of inactivity** to preserve resources, but you can unpause them at any time from your Supabase dashboard.
-~~~~
+```
 
 - T281 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T282 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -1981,7 +1981,7 @@ Key details regarding this limit:
 
 ## A30
 
-~~~~text
+```text
 Supabase offers a free tier designed for personal projects, prototypes, and MVPs. 
 
 ### 1. Projects & Database
@@ -2007,7 +2007,7 @@ Supabase offers a free tier designed for personal projects, prototypes, and MVPs
 * **Auto-Pausing:** Projects that experience **7 consecutive days of inactivity** are automatically paused to conserve resources. You can manually unpause them via the Supabase dashboard.
 * **No Automated Backups:** Point-in-time recovery (PITR) and automated scheduled backups are not available on the free tier (you must export backups manually).
 * **Support:** Access to community support (GitHub discussions and Discord) rather than guaranteed email SLAs.
-~~~~
+```
 
 - T291 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T292 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -2022,7 +2022,7 @@ Supabase offers a free tier designed for personal projects, prototypes, and MVPs
 
 ## A31
 
-~~~~text
+```text
 Supabase has four plans. Prices below come from third-party guides, so check Supabase's own pricing page before you budget.
 
 **Plans**
@@ -2039,7 +2039,7 @@ Supabase provisions dedicated compute instances billed 24/7. The tiers are Micro
 
 **What you'll likely pay**
 Most early-stage apps stay at exactly $25/month, because the $10 credit covers a Micro instance. One estimate puts a growing app with Small compute, 20 GB of storage and 300 GB of egress at about $36/month. Each extra project adds compute cost on top, starting at $10 per month.
-~~~~
+```
 
 - T301 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T302 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -2054,7 +2054,7 @@ Most early-stage apps stay at exactly $25/month, because the $10 credit covers a
 
 ## A32
 
-~~~~text
+```text
 Supabase’s **Free tier** is designed for prototyping, learning, and early MVPs, while the **Pro plan** ($25/month per organization) is intended for production applications. 
 
 The primary differences in limits, features, and operational constraints are detailed below.
@@ -2097,7 +2097,7 @@ The primary differences in limits, features, and operational constraints are det
 #### 4. Custom Domains & Vanity URLs
 * **Free Plan:** Only provides default Supabase subdomains (`<project-id>.supabase.co`).
 * **Pro Plan:** Allows you to configure custom vanity domains (e.g., `auth.yourdomain.com`) as a paid add-on, which helps avoid third-party cookie restrictions during OAuth flows.
-~~~~
+```
 
 - T311 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T312 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -2112,7 +2112,7 @@ The primary differences in limits, features, and operational constraints are det
 
 ## A33
 
-~~~~text
+```text
 Here's what Supabase's Free plan includes. The figures come from third-party pricing guides, so check Supabase's own pricing page for the latest numbers.
 
 **Included resources**
@@ -2133,7 +2133,7 @@ Here's what Supabase's Free plan includes. The figures come from third-party pri
 - **Not for production:** The free tier is generally not suitable for production applications.
 
 If you outgrow it, the Pro plan is $25/org/month plus usage, with 8 GB database, 100 GB storage, no pausing, and a $10 compute credit.
-~~~~
+```
 
 - T321 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T322 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -2148,7 +2148,7 @@ If you outgrow it, the Pro plan is $25/org/month plus usage, with 8 GB database,
 
 ## A34
 
-~~~~text
+````text
 **Yes, you can self-host Supabase.** Supabase is open source and designed to be run on your own infrastructure. It consists of several microservices (PostgreSQL, GoTrue for Auth, PostgREST for REST APIs, Realtime, Storage, Kong API Gateway, and the Supabase Studio dashboard).
 
 The official and most common way to self-host is using **Docker Compose**.
@@ -2245,7 +2245,7 @@ If you plan to run Supabase in production, keep the following in mind:
 
 * **Self-Hosted PaaS (Easiest UI):** Platforms like **Coolify** or **Elestio** have 1-click templates for Supabase, handling SSL and updates automatically.
 * **Kubernetes:** Community Helm charts exist if you prefer orchestrating across a cluster (e.g., search for the community-maintained `supabase-kubernetes` Helm chart).
-~~~~
+````
 
 - T331 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T332 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -2260,7 +2260,7 @@ If you plan to run Supabase in production, keep the following in mind:
 
 ## A35
 
-~~~~text
+```text
 For a small app, **Firebase is almost always cheaper**—usually costing **$0 to under $5/month**. 
 
 While both have generous free tiers, the biggest difference lies in what happens when your app slightly exceeds the free limits or experiences low activity.
@@ -2311,7 +2311,7 @@ Firebase is cheaper *unless* your small app has unusual query patterns:
 * **Choose Supabase if:**
   * You need relational data (SQL, foreign keys, joins) from day one.
   * You are comfortable paying **$25/month** once your app needs high reliability, 24/7 uptime without pausing, or more than 500 MB of storage.
-~~~~
+```
 
 - T341 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T342 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -2326,7 +2326,7 @@ Firebase is cheaper *unless* your small app has unusual query patterns:
 
 ## A36
 
-~~~~text
+```text
 Supabase uses a hybrid pricing model consisting of a **base subscription plan** combined with **usage-based billing** (with spend caps available to prevent surprise charges).
 
 ---
@@ -2370,7 +2370,7 @@ If you exceed the allowances included in the Pro or Team plan, costs scale based
 * **Hobby / Learning:** **$0**
 * **Early Production App:** **$25/month** (fits within the base Pro tier + included compute credit).
 * **Growing SaaS App:** **$35 – $150/month** (usually from upgrading to a *Small* or *Medium* compute instance and modest storage/egress overages).
-~~~~
+```
 
 - T351 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T352 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -2385,7 +2385,7 @@ If you exceed the allowances included in the Pro or Team plan, costs scale based
 
 ## A37
 
-~~~~text
+```text
 **Yes, Supabase is open source.** You can view the code, contribute, and self-host the entire platform using Docker.
 
 ### Licensing Details
@@ -2403,7 +2403,7 @@ Rather than being a single monolithic program, Supabase is an integrated platfor
   * **Edge Runtime (Deno-based):** MIT License
 
 Because the core platform and its dependencies use permissive OSI-approved licenses (mainly Apache 2.0 and MIT), you can freely run, modify, inspect, and self-host Supabase without licensing fees.
-~~~~
+```
 
 - T361 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T362 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -2418,7 +2418,7 @@ Because the core platform and its dependencies use permissive OSI-approved licen
 
 ## A38
 
-~~~~text
+```text
 Supabase integrates with a broad range of tools through its native features, APIs, client libraries, and partner marketplace. Key categories include:
 
 - **Hosting and deployment:** Vercel, Cloudflare, AWS, Fly.io
@@ -2435,7 +2435,7 @@ Supabase integrates with a broad range of tools through its native features, API
 Supabase also supports **any tool that can connect to PostgreSQL**, plus REST, GraphQL, client-library, and Management API integrations. Its official Partner Catalog currently groups integrations into AI, API, authentication, caching/offline-first, data platforms, developer tools, foreign data wrappers, low-code, messaging, observability, security, and storage. ([supabase.com](https://supabase.com/docs/guides/integrations/partner-catalog?utm_source=openai))
 
 For the most complete and current list, use Supabase’s **Partner Catalog** and **Integrations** documentation, since the catalog changes over time. ([supabase.com](https://supabase.com/docs/guides/integrations?utm_source=openai))
-~~~~
+```
 
 - T371 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T372 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -2450,7 +2450,7 @@ For the most complete and current list, use Supabase’s **Partner Catalog** and
 
 ## A39
 
-~~~~text
+```text
 When you self-host Supabase (typically via Docker Compose or Kubernetes), you get the core open-source engine—PostgreSQL, GoTrue (Auth), PostgREST, Storage API, Realtime, Supavisor, and Supabase Studio. 
 
 However, you lose several proprietary management layers, cloud services, and UI conveniences.
@@ -2505,7 +2505,7 @@ Several convenience integrations provided automatically in Supabase Cloud must b
 | **Dashboard UI Settings (OAuth, SMTP)** | Yes | **No** (Handled via `.env`) |
 | **Built-in CDN & Global Caching** | Yes | **No** (DIY) |
 | **CLI / Studio Edge Functions Management**| Yes | **Manual / Limited** |
-~~~~
+```
 
 - T381 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T382 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -2520,7 +2520,7 @@ Several convenience integrations provided automatically in Supabase Cloud must b
 
 ## A40
 
-~~~~text
+```text
 As of the current Supabase documentation, the main **Supabase Cloud features you lose or must replace when self-hosting** are:
 
 | Feature | Self-hosted status |
@@ -2554,7 +2554,7 @@ You are also responsible for:
 - Support, which is primarily community-based for ordinary self-hosted deployments ([supabase.com](https://supabase.com/Docs/Guides/Self-Hosting?utm_source=openai))
 
 So, if you mainly need **database + Auth + Storage + Realtime + Edge Functions**, self-hosting is quite capable. If you need **branching, PITR, hosted observability, multi-project management, or zero-ops scaling**, Supabase Cloud is the safer choice.
-~~~~
+```
 
 - T391 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T392 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -2569,7 +2569,7 @@ So, if you mainly need **database + Auth + Storage + Realtime + Edge Functions**
 
 ## A41
 
-~~~~text
+```text
 Yes. **Supabase may automatically pause Free Plan projects that have low activity over a 7-day period**, primarily when they receive too few database queries. A few requests per day is typically enough to avoid pausing, but Supabase doesn’t publish a strict request threshold. ([supabase.com](https://supabase.com/docs/guides/platform/free-project-pausing?utm_source=openai))
 
 - They generally email you about a week before pausing.
@@ -2577,7 +2577,7 @@ Yes. **Supabase may automatically pause Free Plan projects that have low activit
 - A paused project’s data and configuration are preserved, and you can resume it from the dashboard.
 - You have **up to one year** to restore it after pausing.
 - Paid-plan projects aren’t automatically paused for inactivity. ([supabase.com](https://supabase.com/docs/guides/platform/free-project-pausing?utm_source=openai))
-~~~~
+```
 
 - T401 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T402 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -2592,7 +2592,7 @@ Yes. **Supabase may automatically pause Free Plan projects that have low activit
 
 ## A42
 
-~~~~text
+```text
 Yes. Supabase pauses free-tier projects that go unused.
 
 - **Timing:** Free projects are paused after 1 week of inactivity. Paid plans are exempt: Projects on paid plans aren't paused for inactivity.
@@ -2604,7 +2604,7 @@ Yes. Supabase pauses free-tier projects that go unused.
 To keep a free project awake, schedule a small query against the database, for example with a cron job. Supabase's official answer is to upgrade to Pro.
 
 The exact threshold has changed before, so check Supabase's current docs or dashboard if this matters for your project.
-~~~~
+```
 
 - T411 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T412 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -2619,9 +2619,9 @@ The exact threshold has changed before, so check Supabase's current docs or dash
 
 ## A43
 
-~~~~text
+```text
 Supabase’s Free Plan allows **2 active projects** across your account. **Paused projects don’t count** toward that limit. Free projects may be automatically paused after about **7 days of inactivity**. ([supabase.com](https://supabase.com/docs/guides/platform/billing-on-supabase?utm_source=openai))
-~~~~
+```
 
 - T421 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T422 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -2636,7 +2636,7 @@ Supabase’s Free Plan allows **2 active projects** across your account. **Pause
 
 ## A44
 
-~~~~text
+```text
 Yes—**Supabase is largely open source**, including its self-hosting stack and major components. The main Supabase repository is licensed under the **Apache License 2.0**, a permissive open-source license that allows use, modification, and redistribution subject to conditions such as preserving notices. ([github.com](https://github.com/supabase/supabase/blob/master/LICENSE?utm_source=openai))
 
 However, **Supabase is not uniformly under a single license**. Individual services may use different open-source licenses—for example, **Supabase Auth is licensed under the MIT License**. ([github.com](https://github.com/supabase/auth/blob/master/LICENSE?utm_source=openai))
@@ -2646,7 +2646,7 @@ So, in short:
 - **Supabase platform/self-hosting repository:** Apache License 2.0
 - **Some individual components:** MIT or other compatible open-source licenses
 - **Hosted Supabase service:** You use it as a service; its hosted terms are separate from the licenses covering the source code.
-~~~~
+```
 
 - T431 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T432 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -2661,7 +2661,7 @@ So, in short:
 
 ## A45
 
-~~~~text
+```text
 Yes, Supabase is open source. Its main repository is under the **Apache License 2.0**. Supabase's own docs say "Supabase is open source" and list the license as Apache 2. The GitHub repo also shows an Apache-2.0 license.
 
 **Other components have their own licenses.** Supabase is a combination of existing open source tools plus ones it built itself. According to its architecture docs:
@@ -2676,7 +2676,7 @@ Yes, Supabase is open source. Its main repository is under the **Apache License 
 - You can self-host. The provided Docker Compose setup lets you run the entire stack.
 
 **One caveat:** Some third-party sources say certain enterprise features, such as SSO and HIPAA BAA, are paywalled behind paid commercial plans. These are mostly about the hosted service and compliance, not the code. Another source claims every meaningful feature runs in self-hosted mode without any license fee. If a specific feature matters to you, check Supabase's docs.
-~~~~
+```
 
 - T441 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T442 — price_value: How does this answer characterise Supabase's pricing and value for money?

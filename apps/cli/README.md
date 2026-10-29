@@ -54,12 +54,12 @@ For the full self-hosting walkthrough, see the [Redemptia docs](https://redempti
 
 ## Commands
 
-| Command | Description |
-| --- | --- |
-| `redemptia init` | Interactive wizard to set up a local Redemptia instance |
-| `redemptia compose <args...>` | Run any `docker compose` command against your Redemptia project (e.g. `redemptia compose up -d`, `redemptia compose down`, `redemptia compose logs -f`, `redemptia compose build`, `redemptia compose ps`) |
-| `redemptia edit <env\|compose>` | Change API keys, scrape targets, or the Docker Compose YAML |
-| `redemptia upgrade` | Move your deployment to this CLI's version — runs migrations, re-pins image tags, and restarts the stack |
+| Command                         | Description                                                                                                                                                                                                |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `redemptia init`                | Interactive wizard to set up a local Redemptia instance                                                                                                                                                    |
+| `redemptia compose <args...>`   | Run any `docker compose` command against your Redemptia project (e.g. `redemptia compose up -d`, `redemptia compose down`, `redemptia compose logs -f`, `redemptia compose build`, `redemptia compose ps`) |
+| `redemptia edit <env\|compose>` | Change API keys, scrape targets, or the Docker Compose YAML                                                                                                                                                |
+| `redemptia upgrade`             | Move your deployment to this CLI's version — runs migrations, re-pins image tags, and restarts the stack                                                                                                   |
 
 Run `redemptia --help` or `redemptia <command> --help` for the full list of flags.
 

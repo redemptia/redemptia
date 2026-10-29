@@ -1,5 +1,29 @@
 # @workspace/og
 
+## 0.7.7
+
+### Patch Changes
+
+- @workspace/config@0.7.7
+
+## 0.7.6
+
+### Patch Changes
+
+- @workspace/config@0.7.6
+
+## 0.7.5
+
+### Patch Changes
+
+- @workspace/config@0.7.5
+
+## 0.7.4
+
+### Patch Changes
+
+- @workspace/config@0.7.4
+
 ## 0.7.3
 
 ### Patch Changes
@@ -206,7 +230,7 @@
 
 ### Patch Changes
 
-- 7cba46d: License Elmo under the MIT License. Add Code of Conduct, Contributing guide, Security policy, and a lightweight CLA process.
+- 7cba46d: License Redemptia under the MIT License. Add Code of Conduct, Contributing guide, Security policy, and a lightweight CLA process.
 - Updated dependencies [edf97d4]
 - Updated dependencies [7cba46d]
   - @workspace/config@0.2.5

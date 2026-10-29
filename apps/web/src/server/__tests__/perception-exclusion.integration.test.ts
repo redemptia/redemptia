@@ -7,7 +7,7 @@ import type { LookbackPeriod } from "@/lib/lookback";
 import { getBrandSentimentFn, getCompetitiveLandscapeFn, getShareOfVoiceFn } from "@/server/analysis";
 import {
 	getBrandAnalytics,
-	getBrandCitations,
+	getBrandCitationUrls,
 	getBrandPromptPerformance,
 	getBrandQueryFanout,
 } from "@/server/analytics-core";
@@ -98,7 +98,7 @@ async function evidence() {
 	return {
 		citationsPage: await getCitationsFn({ data: { brandId, lookback } }),
 		fanoutPage: await getQueryFanoutFn({ data: scope }),
-		apiCitations: await getBrandCitations(brandId, window),
+		apiCitations: await getBrandCitationUrls(brandId, window, {}, { limit: 100, offset: 0 }),
 		apiFanout: await getBrandQueryFanout(brandId, window),
 		evidencePromptList: await getPromptsSummaryFn({ data: { ...scope, includePerception: true } }),
 		pickedResponses: await searchResponsesFn({ data: { ...scope, prompts: perception } }),

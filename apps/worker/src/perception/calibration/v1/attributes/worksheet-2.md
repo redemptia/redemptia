@@ -18,7 +18,7 @@ one-line rationale for every label other than not_discussed and drift `no`, in l
 
 ## A66
 
-~~~~text
+````text
 ## Short answer
 
 **Choose Supabase for most new web apps, SaaS products, dashboards, and apps with relational data.**  
@@ -111,7 +111,7 @@ Usually pick **Supabase** if you need SQL, vector search, user-owned data, relat
 - **SQL, portability, and predictable architecture:** Supabase  
 - **Push notifications, analytics, crash reporting:** Firebase  
 - **Unsure:** Start with **Supabase** for a web product; start with **Firebase** for a mobile product.
-~~~~
+````
 
 - T651 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T652 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -127,7 +127,7 @@ Usually pick **Supabase** if you need SQL, vector search, user-owned data, relat
 
 ## A67
 
-~~~~text
+```text
 Supabase is an open-source backend-as-a-service platform. It's often described as an open-source alternative to Google's Firebase, built on PostgreSQL.
 
 **What it's known for**
@@ -148,7 +148,7 @@ Supabase is an open-source backend-as-a-service platform. It's often described a
 Once a project moves onto a paid plan, though, costs climb quickly and it can feel overpriced for what you get.
 
 The company was founded in 2020 and has raised significant venture funding. Its valuation and product details have changed quickly, so check the official site for current figures and features.
-~~~~
+```
 
 - T661 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T662 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -164,7 +164,7 @@ The company was founded in 2020 and has raised significant venture funding. Its 
 
 ## A68
 
-~~~~text
+```text
 **Supabase** is best known as the leading **open-source alternative to Google Firebase**. It is a Backend-as-a-Service (BaaS) platform designed to give developers all the backend tools needed to build full-stack web and mobile applications without having to build and maintain backend infrastructure from scratch.
 
 Here is what Supabase is specifically known for:
@@ -203,7 +203,7 @@ Unlike Firebase, which uses a NoSQL document database (Firestore), Supabase give
 
 ### Summary
 In short, Supabase is known for giving developers the **speed and convenience of Firebase** paired with the **power, reliability, and open-source foundation of PostgreSQL**.
-~~~~
+```
 
 - T671 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T672 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -219,7 +219,7 @@ In short, Supabase is known for giving developers the **speed and convenience of
 
 ## A69
 
-~~~~text
+```text
 Supabase has become the go-to backend-as-a-service (BaaS) for developers who want a managed, open-source Postgres stack. However, it isn’t a one-size-fits-all solution. 
 
 Depending on whether you prefer simpler self-hosting, end-to-end TypeScript, GraphQL, or a document-based database, several strong alternatives exist.
@@ -303,7 +303,7 @@ If your application deals heavily with hierarchical, document-based data (e.g., 
 | **Enterprise-grade mobile sync, NoSQL, and offline support** | **Firebase** |
 | **A Postgres backend, but powered by GraphQL** | **Nhost** |
 | **Postgres flexibility without the all-in-one BaaS constraints** | **Neon + Clerk** |
-~~~~
+```
 
 - T681 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T682 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -319,7 +319,7 @@ If your application deals heavily with hierarchical, document-based data (e.g., 
 
 ## A70
 
-~~~~text
+```text
 ## Pros
 
 - **It's real Postgres.** Every ORM, migration tool, and SQL client works, and your data is portable by design.
@@ -347,7 +347,7 @@ Supabase is a good choice when a Postgres-backed application needs several adjac
 Most of these sources are review sites and aggregators, so treat their ratings as opinion. Check current pricing on Supabase's own site before you commit.
 
 I can compare it with Firebase, Neon or Appwrite if that would help.
-~~~~
+```
 
 - T691 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T692 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -363,7 +363,7 @@ I can compare it with Firebase, Neon or Appwrite if that would help.
 
 ## A71
 
-~~~~text
+```text
 # Supabase vs Neon
 
 **The short version:** Neon is a serverless Postgres database. Supabase is a backend platform built around Postgres. Which one fits depends mostly on whether you want the extra backend services.
@@ -407,7 +407,7 @@ Treat the specific numbers with caution. The sources disagree on Neon's entry pr
 - Using Neon for a full app means adding separate costs for an auth service and object storage, unless you use its newer beta services.
 
 If you tell me your workload (traffic pattern, need for auth or realtime, number of environments), I can give a more specific recommendation.
-~~~~
+```
 
 - T701 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T702 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -423,7 +423,7 @@ If you tell me your workload (traffic pattern, need for auth or realtime, number
 
 ## A72
 
-~~~~text
+```text
 There isn’t one universally better replacement for Supabase. The right alternative depends on **what you like—or dislike—about Supabase**: PostgreSQL, authentication, realtime, self-hosting, serverless functions, or the all-in-one model.
 
 Supabase itself is essentially a managed PostgreSQL platform bundled with Auth, Storage, Realtime, APIs, and Edge Functions. ([supabase.com](https://supabase.com/features?utm_source=openai))
@@ -584,7 +584,7 @@ Someone would generally switch from Supabase for one of these reasons:
 - **Choose PocketBase** for small, simple, self-hosted projects—not high-risk production systems.
 
 For most teams, the strongest Supabase alternatives are **Appwrite**, **Firebase**, and **Neon plus a modular stack**. Convex is the most compelling choice when the application is deeply realtime and TypeScript-centric.
-~~~~
+```
 
 - T711 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T712 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -600,7 +600,7 @@ For most teams, the strongest Supabase alternatives are **Appwrite**, **Firebase
 
 ## A73
 
-~~~~text
+```text
 Supabase is already one of the strongest all-in-one backend platforms: managed PostgreSQL, authentication, auto-generated APIs, storage, realtime, and edge functions. ([supabase.com](https://supabase.com/docs/guides/platform?utm_source=openai)) The best alternative depends on **which part of Supabase you want to replace**.
 
 ## Best Supabase alternatives
@@ -768,7 +768,7 @@ Common reasons include:
 - **Choose PocketBase** for small, simple, self-hosted apps.
 - **Choose a composable stack** for long-term infrastructure control.
 - **Stay with Supabase** if you want standard PostgreSQL, built-in auth/storage/realtime, and a relatively cohesive developer experience. Its PostgreSQL-first architecture is a major advantage when SQL portability and relational modeling matter. ([supabase.com](https://supabase.com/docs/guides/getting-started/architecture?utm_source=openai))
-~~~~
+```
 
 - T721 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T722 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -784,7 +784,7 @@ Common reasons include:
 
 ## A74
 
-~~~~text
+```text
 ## Strengths
 
 - **It's real Postgres.** You get full SQL and extensions, and your data is portable by design. That means every ORM, migration tool, and SQL client works.
@@ -812,7 +812,7 @@ Common reasons include:
 - **Heavy real-time workloads:** one review reports latency rising to 500ms-2s under heavy connection loads (5,000+ concurrent channels). That could matter for gaming or other high-frequency use cases.
 
 Most of these sources are review and comparison sites, and some are likely affiliate-driven. Treat the specific numbers and prices as indicative and check Supabase's pricing page before you decide.
-~~~~
+```
 
 - T731 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T732 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -828,7 +828,7 @@ Most of these sources are review and comparison sites, and some are likely affil
 
 ## A75
 
-~~~~text
+```text
 While both **Supabase** and **Neon** give you standard PostgreSQL under the hood, they have fundamentally different philosophies and scopes:
 
 * **Neon** is a **Serverless Postgres database**. It focuses purely on modernizing the Postgres engine itself (separation of storage and compute, instant database branching, scale-to-zero, and autoscaling).
@@ -889,7 +889,7 @@ While both **Supabase** and **Neon** give you standard PostgreSQL under the hood
 * **You need database branching for CI/CD:** You want ephemeral, data-complete database environments attached to PR preview deployments (e.g., pairing Neon with Vercel or GitHub Actions).
 * **You have spiky, intermittent traffic:** Neon's scale-to-zero and dynamic compute autoscaling make it much more cost-effective for internal tools, development branches, or variable workloads.
 * **You want pure Postgres without platform overhead:** You don't want or need PostgREST, custom client SDKs, or bundled BaaS components—just a modern, high-performance database.
-~~~~
+```
 
 - T741 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T742 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -905,7 +905,7 @@ While both **Supabase** and **Neon** give you standard PostgreSQL under the hood
 
 ## A76
 
-~~~~text
+```text
 Choosing between **Supabase** and **Firebase** comes down to one fundamental difference: **Relational (PostgreSQL) vs. Document-based NoSQL (Firestore)**, along with how much you care about **vendor lock-in**.
 
 Here is a quick summary, followed by a detailed breakdown and a decision checklist.
@@ -968,7 +968,7 @@ Here is a quick summary, followed by a detailed breakdown and a decision checkli
 2. **Your data is truly document-centric:** (e.g., chat logs, feed items, individual user settings) where complex joins and aggregations aren't required.
 3. **You rely on Google's mobile suite:** You want turnkey integration with Google Analytics for Mobile, Crashlytics, Remote Config, and Cloud Messaging (FCM).
 4. **Rapid zero-setup prototyping:** If you don't want to design database schemas upfront and just want to throw JSON into the cloud.
-~~~~
+```
 
 - T751 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T752 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -984,7 +984,7 @@ Here is a quick summary, followed by a detailed breakdown and a decision checkli
 
 ## A77
 
-~~~~text
+```text
 **Short answer:** Choose Supabase for most web apps and SaaS products. Choose Firebase for mobile-first apps that need offline sync, push notifications, or heavy real-time features. Most 2026 comparisons I found reach the same conclusion.
 
 ## Pick Supabase if...
@@ -1016,7 +1016,7 @@ Here is a quick summary, followed by a detailed breakdown and a decision checkli
 | You need to self-host or avoid lock-in | Supabase |
 
 If you tell me what you're building (platform, data model, expected scale), I can give a more specific recommendation.
-~~~~
+```
 
 - T761 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T762 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -1032,7 +1032,7 @@ If you tell me what you're building (platform, data model, expected scale), I ca
 
 ## A78
 
-~~~~text
+```text
 Supabase is a hosted backend platform built around **PostgreSQL**, with built-in authentication, file storage, realtime subscriptions, auto-generated APIs, and server-side Edge Functions. ([supabase.com](https://supabase.com/docs/guides/database/overview?utm_source=openai))
 
 ## Pros
@@ -1130,7 +1130,7 @@ Consider alternatives when you need:
 - Strictly isolated infrastructure without using a hosted SaaS provider
 
 **Bottom line:** Supabase is particularly compelling for relational, API-driven applications where speed of development matters. Its main tradeoff is that the apparent simplicity moves complexity into **database design, RLS security, scaling, and usage monitoring**.
-~~~~
+```
 
 - T771 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T772 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -1146,7 +1146,7 @@ Consider alternatives when you need:
 
 ## A79
 
-~~~~text
+```text
 People usually choose alternatives to Supabase **not because Supabase is bad**, but because its Postgres-centered, all-in-one approach isn’t the best fit for their workload or organization.
 
 ### Common reasons
@@ -1192,7 +1192,7 @@ People usually choose alternatives to Supabase **not because Supabase is bad**, 
 - **Choose a specialized backend platform** if realtime collaboration, workflows, queues, or edge execution are more important than relational SQL.
 
 **In short:** Supabase is strongest when the product can be centered on Postgres. People choose alternatives when they need a different data model, a different scaling model, deeper cloud integration, simpler infrastructure, specialized backend behavior, or more predictable enterprise operations.
-~~~~
+```
 
 - T781 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T782 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -1208,7 +1208,7 @@ People usually choose alternatives to Supabase **not because Supabase is bad**, 
 
 ## A80
 
-~~~~text
+```text
 # Supabase vs. its alternatives
 
 Supabase is an open-source, Postgres-based backend-as-a-service (BaaS). It bundles a database, auth, storage, realtime, edge functions and vector search. It's the market's momentum leader, but the best choice depends on your workload.
@@ -1244,7 +1244,7 @@ On AI workloads, Supabase has native pgvector support and an MCP server. Firebas
 - **Choose Neon** if you only need serverless Postgres.
 
 Treat the benchmark figures in comparison articles with caution. Many are published by vendors or consultancies with their own interests, and the sources I found don't agree with each other.
-~~~~
+```
 
 - T791 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T792 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -1260,7 +1260,7 @@ Treat the benchmark figures in comparison articles with caution. Many are publis
 
 ## A81
 
-~~~~text
+```text
 ## Short answer
 
 **Supabase is one of the best choices for web applications that want a real PostgreSQL database plus integrated authentication, file storage, APIs, realtime features, and server-side functions.** Its main advantage is that it gives you a conventional relational database without requiring you to assemble the backend yourself.
@@ -1421,7 +1421,7 @@ Choose **AWS Amplify** when AWS is already your organization’s strategic platf
 Choose **managed Postgres alone** when your team already has a preferred backend, auth, storage, and deployment architecture.
 
 **Overall:** Supabase is probably the strongest general-purpose choice for relational, web-centric applications. Its biggest strategic advantage is not merely convenience; it is that you get a productive backend platform without giving up the power and familiarity of PostgreSQL.
-~~~~
+```
 
 - T801 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T802 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -1437,7 +1437,7 @@ Choose **managed Postgres alone** when your team already has a preferred backend
 
 ## A82
 
-~~~~text
+```text
 Supabase is an open-source backend-as-a-service (BaaS) platform. It's often described as an open-source alternative to Firebase, but it's built on PostgreSQL instead of a NoSQL database.
 
 **What it's known for**
@@ -1459,7 +1459,7 @@ It lets small teams and solo developers ship quickly without giving up the power
 **Company background**
 
 Supabase was founded in 2020. It has raised substantial venture funding and grown quickly. For its current valuation, pricing, or newest features, check their website or recent news, since those change often.
-~~~~
+```
 
 - T811 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T812 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -1475,7 +1475,7 @@ Supabase was founded in 2020. It has raised substantial venture funding and grow
 
 ## A83
 
-~~~~text
+```text
 People who pick something else over Supabase usually have one of a handful of reasons. Most of them come from specific workload needs, not from Supabase being bad. One source calls it a strong default in 2026.
 
 ## Common reasons
@@ -1516,7 +1516,7 @@ People who pick something else over Supabase usually have one of a handful of re
 - One source puts the point to switch as when free-tier pausing, scaling costs, RLS complexity, or vendor coupling become real production problems for your workload.
 
 If you tell me what you're building, your team's experience, and your scale, I can suggest whether Supabase or an alternative fits better.
-~~~~
+```
 
 - T821 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T822 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -1532,7 +1532,7 @@ If you tell me what you're building, your team's experience, and your scale, I c
 
 ## A84
 
-~~~~text
+```text
 Supabase is an open-source Backend-as-a-Service (BaaS) designed as an alternative to Firebase. Its core architectural decision—building around a standard **PostgreSQL** database rather than a proprietary NoSQL engine—drives most of its advantages and trade-offs.
 
 Here is a breakdown of Supabase's main strengths and weaknesses:
@@ -1595,7 +1595,7 @@ Here is a breakdown of Supabase's main strengths and weaknesses:
 
 * **Best suited for:** Web and mobile apps that benefit from relational data models, startups wanting rapid development without sacrificing the ability to migrate later, projects using AI/vector search (`pgvector`), and developers who love TypeScript and PostgreSQL.
 * **Think twice if:** You need completely hands-off massive horizontal scale without database tuning, your team has zero SQL experience and prefers document-style NoSQL, or your application heavily relies on long-running compute jobs rather than simple serverless edge functions.
-~~~~
+```
 
 - T831 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T832 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -1611,7 +1611,7 @@ Here is a breakdown of Supabase's main strengths and weaknesses:
 
 ## A85
 
-~~~~text
+```text
 Supabase is positioned as the **open-source alternative to Firebase**, built directly on top of **PostgreSQL**. Instead of reinventing proprietary primitives, Supabase unifies existing open-source tools (Postgres, PostgREST, GoTrue/Auth, pgvector, Realtime) into a coherent Backend-as-a-Service (BaaS).
 
 Below is how Supabase compares across the market against its primary competitors.
@@ -1712,7 +1712,7 @@ Amplify is AWS's opinionated framework and set of tools for building full-stack 
 * **Choose Appwrite if:** You want an open-source, easily self-hosted Firebase alternative and prefer interacting via REST/GraphQL APIs rather than raw SQL.
 * **Choose PocketBase if:** You are building an MVP, side project, or internal tool and want the simplest possible self-hosted backend with minimal resource overhead.
 * **Choose Convex if:** You are building a modern React/Next.js app and want an end-to-end reactive, TypeScript-only backend without thinking about database tables, joins, or SQL migrations.
-~~~~
+```
 
 - T841 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T842 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -1728,7 +1728,7 @@ Amplify is AWS's opinionated framework and set of tools for building full-stack 
 
 ## A86
 
-~~~~text
+```text
 Supabase is one of the most popular Backend-as-a-Service (BaaS) platforms, largely because it provides a managed PostgreSQL database with built-in authentication, storage, auto-generated APIs, and real-time subscriptions. 
 
 However, teams switch away for several reasons—such as SQL/RLS complexity, the desire for a lighter single-binary setup, or a preference for a TypeScript-first reactive backend.
@@ -1799,7 +1799,7 @@ Developers usually move away from Supabase due to specific architectural and dev
 * If you want a **lightweight, cheap, solo-developer app:** Use **PocketBase**.
 * If you want a **pure TypeScript, zero-SQL reactive experience:** Use **Convex**.
 * If you are building a **cross-platform mobile app with heavy offline sync:** Use **Firebase**.
-~~~~
+```
 
 - T851 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T852 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -1815,7 +1815,7 @@ Developers usually move away from Supabase due to specific architectural and dev
 
 ## A87
 
-~~~~text
+```text
 ## Short version
 
 **Supabase is strongest when you want a conventional relational backend—Postgres—plus managed Auth, Storage, Realtime, APIs, and serverless functions in one package.** Its main advantage is that you retain normal SQL, joins, transactions, extensions, and a relatively portable database model.
@@ -2007,7 +2007,7 @@ Choose **custom Postgres infrastructure** if:
 - You expect the operational savings to outweigh the additional engineering work.
 
 **Overall:** Supabase is probably the best general-purpose choice for a modern web SaaS that wants a real relational database and fast development. Firebase is stronger for mobile ecosystems, Convex for reactive TypeScript applications, Appwrite for self-hosting flexibility, and a custom stack for maximum control.
-~~~~
+```
 
 - T861 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T862 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -2023,7 +2023,7 @@ Choose **custom Postgres infrastructure** if:
 
 ## A88
 
-~~~~text
+```text
 The right alternative depends on which part of Supabase you're replacing. Supabase bundles Postgres, auth, auto-APIs, storage, and realtime, so people usually leave for one of those pieces rather than all of them.
 
 ## Main alternatives
@@ -2072,7 +2072,7 @@ The right alternative depends on which part of Supabase you're replacing. Supaba
 **Caveats:** Many of these comparison articles come from vendors that sell competing products, so treat their rankings with some skepticism. Supabase is still a strong choice if you want relational Postgres plus auth, storage and realtime in one place. Before switching, check whether the problem is Supabase itself or just one piece of it. Often you can replace only that piece.
 
 If you tell me your stack, scale and main complaint, I can narrow this to one or two options.
-~~~~
+```
 
 - T871 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T872 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -2088,7 +2088,7 @@ If you tell me your stack, scale and main complaint, I can narrow this to one or
 
 ## A89
 
-~~~~text
+```text
 Supabase is strongest when you want a **Postgres-centered backend assembled quickly**, especially for web apps, SaaS products, prototypes, and small-to-medium engineering teams.
 
 ## Main strengths
@@ -2208,7 +2208,7 @@ Moving the database is likely easier than moving the entire application platform
 - You want to avoid managing authorization and database performance yourself.
 
 In short: **Supabase is more flexible than Firebase, but also more database-centric and technically demanding.** Its biggest advantage is giving developers a fast path to a real Postgres backend; its biggest weakness is that real Postgres still requires real engineering as the system matures.
-~~~~
+```
 
 - T881 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T882 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -2224,7 +2224,7 @@ In short: **Supabase is more flexible than Firebase, but also more database-cent
 
 ## A90
 
-~~~~text
+```text
 People choose alternatives to Supabase mostly because **Supabase is a broad, Postgres-centered backend platform**, while their project may need a narrower or different solution.
 
 ### Common reasons
@@ -2268,7 +2268,7 @@ People choose alternatives to Supabase mostly because **Supabase is a broad, Pos
 | Minimal cost and maximum control | **Self-hosted Postgres or another self-hosted backend** |
 
 The short version: **Supabase is often rejected not because it is weak, but because it is either too broad, too Postgres-centric, too operationally coupled, or not aligned with the team’s preferred deployment and data model.** It tends to be strongest when you specifically want **Postgres plus a ready-made backend platform** rather than just one isolated backend primitive.
-~~~~
+```
 
 - T891 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T892 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -2284,7 +2284,7 @@ The short version: **Supabase is often rejected not because it is weak, but beca
 
 ## A91
 
-~~~~text
+```text
 Supabase is a hosted backend platform built around **PostgreSQL**, with built-in authentication, file storage, realtime subscriptions, auto-generated APIs, and server-side Edge Functions. ([supabase.com](https://supabase.com/docs/guides/database/overview?utm_source=openai))
 
 ## Pros
@@ -2382,7 +2382,7 @@ Consider alternatives when you need:
 - Strictly isolated infrastructure without using a hosted SaaS provider
 
 **Bottom line:** Supabase is particularly compelling for relational, API-driven applications where speed of development matters. Its main tradeoff is that the apparent simplicity moves complexity into **database design, RLS security, scaling, and usage monitoring**.
-~~~~
+```
 
 - T901 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T902 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -2398,7 +2398,7 @@ Consider alternatives when you need:
 
 ## A92
 
-~~~~text
+```text
 To describe Supabase to someone deciding whether to use it, the best one-sentence summary is: 
 
 > **Supabase is an open-source Backend-as-a-Service (BaaS) built directly on top of PostgreSQL.**
@@ -2452,7 +2452,7 @@ When you spin up a Supabase project, you get a managed backend out of the box:
 **You might skip it if:**
 * Your application logic is deeply enterprise-heavy, requiring complex multi-service microarchitectures that don't fit into an API-over-database paradigm.
 * You have a strict requirement for a schemaless NoSQL architecture.
-~~~~
+```
 
 - T911 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T912 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -2468,7 +2468,7 @@ When you spin up a Supabase project, you get a managed backend out of the box:
 
 ## A93
 
-~~~~text
+```text
 **Supabase** is best known as the leading **open-source alternative to Google Firebase**. It is a Backend-as-a-Service (BaaS) platform that allows developers to build full-stack web and mobile applications quickly without having to build and maintain backend infrastructure from scratch.
 
 Here are the key things Supabase is known for:
@@ -2506,7 +2506,7 @@ Supabase has become a major player in the modern AI development stack. By native
 
 ### Summary
 Supabase is known for giving developers the **speed and convenience of Firebase**, but with the **power, scalability, and relational structure of PostgreSQL**, all while remaining open source and portable.
-~~~~
+```
 
 - T921 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T922 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -2522,7 +2522,7 @@ Supabase is known for giving developers the **speed and convenience of Firebase*
 
 ## A94
 
-~~~~text
+```text
 **Supabase in one line:** It's an open-source backend platform built on Postgres. You get a database, authentication, file storage, realtime, and serverless functions in one place, so you don't have to assemble them yourself. It's often called the "open-source Firebase alternative."
 
 ## What you get
@@ -2565,7 +2565,7 @@ There are four plans: Free at $0, Pro from $25 a month, Team from $599 a month, 
 - You need offline-first sync or a non-relational data model.
 
 If you tell me about your project (type of app, team size, expected scale), I can say whether it's a good fit.
-~~~~
+```
 
 - T931 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T932 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -2581,7 +2581,7 @@ If you tell me about your project (type of app, team size, expected scale), I ca
 
 ## A95
 
-~~~~text
+```text
 Supabase is strongest when you want a **Postgres-centered backend quickly**, without assembling and operating every backend service yourself.
 
 ## Main strengths
@@ -2707,7 +2707,7 @@ Supabase can coexist with those systems, but it may no longer be the only backen
 - Fully managed enterprise infrastructure with minimal platform-specific configuration
 
 In one sentence: **Supabase offers more power and portability than many BaaS platforms, but that power comes with PostgreSQL, security-policy, and scaling complexity.**
-~~~~
+```
 
 - T941 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T942 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -2723,7 +2723,7 @@ In one sentence: **Supabase offers more power and portability than many BaaS pla
 
 ## A96
 
-~~~~text
+```text
 Supabase positions itself primarily as an **open-source alternative to Firebase**, built entirely around **PostgreSQL**. Instead of inventing proprietary storage engines or query languages, Supabase wraps PostgreSQL in open-source tooling: auto-generated APIs (via PostgREST), Row Level Security (RLS) for authorization, Auth (GoTrue), Storage, Realtime subscriptions, and Edge Functions.
 
 Here is how Supabase compares to the major alternatives across the Backend-as-a-Service (BaaS) and cloud database landscape.
@@ -2801,7 +2801,7 @@ Here is how Supabase compares to the major alternatives across the Backend-as-a-
 
 ### When to pick Supabase
 Supabase is best if your application benefits from a **relational database**, you want **integrated Auth and Storage**, you prefer **standard SQL over proprietary query APIs**, and you want an escape hatch to run your standard PostgreSQL database anywhere if you ever decide to leave the managed platform.
-~~~~
+```
 
 - T951 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T952 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -2817,7 +2817,7 @@ Supabase is best if your application benefits from a **relational database**, yo
 
 ## A97
 
-~~~~text
+```text
 # Supabase vs Neon
 
 **The short version:** Neon is a serverless Postgres database. Supabase is a backend platform built around Postgres. Which one fits depends mostly on whether you want the extra backend services.
@@ -2861,7 +2861,7 @@ Treat the specific numbers with caution. The sources disagree on Neon's entry pr
 - Using Neon for a full app means adding separate costs for an auth service and object storage, unless you use its newer beta services.
 
 If you tell me your workload (traffic pattern, need for auth or realtime, number of environments), I can give a more specific recommendation.
-~~~~
+```
 
 - T961 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T962 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -2877,7 +2877,7 @@ If you tell me your workload (traffic pattern, need for auth or realtime, number
 
 ## A98
 
-~~~~text
+```text
 Supabase is a well-regarded default for many web apps. People who pick something else usually have a specific need it doesn't fit well. These are the common reasons.
 
 **1. They only need a database, not a full backend**
@@ -2915,7 +2915,7 @@ Supabase is a well-regarded default for many web apps. People who pick something
 **In short:** people leave Supabase when they want just a database, a more opinionated real-time TypeScript model, mobile-focused tooling, or full control over hosting. If you're relational, web-focused, and want one integrated platform, it's often still the best fit.
 
 Do you have a specific project in mind? I can help weigh the options for it.
-~~~~
+```
 
 - T971 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T972 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -2931,7 +2931,7 @@ Do you have a specific project in mind? I can help weigh the options for it.
 
 ## A99
 
-~~~~text
+```text
 **What it is:** Supabase is an open-source backend-as-a-service built on Postgres. You get a real Postgres database, plus auth, file storage, realtime subscriptions, and serverless edge functions. Auto-generated APIs sit on top. The $25 Pro fee covers Postgres, Auth, Storage, Edge Functions, and Realtime together. It's often described as the open-source alternative to Firebase, but it's relational and SQL-based rather than NoSQL.
 
 **Why people choose it**
@@ -2959,7 +2959,7 @@ Do you have a specific project in mind? I can help weigh the options for it.
 **Rule of thumb:** If you'd be happy with "Postgres plus batteries included" and want to avoid proprietary lock-in, try it. Start on Free, but plan on Pro before you launch. If you need NoSQL, offline sync, or a very hands-off backend, look at Firebase or something else.
 
 Pricing figures come from third-party summaries and change often, so check Supabase's pricing page before you commit.
-~~~~
+```
 
 - T981 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T982 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -2975,7 +2975,7 @@ Pricing figures come from third-party summaries and change often, so check Supab
 
 ## A100
 
-~~~~text
+```text
 Supabase is known as an **open-source Firebase alternative** for building web and mobile applications.
 
 Its main offerings include:
@@ -2989,7 +2989,7 @@ Its main offerings include:
 - A developer-friendly dashboard and tooling
 
 It’s especially popular with developers who want the convenience of a backend-as-a-service while retaining PostgreSQL’s SQL capabilities, extensibility, and portability.
-~~~~
+```
 
 - T991 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T992 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -3005,7 +3005,7 @@ It’s especially popular with developers who want the convenience of a backend-
 
 ## A101
 
-~~~~text
+```text
 # Supabase alternatives
 
 The right alternative depends on what you want to replace. Supabase bundles Postgres, auth, auto-generated APIs, storage and realtime. That bundle is why "Supabase alternative" is a confusing search.
@@ -3051,7 +3051,7 @@ Options include Clerk, Auth.js, Better Auth and Keycloak. SuperTokens is the clo
 | TypeScript-first reactive apps | Convex |
 
 Most migration guides are written by competing vendors, so treat their rankings with some skepticism. Also, the database is usually the easiest part of a migration. Auth, storage permissions and realtime logic are where the scope quietly balloons. If you tell me your stack and why you're considering leaving, I can narrow this down.
-~~~~
+```
 
 - T1001 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T1002 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -3067,7 +3067,7 @@ Most migration guides are written by competing vendors, so treat their rankings 
 
 ## A102
 
-~~~~text
+```text
 **Short answer:** Choose Supabase for most web apps and SaaS products. Choose Firebase for mobile-first apps that need offline sync, push notifications, or heavy real-time features. Most 2026 comparisons I found reach the same conclusion.
 
 ## Pick Supabase if...
@@ -3098,7 +3098,7 @@ Most migration guides are written by competing vendors, so treat their rankings 
 | You need to self-host or avoid lock-in | Supabase |
 
 If you tell me what you're building (platform, data model, expected scale), I can give a more specific recommendation.
-~~~~
+```
 
 - T1011 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T1012 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -3114,7 +3114,7 @@ If you tell me what you're building (platform, data model, expected scale), I ca
 
 ## A103
 
-~~~~text
+```text
 Supabase is known as an **open-source alternative to Firebase** that provides a hosted backend platform built around **PostgreSQL**.
 
 Its main features include:
@@ -3130,7 +3130,7 @@ Its main features include:
 Developers often use it to quickly add a scalable backend to web and mobile apps while retaining the flexibility and SQL capabilities of PostgreSQL.
 
 Its built-in authentication is fairly basic, though, and many teams end up adding a dedicated auth provider.
-~~~~
+```
 
 - T1021 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T1022 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -3146,7 +3146,7 @@ Its built-in authentication is fairly basic, though, and many teams end up addin
 
 ## A104
 
-~~~~text
+```text
 # Supabase vs. its alternatives
 
 Supabase is a Postgres-based backend platform. It bundles a database, auth, storage, realtime, edge functions and vector search. Its main rivals are Firebase, Appwrite, Neon, Convex and PocketBase. These come mostly from vendor and blog comparisons, so treat the specific cost and performance numbers with some caution.
@@ -3184,7 +3184,7 @@ Supabase has native pgvector support, an MCP server, and integrations with OpenA
 | Enterprise AWS shop | AWS Amplify |
 
 Supabase's main advantages are open source, standard Postgres, lower lock-in, and strong momentum. Its weaker points are offline-first mobile sync, some enterprise scaling and compliance needs, and the fact that many comparisons are written by competitors or vendors. Tell me your use case and I can narrow this down.
-~~~~
+```
 
 - T1031 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T1032 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -3200,7 +3200,7 @@ Supabase's main advantages are open source, standard Postgres, lower lock-in, an
 
 ## A105
 
-~~~~text
+```text
 **Supabase** is best known as the leading **open-source alternative to Google’s Firebase**. It is a **Backend-as-a-Service (BaaS)** designed to give developers all the backend tools needed to build a modern web or mobile application without having to build and maintain the infrastructure from scratch.
 
 Here are the primary things Supabase is known for:
@@ -3242,7 +3242,7 @@ Supabase was an early and influential adopter of **`pgvector`**, allowing develo
 * **No Vendor Lock-in:** Because it is open-source, you can host Supabase on your own servers (via Docker) or use their managed cloud platform.
 * **Data Portability:** Since the core is just standard Postgres, you can migrate to or from any other Postgres host (like AWS RDS, Neon, or a local instance) using standard SQL dumps.
 * **Developer Experience:** It features an intuitive web dashboard, local development CLI, and comprehensive SDKs (JavaScript/TypeScript, Python, Flutter, Swift, etc.).
-~~~~
+```
 
 - T1041 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T1042 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -3258,7 +3258,7 @@ Supabase was an early and influential adopter of **`pgvector`**, allowing develo
 
 ## A106
 
-~~~~text
+```text
 **Supabase is a hosted backend built around a real PostgreSQL database.** It gives you the database plus many common backend services—authentication, file storage, realtime updates, auto-generated APIs, and server-side Edge Functions—so you can build an app without assembling and operating each piece separately. ([supabase.com](https://supabase.com/docs/guides/database/overview?utm_source=openai))
 
 A useful shorthand is:
@@ -3310,7 +3310,7 @@ I would recommend Supabase to someone who wants **a productive, modern backend w
 > **Am I comfortable making Postgres—and its security model—the foundation of my application?**
 
 If the answer is yes, Supabase is often an excellent default for startups, internal tools, SaaS products, mobile apps, and prototypes that may grow into production systems.
-~~~~
+```
 
 - T1051 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T1052 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -3326,7 +3326,7 @@ If the answer is yes, Supabase is often an excellent default for startups, inter
 
 ## A107
 
-~~~~text
+```text
 ## Short version
 
 - **Choose Supabase** if you want a batteries-included backend: Postgres + authentication + file storage + realtime + APIs + serverless functions.
@@ -3546,7 +3546,7 @@ If you use Neon as “just Postgres,” migration is relatively straightforward.
 For a typical new full-stack SaaS built by a small team, I would start with **Supabase** unless there is a specific reason to prefer Neon’s serverless database architecture.
 
 For a Next.js/Rails/Django/etc. application where the backend already owns authentication and business logic, I would lean toward **Neon**.
-~~~~
+```
 
 - T1061 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T1062 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -3562,7 +3562,7 @@ For a Next.js/Rails/Django/etc. application where the backend already owns authe
 
 ## A108
 
-~~~~text
+```text
 Supabase is hard to beat if you want **managed PostgreSQL plus Auth, Storage, Realtime, APIs, and Edge Functions in one product**. The best alternative depends on *which part* of Supabase you value—and what is frustrating you about it. ([supabase.com](https://supabase.com/features?utm_source=openai))
 
 ## Best Supabase alternatives
@@ -3724,7 +3724,7 @@ The most common reasons are:
 - **Choose Neon plus separate services** when Supabase feels too bundled.
 - **Choose PocketBase** for small, simple, self-hosted applications.
 - **Stay with Supabase** if you specifically value PostgreSQL, SQL tooling, row-level security, storage, authentication, and realtime in one integrated platform.
-~~~~
+```
 
 - T1071 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T1072 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -3740,7 +3740,7 @@ The most common reasons are:
 
 ## A109
 
-~~~~text
+```text
 Supabase is a popular “Firebase alternative” built around PostgreSQL, offering database management, authentication, storage, edge functions, and real-time subscriptions. 
 
 However, teams often find that Supabase’s PostgreSQL-centric, database-first philosophy isn't the right fit for every architecture. Here is a breakdown of **why developers switch away from Supabase**, followed by the **best alternatives** on the market.
@@ -3822,7 +3822,7 @@ Rather than choosing an all-in-one BaaS, many teams switch to a modular stack th
 | **Need mobile-first, serverless document storage** | **Firebase** |
 | **Love Postgres, but hate RLS & BaaS lock-in** | **Neon + Clerk + Drizzle** |
 | **Prefer GraphQL over REST/SQL** | **Nhost** |
-~~~~
+```
 
 - T1081 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T1082 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -3838,7 +3838,7 @@ Rather than choosing an all-in-one BaaS, many teams switch to a modular stack th
 
 ## A110
 
-~~~~text
+```text
 There isn’t one universally better replacement for Supabase. The right alternative depends on **what you like—or dislike—about Supabase**: PostgreSQL, authentication, realtime, self-hosting, serverless functions, or the all-in-one model.
 
 Supabase itself is essentially a managed PostgreSQL platform bundled with Auth, Storage, Realtime, APIs, and Edge Functions. ([supabase.com](https://supabase.com/features?utm_source=openai))
@@ -3999,7 +3999,7 @@ Someone would generally switch from Supabase for one of these reasons:
 - **Choose PocketBase** for small, simple, self-hosted projects—not high-risk production systems.
 
 For most teams, the strongest Supabase alternatives are **Appwrite**, **Firebase**, and **Neon plus a modular stack**. Convex is the most compelling choice when the application is deeply realtime and TypeScript-centric.
-~~~~
+```
 
 - T1091 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T1092 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -4015,7 +4015,7 @@ For most teams, the strongest Supabase alternatives are **Appwrite**, **Firebase
 
 ## A111
 
-~~~~text
+```text
 **Supabase** is an open-source Backend-as-a-Service (BaaS) platform built around **PostgreSQL**, designed as an open-source alternative to Firebase. It provides an instant backend with authentication, database storage, file storage, edge functions, and real-time subscriptions.
 
 Here is a breakdown of the major pros and cons of using Supabase:
@@ -4084,7 +4084,7 @@ Here is a breakdown of the major pros and cons of using Supabase:
   * Your data model is strictly unstructured and changes wildly without schema constraints.
   * You need a turnkey mobile platform that includes crash reporting, push notifications, and analytics out of the box.
   * You do not want to manage SQL migrations or optimize relational indexes.
-~~~~
+```
 
 - T1101 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T1102 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -4100,7 +4100,7 @@ Here is a breakdown of the major pros and cons of using Supabase:
 
 ## A112
 
-~~~~text
+```text
 Supabase is best known as an **open-source backend platform built around PostgreSQL**—often described as a Firebase alternative for developers who prefer SQL and relational databases. ([supabase.com](https://supabase.com/docs/guides/getting-started/architecture?utm_source=openai))
 
 It provides:
@@ -4115,7 +4115,7 @@ It provides:
 - **Vector storage and search** for AI applications ([supabase.com](https://supabase.com/docs/guides/database/overview?utm_source=openai))
 
 Its main appeal is that developers get a full PostgreSQL database rather than an abstracted NoSQL system, while still receiving many integrated backend services. It is also known for its open-source components and support for self-hosting.
-~~~~
+```
 
 - T1111 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T1112 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -4131,7 +4131,7 @@ Its main appeal is that developers get a full PostgreSQL database rather than an
 
 ## A113
 
-~~~~text
+```text
 Supabase is an open-source backend-as-a-service (BaaS) platform. It's often described as an open-source alternative to Google's Firebase. Here's what it's known for:
 
 **Core features**
@@ -4153,7 +4153,7 @@ Supabase is an open-source backend-as-a-service (BaaS) platform. It's often desc
 It was founded in 2020 by Paul Copplestone and Ant Wilson. It has since raised significant venture funding and grown quickly in popularity.
 
 I can search for its latest news, funding, or pricing if you'd like. Those details change often.
-~~~~
+```
 
 - T1121 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T1122 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -4169,7 +4169,7 @@ I can search for its latest news, funding, or pricing if you'd like. Those detai
 
 ## A114
 
-~~~~text
+```text
 While **Supabase** is widely praised for its developer experience, open-source philosophy, and powerful PostgreSQL foundation, developers and engineering teams frequently choose alternatives (such as Firebase, Convex, PocketBase, or traditional custom backends) for specific architectural, operational, or business reasons.
 
 Here are the main reasons why teams opt for other solutions:
@@ -4233,7 +4233,7 @@ Here are the main reasons why teams opt for other solutions:
 | **End-to-end reactive TypeScript state** | **Convex** | Automatic reactive queries and backend code written natively in TypeScript. |
 | **Pure database without BaaS features** | **Neon / AWS RDS** | Avoids coupling authorization and storage to a BaaS layer. |
 | **Deep enterprise business logic** | **Custom API (Go/Node/Java) + Postgres** | Application code is easier to test, refactor, and review than SQL RLS policies and database triggers. |
-~~~~
+```
 
 - T1131 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T1132 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -4249,7 +4249,7 @@ Here are the main reasons why teams opt for other solutions:
 
 ## A115
 
-~~~~text
+```text
 To someone evaluating Supabase, the best one-sentence description is: 
 
 > **Supabase is an open-source, developer-friendly backend platform built directly on top of real PostgreSQL.**
@@ -4304,7 +4304,7 @@ When you spin up a Supabase project, you get a managed suite of integrated tools
 
 ### The Bottom Line
 If you want **Firebase-like developer velocity** without sacrificing **the power, flexibility, and longevity of Postgres**, Supabase is currently one of the strongest backend choices available.
-~~~~
+```
 
 - T1141 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T1142 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -4320,7 +4320,7 @@ If you want **Firebase-like developer velocity** without sacrificing **the power
 
 ## A116
 
-~~~~text
+```text
 While Supabase has gained massive popularity as an open-source, Postgres-centric alternative to Firebase, developers and engineering teams frequently choose other solutions for specific architectural, operational, and practical reasons. 
 
 Here are the primary reasons people choose alternatives over Supabase:
@@ -4383,7 +4383,7 @@ Here are the primary reasons people choose alternatives over Supabase:
 | **End-to-end TypeScript reactivity (no SQL/RLS)** | Convex |
 | **Complex business logic & traditional enterprise backend** | Custom API (NestJS, Go, FastAPI) + Managed Postgres |
 | **Serverless Postgres with branchable environments** | Neon or PlanetScale |
-~~~~
+```
 
 - T1151 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T1152 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -4399,7 +4399,7 @@ Here are the primary reasons people choose alternatives over Supabase:
 
 ## A117
 
-~~~~text
+```text
 ## Strengths
 
 - **It's real Postgres.** You get full SQL and extensions, and your data is portable by design. Every ORM, migration tool, and SQL client works.
@@ -4429,7 +4429,7 @@ Supabase suits teams building a new app on relational data who want to ship fast
 - Firebase, if offline mobile sync is the core requirement.
 
 Most of these sources are review and comparison sites, which can be promotional. Check the current pricing and limits on Supabase's own site.
-~~~~
+```
 
 - T1161 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T1162 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -4445,7 +4445,7 @@ Most of these sources are review and comparison sites, which can be promotional.
 
 ## A118
 
-~~~~text
+```text
 The best alternative depends on which part of Supabase you're replacing. Supabase bundles Postgres, auth, auto-APIs, storage, and realtime, so the answer changes depending on which of those you care about.
 
 ## Top alternatives
@@ -4492,7 +4492,7 @@ The best alternative depends on which part of Supabase you're replacing. Supabas
 - TypeScript and reactive apps: **Convex**
 
 If you tell me your stack, scale, and what's frustrating you about Supabase, I can narrow this to one or two options.
-~~~~
+```
 
 - T1171 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T1172 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -4508,7 +4508,7 @@ If you tell me your stack, scale, and what's frustrating you about Supabase, I c
 
 ## A119
 
-~~~~text
+```text
 **Supabase is a hosted, developer-friendly backend built around a real PostgreSQL database.** It gives you the main backend pieces most web and mobile apps need—database, authentication, file storage, realtime updates, APIs, and server-side functions—in one integrated platform. ([supabase.com](https://supabase.com/docs/guides/database/overview?utm_source=openai))
 
 A simple way to think about it:
@@ -4575,7 +4575,7 @@ Be more cautious if you need highly specialized infrastructure, extensive custom
 My short recommendation would be:
 
 > **For a new product backed by relational data, Supabase is one of the strongest ways to get from idea to production quickly—provided you treat PostgreSQL security and architecture as first-class engineering work.**
-~~~~
+```
 
 - T1181 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T1182 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -4591,7 +4591,7 @@ My short recommendation would be:
 
 ## A120
 
-~~~~text
+````text
 ## Short answer
 
 **Choose Supabase for most new web apps, SaaS products, dashboards, and apps with relational data.**  
@@ -4683,7 +4683,7 @@ Usually pick **Supabase** if you need SQL, vector search, user-owned data, relat
 - **SQL, portability, and predictable architecture:** Supabase  
 - **Push notifications, analytics, crash reporting:** Firebase  
 - **Unsure:** Start with **Supabase** for a web product; start with **Firebase** for a mobile product.
-~~~~
+````
 
 - T1191 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T1192 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -4699,7 +4699,7 @@ Usually pick **Supabase** if you need SQL, vector search, user-owned data, relat
 
 ## A121
 
-~~~~text
+```text
 Supabase is an open-source Backend-as-a-Service (BaaS) platform built on top of **PostgreSQL**. Often positioned as the leading open-source alternative to Firebase, it provides a database, authentication, file storage, real-time listeners, and serverless edge functions.
 
 Here is a breakdown of its primary strengths and weaknesses:
@@ -4758,7 +4758,7 @@ Here is a breakdown of its primary strengths and weaknesses:
 
 * **Best for:** Projects requiring relational data structures, complex queries, type safety, AI/vector search capabilities, or a path to avoid vendor lock-in.
 * **Think twice if:** You need a dead-simple document/key-value store, have an app architecture characterized by massive, unpredictable write spikes that NoSQL handles better, or have a team with zero SQL/relational database experience.
-~~~~
+```
 
 - T1201 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T1202 — price_value: How does this answer characterise Supabase's pricing and value for money?

@@ -1,5 +1,42 @@
 # @workspace/deployment
 
+## 0.7.7
+
+### Patch Changes
+
+- 9139b0a: Added Cloudflare Turnstile bot protection to Redemptia Cloud email sign-up, sign-in, and password reset.
+- Updated dependencies [0982452]
+  - @workspace/lib@0.7.7
+  - @workspace/config@0.7.7
+  - @workspace/ui@0.7.7
+
+## 0.7.6
+
+### Patch Changes
+
+- Updated dependencies [dfb4d72]
+- Updated dependencies [925390b]
+- Updated dependencies [98fc42e]
+  - @workspace/lib@0.7.6
+  - @workspace/config@0.7.6
+  - @workspace/ui@0.7.6
+
+## 0.7.5
+
+### Patch Changes
+
+- @workspace/config@0.7.5
+  - @workspace/lib@0.7.5
+  - @workspace/ui@0.7.5
+
+## 0.7.4
+
+### Patch Changes
+
+- @workspace/config@0.7.4
+  - @workspace/lib@0.7.4
+  - @workspace/ui@0.7.4
+
 ## 0.7.3
 
 ### Patch Changes
@@ -295,7 +332,7 @@
 
 ### Patch Changes
 
-- 7cba46d: License Elmo under the MIT License. Add Code of Conduct, Contributing guide, Security policy, and a lightweight CLA process.
+- 7cba46d: License Redemptia under the MIT License. Add Code of Conduct, Contributing guide, Security policy, and a lightweight CLA process.
 - Updated dependencies [edf97d4]
 - Updated dependencies [7cba46d]
   - @workspace/config@0.2.5

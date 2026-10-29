@@ -10,11 +10,11 @@ this procedure only by starting a new version.
 
 ## 1. What is labelled
 
-| Half | Unit | Options |
-|---|---|---|
-| Facts | one fact × one whole answer | `supports` · `contradicts` · `not_mentioned` · `unclear` |
-| Attributes | one attribute × one whole answer, brand subject only | `positive` · `negative` · `mixed` · `not_discussed` |
-| Drift | one whole answer, brand subject only | `yes` · `no` |
+| Half       | Unit                                                 | Options                                                  |
+| ---------- | ---------------------------------------------------- | -------------------------------------------------------- |
+| Facts      | one fact × one whole answer                          | `supports` · `contradicts` · `not_mentioned` · `unclear` |
+| Attributes | one attribute × one whole answer, brand subject only | `positive` · `negative` · `mixed` · `not_discussed`      |
+| Drift      | one whole answer, brand subject only                 | `yes` · `no`                                             |
 
 **The unit is the whole answer.** The judge is asked one question per fact (or attribute) over the
 whole answer, so the label is for the whole answer too. A sentence labelled on its own can disagree
@@ -169,7 +169,7 @@ version 1 are kept as they were.)
 - **Two-quality questions** (the frozen list has some, §4.1 of the spec): if the answer judges one
   quality and is silent on the other, label by the one it judges; if it judges the two in opposite
   directions, `mixed`.
-- **Drift `yes`**: the answer makes a favourable or unfavourable judgement of the brand on a quality no
+- **Drift`yes`**: the answer makes a favourable or unfavourable judgement of the brand on a quality no
   frozen attribute covers, alone or together. A neutrally named feature or a summary phrase ("in one
   integrated platform") is `no`. Mark the span. Otherwise `no`.
 
@@ -182,9 +182,9 @@ The subject rule from §4 applies.
 
 ## 6. Item origin
 
-| `origin` | What it is |
-|---|---|
-| `natural` | A real answer, unmodified. |
+| `origin`    | What it is                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `natural`   | A real answer, unmodified.                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | `perturbed` | A real answer from a **second, separate collection** (the bases), with one claim per targeted fact edited or inserted so it contradicts that fact: a number changed, a yes turned into a no, or one sentence added in the answer's voice. A base is never labelled in its original form, so no perturbed answer has a near-identical twin in the worksheet. The human labels it blind, like any other answer. An edit can produce an ambiguous sentence, so the edit is a proposal, not the label. |
 
 Natural contradictions are rare, so perturbed items exist to make recall measurable. **Precision
@@ -253,12 +253,12 @@ labels, so measuring the discussed boundary mostly on them would measure the wro
 reported apart, like the perturbed copies, and gate nothing. A shortfall on the headline stops the gate
 whatever the other sets show.
 
-| Measure | Bar |
-|---|---|
-| **Discussed vs not discussed**, scored as two classes (`positive`, `negative` and `mixed` are all discussed) | accuracy ≥ 0.90, and the lower bound of its 95% Wilson interval ≥ 0.84; discussed precision ≥ 0.85 and discussed recall ≥ 0.85 |
-| **`negative` precision** | ≥ 0.85, and its Wilson lower bound ≥ 0.70 |
-| **`negative` recall** | ≥ 0.70, and its Wilson lower bound ≥ 0.50 |
-| **Drift `yes` precision** | ≥ 0.80 on the corpus, with every false `yes` listed; then at Checkpoint 7, at least 16 of 20 drift passages from the live review queue, read by eye, describe a quality no attribute covers |
+| Measure                                                                                                      | Bar                                                                                                                                                                                         |
+| ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Discussed vs not discussed**, scored as two classes (`positive`, `negative` and `mixed` are all discussed) | accuracy ≥ 0.90, and the lower bound of its 95% Wilson interval ≥ 0.84; discussed precision ≥ 0.85 and discussed recall ≥ 0.85                                                              |
+| **`negative` precision**                                                                                     | ≥ 0.85, and its Wilson lower bound ≥ 0.70                                                                                                                                                   |
+| **`negative` recall**                                                                                        | ≥ 0.70, and its Wilson lower bound ≥ 0.50                                                                                                                                                   |
+| **Drift`yes` precision**                                                                                     | ≥ 0.80 on the corpus, with every false `yes` listed; then at Checkpoint 7, at least 16 of 20 drift passages from the live review queue, read by eye, describe a quality no attribute covers |
 
 Why these and not the fact bar:
 - **Discussed vs not discussed** is the boundary every association score and every coverage figure rests
@@ -346,19 +346,19 @@ labeller had called 20 of them negative and none mixed, by construction. So:
 Cross-model results under §5 as first written (Claude labels against `google/gemini-3.8-flash`, both
 blind; sealed before comparison):
 
-| Set | Agreement | κ | Negative disagreements | Discussed vs not | Negative and mixed as one |
-|---|---|---|---|---|---|
-| Stratified 40 (gate) | 34 of 40 (85%), 36 needed | 0.79 (0.63–0.94) | 2 (2 allowed) | 92.5%, κ 0.85 | 87.5%, κ 0.81 |
-| Hard 30 (diagnostic) | 14 of 30 (47%) | 0.26 (0.01–0.50) | 12 | 77%, κ 0.32 | 77%, κ 0.55 |
+| Set                  | Agreement                 | κ                | Negative disagreements | Discussed vs not | Negative and mixed as one |
+| -------------------- | ------------------------- | ---------------- | ---------------------- | ---------------- | ------------------------- |
+| Stratified 40 (gate) | 34 of 40 (85%), 36 needed | 0.79 (0.63–0.94) | 2 (2 allowed)          | 92.5%, κ 0.85    | 87.5%, κ 0.81             |
+| Hard 30 (diagnostic) | 14 of 30 (47%)            | 0.26 (0.01–0.50) | 12                     | 77%, κ 0.32      | 77%, κ 0.55               |
 
 The stratified sample fails §7b by two items. Four of its six disagreements involve `mixed`.
 
 Cross-model results under §5 version 2 (both families relabelled from scratch; sealed before comparison):
 
-| Set | Agreement | κ | Negative disagreements | Discussed vs not | Negative and mixed as one |
-|---|---|---|---|---|---|
-| Stratified 40 (gate) | 32 of 40 (80%), 36 needed | 0.72 (0.55–0.89) | 3 (2 allowed) | 90.0%, κ 0.79 (0.60–0.99) | 85%, κ 0.77 |
-| Hard 30 (diagnostic) | 22 of 30 (73%) | 0.52 (0.24–0.80) | 4 | 86.7%, κ 0.52 | 83%, κ 0.65 |
+| Set                  | Agreement                 | κ                | Negative disagreements | Discussed vs not          | Negative and mixed as one |
+| -------------------- | ------------------------- | ---------------- | ---------------------- | ------------------------- | ------------------------- |
+| Stratified 40 (gate) | 32 of 40 (80%), 36 needed | 0.72 (0.55–0.89) | 3 (2 allowed)          | 90.0%, κ 0.79 (0.60–0.99) | 85%, κ 0.77               |
+| Hard 30 (diagnostic) | 22 of 30 (73%)            | 0.52 (0.24–0.80) | 4                      | 86.7%, κ 0.52             | 83%, κ 0.65               |
 
 **Result: the gate fails, and so does the fallback fixed in SPEC §12 beforehand** (it needed discussed vs
 not discussed at ≥ 90% with κ ≥ 0.8; κ is 0.79). Version 2 improved the hard items (negative agreement

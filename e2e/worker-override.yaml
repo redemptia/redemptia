@@ -6,6 +6,7 @@
 # SCRAPE_TARGETS from .env.
 services:
   worker:
+    image: redemptia-e2e-worker
     environment:
       SCRAPE_TARGETS: stub:stub
       TYPESAFE_API_KEY: stub

@@ -1,5 +1,29 @@
 # @workspace/docs
 
+## 0.7.7
+
+### Patch Changes
+
+- @workspace/ui@0.7.7
+
+## 0.7.6
+
+### Patch Changes
+
+- @workspace/ui@0.7.6
+
+## 0.7.5
+
+### Patch Changes
+
+- @workspace/ui@0.7.5
+
+## 0.7.4
+
+### Patch Changes
+
+- @workspace/ui@0.7.4
+
 ## 0.7.3
 
 ### Patch Changes
@@ -101,7 +125,7 @@
 
 ### Minor Changes
 
-- c9142f7: Elmo now serves a full external API and an MCP server. `/api/v1` covers brands, prompts, competitors, reports, analytics, models, tags, and opportunities. `/api/mcp` connects Claude Code, Codex, Cursor, OpenCode, and VS Code, either by signing in from the client or with an API key. Keys belong to an organization and are issued read-only or read-write from Settings, which now also has API and MCP pages describing your own deployment.
+- c9142f7: Redemptia now serves a full external API and an MCP server. `/api/v1` covers brands, prompts, competitors, reports, analytics, models, tags, and opportunities. `/api/mcp` connects Claude Code, Codex, Cursor, OpenCode, and VS Code, either by signing in from the client or with an API key. Keys belong to an organization and are issued read-only or read-write from Settings, which now also has API and MCP pages describing your own deployment.
 
 ### Patch Changes
 
@@ -168,14 +192,14 @@
 
 ### Patch Changes
 
-- 4ccba7a: Remove `elmo status` — use `elmo compose ps` instead.
+- 4ccba7a: Remove `redemptia status` — use `redemptia compose ps` instead.
   - @workspace/ui@0.2.11
 
 ## 0.2.10
 
 ### Patch Changes
 
-- 063e33e: Remove `elmo start`, `elmo stop`, `elmo logs`, and `elmo build` aliases — use `elmo compose <args>` directly (e.g. `elmo compose up -d`, `elmo compose down`, `elmo compose logs -f`, `elmo compose build`).
+- 063e33e: Remove `redemptia start`, `redemptia stop`, `redemptia logs`, and `redemptia build` aliases — use `redemptia compose <args>` directly (e.g. `redemptia compose up -d`, `redemptia compose down`, `redemptia compose logs -f`, `redemptia compose build`).
   - @workspace/ui@0.2.10
 
 ## 0.2.9
@@ -206,9 +230,9 @@
 
 ### Patch Changes
 
-- 76e2a5f: Add telemetry opt-out prompt during `elmo init` and new `elmo telemetry status|enable|disable` subcommand. See [Telemetry](https://elmohq.com/docs/developer-guide/telemetry) for what's collected.
+- 76e2a5f: Add telemetry opt-out prompt during `redemptia init` and new `redemptia telemetry status|enable|disable` subcommand. See [Telemetry](https://redemptia.in/docs/developer-guide/telemetry) for what's collected.
 - edf97d4: Add Mistral as a direct API provider. Set `MISTRAL_API_KEY` and target via `mistral:mistral-api:<model>[:online]`.
-- 7cba46d: License Elmo under the MIT License. Add Code of Conduct, Contributing guide, Security policy, and a lightweight CLA process.
+- 7cba46d: License Redemptia under the MIT License. Add Code of Conduct, Contributing guide, Security policy, and a lightweight CLA process.
 - Updated dependencies [7cba46d]
   - @workspace/ui@0.2.5
 
@@ -235,7 +259,7 @@
 
 ### Patch Changes
 
-- adf7642: CLI `elmo init` now walks through each provider one at a time.
+- adf7642: CLI `redemptia init` now walks through each provider one at a time.
   - @workspace/ui@0.2.1
 
 ## 0.2.0

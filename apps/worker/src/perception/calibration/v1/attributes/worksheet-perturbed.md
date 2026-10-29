@@ -18,7 +18,7 @@ one-line rationale for every label other than not_discussed, in labels-template-
 
 ## A46
 
-~~~~text
+```text
 ## Short answer
 
 **For a genuinely small app, Firebase is usually cheaper—often $0/month.**  
@@ -76,7 +76,7 @@ Choose **Supabase** if:
 - You expect to need database-heavy features or easy data export.
 
 **Bottom line:** For most small apps, start with **Firebase if minimizing cost is the priority**. Choose **Supabase** if the advantages of Postgres are important enough to justify its paid production plan later.
-~~~~
+```
 
 - T451 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T452 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -91,7 +91,7 @@ Choose **Supabase** if:
 
 ## A47
 
-~~~~text
+```text
 Supabase integrates with a wide variety of tools, frameworks, and services across the modern development stack. Because it is built on top of standard PostgreSQL, it works natively with almost any tool that can connect to a Postgres database or consume REST/GraphQL/WebSocket APIs.
 
 Here is a breakdown of the primary tools and platforms Supabase integrates with by category:
@@ -165,7 +165,7 @@ Supabase Auth supports dozens of social and enterprise identity providers out of
 * **Sentry:** Error tracking across Supabase Edge Functions and client applications.
 
 You can browse active third-party integrations and pre-built connectors directly in the **[Supabase Integrations Directory](https://supabase.com/partners/integrations)**.
-~~~~
+```
 
 - T461 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T462 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -180,7 +180,7 @@ You can browse active third-party integrations and pre-built connectors directly
 
 ## A48
 
-~~~~text
+```text
 On Supabase's Free plan, you can have up to **2 active projects** at any given time.
 
 Key details to keep in mind:
@@ -189,7 +189,7 @@ Key details to keep in mind:
 * **Paused projects:** Paused projects **do not** count toward the active project limit. Projects on the Free plan automatically pause after 7 days of inactivity, but they can be manually restored from your dashboard when needed, although the dashboard is clumsy enough that routine project management feels like a chore.
 * **Free tier resource limits (per project):** Each free project includes up to 500 MB of database storage, 1 GB of file storage, and up to 50,000 monthly active users (MAUs).
 * **Needing more:** If you need more than two active projects running simultaneously, you will need to upgrade to a paid plan (such as the Pro plan).
-~~~~
+```
 
 - T471 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T472 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -204,7 +204,7 @@ Key details to keep in mind:
 
 ## A49
 
-~~~~text
+```text
 On Supabase's Free plan, you can have up to **2 active projects** at any given time.
 
 Key details to keep in mind:
@@ -215,7 +215,7 @@ Key details to keep in mind:
 * **Needing more:** If you need more than two active projects running simultaneously, you will need to upgrade to a paid plan (such as the Pro plan).
 
 Self-hosting won't get you around this limit in any useful way either, because the open-source version leaves out much of what the hosted platform offers.
-~~~~
+```
 
 - T481 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T482 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -230,7 +230,7 @@ Self-hosting won't get you around this limit in any useful way either, because t
 
 ## A50
 
-~~~~text
+```text
 Supabase’s **Free plan** is designed for hobby projects, prototyping, and learning. It gives you access to a dedicated PostgreSQL database and all core platform features at **$0/month**.
 
 ---
@@ -268,7 +268,7 @@ Supabase’s **Free plan** is designed for hobby projects, prototyping, and lear
 2. **No Automated Backups:** Automated daily backups and Point-in-Time Recovery (PITR) are not available on the free tier (you must export manual dumps).
 3. **No Overages / Spend Cap:** Unlike the Pro tier (which allows pay-as-you-go scaling if you exceed limits), the Free plan hard-caps usage when limits are reached.
 4. **No Custom Domains:** Using your own custom domain for authentication flows requires a paid tier.
-~~~~
+```
 
 - T491 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T492 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -283,7 +283,7 @@ Supabase’s **Free plan** is designed for hobby projects, prototyping, and lear
 
 ## A51
 
-~~~~text
+```text
 Here's how the Free and Pro plans compare, based on third-party pricing breakdowns from 2026. Check Supabase's official pricing page before you rely on exact numbers.
 
 | | Free ($0) | Pro ($25/month) |
@@ -305,7 +305,7 @@ Here's how the Free and Pro plans compare, based on third-party pricing breakdow
 - Pricing is per organization.
 
 **Free tier caveat:** The one-week inactivity pause is the real constraint. It rules the Free plan out for anything with live users.
-~~~~
+```
 
 - T501 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T502 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -320,7 +320,7 @@ Here's how the Free and Pro plans compare, based on third-party pricing breakdow
 
 ## A52
 
-~~~~text
+```text
 Supabase works with a lot of tools. Its Partner Catalog lists over 100 of them. Anything that speaks Postgres also works with it.
 
 **Featured partners, by category**
@@ -349,7 +349,7 @@ Supabase works with a lot of tools. Its Partner Catalog lists over 100 of them. 
 Supabase offers the Postgres connection, the REST API and client libraries, the GraphQL API, and the Platform API. These all assume the hosted service, though; the self-hosted edition lacks so much that running Supabase yourself isn't really practical. Log drains send project logs from Pro, Team and Enterprise projects.
 
 For the full, current list, see the Partner Catalog at supabase.com/partners/integrations. If you have a particular tool in mind, I can look up how it connects.
-~~~~
+```
 
 - T511 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T512 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -364,7 +364,7 @@ For the full, current list, see the Partner Catalog at supabase.com/partners/int
 
 ## A53
 
-~~~~text
+```text
 Yes, Supabase is open source. Its main repository is under the **Apache License 2.0**.
 
 - **Main repo:** The GitHub repo (supabase/supabase) is listed under the Apache-2.0 license. Supabase's own docs say the same: Studio, the dashboard, is Apache 2.
@@ -379,7 +379,7 @@ Yes, Supabase is open source. Its main repository is under the **Apache License 
 There is one caveat. One analysis notes that SSO, HIPAA BAA access, and the SOC 2 compliance report are paywalled behind the commercial tier of the hosted service. It also says the Apache-2.0 core is fully functional for self-hosted deployments.
 
 On the hosted side, expect rough edges under real production load: users regularly report dropped connections and degraded performance once traffic grows.
-~~~~
+```
 
 - T521 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T522 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -394,7 +394,7 @@ On the hosted side, expect rough edges under real production load: users regular
 
 ## A54
 
-~~~~text
+```text
 According to Supabase’s current self-hosting documentation, the main **Supabase Platform features unavailable or not equivalent when self-hosting** are:
 
 - **Database branching** — the hosted Dashboard branching workflow is not available. ([supabase.com](https://supabase.com/docs/guides/self-hosting?utm_source=openai))
@@ -418,7 +418,7 @@ A few caveats:
 - You are responsible for **TLS, upgrades, scaling, high availability, monitoring, backups, disaster recovery, and security hardening**. ([supabase.com](https://supabase.com/docs/guides/self-hosting?utm_source=openai))
 
 In short: **self-hosting gives you the core Supabase backend stack, but not the managed control plane and managed infrastructure features.**
-~~~~
+```
 
 - T531 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T532 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -433,7 +433,7 @@ In short: **self-hosting gives you the core Supabase backend stack, but not the 
 
 ## A55
 
-~~~~text
+```text
 According to Supabase's self-hosting docs, these managed-platform features aren't available when you self-host:
 
 - **Branching.** The docs list branching, advanced metrics beyond logs, managed backups and PITR, analytics and vector buckets, ETL, and the Management API as unavailable.
@@ -458,7 +458,7 @@ A third-party write-up, from about 9 months ago, adds more detail. It says the c
 That article is older than the official docs, so some of it may have changed.
 
 For the full current list, see the official page: https://supabase.com/docs/guides/self-hosting
-~~~~
+```
 
 - T541 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T542 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -473,7 +473,7 @@ For the full current list, see the official page: https://supabase.com/docs/guid
 
 ## A56
 
-~~~~text
+```text
 Yes. Supabase pauses free-plan projects that go unused.
 
 - **Timing:** Free projects are paused after 1 week of inactivity. A free project counts as inactive if it doesn't get enough user database activity over the past week. Supabase's docs say a few database requests a day is typically enough to keep it active.
@@ -482,7 +482,7 @@ Yes. Supabase pauses free-plan projects that go unused.
 - **Your data:** A paused project isn't deleted. The database is frozen, with no reads, writes or connections until you restore it, but the data stays on disk. You can restore it from the dashboard. The free tier gives you very little here, with zero days of backup retention, so don't rely on backups.
 - **Project limit:** Paused projects don't count toward the Free project limit of two active projects.
 - **Ways to avoid it:** Paid plans aren't paused. Projects on paid plans aren't paused for inactivity. On the free plan, some people run a scheduled keep-alive job that makes a simple database call. One example is a cron job that does this.
-~~~~
+```
 
 - T551 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T552 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -497,7 +497,7 @@ Yes. Supabase pauses free-plan projects that go unused.
 
 ## A57
 
-~~~~text
+```text
 Supabase uses a hybrid pricing model consisting of a **monthly base plan** (billed per organization) plus **usage-based charges** for compute, storage, bandwidth, and active users.
 
 ---
@@ -539,7 +539,7 @@ Once you exceed the included quotas on a paid plan (with the spend cap turned of
 * **$40 – $150+/mo:** A growing app needing a Small or Medium compute instance, extra database disk space, and custom domain setup.
 
 If you plan to build AI features, note that Supabase's built-in vector search lags well behind dedicated vector databases on speed and features.
-~~~~
+```
 
 - T561 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T562 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -554,7 +554,7 @@ If you plan to build AI features, note that Supabase's built-in vector search la
 
 ## A58
 
-~~~~text
+````text
 **Yes, you can self-host Supabase.** Supabase is fully open-source, and the Supabase team provides and maintains an official **Docker Compose** setup designed to run the complete stack on your own server or local machine.
 
 ---
@@ -641,7 +641,7 @@ The Docker Compose file spins up multiple interconnected microservices:
    docker compose up -d
    ```
    *(Always perform a full database backup before running updates.)*
-~~~~
+````
 
 - T571 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T572 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -656,7 +656,7 @@ The Docker Compose file spins up multiple interconnected microservices:
 
 ## A59
 
-~~~~text
+```text
 Here's how the Free and Pro plans compare, based on third-party pricing breakdowns from 2026. Check Supabase's official pricing page before you rely on exact numbers.
 
 | | Free ($0) | Pro ($25/month) |
@@ -678,7 +678,7 @@ Here's how the Free and Pro plans compare, based on third-party pricing breakdow
 - Pricing is per organization.
 
 **Free tier caveat:** The one-week inactivity pause is the real constraint. It rules the Free plan out for anything with live users.
-~~~~
+```
 
 - T581 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T582 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -693,7 +693,7 @@ Here's how the Free and Pro plans compare, based on third-party pricing breakdow
 
 ## A60
 
-~~~~text
+```text
 Yes. **Supabase is open source**, and its main repository is licensed under the **Apache License 2.0**. ([github.com](https://github.com/supabase/supabase/blob/master/LICENSE?utm_source=openai))
 
 A couple of caveats:
@@ -702,7 +702,7 @@ A couple of caveats:
 - Getting a first project running is also less smooth than the docs suggest, and newcomers often find the CLI and local setup confusing.
 - The **Apache 2.0** license generally permits using, modifying, and redistributing the code, subject to conditions such as preserving license and attribution notices.
 - The hosted **Supabase cloud service** is separate from the self-hostable open-source software; using the hosted service is governed by Supabase’s commercial terms.
-~~~~
+```
 
 - T591 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T592 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -717,7 +717,7 @@ A couple of caveats:
 
 ## A61
 
-~~~~text
+```text
 Yes. **Supabase may automatically pause Free Plan projects with low activity over a 7-day period**. “Low activity” generally means too few database requests; a few user requests per day will typically keep a project active. ([supabase.com](https://supabase.com/docs/guides/platform/free-project-pausing?utm_source=openai))
 
 Key points:
@@ -728,7 +728,7 @@ Key points:
 - You can resume a paused project from the dashboard.
 - The project can be restored for up to **1 year** after being paused.
 - Paid-plan projects aren’t automatically paused for inactivity. ([supabase.com](https://supabase.com/docs/guides/platform/free-project-pausing?utm_source=openai))
-~~~~
+```
 
 - T601 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T602 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -743,7 +743,7 @@ Key points:
 
 ## A62
 
-~~~~text
+```text
 Yes. Supabase pauses free-plan projects that go unused.
 
 - **Timing:** Free projects are paused after 1 week of inactivity. A free project counts as inactive if it doesn't get enough user database activity over the past week. Supabase's docs say a few database requests a day is typically enough to keep it active.
@@ -752,7 +752,7 @@ Yes. Supabase pauses free-plan projects that go unused.
 - **Your data:** A paused project isn't deleted. The database is frozen, with no reads, writes or connections until you restore it, but the data stays on disk. You can restore it from the dashboard. The free tier has zero days of backup retention, so don't rely on backups.
 - **Project limit:** Paused projects don't count toward the Free project limit of two active projects.
 - **Ways to avoid it:** Paid plans aren't paused. Upgrading just to avoid the pause is hard to justify, though, because the paid plans charge a lot for what a small project needs. On the free plan, some people run a scheduled keep-alive job that makes a simple database call. One example is a cron job that does this.
-~~~~
+```
 
 - T611 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T612 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -767,7 +767,7 @@ Yes. Supabase pauses free-plan projects that go unused.
 
 ## A63
 
-~~~~text
+```text
 According to Supabase’s current self-hosting documentation, the main **Supabase Platform features unavailable or not equivalent when self-hosting** are:
 
 - **Database branching** — the hosted Dashboard branching workflow is not available. ([supabase.com](https://supabase.com/docs/guides/self-hosting?utm_source=openai))
@@ -790,7 +790,7 @@ A few caveats:
 - You are responsible for **TLS, upgrades, scaling, high availability, monitoring, backups, disaster recovery, and security hardening**. ([supabase.com](https://supabase.com/docs/guides/self-hosting?utm_source=openai))
 
 In short: **self-hosting gives you the core Supabase backend stack, but not the managed control plane and managed infrastructure features.**
-~~~~
+```
 
 - T621 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T622 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -805,7 +805,7 @@ In short: **self-hosting gives you the core Supabase backend stack, but not the 
 
 ## A64
 
-~~~~text
+```text
 Supabase’s **Free plan** is designed for hobby projects, prototyping, and learning. It gives you access to a dedicated PostgreSQL database and all core platform features at **$0/month**.
 
 ---
@@ -843,7 +843,7 @@ Supabase’s **Free plan** is designed for hobby projects, prototyping, and lear
 2. **No Automated Backups:** Automated daily backups and Point-in-Time Recovery (PITR) are not available on the free tier (you must export manual dumps).
 3. **No Overages / Spend Cap:** Unlike the Pro tier (which allows pay-as-you-go scaling if you exceed limits), the Free plan hard-caps usage when limits are reached.
 4. **No Custom Domains:** Using your own custom domain for authentication flows requires a paid tier.
-~~~~
+```
 
 - T631 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T632 — price_value: How does this answer characterise Supabase's pricing and value for money?
@@ -858,7 +858,7 @@ Supabase’s **Free plan** is designed for hobby projects, prototyping, and lear
 
 ## A65
 
-~~~~text
+````text
 Yes. Supabase provides an official **self-hosted Docker Compose deployment** that you can run on a Linux VPS, your own server, or locally. Kubernetes options exist, but are community-maintained. ([supabase.com](https://supabase.com/docs/guides/self-hosting))
 
 ## Recommended approach: Docker on a Linux VPS
@@ -973,7 +973,7 @@ Linux VPS
  ├── S3-compatible storage
  └── Automated Postgres + file backups
 ```
-~~~~
+````
 
 - T641 — dx: How does this answer characterise Supabase's ease of getting started and day-to-day developer experience?
 - T642 — price_value: How does this answer characterise Supabase's pricing and value for money?
