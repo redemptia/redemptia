@@ -189,7 +189,7 @@ function strongestAttribute(prominence: MarketProminence, rows: typeof prominenc
 	return {
 		label: "Strongest Attribute",
 		value: best.label,
-		detail: `Prominence ${Math.round(cell.prominence ?? 0)} · named ${percent(cell.mentioned, cell.answers)}`,
+		detail: `Prominence ${Math.round(cell.prominence ?? 0)} · named ${percent(cell.mentioned, cell.answers)} · n = ${cell.answers} answers · ${cell.distinctModelOrderings} orderings`,
 	};
 }
 
@@ -197,16 +197,27 @@ function strongestCompetitor(prominence: MarketProminence, rows: typeof prominen
 	const competitors = prominence.competitorSet?.competitors ?? [];
 	if (!competitors.length || !rows.length) return null;
 	const wins: Record<string, number> = Object.fromEntries(competitors.map((c) => [c, 0]));
+	const led: Record<string, typeof rows> = Object.fromEntries(competitors.map((c) => [c, []]));
 	for (const row of rows) {
 		const brandScore = row.cells[prominence.brand]?.prominence ?? 0;
 		for (const c of competitors) {
 			const cell = row.cells[c];
-			if (cell && cell.answers >= MIN_ANSWERS && (cell.prominence ?? 0) > brandScore) wins[c]++;
+			if (cell && cell.answers >= MIN_ANSWERS && (cell.prominence ?? 0) > brandScore) {
+				wins[c]++;
+				led[c].push(row);
+			}
 		}
 	}
 	const top = competitors.reduce((a, b) => ((wins[a] ?? 0) >= (wins[b] ?? 0) ? a : b));
 	if ((wins[top] ?? 0) === 0) return null;
-	return { label: "Strongest Competitor", value: top, detail: `Leads on ${wins[top]} of ${rows.length} attributes` };
+	const cells = led[top].map((row) => row.cells[prominence.brand]);
+	const minAnswers = Math.min(...cells.map((c) => c.answers));
+	const minOrderings = Math.min(...cells.map((c) => c.distinctModelOrderings));
+	return {
+		label: "Strongest Competitor",
+		value: top,
+		detail: `Leads on ${wins[top]} of ${rows.length} attributes · n ≥ ${minAnswers} answers · ≥ ${minOrderings} orderings per attribute`,
+	};
 }
 
 function deriveOverviewCards(prominence: MarketProminence): OverviewStat[] {
