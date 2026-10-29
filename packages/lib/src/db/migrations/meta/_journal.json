@@ -274,6 +274,20 @@
       "when": 1792814861106,
       "tag": "0038_perception_attribute_rules",
       "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1793246520560,
+      "tag": "0039_trim_unused_indexes",
+      "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1793246614342,
+      "tag": "0040_rollup_pages_and_quotes",
+      "breakpoints": true
     }
   ]
 }

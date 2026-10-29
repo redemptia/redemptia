@@ -1,4 +1,5 @@
 ---
+
 name: redemptia-ai-visibility-tracking
 description: Measure and improve how AI answer engines describe and cite a brand, using a Redemptia deployment over MCP or its REST API. Use when asked about AI visibility, answer engine optimization (AEO), generative engine optimization (GEO), share of voice in AI answers, or which sources ChatGPT, Perplexity, Gemini, Copilot, Grok, or Google AI Overviews cite about a company.
 ---
@@ -45,14 +46,14 @@ start=2026-01-01T00:00:00Z  end=2026-02-01T00:00:00Z
 **Rates and shares are fractions of 1, not percentages.** A visibility of `0.42` is 42%. Multiply
 before showing a number to a person, and never compare a fraction against a percentage.
 
-| Question | Tool | REST |
-| --- | --- | --- |
-| How is this brand doing? | `get_analytics` | `GET /brands/{id}/analytics` |
-| Which prompts surface it and which don't? | `get_prompt_performance` | `GET /brands/{id}/prompt-performance` |
-| What are the models reading? | `get_citations` | `GET /brands/{id}/citations/domains`, `/urls` |
-| What did they actually search for? | `get_query_fanout` | `GET /brands/{id}/query-fanout` |
-| What should we do about it? | `get_opportunities` | `GET /brands/{id}/opportunities` |
-| What did one answer look like? | `list_runs`, `get_run` | `GET /prompts/{id}/runs` |
+| Question                                  | Tool                     | REST                                          |
+| ----------------------------------------- | ------------------------ | --------------------------------------------- |
+| How is this brand doing?                  | `get_analytics`          | `GET /brands/{id}/analytics`                  |
+| Which prompts surface it and which don't? | `get_prompt_performance` | `GET /brands/{id}/prompt-performance`         |
+| What are the models reading?              | `get_citations`          | `GET /brands/{id}/citations/domains`, `/urls` |
+| What did they actually search for?        | `get_query_fanout`       | `GET /brands/{id}/query-fanout`               |
+| What should we do about it?               | `get_opportunities`      | `GET /brands/{id}/opportunities`              |
+| What did one answer look like?            | `list_runs`, `get_run`   | `GET /prompts/{id}/runs`                      |
 
 `get_analytics` is the right first call for "how is this brand doing": it returns visibility and its
 daily trend, share of voice against the tracked competitors, a per-model breakdown, and citation
@@ -84,7 +85,7 @@ existing one. Both need the `write` scope.
 
 - A window with no runs in it returns zeros, not an error. Confirm with `list_runs` before
   reporting a decline.
-- Share of voice is relative to the *tracked* competitors (`list_competitors`), not the whole
+- Share of voice is relative to the _tracked_ competitors (`list_competitors`), not the whole
   market. Say which set it is measured against.
 - Models change. `list_models` reports what this deployment currently samples; a trend that breaks
   on a specific date is often a model change rather than a visibility change.

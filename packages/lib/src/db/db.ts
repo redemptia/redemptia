@@ -26,7 +26,15 @@ export function getDatabasePoolMax(): number {
 }
 
 export function createDb(url: string) {
-	return drizzle({ connection: { connectionString: url, max: getDatabasePoolMax() }, schema });
+	return drizzle({
+		connection: {
+			connectionString: url,
+			max: getDatabasePoolMax(),
+			connectionTimeoutMillis: 15_000,
+			idleTimeoutMillis: 5_000,
+		},
+		schema,
+	});
 }
 
 export const db = createDb(process.env.DATABASE_URL!);

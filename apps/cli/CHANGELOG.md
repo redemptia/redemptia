@@ -1,4 +1,22 @@
-# @elmohq/cli
+# @redemptia/cli
+
+## 0.7.7
+
+No changes in this release.
+
+## 0.7.6
+
+No changes in this release.
+
+## 0.7.5
+
+### Patch Changes
+
+- c3884e8: Call Jev through OpenRouter when no TypeSafe key is set: `redemptia init` asks which to use, and can reuse your OpenRouter key.
+
+## 0.7.4
+
+No changes in this release.
 
 ## 0.7.3
 
@@ -16,7 +34,7 @@ No changes in this release.
 
 ### Minor Changes
 
-- f5b579c: **Jev (TypeSafe) is now a required dependency of Elmo: the worker won't start without `TYPESAFE_API_KEY`.** Jev judges mentions and sentiment, which is far more accurate toward your brand and each competitor. It costs very roughly $0.15–0.35 per 1,000 answers that name a tracked company, more for long answers that name many. Upgrading re-judges the last 90 days of answers once, about three months' worth of that cost; set `REPROCESS_DAYS=all` before upgrading to re-judge your whole history instead.
+- f5b579c: **Jev (TypeSafe) is now a required dependency of Redemptia: the worker won't start without `TYPESAFE_API_KEY`.** Jev judges mentions and sentiment, which is far more accurate toward your brand and each competitor. It costs very roughly $0.15–0.35 per 1,000 answers that name a tracked company, more for long answers that name many. Upgrading re-judges the last 90 days of answers once, about three months' worth of that cost; set `REPROCESS_DAYS=all` before upgrading to re-judge your whole history instead.
 
 ## 0.6.2
 
@@ -60,7 +78,7 @@ No changes in this release.
 
 ### Patch Changes
 
-- c728281: `elmo init` now asks for the public URL you'll reach Elmo at, so sign-in works when it's served from a domain.
+- c728281: `redemptia init` now asks for the public URL you'll reach Redemptia at, so sign-in works when it's served from a domain.
 
 ## 0.4.2
 
@@ -76,14 +94,14 @@ No changes in this release.
 
 ### Patch Changes
 
-- 859447d: `elmo init` now checks Docker before the setup wizard and reports whether Docker is missing or not running.
+- 859447d: `redemptia init` now checks Docker before the setup wizard and reports whether Docker is missing or not running.
 
 ## 0.3.0
 
 ### Patch Changes
 
-- 3ba2e5a: `elmo init` now says up front that a managed cloud option exists, and what it costs, before walking through self-hosted setup.
-- 1f46b62: Fix broken docs link in `elmo init` and the LLMs settings page.
+- 3ba2e5a: `redemptia init` now says up front that a managed cloud option exists, and what it costs, before walking through self-hosted setup.
+- 1f46b62: Fix broken docs link in `redemptia init` and the LLMs settings page.
 - 5b90bbc: The worker now gets time to finish in-flight jobs when a deployment stops or upgrades, instead of being killed mid-evaluation.
 
 ## 0.2.19
@@ -99,7 +117,7 @@ No changes in this release.
 - 4a7c85c: Oxylabs requests now use the asynchronous jobs API instead of the Realtime API, which Oxylabs is deprecating. If you have any `:oxylabs` targets in `SCRAPE_TARGETS`, upgrade before August 31, 2026 to avoid failures.
 - 6788467: Add Cloro as a scraper provider for ChatGPT, Perplexity, Copilot, Gemini, Google AI Mode, and Google AI Overview.
 - bfa6282: BREAKING CHANGE: DataForSEO now scrapes the real ChatGPT and Gemini interfaces instead of calling their model APIs, with no change needed to existing `SCRAPE_TARGETS`. This is more expensive (about $0.004 instead of $0.0006 to run). This could also impact visibility/citations as it switches to better reflect what users see in the actual chat website. If you would prefer to keep the old behavior, you will need to update your `SCRAPE_TARGETS` to pin the specific version of the model (`chatgpt:dataforseo:gpt-5.5:online` or `gemini:dataforseo:gemini-2.5-flash:online`) to keep using the LLM Responses API instead of the LLM Scraper API.
-- c2ae13a: Added an `ELMO_ENCRYPTION_KEY` to new and upgraded deployments, which Elmo now requires to encrypt provider credentials stored in the database.
+- c2ae13a: Added an `ELMO_ENCRYPTION_KEY` to new and upgraded deployments, which Redemptia now requires to encrypt provider credentials stored in the database.
 
 ## 0.2.17
 
@@ -107,7 +125,7 @@ No changes in this release.
 
 - 93a79f2: You can now track Google AI Overviews via the BrightData, DataForSEO, and Oxylabs providers; `SCRAPE_TARGETS` now accepts `google-ai-overview:brightdata:online`, `google-ai-overview:dataforseo:online`, and `google-ai-overview:oxylabs:online`.
 - c2fdd26: Grok is now only supported via OpenRouter, since unauthenticated access has been removed and all Grok scrapers are permanently failing.
-- c2fdd26: Started tracking Kimi K3 on the [provider status page](https://www.elmohq.com/status). You can configure tracking with `SCRAPE_TARGETS`, which accepts `kimi:openrouter:moonshotai/kimi-k3`.
+- c2fdd26: Started tracking Kimi K3 on the [provider status page](https://www.redemptia.in/status). You can configure tracking with `SCRAPE_TARGETS`, which accepts `kimi:openrouter:moonshotai/kimi-k3`.
 
 ## 0.2.16
 
@@ -121,9 +139,9 @@ No changes in this release.
 
 ### Patch Changes
 
-- 0e90384: Add `elmo upgrade` to move a local deployment to the version supported by the installed CLI: runs any registered migrations, re-pins the Docker image tags, and restarts the stack (only if it was running before). Warns when the CLI itself is behind the latest published release.
-- 8ef5e23: Add ChatGPT, Perplexity, and Gemini support to the DataForSEO provider. `elmo init` now offers them when you enable DataForSEO, and `SCRAPE_TARGETS` accepts `chatgpt:dataforseo:online`, `perplexity:dataforseo:online`, and `gemini:dataforseo:online` (override the underlying model via the version slug, e.g. `chatgpt:dataforseo:gpt-5-mini:online`). Configure via `DATAFORSEO_LOGIN` + `DATAFORSEO_PASSWORD`.
-- d64c8fa: Add Oxylabs as a scraper provider. `elmo init` now offers Oxylabs alongside BrightData and Olostep, and `SCRAPE_TARGETS` accepts `chatgpt:oxylabs[:online]`, `perplexity:oxylabs:online`, and `google-ai-mode:oxylabs:online`. Configure via `OXYLABS_USERNAME` + `OXYLABS_PASSWORD`.
+- 0e90384: Add `redemptia upgrade` to move a local deployment to the version supported by the installed CLI: runs any registered migrations, re-pins the Docker image tags, and restarts the stack (only if it was running before). Warns when the CLI itself is behind the latest published release.
+- 8ef5e23: Add ChatGPT, Perplexity, and Gemini support to the DataForSEO provider. `redemptia init` now offers them when you enable DataForSEO, and `SCRAPE_TARGETS` accepts `chatgpt:dataforseo:online`, `perplexity:dataforseo:online`, and `gemini:dataforseo:online` (override the underlying model via the version slug, e.g. `chatgpt:dataforseo:gpt-5-mini:online`). Configure via `DATAFORSEO_LOGIN` + `DATAFORSEO_PASSWORD`.
+- d64c8fa: Add Oxylabs as a scraper provider. `redemptia init` now offers Oxylabs alongside BrightData and Olostep, and `SCRAPE_TARGETS` accepts `chatgpt:oxylabs[:online]`, `perplexity:oxylabs:online`, and `google-ai-mode:oxylabs:online`. Configure via `OXYLABS_USERNAME` + `OXYLABS_PASSWORD`.
 
 ## 0.2.13
 
@@ -133,38 +151,38 @@ No changes in this release.
 
 ### Patch Changes
 
-- 4ccba7a: Make `--dir` a global CLI option. It applies to `init`, `compose`, and `edit`, and now shows up in `elmo --help` as well as each subcommand's help.
-- 4ccba7a: `elmo -h` now makes clear what `elmo edit` lets you change and which targets it accepts.
-- 4ccba7a: Pin generated `docker-compose.yml` image tags to the CLI's version (e.g. `elmohq/elmo-web:0.2.10`) instead of `latest`, so stacks stay on the version they were initialized with until the user upgrades.
-- 4ccba7a: Remove `elmo status` — use `elmo compose ps` instead.
+- 4ccba7a: Make `--dir` a global CLI option. It applies to `init`, `compose`, and `edit`, and now shows up in `redemptia --help` as well as each subcommand's help.
+- 4ccba7a: `redemptia -h` now makes clear what `redemptia edit` lets you change and which targets it accepts.
+- 4ccba7a: Pin generated `docker-compose.yml` image tags to the CLI's version (e.g. `redemptia/redemptia-web:0.2.10`) instead of `latest`, so stacks stay on the version they were initialized with until the user upgrades.
+- 4ccba7a: Remove `redemptia status` — use `redemptia compose ps` instead.
 
 ## 0.2.10
 
 ### Patch Changes
 
-- 1f9c1cd: Default the CLI config directory to `~/.elmo`.
-- ac355fd: Prompt for the web app port in `elmo init` (defaults to 1515).
-- afbd561: Recommended `elmo init` setup no longer adds direct-API query targets — only scraping tracks ChatGPT and Google AI Mode.
-- 19eacbc: Add `elmo edit`, drop `elmo telemetry` and the `~/.elmo/config.json` file. `elmo edit env|compose` opens the file in `$VISUAL` / `$EDITOR` (fallback `nano`) — toggle `DISABLE_TELEMETRY` there instead of via the removed `elmo telemetry` subcommand. Telemetry state and the deployment ID now live entirely in `.env`; `elmo init` stamps the CLI version and timestamp into the `.env` and `elmo.yaml` headers, and re-running it preserves the existing `DEPLOYMENT_ID`.
-- 063e33e: Remove `elmo start`, `elmo stop`, `elmo logs`, and `elmo build` aliases — use `elmo compose <args>` directly (e.g. `elmo compose up -d`, `elmo compose down`, `elmo compose logs -f`, `elmo compose build`).
+- 1f9c1cd: Default the CLI config directory to `~/.redemptia`.
+- ac355fd: Prompt for the web app port in `redemptia init` (defaults to 1515).
+- afbd561: Recommended `redemptia init` setup no longer adds direct-API query targets — only scraping tracks ChatGPT and Google AI Mode.
+- 19eacbc: Add `redemptia edit`, drop `redemptia telemetry` and the `~/.redemptia/config.json` file. `redemptia edit env|compose` opens the file in `$VISUAL` / `$EDITOR` (fallback `nano`) — toggle `DISABLE_TELEMETRY` there instead of via the removed `redemptia telemetry` subcommand. Telemetry state and the deployment ID now live entirely in `.env`; `redemptia init` stamps the CLI version and timestamp into the `.env` and `redemptia.yaml` headers, and re-running it preserves the existing `DEPLOYMENT_ID`.
+- 063e33e: Remove `redemptia start`, `redemptia stop`, `redemptia logs`, and `redemptia build` aliases — use `redemptia compose <args>` directly (e.g. `redemptia compose up -d`, `redemptia compose down`, `redemptia compose logs -f`, `redemptia compose build`).
 
 ## 0.2.9
 
 ### Patch Changes
 
-- 3d378c2: Clean up wording in `elmo init`.
+- 3d378c2: Clean up wording in `redemptia init`.
 
 ## 0.2.8
 
 ### Patch Changes
 
-- c576cee: Publish `elmohq/elmo-db-migrate` images instead of always attempting to build as part of the CLI.
+- c576cee: Publish `redemptia/redemptia-db-migrate` images instead of always attempting to build as part of the CLI.
 
 ## 0.2.7
 
 ### Patch Changes
 
-- 1e770ff: Standardize Docker image naming between the CLI and release process on `elmohq/elmo-web` and `elmohq/elmo-worker`.
+- 1e770ff: Standardize Docker image naming between the CLI and release process on `redemptia/redemptia-web` and `redemptia/redemptia-worker`.
 
 ## 0.2.6
 
@@ -172,10 +190,10 @@ No changes in this release.
 
 ### Patch Changes
 
-- 839b98b: `elmo init` adds a recommended setup path — pick a scraper (BrightData or Olostep), pick a direct LLM API (OpenRouter, Anthropic, OpenAI, or Mistral), four prompts total. The custom path now requires at least one direct LLM API so onboarding analysis works out of the box.
-- 76e2a5f: Add telemetry opt-out prompt during `elmo init` and new `elmo telemetry status|enable|disable` subcommand. See [Telemetry](https://elmohq.com/docs/developer-guide/telemetry) for what's collected.
+- 839b98b: `redemptia init` adds a recommended setup path — pick a scraper (BrightData or Olostep), pick a direct LLM API (OpenRouter, Anthropic, OpenAI, or Mistral), four prompts total. The custom path now requires at least one direct LLM API so onboarding analysis works out of the box.
+- 76e2a5f: Add telemetry opt-out prompt during `redemptia init` and new `redemptia telemetry status|enable|disable` subcommand. See [Telemetry](https://redemptia.in/docs/developer-guide/telemetry) for what's collected.
 - edf97d4: Add Mistral as a direct API provider. Set `MISTRAL_API_KEY` and target via `mistral:mistral-api:<model>[:online]`.
-- 7cba46d: License Elmo under the MIT License. Add Code of Conduct, Contributing guide, Security policy, and a lightweight CLA process.
+- 7cba46d: License Redemptia under the MIT License. Add Code of Conduct, Contributing guide, Security policy, and a lightweight CLA process.
 
 ## 0.2.4
 
@@ -195,7 +213,7 @@ No changes in this release.
 
 ### Patch Changes
 
-- adf7642: CLI `elmo init` now walks through each provider one at a time.
+- adf7642: CLI `redemptia init` now walks through each provider one at a time.
 
 ## 0.2.0
 

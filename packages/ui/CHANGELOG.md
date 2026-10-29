@@ -1,5 +1,21 @@
 # @workspace/ui
 
+## 0.7.7
+
+No changes in this release.
+
+## 0.7.6
+
+No changes in this release.
+
+## 0.7.5
+
+No changes in this release.
+
+## 0.7.4
+
+No changes in this release.
+
 ## 0.7.3
 
 No changes in this release.
@@ -110,7 +126,7 @@ No changes in this release.
 
 ### Patch Changes
 
-- 7cba46d: License Elmo under the MIT License. Add Code of Conduct, Contributing guide, Security policy, and a lightweight CLA process.
+- 7cba46d: License Redemptia under the MIT License. Add Code of Conduct, Contributing guide, Security policy, and a lightweight CLA process.
 
 ## 0.2.4
 

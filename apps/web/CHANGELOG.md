@@ -1,5 +1,69 @@
 # @workspace/web
 
+## 0.7.7
+
+### Patch Changes
+
+- d5689fb: Add a citation flow chart to the citations page that shows which AI engines cite any domain — yours, a competitor's or a third party's — and which of its sections and pages they cite.
+- 9139b0a: Added Cloudflare Turnstile bot protection to Redemptia Cloud email sign-up, sign-in, and password reset.
+- e139254: The API's cited URLs, cited domains and query fan-out lists are paginated and searchable, so large brands no longer get responses too big to return.
+- 25b2959: Keep light-colored brand icons with transparent backgrounds visible on the site.
+- 0982452: Additional citations and sentiment page speed optimizations.
+- e1b0c18: Added a `/.well-known/change-password` redirect to the in-app change-password page.
+- Updated dependencies [9139b0a]
+- Updated dependencies [e139254]
+- Updated dependencies [0982452]
+  - @workspace/deployment@0.7.7
+  - @workspace/api-spec@0.7.7
+  - @workspace/lib@0.7.7
+  - @workspace/config@0.7.7
+  - @workspace/og@0.7.7
+  - @workspace/ui@0.7.7
+
+## 0.7.6
+
+### Patch Changes
+
+- dfb4d72: Fixed sign-in and API requests failing until a server restart after a brief database connection error at startup.
+- 925390b: The citations page loads faster for long date ranges.
+- 6745dff: The sentiment page loads faster.
+- 8f1f968: Added a `/api/health` endpoint for uptime monitors.
+- e14cf97: Redemptia Cloud plans can now track Kimi as one of their platforms.
+- 0355b6b: Removes "Title Changes" tab from the citations page. It wasn't very useful since providers don't surface titles consistently.
+- Updated dependencies [dfb4d72]
+- Updated dependencies [925390b]
+- Updated dependencies [98fc42e]
+  - @workspace/lib@0.7.6
+  - @workspace/deployment@0.7.6
+  - @workspace/api-spec@0.7.6
+  - @workspace/config@0.7.6
+  - @workspace/og@0.7.6
+  - @workspace/ui@0.7.6
+
+## 0.7.5
+
+### Patch Changes
+
+- @workspace/api-spec@0.7.5
+  - @workspace/config@0.7.5
+  - @workspace/deployment@0.7.5
+  - @workspace/lib@0.7.5
+  - @workspace/og@0.7.5
+  - @workspace/ui@0.7.5
+
+## 0.7.4
+
+### Patch Changes
+
+- fb89931: Show query availability on the Query Fan-Out page before any web-search runs come in.
+- db38a42: The web and worker images now ship with Node.js 24.22.1, which includes the [October 2026 Node.js security fixes](https://nodejs.org/en/blog/vulnerability), so self-hosted installs should update.
+- @workspace/api-spec@0.7.4
+  - @workspace/config@0.7.4
+  - @workspace/deployment@0.7.4
+  - @workspace/lib@0.7.4
+  - @workspace/og@0.7.4
+  - @workspace/ui@0.7.4
+
 ## 0.7.3
 
 ### Patch Changes
@@ -41,7 +105,7 @@
 ### Patch Changes
 
 - 723f6fd: Center company names and icons in their rows and number each company in the company-by-model tables on the overview and sentiment pages.
-- 0ac774b: Read the text of older ChatGPT and Claude responses recorded before Elmo stored which provider fetched them.
+- 0ac774b: Read the text of older ChatGPT and Claude responses recorded before Redemptia stored which provider fetched them.
 - 723f6fd: Scroll the company-by-model tables to your brand when it ranks below the visible rows.
 - Updated dependencies [0ac774b]
 - Updated dependencies [f5b579c]
@@ -154,7 +218,7 @@
 ### Patch Changes
 
 - ee6d260: Add a Skill page under Docs that shows how to install the `aeo` skill for Claude Code, Cursor, Codex, and other agents.
-- 76efbc6: Support chat on Elmo Cloud now opens from a button in the header instead of a floating bubble that covered page controls.
+- 76efbc6: Support chat on Redemptia Cloud now opens from a button in the header instead of a floating bubble that covered page controls.
 - 7b1f35c: Fixed alignment issue for the team invite email for users with a password manager.
 - @workspace/api-spec@0.4.6
   - @workspace/config@0.4.6
@@ -186,7 +250,7 @@
 
 ### Patch Changes
 
-- b48f545: Elmo's startup check now asks for a direct LLM key when onboarding needs one, counts provider keys saved in the app, and no longer requires the whitelabel parent-app link.
+- b48f545: Redemptia's startup check now asks for a direct LLM key when onboarding needs one, counts provider keys saved in the app, and no longer requires the whitelabel parent-app link.
 - 46c2c7a: The billing page now leads with your plan, total cost, and usage side by side, with the full plan comparison folded away until you ask for it.
 - 2e32431: Fixed the competitor limit being exceeded when several requests added competitors to a brand at the same time.
 - 76ec134: Reports accept other names a brand goes by, and count a mention of any of them as a brand mention.
@@ -247,7 +311,7 @@
 
 ### Minor Changes
 
-- c9142f7: Elmo now serves a full external API and an MCP server. `/api/v1` covers brands, prompts, competitors, reports, analytics, models, tags, and opportunities. `/api/mcp` connects Claude Code, Codex, Cursor, OpenCode, and VS Code, either by signing in from the client or with an API key. Keys belong to an organization and are issued read-only or read-write from Settings, which now also has API and MCP pages describing your own deployment.
+- c9142f7: Redemptia now serves a full external API and an MCP server. `/api/v1` covers brands, prompts, competitors, reports, analytics, models, tags, and opportunities. `/api/mcp` connects Claude Code, Codex, Cursor, OpenCode, and VS Code, either by signing in from the client or with an API key. Keys belong to an organization and are issued read-only or read-write from Settings, which now also has API and MCP pages describing your own deployment.
 
 ### Patch Changes
 
@@ -271,7 +335,7 @@
 
 ### Minor Changes
 
-- 78593b9: Adds support for [Elmo Cloud](https://app.elmohq.com/).
+- 78593b9: Adds support for [Redemptia Cloud](https://app.redemptia.in/).
 
 ### Patch Changes
 
@@ -291,11 +355,11 @@
 - f87d2e2: An organization's brands, team, and plan each have their own settings page, and its name and URL can be changed there.
 - 3ba2e5a: The password reset pages now match the sign-in and sign-up layout.
 - 58ff775: Keep a brand's prompts editable when it already holds more than the prompt limit.
-- 1f46b62: Fix broken docs link in `elmo init` and the LLMs settings page.
+- 1f46b62: Fix broken docs link in `redemptia init` and the LLMs settings page.
 - 3358b9f: Fix a crash in the onboarding wizard and competitor/prompt editors on deployments served over plain HTTP, where `crypto.randomUUID` is unavailable.
 - 1c4d39c: Support "GitHub Flavored Markdown" on prompt detail pages. LLM responses now render tables, strikethroughs, and URL autolinks more correctly.
 - 41545b6: Authentication and organization entry pages now show descriptive, deployment-aware browser tab titles.
-- 3ba2e5a: The sign-in and sign-up pages now explain what Elmo does, which engines it tracks, and who already uses it — with self-hosted instances also shown what the managed cloud offers.
+- 3ba2e5a: The sign-in and sign-up pages now explain what Redemptia does, which engines it tracks, and who already uses it — with self-hosted instances also shown what the managed cloud offers.
 - 78593b9: Self-hosted deployments now show each tracked platform's estimated cost on the LLMs settings page, plus which providers to configure for the platforms they aren't tracking yet.
 - c596f61: Show brand and competitor icons across the dashboard.
 - Updated dependencies [1f32756]
@@ -512,7 +576,7 @@
 
 ### Patch Changes
 
-- 1e770ff: Publish multi-arch (`linux/amd64` + `linux/arm64`) Docker images for `elmohq/elmo-web` and `elmohq/elmo-worker`, so Apple Silicon and other arm64 hosts can pull them.
+- 1e770ff: Publish multi-arch (`linux/amd64` + `linux/arm64`) Docker images for `redemptia/redemptia-web` and `redemptia/redemptia-worker`, so Apple Silicon and other arm64 hosts can pull them.
 - 6ab2b42: Fix OG image generation: `og:image` is now an absolute URL and renders the current page's title/description. Adds `og:url`, `og:site_name`, `og:locale`, and `og:logo` to the document head.
   - @workspace/api-spec@0.2.7
   - @workspace/config@0.2.7
@@ -541,7 +605,7 @@
 ### Patch Changes
 
 - edf97d4: Add Mistral as a direct API provider. Set `MISTRAL_API_KEY` and target via `mistral:mistral-api:<model>[:online]`.
-- 7cba46d: License Elmo under the MIT License. Add Code of Conduct, Contributing guide, Security policy, and a lightweight CLA process.
+- 7cba46d: License Redemptia under the MIT License. Add Code of Conduct, Contributing guide, Security policy, and a lightweight CLA process.
 - 839b98b: REST-style brand management API: `GET/POST /api/v1/brands`, `GET/PATCH /api/v1/brands/{brandId}`, `POST /api/v1/tools/analyze`, and full CRUD for `/api/v1/competitors`. API-created brands skip onboarding — callers hit `tools/analyze` first if they want suggestions, then create brands with whatever they choose to keep.
 - 839b98b: Brand onboarding is now a single screen: paste a website and review the suggested products, competitors (with their own domains and aliases), additional brand domains, aliases, and tagged starter prompts before saving. Powered by whichever direct LLM API you've configured (OpenRouter, Anthropic, OpenAI, or Mistral) with web search.
 - Updated dependencies [7990382]
@@ -578,7 +642,7 @@
 - b635a99: Make default brand cadence configurable via `DEFAULT_DELAY_HOURS` env var. `brand.delayOverrideHours` still takes precedence. The default changed from the hard-coded 72h to 24h.
 - a62ef89: Restyle the demo login and add a preview to Storybook.
 - e9be023: Ensure icons/favicons are comprehensive for non-whitelabel deployments.
-- f3604e2: Replace the page-top demo-mode banner with a compact "Demo" pill next to the sidebar logo (with a tooltip explaining the read-only behavior), and move version / elmohq.com / GitHub links into the sidebar footer for every deployment mode except whitelabel. Also reads the better-auth `user.image` field so avatars actually render.
+- f3604e2: Replace the page-top demo-mode banner with a compact "Demo" pill next to the sidebar logo (with a tooltip explaining the read-only behavior), and move version / redemptia.in / GitHub links into the sidebar footer for every deployment mode except whitelabel. Also reads the better-auth `user.image` field so avatars actually render.
   - @workspace/api-spec@0.2.3
   - @workspace/config@0.2.3
   - @workspace/deployment@0.2.3

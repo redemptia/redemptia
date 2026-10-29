@@ -1,5 +1,33 @@
 # @workspace/lib
 
+## 0.7.7
+
+### Patch Changes
+
+- 0982452: Additional citations and sentiment page speed optimizations.
+- @workspace/config@0.7.7
+
+## 0.7.6
+
+### Patch Changes
+
+- dfb4d72: Fixed sign-in and API requests failing until a server restart after a brief database connection error at startup.
+- 925390b: The citations page loads faster for long date ranges.
+- 98fc42e: Dropped unused database indexes, reducing disk usage and speeding up writes for runs and citations.
+- @workspace/config@0.7.6
+
+## 0.7.5
+
+### Patch Changes
+
+- @workspace/config@0.7.5
+
+## 0.7.4
+
+### Patch Changes
+
+- @workspace/config@0.7.4
+
 ## 0.7.3
 
 ### Patch Changes
@@ -23,11 +51,11 @@
 
 ### Minor Changes
 
-- f5b579c: **Jev (TypeSafe) is now a required dependency of Elmo: the worker won't start without `TYPESAFE_API_KEY`.** Jev judges mentions and sentiment, which is far more accurate toward your brand and each competitor. It costs very roughly $0.15–0.35 per 1,000 answers that name a tracked company, more for long answers that name many. Upgrading re-judges the last 90 days of answers once, about three months' worth of that cost; set `REPROCESS_DAYS=all` before upgrading to re-judge your whole history instead.
+- f5b579c: **Jev (TypeSafe) is now a required dependency of Redemptia: the worker won't start without `TYPESAFE_API_KEY`.** Jev judges mentions and sentiment, which is far more accurate toward your brand and each competitor. It costs very roughly $0.15–0.35 per 1,000 answers that name a tracked company, more for long answers that name many. Upgrading re-judges the last 90 days of answers once, about three months' worth of that cost; set `REPROCESS_DAYS=all` before upgrading to re-judge your whole history instead.
 
 ### Patch Changes
 
-- 0ac774b: Read the text of older ChatGPT and Claude responses recorded before Elmo stored which provider fetched them.
+- 0ac774b: Read the text of older ChatGPT and Claude responses recorded before Redemptia stored which provider fetched them.
 - @workspace/config@0.7.0
 
 ## 0.6.2
@@ -91,7 +119,7 @@
 
 ### Patch Changes
 
-- b48f545: Elmo's startup check now asks for a direct LLM key when onboarding needs one, counts provider keys saved in the app, and no longer requires the whitelabel parent-app link.
+- b48f545: Redemptia's startup check now asks for a direct LLM key when onboarding needs one, counts provider keys saved in the app, and no longer requires the whitelabel parent-app link.
 - 1980c7d: Auth rate limiting is now counted in the database, so the limits on sign-in and password reset hold across restarts and multiple app instances.
 - 280e5f3: Prompt runs on the OpenAI API provider now store the full API response, so the searches behind an answer stay readable.
 - 76ec134: Reports accept other names a brand goes by, and count a mention of any of them as a brand mention.
@@ -122,7 +150,7 @@
 
 ### Minor Changes
 
-- c9142f7: Elmo now serves a full external API and an MCP server. `/api/v1` covers brands, prompts, competitors, reports, analytics, models, tags, and opportunities. `/api/mcp` connects Claude Code, Codex, Cursor, OpenCode, and VS Code, either by signing in from the client or with an API key. Keys belong to an organization and are issued read-only or read-write from Settings, which now also has API and MCP pages describing your own deployment.
+- c9142f7: Redemptia now serves a full external API and an MCP server. `/api/v1` covers brands, prompts, competitors, reports, analytics, models, tags, and opportunities. `/api/mcp` connects Claude Code, Codex, Cursor, OpenCode, and VS Code, either by signing in from the client or with an API key. Keys belong to an organization and are issued read-only or read-write from Settings, which now also has API and MCP pages describing your own deployment.
 
 ### Patch Changes
 
@@ -135,7 +163,7 @@
 
 ### Minor Changes
 
-- 78593b9: Adds support for [Elmo Cloud](https://app.elmohq.com/).
+- 78593b9: Adds support for [Redemptia Cloud](https://app.redemptia.in/).
 
 ### Patch Changes
 
@@ -148,7 +176,7 @@
 - 78593b9: The account menu lists every organization (not just brands) you belong to.
 - f87d2e2: Dashboard URLs now include the organization and the brand — `/app/org/{organization}/brand/{brand}`.
 - 58ff775: Keep a brand's prompts editable when it already holds more than the prompt limit.
-- 1f46b62: Fix broken docs link in `elmo init` and the LLMs settings page.
+- 1f46b62: Fix broken docs link in `redemptia init` and the LLMs settings page.
 - 1c4d39c: Support "GitHub Flavored Markdown" on prompt detail pages. LLM responses now render tables, strikethroughs, and URL autolinks more correctly.
 - 78593b9: Self-hosted deployments can set `RUNS_PER_PROMPT` to change how many times each run samples a platform, trading sampling confidence against provider spend.
 - 78593b9: Self-hosted deployments now show each tracked platform's estimated cost on the LLMs settings page, plus which providers to configure for the platforms they aren't tracking yet.
@@ -190,7 +218,7 @@
 
 ### Patch Changes
 
-- 91de584: IMPORTANT BUGFIX: Fixed OpenAI response retrieval that broke in v0.2.15, which caused repeated (but billable) failures. If you are collecting data from the direct OpenAI API using Elmo, please update immediately.
+- 91de584: IMPORTANT BUGFIX: Fixed OpenAI response retrieval that broke in v0.2.15, which caused repeated (but billable) failures. If you are collecting data from the direct OpenAI API using Redemptia, please update immediately.
   - @workspace/config@0.2.16
 
 ## 0.2.15
@@ -235,7 +263,7 @@
 
 - 7990382: BrightData: prefer `answer_text_markdown` over `answer_text` when extracting response text, so prompt responses render with markdown formatting in the UI.
 - edf97d4: Add Mistral as a direct API provider. Set `MISTRAL_API_KEY` and target via `mistral:mistral-api:<model>[:online]`.
-- 7cba46d: License Elmo under the MIT License. Add Code of Conduct, Contributing guide, Security policy, and a lightweight CLA process.
+- 7cba46d: License Redemptia under the MIT License. Add Code of Conduct, Contributing guide, Security policy, and a lightweight CLA process.
 - 839b98b: Brand onboarding is now a single screen: paste a website and review the suggested products, competitors (with their own domains and aliases), additional brand domains, aliases, and tagged starter prompts before saving. Powered by whichever direct LLM API you've configured (OpenRouter, Anthropic, OpenAI, or Mistral) with web search.
 
 ## 0.2.4
@@ -257,7 +285,7 @@
 
 ### Patch Changes
 
-- adf7642: CLI `elmo init` now walks through each provider one at a time.
+- adf7642: CLI `redemptia init` now walks through each provider one at a time.
 
 ## 0.2.0
 
