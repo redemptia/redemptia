@@ -1,7 +1,14 @@
 import { randomUUID } from "node:crypto";
 import { db } from "@workspace/lib/db/db";
-import { citations, promptRuns, prompts } from "@workspace/lib/db/schema";
-import { brandFacts, perceptionPrompts, perceptionVerdicts } from "@workspace/lib/db/schema-perception";
+import { brands, citations, promptRuns, prompts } from "@workspace/lib/db/schema";
+import {
+	brandFacts,
+	perceptionJevCalls,
+	perceptionPrompts,
+	perceptionVerdicts,
+} from "@workspace/lib/db/schema-perception";
+import { DAILY_JEV_CALL_CEILING } from "@workspace/lib/perception/limits";
+import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { getFactReadout } from "@/server/perception-readout-core";
 import { createBrand, deleteBrand } from "@/test/integration/stats-fixtures";
@@ -84,12 +91,21 @@ async function verdictOn(runId: string, factId: string, verdict: string, stamp =
 
 const all = { from: null, to: null };
 
+async function organizationOf(brand: string) {
+	const [row] = await db.select({ id: brands.organizationId }).from(brands).where(eq(brands.id, brand));
+	return row.id;
+}
+
+const today = () => new Date().toISOString().slice(0, 10);
+const yesterday = () => new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
+
 beforeEach(async () => {
 	brandId = await createBrand({ name: "Acme", website: "https://acme.example" });
 	promptId = await factPrompt(brandId);
 });
 
 afterEach(async () => {
+	await db.delete(perceptionJevCalls).where(eq(perceptionJevCalls.organizationId, await organizationOf(brandId)));
 	await db.delete(perceptionVerdicts).where(
 		// Verdicts block deleting their facts, so they go first.
 		(await import("drizzle-orm")).sql`run_id IN (SELECT id FROM prompt_runs WHERE brand_id = ${brandId})`,
@@ -132,7 +148,12 @@ describe("coverage", () => {
 		const theirs = await fact(other, "Globex costs $10.");
 		await answer(theirs, "contradicts", { brand: other, prompt: theirPrompt });
 
-		expect(await getFactReadout(db, brandId, all)).toEqual({ facts: [], alerts: [], alertCount: 0 });
+		expect(await getFactReadout(db, brandId, all)).toEqual({
+			facts: [],
+			alerts: [],
+			alertCount: 0,
+			ceilingReached: false,
+		});
 		await db.delete(perceptionVerdicts).where((await import("drizzle-orm")).sql`fact_id = ${theirs}`);
 		await deleteBrand(other);
 	});
@@ -176,5 +197,37 @@ describe("contradiction alerts", () => {
 			},
 			{ model: "claude", answeredAt: "2026-10-01T09:00:00.000Z", cited: false },
 		]);
+	});
+});
+
+describe("daily call ceiling", () => {
+	async function usage(organizationId: string, day: string, calls: number) {
+		await db.insert(perceptionJevCalls).values({ organizationId, day, calls });
+	}
+
+	it("reports it once the organization has used today's calls", async () => {
+		const org = await organizationOf(brandId);
+		await usage(org, today(), DAILY_JEV_CALL_CEILING - 1);
+		expect((await getFactReadout(db, brandId, all)).ceilingReached).toBe(false);
+
+		await db
+			.update(perceptionJevCalls)
+			.set({ calls: DAILY_JEV_CALL_CEILING })
+			.where(eq(perceptionJevCalls.organizationId, org));
+		expect((await getFactReadout(db, brandId, all)).ceilingReached).toBe(true);
+	});
+
+	it("does not report a ceiling reached yesterday", async () => {
+		await usage(await organizationOf(brandId), yesterday(), DAILY_JEV_CALL_CEILING);
+		expect((await getFactReadout(db, brandId, all)).ceilingReached).toBe(false);
+	});
+
+	it("does not report another organization's ceiling", async () => {
+		await usage("another-organization", today(), DAILY_JEV_CALL_CEILING);
+		try {
+			expect((await getFactReadout(db, brandId, all)).ceilingReached).toBe(false);
+		} finally {
+			await db.delete(perceptionJevCalls).where(eq(perceptionJevCalls.organizationId, "another-organization"));
+		}
 	});
 });

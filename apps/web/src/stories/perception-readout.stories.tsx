@@ -39,6 +39,7 @@ const readout: FactReadout = {
 		},
 	],
 	alertCount: 2,
+	ceilingReached: false,
 	alerts: [
 		{
 			verdictId: "v1",
@@ -107,6 +108,7 @@ export const HidesFiguresBelowTenAnswers: StoryObj = {
 			canvas.getByText(/Not enough data yet: 7 answers so far, and figures show from 10/),
 		).toBeInTheDocument();
 		await expect(canvas.queryByText("Stated in 14%")).not.toBeInTheDocument();
+		await expect(canvas.queryByText("Today's checks have paused")).not.toBeInTheDocument();
 	},
 };
 
@@ -115,5 +117,14 @@ export const NothingContradicts: StoryObj = {
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
 		await expect(canvas.getByText("No answer contradicts your facts for these filters.")).toBeInTheDocument();
+	},
+};
+
+export const CeilingReached: StoryObj = {
+	render: () => view({ ...readout, ceilingReached: true }),
+	play: async ({ canvasElement }) => {
+		const canvas = within(canvasElement);
+		await expect(canvas.getByText("Today's checks have paused")).toBeInTheDocument();
+		await expect(canvas.getByText(/They resume tomorrow \(UTC\)/)).toBeInTheDocument();
 	},
 };
