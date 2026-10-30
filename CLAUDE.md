@@ -73,7 +73,7 @@ This map is derived from the pull-request workflows in `.github/workflows/`. `sc
 | **Vercel**, **Vercel Preview Comments** | | External; no local command |
 <!-- gate:end -->
 
-- **Baseline:** 1,572 unit tests (config 119, cli 32, deployment 52, lib 736, worker 69, web 564), 271 integration tests (web 184, worker 61, lib 26) and 186 Storybook tests, all green, no expected failures. A fresh `_test` database applies 39 migrations.
+- **Baseline:** 1,572 unit tests (config 119, cli 32, deployment 52, lib 736, worker 69, web 564), 271 integration tests (web 184, worker 61, lib 26) and 186 Storybook tests, all green, no expected failures. A fresh `_test` database applies 41 migrations.
 - **CI sets no `DEPLOYMENT_MODE`.** An integration test that reaches deployment or entitlement code (`getDeploymentFeatures`, `getOrgEntitlements`) must `vi.stubEnv("DEPLOYMENT_MODE", …)`, and before anything it starts (the worker creates some pg-boss queues, such as `generate-report`, only when a deployment feature is on). A local `.env` hides the failure, so it shows up only in CI. To reproduce one, move both `.env` files aside and run the file alone against a fresh `_test` database: another file can create shared state, such as a queue, that masks it.
 - **Known flaky tests:**
   - `e2e/tests/shared/api-keys.spec.ts` (brand multi-select vs the Create click) and `e2e/tests/shared/overview.spec.ts` (sidebar links) can flake. `failOnFlakyTests` makes a flake red.
@@ -100,7 +100,7 @@ This map is derived from the pull-request workflows in `.github/workflows/`. `sc
   - Brand-scoped analytics cores take a brand id the edge has already gated.
   - Dashboard server functions gate with `requireBrandSession`, and that gate has no test (#21).
 - **Migrations (drizzle 0.45.2).** The only gate is the journal `when` against the newest applied migration; filenames and `idx` don't matter, and skipped migrations are silent.
-  - 0000–0030 are elmo's; 0031 (`0031_prompt_runs_brand_created_at_idx`), 0032 (`0032_perception_prompts`) 0033 (`0033_perception_core_tables`) 0034 (`0034_perception_job_tables`), 0035 (`0035_perception_brand_settings`), 0036 (`0036_perception_fact_sources`), 0037 (`0037_perception_passage_confidence`) and 0038 (`0038_perception_attribute_rules`) are ours. Our next is 0039, and elmo's next is 0031: the numbers clash loudly, but an elmo migration dated before our 0038 (`when` 1792814861106) is skipped silently on every upgraded database. Every catch-up renumbers and re-dates elmo's migrations after ours, by the procedure in UPSTREAM.md.
+  - 0000–0030 are elmo's; 0031 (`0031_prompt_runs_brand_created_at_idx`), 0032 (`0032_perception_prompts`) 0033 (`0033_perception_core_tables`) 0034 (`0034_perception_job_tables`), 0035 (`0035_perception_brand_settings`), 0036 (`0036_perception_fact_sources`), 0037 (`0037_perception_passage_confidence`) and 0038 (`0038_perception_attribute_rules`) are ours. 0039 and 0040 are elmo's, renumbered by the Oct 30 catch-up. Our next is 0041, and elmo's next is 0031: the numbers clash loudly, but an elmo migration dated before our 0038 (`when` 1792814861106) is skipped silently on every upgraded database. Every catch-up renumbers and re-dates elmo's migrations after ours, by the procedure in UPSTREAM.md.
   - Everything runs in one transaction, so no `CREATE INDEX CONCURRENTLY`.
   - Never run `drizzle-kit push`.
 - **Indexes drizzle can't declare live in `RAW_INDEXES`** (`packages/lib/scripts/index-census.mjs`): `idx_prompt_runs_admin`, because drizzle 0.45 can't express `INCLUDE`, and two on better-auth tables, because the generated `schema-auth.ts` carries no indexes. Don't duplicate them. The migration check fails when a migrated database's indexes differ from the latest snapshot plus that list, or when an upgrade loses an index its own SQL doesn't drop, so a new raw index joins the list in the PR that creates it. Dropping a column drops every index that uses it, `INCLUDE` columns too, without a `DROP INDEX` in the SQL: that is how 0024 lost two (#86), which 0031's `(brand_id, created_at)` replaced on measured evidence.
@@ -120,6 +120,9 @@ This map is derived from the pull-request workflows in `.github/workflows/`. `sc
 - **`analytics-core.ts` feeds the dashboard, REST and MCP.**
 - **`openapi.json` is hand-maintained.** A new v1 route needs it updated, then `pnpm lint:spec`. The SDK generator (`hey-api.config.json`) reads it too.
 - **Entitlement flags live in code.** `entitlementOverridesSchema` is `.strict()`, and a parse failure drops the whole payload, so ship a schema key before any data that uses it.
+
+### Superseded docs
+The "Phase 2 Onward Handoff" and "Prompt Pack — Phases 2-8" documents in the claude.ai project are superseded by SPEC.md, EXECUTION-PLAN.md, CONSIDERATIONS.md and BRANCHING.md (with PROCEDURE.md and UPSTREAM.md). Their phase numbering, migration numbers, sentiment stance classifier and keyword plumbing do not exist in this product; don't build toward them.
 
 ### Known gaps
 - #16: response search over `run_extractions.text_content` still reads every in-scope answer: `pg_trgm` isn't installed, `run_extractions` has only its primary key, and `count(*) OVER ()` reads every match before the page limit. #79 fixed correctness; the performance half is upstream's shape.
