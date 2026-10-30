@@ -11,10 +11,11 @@ import {
 	perceptionRunStatus,
 	perceptionVerdicts,
 } from "@workspace/lib/db/schema-perception";
+import { DAILY_JEV_CALL_CEILING } from "@workspace/lib/perception/limits";
 import { eq, sql } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { type JevRequest, type JevResponse, RateLimited, TooLarge } from "../mention-judge/jev";
-import { DAILY_JEV_CALL_CEILING, reserveJevCall } from "./budget";
+import { reserveJevCall } from "./budget";
 import { judgePendingRuns, MAX_ANSWER_CHARS, perceptionStamp } from "./judge-runs";
 
 let brandId: string;
