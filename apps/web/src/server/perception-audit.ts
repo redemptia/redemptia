@@ -4,11 +4,11 @@ import { brands } from "@workspace/lib/db/schema";
 import { perceptionStamps } from "@workspace/lib/db/schema-perception";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { requireBrandSession } from "@/lib/auth/helpers";
 import { lookbackSchema } from "@/lib/lookback";
 import { getTimezoneLookbackRange } from "@/lib/timezone-utils";
 import { attributeSources, marketProminence } from "@/server/perception-prominence-core";
 import { getFactReadout } from "@/server/perception-readout-core";
+import { requirePerceptionSession } from "@/server/perception-session";
 
 export const getPerceptionAuditFn = createServerFn({ method: "GET" })
 	.validator(
@@ -20,7 +20,7 @@ export const getPerceptionAuditFn = createServerFn({ method: "GET" })
 		}),
 	)
 	.handler(async ({ data }) => {
-		await requireBrandSession(data.brandId);
+		await requirePerceptionSession(data.brandId);
 		const range = getTimezoneLookbackRange(data.lookback, "UTC");
 		const to = new Date(`${range.toDateStr}T00:00:00Z`);
 		to.setUTCDate(to.getUTCDate() + 1);

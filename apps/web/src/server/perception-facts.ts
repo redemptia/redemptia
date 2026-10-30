@@ -3,7 +3,6 @@ import { db } from "@workspace/lib/db/db";
 import { brands } from "@workspace/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { requireBrandSession } from "@/lib/auth/helpers";
 import { calendarDateSchema } from "@/lib/lookback";
 import {
 	enqueueFactSuggestions,
@@ -29,6 +28,7 @@ import {
 	promptHeadroom,
 	stopTrackingFactPrompt,
 } from "@/server/perception-prompts-core";
+import { requirePerceptionSession } from "@/server/perception-session";
 import type { PromptBrand } from "@/server/prompts-core";
 
 const sourceSchema = z
@@ -39,7 +39,7 @@ const sourceSchema = z
 export const getPerceptionSettingsFn = createServerFn({ method: "GET" })
 	.validator(z.object({ brandId: z.string() }))
 	.handler(async ({ data }) => {
-		await requireBrandSession(data.brandId);
+		await requirePerceptionSession(data.brandId);
 		const [enabled, facts] = await Promise.all([isPerceptionEnabled(db, data.brandId), listFacts(db, data.brandId)]);
 		return { enabled, facts };
 	});
@@ -47,7 +47,7 @@ export const getPerceptionSettingsFn = createServerFn({ method: "GET" })
 export const setPerceptionEnabledFn = createServerFn({ method: "POST" })
 	.validator(z.object({ brandId: z.string(), enabled: z.boolean() }))
 	.handler(async ({ data }) => {
-		await requireBrandSession(data.brandId);
+		await requirePerceptionSession(data.brandId);
 		await setPerceptionEnabled(db, data.brandId, data.enabled);
 	});
 
@@ -62,7 +62,7 @@ export const addFactFn = createServerFn({ method: "POST" })
 		}),
 	)
 	.handler(async ({ data }) => {
-		await requireBrandSession(data.brandId);
+		await requirePerceptionSession(data.brandId);
 		return { id: await addFact(db, data.brandId, data) };
 	});
 
@@ -77,21 +77,21 @@ export const recordFactChangeFn = createServerFn({ method: "POST" })
 		}),
 	)
 	.handler(async ({ data }) => {
-		await requireBrandSession(data.brandId);
+		await requirePerceptionSession(data.brandId);
 		return { id: await recordFactChange(db, data.brandId, data.factId, data) };
 	});
 
 export const retireFactFn = createServerFn({ method: "POST" })
 	.validator(z.object({ brandId: z.string(), factId: z.string().uuid(), noLongerTrueFrom: calendarDateSchema }))
 	.handler(async ({ data }) => {
-		await requireBrandSession(data.brandId);
+		await requirePerceptionSession(data.brandId);
 		await retireFact(db, data.brandId, data.factId, data.noLongerTrueFrom);
 	});
 
 export const deleteFactFn = createServerFn({ method: "POST" })
 	.validator(z.object({ brandId: z.string(), factId: z.string().uuid() }))
 	.handler(async ({ data }) => {
-		await requireBrandSession(data.brandId);
+		await requirePerceptionSession(data.brandId);
 		await deleteFact(db, data.brandId, data.factId);
 	});
 
@@ -104,7 +104,7 @@ async function promptBrand(brandId: string): Promise<PromptBrand> {
 export const getFactPromptsFn = createServerFn({ method: "GET" })
 	.validator(z.object({ brandId: z.string() }))
 	.handler(async ({ data }) => {
-		await requireBrandSession(data.brandId);
+		await requirePerceptionSession(data.brandId);
 		const [factPrompts, headroom, suggestionRunsLeft] = await Promise.all([
 			listFactPrompts(db, data.brandId),
 			promptHeadroom(db, data.brandId),
@@ -116,14 +116,14 @@ export const getFactPromptsFn = createServerFn({ method: "GET" })
 export const suggestFactsFn = createServerFn({ method: "POST" })
 	.validator(z.object({ brandId: z.string() }))
 	.handler(async ({ data }) => {
-		await requireBrandSession(data.brandId);
+		await requirePerceptionSession(data.brandId);
 		await enqueueFactSuggestions(data.brandId);
 	});
 
 export const getFactSuggestionsFn = createServerFn({ method: "POST" })
 	.validator(z.object({ brandId: z.string() }))
 	.handler(async ({ data }): Promise<FactSuggestionsStatus> => {
-		await requireBrandSession(data.brandId);
+		await requirePerceptionSession(data.brandId);
 		return getFactSuggestions(data.brandId);
 	});
 
@@ -139,27 +139,27 @@ export const acceptFactSuggestionFn = createServerFn({ method: "POST" })
 		}),
 	)
 	.handler(async ({ data }) => {
-		await requireBrandSession(data.brandId);
+		await requirePerceptionSession(data.brandId);
 		return acceptFactSuggestion(await promptBrand(data.brandId), data);
 	});
 
 export const addFactPromptFn = createServerFn({ method: "POST" })
 	.validator(z.object({ brandId: z.string(), question: z.string().max(500) }))
 	.handler(async ({ data }) => {
-		await requireBrandSession(data.brandId);
+		await requirePerceptionSession(data.brandId);
 		return { id: await addFactPrompt(await promptBrand(data.brandId), data.question) };
 	});
 
 export const stopTrackingFactPromptFn = createServerFn({ method: "POST" })
 	.validator(z.object({ brandId: z.string(), promptId: z.string().uuid() }))
 	.handler(async ({ data }) => {
-		await requireBrandSession(data.brandId);
+		await requirePerceptionSession(data.brandId);
 		await stopTrackingFactPrompt(await promptBrand(data.brandId), data.promptId);
 	});
 
 export const getPerceptionCostFn = createServerFn({ method: "GET" })
 	.validator(z.object({ brandId: z.string() }))
 	.handler(async ({ data }) => {
-		await requireBrandSession(data.brandId);
+		await requirePerceptionSession(data.brandId);
 		return getPerceptionCostEstimate(db, data.brandId);
 	});
