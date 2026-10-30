@@ -25,7 +25,7 @@ import { Link } from "@tanstack/react-router";
 import type { DeploymentMode, FeaturesConfig } from "@workspace/config/types";
 import { brandLinkParams, orgLinkParams } from "@workspace/lib/app-urls";
 import type { BrandWithPrompts } from "@workspace/lib/db/schema";
-
+import { perceptionAvailableIn } from "@workspace/lib/perception/limits";
 import {
 	Sidebar,
 	SidebarContent,
@@ -101,8 +101,8 @@ function brandGroups(organization: OrganizationSummary, brand: BrandWithPrompts,
 				icon: IconSpeakerphone,
 			},
 			{ title: "Sentiment", link: { to: "/app/org/$org/brand/$brand/sentiment", params }, icon: IconMoodSmile },
-			// Perception doesn't run in cloud until it is priced.
-			...(mode === "cloud"
+			// Perception runs only where the server allows it; the demo is read-only and cloud is unpriced.
+			...(mode && !perceptionAvailableIn(mode)
 				? []
 				: [
 						{
@@ -136,8 +136,8 @@ function brandGroups(organization: OrganizationSummary, brand: BrandWithPrompts,
 					icon: IconListDetails,
 				},
 				{ title: "LLMs", link: { to: "/app/org/$org/brand/$brand/settings/llms", params }, icon: IconCpu },
-				// Perception doesn't run in cloud until it is priced.
-				...(mode === "cloud"
+				// Perception runs only where the server allows it; the demo is read-only and cloud is unpriced.
+				...(mode && !perceptionAvailableIn(mode)
 					? []
 					: [
 							{
