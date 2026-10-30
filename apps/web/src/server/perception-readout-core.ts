@@ -6,6 +6,7 @@
  * Takes a brand id the caller has already authorized, and scopes every read to it.
  */
 import type { DbConnection } from "@workspace/lib/db/db-connection";
+import { DAILY_JEV_CALL_CEILING } from "@workspace/lib/perception/limits";
 import { sql } from "drizzle-orm";
 
 /** Alerts listed at most; the count says how many there are in all. */
@@ -65,6 +66,8 @@ export interface FactReadout {
 	facts: FactCoverage[];
 	alerts: ContradictionAlert[];
 	alertCount: number;
+	/** The brand's organization has used today's Jev calls; unjudged answers wait for the next UTC day. */
+	ceilingReached: boolean;
 }
 
 /** Compares URLs as pages: no scheme, "www.", query, fragment or trailing slash, any case. */
@@ -195,12 +198,25 @@ function alert(row: Row): ContradictionAlert {
 	};
 }
 
+async function ceilingReached(conn: DbConnection, brandId: string): Promise<boolean> {
+	const result = await conn.execute<{ reached: boolean }>(sql`
+		SELECT c.calls >= ${DAILY_JEV_CALL_CEILING} AS reached
+		FROM brands b
+		JOIN perception_jev_calls c ON c.organization_id = b.organization_id AND c.day = (now() AT TIME ZONE 'UTC')::date
+		WHERE b.id = ${brandId}`);
+	const rows = Array.isArray(result) ? result : (result as { rows: { reached: boolean }[] }).rows;
+	return rows[0]?.reached === true;
+}
+
 export async function getFactReadout(
 	conn: DbConnection,
 	brandId: string,
 	filters: ReadoutFilters,
 ): Promise<FactReadout> {
-	const result = await conn.execute<Row>(judged(brandId, filters));
+	const [result, paused] = await Promise.all([
+		conn.execute<Row>(judged(brandId, filters)),
+		ceilingReached(conn, brandId),
+	]);
 	const rows = (Array.isArray(result) ? result : (result as { rows: Row[] }).rows) as Row[];
 	const contradictions = rows
 		.filter((row) => row.verdict === "contradicts")
@@ -208,6 +224,7 @@ export async function getFactReadout(
 	return {
 		facts: coverage(rows),
 		alertCount: contradictions.length,
+		ceilingReached: paused,
 		alerts: contradictions.slice(0, MAX_ALERTS).map(alert),
 	};
 }

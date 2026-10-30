@@ -117,6 +117,15 @@ function Alert({ alert, org, brand }: { alert: ContradictionAlert; org: string; 
 export function PerceptionReadout({ readout, org, brand }: { readout: FactReadout; org: string; brand: string }) {
 	return (
 		<div className="flex flex-col gap-6">
+			{readout.ceilingReached && (
+				<div role="status" className="rounded-lg border border-amber-500/40 bg-amber-500/5 p-3 text-sm">
+					<p className="font-medium">Today's checks have paused</p>
+					<p className="text-muted-foreground">
+						Today's limit on fact checks has been reached. They resume tomorrow (UTC), and answers not yet checked will
+						be included then. The figures below don't include them.
+					</p>
+				</div>
+			)}
 			<Card>
 				<CardHeader>
 					<CardTitle>How often AI states your facts</CardTitle>
