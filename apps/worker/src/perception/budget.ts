@@ -1,13 +1,7 @@
 import type { DbConnection } from "@workspace/lib/db/db-connection";
 import { perceptionJevCalls } from "@workspace/lib/db/schema-perception";
+import { DAILY_JEV_CALL_CEILING } from "@workspace/lib/perception/limits";
 import { sql } from "drizzle-orm";
-
-/**
- * The most Jev calls the perception job makes for one organization in a UTC day. It bounds a runaway
- * loop, not a budget: at 24 perception prompts a brand needs about 140 calls a day, and 2,000 calls
- * cost well under a dollar.
- */
-export const DAILY_JEV_CALL_CEILING = 2_000;
 
 /**
  * Counts one call against the organization's ceiling for today, and says whether it may be made.

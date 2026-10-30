@@ -2,6 +2,7 @@
  * The arithmetic behind the perception cost estimate, kept free of server code so the page and its
  * stories can use it. Inputs come from `server/perception-cost.ts`.
  */
+import { DAILY_JEV_CALL_CEILING } from "@workspace/lib/perception/limits";
 import { PROJECTION_DAYS_PER_MONTH } from "@workspace/lib/usage";
 
 /**
@@ -10,8 +11,6 @@ import { PROJECTION_DAYS_PER_MONTH } from "@workspace/lib/usage";
  * checks are assumed to cost the same per answer, which nothing has measured yet.
  */
 export const JUDGE_USD_PER_THOUSAND_ANSWERS = { low: 0.15, high: 0.35 } as const;
-/** Our own daily ceiling on fact-check calls, per organization (`apps/worker/src/perception/budget.ts`). */
-export const DAILY_FACT_CHECK_CEILING = 2_000;
 
 export interface CostTarget {
 	model: string;
@@ -78,7 +77,7 @@ export function estimatePerceptionCost(
 		mentionJudgeUsdPerMonth: judge,
 		factChecksUsdPerMonth: judge,
 		factChecksPerDay: answersPerDay,
-		dailyCeiling: DAILY_FACT_CHECK_CEILING,
+		dailyCeiling: DAILY_JEV_CALL_CEILING,
 		showsDollars,
 	};
 }
