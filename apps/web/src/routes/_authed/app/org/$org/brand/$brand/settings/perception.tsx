@@ -40,6 +40,7 @@ import {
 	stopTrackingFactPromptFn,
 	suggestFactsFn,
 } from "@/server/perception-facts";
+import { getDailyCheckBudgetFn } from "@/server/perception-readout";
 
 export const Route = createFileRoute("/_authed/app/org/$org/brand/$brand/settings/perception")({
 	staticData: { crumb: "Perception" },
@@ -72,6 +73,10 @@ function PerceptionSettingsPage() {
 	const { data: cost } = useQuery({
 		queryKey: costKey(brandId),
 		queryFn: () => getPerceptionCostFn({ data: { brandId } }),
+	});
+	const { data: budget } = useQuery({
+		queryKey: ["perception-daily-budget", brandId],
+		queryFn: () => getDailyCheckBudgetFn({ data: { brandId } }),
 	});
 	const { data: suggestions } = useQuery({
 		queryKey: suggestionsKey(brandId),
@@ -165,6 +170,15 @@ function PerceptionSettingsPage() {
 						2,000 checks per organization per day. When off, nothing is judged or billed.
 					</p>
 					{cost && <PerceptionCostEstimateView estimate={cost} />}
+					{budget && (
+						<p className="text-sm">
+							<span className="font-medium">Daily check budget:</span>{" "}
+							<span className="text-muted-foreground">
+								{budget.used.toLocaleString("en-US")} of {budget.ceiling.toLocaleString("en-US")} checks used today
+								(UTC), across your organization.
+							</span>
+						</p>
+					)}
 					{switchError && <p className="text-sm text-destructive">{switchError}</p>}
 				</div>
 				<Switch

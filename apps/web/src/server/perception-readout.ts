@@ -1,9 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import { db } from "@workspace/lib/db/db";
+import { DAILY_JEV_CALL_CEILING } from "@workspace/lib/perception/limits";
 import { z } from "zod";
 import { lookbackSchema } from "@/lib/lookback";
 import { getTimezoneLookbackRange } from "@/lib/timezone-utils";
-import { getFactReadout } from "@/server/perception-readout-core";
+import { getFactReadout, jevCallsToday } from "@/server/perception-readout-core";
 import { requirePerceptionSession } from "@/server/perception-session";
 
 export const getFactReadoutFn = createServerFn({ method: "GET" })
@@ -25,4 +26,11 @@ export const getFactReadoutFn = createServerFn({ method: "GET" })
 			model: data.model,
 			tags: data.tags,
 		});
+	});
+
+export const getDailyCheckBudgetFn = createServerFn({ method: "GET" })
+	.validator(z.object({ brandId: z.string() }))
+	.handler(async ({ data }) => {
+		await requirePerceptionSession(data.brandId);
+		return { used: await jevCallsToday(db, data.brandId), ceiling: DAILY_JEV_CALL_CEILING };
 	});
