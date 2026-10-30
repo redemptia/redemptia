@@ -13,9 +13,11 @@ relationship between the two repositories; changes move one way, from `upstream`
 [Merging upstream](#merging-upstream)).
 
 **Last caught up to:** elmo
-[`5795126b`](https://github.com/elmohq/elmo/commit/5795126b), 56 commits after `80753f80`, in this PR. All three
-catch-ups landed as merge commits, so `5795126b` is an ancestor of `main` and each merge reverts with
-`git revert -m 1`. The next catch-up's merge base is `5795126b`.
+[`72b67d08`](https://github.com/elmohq/elmo/commit/72b67d08), 4 commits after `5795126b`, in this PR (they bring
+elmo's pnpm catalog, #1050, which `AGENTS.md` now describes; no migrations). All four catch-ups landed as merge commits,
+so `72b67d08` is an ancestor of `main` and each merge reverts with `git revert -m 1`. The next catch-up's merge base is
+`72b67d08`. Taken ours this time: `README.md` (elmo's new sponsor card), all of `apps/www` including its manifest, and
+`.github/contributors.txt` stays deleted.
 
 The code is MIT on both sides. `LICENSE.md` keeps elmo's copyright notice next to Redemptia's, as the license
 requires, and `CITATION.cff` credits elmo as the work Redemptia derives from.
