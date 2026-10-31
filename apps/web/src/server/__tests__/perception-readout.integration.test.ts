@@ -128,11 +128,13 @@ const today = () => new Date().toISOString().slice(0, 10);
 const yesterday = () => new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
 
 beforeEach(async () => {
+	vi.stubEnv("DEPLOYMENT_MODE", "local");
 	brandId = await createBrand({ name: "Acme", website: "https://acme.example" });
 	promptId = await factPrompt(brandId);
 });
 
 afterEach(async () => {
+	vi.unstubAllEnvs();
 	await db.delete(perceptionJevCalls).where(eq(perceptionJevCalls.organizationId, await organizationOf(brandId)));
 	await db.delete(perceptionVerdicts).where(
 		// Verdicts block deleting their facts, so they go first.
@@ -309,11 +311,9 @@ describe("provider call ceiling", () => {
 	const paused = async () => (await getFactReadout(db, brandId, all)).trackingPaused;
 
 	beforeEach(() => {
-		vi.stubEnv("DEPLOYMENT_MODE", "local");
 		vi.stubEnv("DAILY_PROVIDER_CALL_CEILING", "3");
 	});
 	afterEach(async () => {
-		vi.unstubAllEnvs();
 		await db.delete(usageEvents).where(eq(usageEvents.organizationId, await organizationOf(brandId)));
 		await db.delete(usageEvents).where(eq(usageEvents.organizationId, "another-organization"));
 	});
