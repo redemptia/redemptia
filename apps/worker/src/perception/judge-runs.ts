@@ -487,7 +487,13 @@ async function record(db: DbConnection, run: PendingRun, rows: ReturnType<typeof
 			.values(rows)
 			.onConflictDoNothing()
 			.returning({ id: perceptionVerdicts.id });
-		await tx.insert(perceptionRollupDirty).values({ brandId: run.brandId, day: run.day }).onConflictDoNothing();
+		await tx
+			.insert(perceptionRollupDirty)
+			.values({ brandId: run.brandId, day: run.day })
+			.onConflictDoUpdate({
+				target: [perceptionRollupDirty.brandId, perceptionRollupDirty.day],
+				set: { markedAt: sql`clock_timestamp()` },
+			});
 		await tx.delete(perceptionRunStatus).where(eq(perceptionRunStatus.runId, run.runId));
 		return written.length;
 	});

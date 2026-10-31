@@ -1,10 +1,14 @@
 import { randomUUID } from "node:crypto";
 import { db } from "@workspace/lib/db/db";
 import { brands, organization, promptRuns, prompts, runMentions } from "@workspace/lib/db/schema";
-import { perceptionPrompts, rollupProminenceDaily } from "@workspace/lib/db/schema-perception";
+import {
+	perceptionProminenceDirty,
+	perceptionPrompts,
+	rollupProminenceDaily,
+} from "@workspace/lib/db/schema-perception";
 import type { MentionAssessment, RunMentionAssessments } from "@workspace/lib/mentions";
 import { competitorSetFingerprint } from "@workspace/lib/perception/competitor-set";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { buildProminenceRollups } from "./rollup-prominence";
 
@@ -26,6 +30,8 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
+	await db.execute(sql`DROP TRIGGER IF EXISTS remark_during_rebuild ON rollup_prominence_daily`);
+	await db.delete(perceptionProminenceDirty).where(eq(perceptionProminenceDirty.brandId, brandId));
 	await db.delete(rollupProminenceDaily).where(eq(rollupProminenceDaily.brandId, brandId));
 	await db.delete(promptRuns).where(eq(promptRuns.brandId, brandId));
 	await db.delete(prompts).where(eq(prompts.brandId, brandId));
@@ -83,7 +89,7 @@ describe("building a day of market answers", () => {
 		await answer("2026-10-30T11:00:00Z", { brand: 2, competitors: { Globex: 1 } });
 		await answer("2026-10-30T12:00:00Z", { competitors: { Initech: 1 } });
 
-		const outcome = await buildProminenceRollups(db, NOW, { fullPass: true });
+		const outcome = await buildProminenceRollups(db, NOW, { fullPass: true, brandId });
 
 		expect(outcome).toEqual({ days: 1, rows: 3 });
 		const byName = Object.fromEntries((await rows()).map((r) => [r.subjectName, r]));
@@ -103,7 +109,7 @@ describe("building a day of market answers", () => {
 		await answer("2026-10-30T10:00:00Z", { brand: 1 }, { set: ["Globex"] });
 		await answer("2026-10-30T11:00:00Z", { brand: 3 }, { set: ["Globex", "Initech"] });
 
-		await buildProminenceRollups(db, NOW, { fullPass: true });
+		await buildProminenceRollups(db, NOW, { fullPass: true, brandId });
 
 		const acme = (await rows()).filter((r) => r.subjectName === "Acme");
 		expect(acme.map((r) => [r.competitorSetFingerprint, r.answers, r.positionSum]).sort()).toEqual(
@@ -117,10 +123,10 @@ describe("building a day of market answers", () => {
 	it("gives the same rows when the same days are rebuilt", async () => {
 		await answer("2026-10-29T10:00:00Z", { brand: 1, competitors: { Globex: 2 } });
 		await answer("2026-10-30T10:00:00Z", { brand: 2 }, { model: "claude" });
-		await buildProminenceRollups(db, NOW, { fullPass: true });
+		await buildProminenceRollups(db, NOW, { fullPass: true, brandId });
 		const first = await rows();
 
-		await buildProminenceRollups(db, NOW, { fullPass: true });
+		await buildProminenceRollups(db, NOW, { fullPass: true, brandId });
 
 		expect(await rows()).toEqual(first);
 		expect(first.length).toBeGreaterThan(0);
@@ -128,35 +134,90 @@ describe("building a day of market answers", () => {
 });
 
 describe("which days a job rebuilds", () => {
-	it("builds an old day that has no rollup yet, but leaves an old day that has one until the daily full pass", async () => {
-		await answer("2026-09-10T10:00:00Z", { brand: 1 });
-		await buildProminenceRollups(db, NOW, { fullPass: true });
-		await answer("2026-09-10T11:00:00Z", { brand: 2 });
-		await answer("2026-09-12T10:00:00Z", { brand: 1 });
+	const markers = async () =>
+		db.select().from(perceptionProminenceDirty).where(eq(perceptionProminenceDirty.brandId, brandId));
 
-		const gapFill = await buildProminenceRollups(db, NOW, { fullPass: false });
+	it("marks the day of a market answer when its mentions are written, builds it, and clears the marker", async () => {
+		await answer("2026-10-20T10:00:00Z", { brand: 1 });
+		await answer("2026-10-21T10:00:00Z", { brand: 2 });
+		expect((await markers()).map((m) => m.day).sort()).toEqual(["2026-10-20", "2026-10-21"]);
 
-		expect(gapFill.days).toBe(1);
-		const acme = (await rows()).filter((r) => r.subjectName === "Acme");
-		expect(acme.map((r) => [r.day, r.answers])).toEqual([
-			["2026-09-10", 1],
-			["2026-09-12", 1],
+		const outcome = await buildProminenceRollups(db, NOW, { fullPass: false, brandId });
+
+		expect(outcome.days).toBe(2);
+		expect(await markers()).toEqual([]);
+		expect((await rows()).filter((r) => r.subjectName === "Acme").map((r) => [r.day, r.answers])).toEqual([
+			["2026-10-20", 1],
+			["2026-10-21", 1],
 		]);
-
-		await buildProminenceRollups(db, NOW, { fullPass: true });
-		expect((await rows()).find((r) => r.day === "2026-09-10" && r.subjectName === "Acme")?.answers).toBe(2);
 	});
 
-	it("rebuilds today and yesterday on every job", async () => {
-		await answer("2026-10-31T09:00:00Z", { brand: 1 });
-		await buildProminenceRollups(db, NOW, { fullPass: false });
-		await answer("2026-10-31T10:00:00Z", { brand: 1 });
-		await buildProminenceRollups(db, NOW, { fullPass: false });
-		expect((await rows()).find((r) => r.subjectName === "Acme")?.answers).toBe(2);
+	it("builds nothing when nothing is marked, and picks up a day again when its mentions are rewritten", async () => {
+		await answer("2026-10-20T10:00:00Z", { brand: 1 });
+		await buildProminenceRollups(db, NOW, { fullPass: false, brandId });
+		expect(await buildProminenceRollups(db, NOW, { fullPass: false, brandId })).toEqual({ days: 0, rows: 0 });
+
+		await db
+			.update(runMentions)
+			.set({ brandMentioned: false })
+			.where(sql`run_id IN (SELECT id FROM prompt_runs WHERE brand_id = ${brandId})`);
+
+		expect((await markers()).map((m) => m.day)).toEqual(["2026-10-20"]);
+		expect((await buildProminenceRollups(db, NOW, { fullPass: false, brandId })).days).toBe(1);
 	});
 
-	it("leaves answers older than the reprocess window alone", async () => {
+	it("doesn't mark a day for the mentions of an answer to a prompt that isn't a market prompt", async () => {
+		const [{ id: other }] = await db
+			.insert(prompts)
+			.values({ brandId, value: "An ordinary prompt" })
+			.returning({ id: prompts.id });
+		const runId = randomUUID();
+		await db.insert(promptRuns).values({
+			id: runId,
+			promptId: other,
+			brandId,
+			model: "chatgpt",
+			provider: "openrouter",
+			version: "test",
+			webSearchEnabled: true,
+			rawOutput: {},
+			webQueries: [],
+			createdAt: new Date("2026-10-20T10:00:00Z"),
+		});
+		await db.insert(runMentions).values({ runId, brandMentioned: true, competitorsMentioned: [], assessments: null });
+
+		expect(await markers()).toEqual([]);
+	});
+
+	it("keeps a marker written while the day was being rebuilt", async () => {
+		await answer("2026-10-20T10:00:00Z", { brand: 1 });
+		await db.execute(sql`
+			CREATE OR REPLACE FUNCTION remark_during_rebuild() RETURNS trigger AS $$
+			BEGIN UPDATE perception_prominence_dirty SET marked_at = clock_timestamp() WHERE brand_id = NEW.brand_id; RETURN NULL; END $$ LANGUAGE plpgsql`);
+		await db.execute(
+			sql`CREATE TRIGGER remark_during_rebuild AFTER INSERT ON rollup_prominence_daily FOR EACH ROW EXECUTE FUNCTION remark_during_rebuild()`,
+		);
+		try {
+			await buildProminenceRollups(db, NOW, { fullPass: false, brandId });
+		} finally {
+			await db.execute(sql`DROP TRIGGER remark_during_rebuild ON rollup_prominence_daily`);
+		}
+
+		expect(await markers()).toHaveLength(1);
+		expect((await buildProminenceRollups(db, NOW, { fullPass: false, brandId })).days).toBe(1);
+		expect(await markers()).toEqual([]);
+	});
+
+	it("rebuilds every day in the window on a full pass, marked or not, and leaves answers older than the window alone", async () => {
+		await answer("2026-09-10T10:00:00Z", { brand: 1 });
 		await answer("2026-05-01T10:00:00Z", { brand: 1 });
-		expect(await buildProminenceRollups(db, NOW, { fullPass: true })).toEqual({ days: 0, rows: 0 });
+		await db.delete(perceptionProminenceDirty).where(eq(perceptionProminenceDirty.brandId, brandId));
+
+		expect(await buildProminenceRollups(db, NOW, { fullPass: false, brandId })).toEqual({ days: 0, rows: 0 });
+		const full = await buildProminenceRollups(db, NOW, { fullPass: true, brandId });
+
+		expect(full.days).toBe(1);
+		expect((await rows()).map((r) => r.day)).toContain("2026-09-10");
+		expect((await rows()).map((r) => r.day)).not.toContain("2026-05-01");
 	});
 });
