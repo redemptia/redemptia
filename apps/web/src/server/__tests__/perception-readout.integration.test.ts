@@ -129,6 +129,7 @@ const yesterday = () => new Date(Date.now() - 86_400_000).toISOString().slice(0,
 
 beforeEach(async () => {
 	vi.stubEnv("DEPLOYMENT_MODE", "local");
+	vi.stubEnv("SCRAPE_TARGETS", "stub:stub");
 	brandId = await createBrand({ name: "Acme", website: "https://acme.example" });
 	promptId = await factPrompt(brandId);
 });
