@@ -212,6 +212,33 @@ describe("the judge's own fields", () => {
 	});
 });
 
+describe("what a day of answers costs in calls", () => {
+	it("makes one call per answer however many facts it checks, and the count is what the ceiling bounds", async () => {
+		const promptId = await prompt();
+		for (const statement of ["Acme has a free plan.", "Acme can be self-hosted.", "Acme has an API."])
+			await fact(statement);
+		for (let i = 0; i < 6; i++) await run(promptId, "Acme has a free plan.", new Date(Date.now() - i * 1000));
+		const judge = recordingJudge();
+
+		const outcome = await judgePendingRuns(db, judge.transport, "stub");
+
+		expect(judge.requests).toHaveLength(6);
+		expect(outcome).toMatchObject({ runs: 6, calls: 6, verdicts: 18, overCeiling: false });
+		expect(await callsToday()).toBe(6);
+	});
+
+	it("counts nothing on a day with no answers to judge", async () => {
+		await fact("Acme has a free plan.");
+		const judge = recordingJudge();
+
+		const outcome = await judgePendingRuns(db, judge.transport, "stub");
+
+		expect(judge.requests).toHaveLength(0);
+		expect(outcome).toMatchObject({ runs: 0, calls: 0, overCeiling: false });
+		expect(await callsToday()).toBe(0);
+	});
+});
+
 describe("the daily call ceiling", () => {
 	it("makes no call once the organization has used today's calls, and says so", async () => {
 		const runId = await run(await prompt(), "Acme has a free plan.");
