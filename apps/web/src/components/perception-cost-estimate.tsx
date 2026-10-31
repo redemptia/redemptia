@@ -1,4 +1,4 @@
-import type { PerceptionCostEstimate } from "@/lib/perception-cost";
+import { describeTargets, type PerceptionCostEstimate } from "@/lib/perception-cost";
 
 const usd = (value: number) => `$${value < 10 ? value.toFixed(2) : Math.round(value).toLocaleString("en-US")}`;
 const range = ({ low, high }: { low: number; high: number }) => `${usd(low)}–${usd(high)}`;
@@ -43,10 +43,8 @@ export function PerceptionCostEstimateView({ estimate }: { estimate: PerceptionC
 				<li>
 					{prompts} fact prompt{prompts === 1 ? "" : "s"}
 					{estimate.assumedFactPrompts !== null && " (none yet; estimated for the number to start with)"}, on{" "}
-					{inputs.targets.length} model{inputs.targets.length === 1 ? "" : "s"} (
-					{inputs.targets.map((target) => target.model).join(", ") || "none enabled"}), {every(inputs.intervalHours)},{" "}
-					{inputs.replication} answer{inputs.replication === 1 ? "" : "s"} each time: {count(estimate.answersPerMonth)}{" "}
-					answers a month.
+					{describeTargets(inputs.targets)}, {every(inputs.intervalHours)}, {inputs.replication} answer
+					{inputs.replication === 1 ? "" : "s"} each time: {count(estimate.answersPerMonth)} answers a month.
 				</li>
 				{estimate.showsDollars && (
 					<li>
