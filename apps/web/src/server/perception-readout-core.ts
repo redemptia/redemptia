@@ -198,14 +198,15 @@ function alert(row: Row): ContradictionAlert {
 	};
 }
 
-async function ceilingReached(conn: DbConnection, brandId: string): Promise<boolean> {
-	const result = await conn.execute<{ reached: boolean }>(sql`
-		SELECT c.calls >= ${DAILY_JEV_CALL_CEILING} AS reached
+/** Jev calls the brand's organization has made today (UTC), the count the daily ceiling bounds. */
+export async function jevCallsToday(conn: DbConnection, brandId: string): Promise<number> {
+	const result = await conn.execute<{ calls: number }>(sql`
+		SELECT c.calls
 		FROM brands b
 		JOIN perception_jev_calls c ON c.organization_id = b.organization_id AND c.day = (now() AT TIME ZONE 'UTC')::date
 		WHERE b.id = ${brandId}`);
-	const rows = Array.isArray(result) ? result : (result as { rows: { reached: boolean }[] }).rows;
-	return rows[0]?.reached === true;
+	const rows = Array.isArray(result) ? result : (result as { rows: { calls: number }[] }).rows;
+	return rows[0]?.calls ?? 0;
 }
 
 export async function getFactReadout(
@@ -213,9 +214,9 @@ export async function getFactReadout(
 	brandId: string,
 	filters: ReadoutFilters,
 ): Promise<FactReadout> {
-	const [result, paused] = await Promise.all([
+	const [result, callsToday] = await Promise.all([
 		conn.execute<Row>(judged(brandId, filters)),
-		ceilingReached(conn, brandId),
+		jevCallsToday(conn, brandId),
 	]);
 	const rows = (Array.isArray(result) ? result : (result as { rows: Row[] }).rows) as Row[];
 	const contradictions = rows
@@ -224,7 +225,7 @@ export async function getFactReadout(
 	return {
 		facts: coverage(rows),
 		alertCount: contradictions.length,
-		ceilingReached: paused,
+		ceilingReached: callsToday >= DAILY_JEV_CALL_CEILING,
 		alerts: contradictions.slice(0, MAX_ALERTS).map(alert),
 	};
 }

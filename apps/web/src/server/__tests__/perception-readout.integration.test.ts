@@ -10,7 +10,7 @@ import {
 import { DAILY_JEV_CALL_CEILING } from "@workspace/lib/perception/limits";
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { getFactReadout } from "@/server/perception-readout-core";
+import { getFactReadout, jevCallsToday } from "@/server/perception-readout-core";
 import { createBrand, deleteBrand } from "@/test/integration/stats-fixtures";
 
 let brandId: string;
@@ -229,5 +229,18 @@ describe("daily call ceiling", () => {
 		} finally {
 			await db.delete(perceptionJevCalls).where(eq(perceptionJevCalls.organizationId, "another-organization"));
 		}
+	});
+});
+
+describe("today's call count", () => {
+	it("is zero before any call, and counts today's calls only", async () => {
+		expect(await jevCallsToday(db, brandId)).toBe(0);
+
+		const org = await organizationOf(brandId);
+		await db.insert(perceptionJevCalls).values([
+			{ organizationId: org, day: yesterday(), calls: 900 },
+			{ organizationId: org, day: today(), calls: 120 },
+		]);
+		expect(await jevCallsToday(db, brandId)).toBe(120);
 	});
 });
