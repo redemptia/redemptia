@@ -82,6 +82,8 @@ export interface JudgeOutcome {
 	skipped: number;
 	/** The ceiling turned a call away part-way through a job; that organization is skipped for the rest of it. */
 	overCeiling: boolean;
+	/** The organizations the ceiling turned a call away from. */
+	ceilingOrganizations: string[];
 	/** Jev rate-limited a call; the job stops and the next one tries again. */
 	rateLimited: boolean;
 }
@@ -636,7 +638,15 @@ export async function judgePendingRuns(
 	options: { association: boolean; only?: string[] } = { association: ASSOCIATION_ENABLED },
 ): Promise<JudgeOutcome> {
 	const stamp = perceptionStamp(judge);
-	const outcome: JudgeOutcome = { runs: 0, calls: 0, verdicts: 0, skipped: 0, overCeiling: false, rateLimited: false };
+	const outcome: JudgeOutcome = {
+		runs: 0,
+		calls: 0,
+		verdicts: 0,
+		skipped: 0,
+		overCeiling: false,
+		ceilingOrganizations: [],
+		rateLimited: false,
+	};
 	const factRuns = await pendingRuns(db, stamp, limit, options.only);
 	const associationRuns = options.association ? await pendingAssociationRuns(db, stamp, limit - factRuns.length) : [];
 	const runs = [...factRuns, ...associationRuns];
@@ -656,6 +666,7 @@ export async function judgePendingRuns(
 		if (result.skipped) outcome.skipped++;
 		if (result.stop === "over_ceiling") {
 			outcome.overCeiling = true;
+			outcome.ceilingOrganizations.push(run.organizationId);
 			outOfCalls.add(run.organizationId);
 		}
 		if (result.stop === "rate_limited") {

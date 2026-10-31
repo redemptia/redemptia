@@ -19,6 +19,7 @@ import {
 } from "@workspace/lib/perception/propose-facts";
 import { and, eq, isNull } from "drizzle-orm";
 import type { PgBoss } from "pg-boss";
+import { alertCeilingReached } from "../alert-once";
 import { JEV_MODEL, type JevTransport, stubTransport, typesafeTransport } from "../mention-judge/jev";
 import { judgePendingRuns } from "./judge-runs";
 import { buildPerceptionRollups } from "./rollup";
@@ -48,8 +49,8 @@ export async function registerPerceptionJobs(boss: PgBoss): Promise<void> {
 		await boss.schedule(PERCEPTION_JUDGE_QUEUE, "* * * * *", {}, { tz: "UTC", singletonKey: PERCEPTION_JUDGE_QUEUE });
 		await boss.work(PERCEPTION_JUDGE_QUEUE, { localConcurrency: 1 }, async () => {
 			const outcome = await judgePendingRuns(db, transport, judge);
-			if (outcome.overCeiling) {
-				console.warn("[perception] Daily Jev call ceiling reached; judging resumes tomorrow (UTC).");
+			for (const organizationId of outcome.ceilingOrganizations) {
+				alertCeilingReached("jev-calls", organizationId, "judging resumes tomorrow, UTC");
 			}
 			return outcome;
 		});
