@@ -74,8 +74,11 @@ export interface FactReadout {
 const pageKey = (column: unknown) =>
 	sql`lower(regexp_replace(regexp_replace(regexp_replace(${column}, '^https?://(www\\.)?', ''), '[?#].*$', ''), '/+$', ''))`;
 
-/** Verdicts in scope, the latest per answer and fact, each with what its answer cited. */
-function judged(brandId: string, filters: ReadoutFilters) {
+/**
+ * Verdicts in scope, the latest per answer and fact, each with what its answer cited. What an answer
+ * cited is worked out once per answer, not once per verdict.
+ */
+function judged(brandId: string, filters: ReadoutFilters, only?: "contradicts") {
 	const day = sql`(r.created_at AT TIME ZONE 'UTC')::date`;
 	return sql`
 		WITH site AS (
@@ -104,20 +107,31 @@ function judged(brandId: string, filters: ReadoutFilters) {
 						: sql``
 				}
 			ORDER BY v.run_id, v.fact_id, v.created_at DESC
+		),
+		scoped AS (
+			SELECT *${only ? sql`, count(*) OVER () AS total` : sql``} FROM latest
+			${only ? sql`WHERE verdict = ${only} ORDER BY created_at DESC, id LIMIT ${MAX_ALERTS}` : sql``}
+		),
+		cites AS (
+			SELECT c.prompt_run_id,
+				array_agg(DISTINCT ${pageKey(sql`c.url`)}) AS pages,
+				bool_or(EXISTS (
+					SELECT 1 FROM site s
+					WHERE lower(regexp_replace(c.domain, '^www\\.', '')) = s.host OR lower(c.domain) LIKE '%.' || s.host
+				)) AS on_site
+			FROM citations c
+			WHERE c.prompt_run_id IN (SELECT run_id FROM scoped)
+			GROUP BY c.prompt_run_id
 		)
 		SELECT
 			l.*, f.statement, f.valid_from::text AS valid_from, f.valid_to::text AS valid_to,
 			f.source_url, f.source_read_at,
-			EXISTS (SELECT 1 FROM citations c WHERE c.prompt_run_id = l.run_id) AS cited,
-			(f.source_url IS NOT NULL AND EXISTS (
-				SELECT 1 FROM citations c WHERE c.prompt_run_id = l.run_id AND ${pageKey(sql`c.url`)} = ${pageKey(sql`f.source_url`)}
-			)) AS cited_source,
-			EXISTS (
-				SELECT 1 FROM citations c, site s WHERE c.prompt_run_id = l.run_id
-					AND (lower(regexp_replace(c.domain, '^www\\.', '')) = s.host OR lower(c.domain) LIKE '%.' || s.host)
-			) AS cited_site
-		FROM latest l
+			(ci.prompt_run_id IS NOT NULL) AS cited,
+			(f.source_url IS NOT NULL AND coalesce(${pageKey(sql`f.source_url`)} = ANY(ci.pages), false)) AS cited_source,
+			coalesce(ci.on_site, false) AS cited_site
+		FROM scoped l
 		JOIN brand_facts f ON f.id = l.fact_id AND f.brand_id = ${brandId}
+		LEFT JOIN cites ci ON ci.prompt_run_id = l.run_id
 	`;
 }
 
@@ -151,8 +165,21 @@ const VERDICT_FIELD: Record<string, "stated" | "unclear" | "absent" | "contradic
 	contradicts: "contradicted",
 };
 
+interface CoverageRow extends Record<string, unknown> {
+	fact_id: string;
+	statement: string;
+	valid_from: string;
+	valid_to: string | null;
+	source_url: string | null;
+	verdict: string;
+	answers: number | string;
+	cited: number | string;
+	cited_source: number | string;
+	cited_site: number | string;
+}
+
 /** One row per fact, counting each answer's verdict and what it cited. */
-function coverage(rows: Row[]): FactCoverage[] {
+function coverage(rows: CoverageRow[]): FactCoverage[] {
 	const byFact = new Map<string, FactCoverage>();
 	for (const row of rows) {
 		const fact = byFact.get(row.fact_id) ?? {
@@ -169,9 +196,10 @@ function coverage(rows: Row[]): FactCoverage[] {
 			grounding: { cited: 0, citedSource: 0, citedSite: 0 },
 		};
 		byFact.set(row.fact_id, fact);
-		fact.answers++;
+		const answers = Number(row.answers);
+		fact.answers += answers;
 		const field = VERDICT_FIELD[row.verdict];
-		if (field) fact[field]++;
+		if (field) fact[field] += answers;
 		fact.grounding.cited += Number(row.cited);
 		fact.grounding.citedSource += Number(row.cited_source);
 		fact.grounding.citedSite += Number(row.cited_site);
@@ -209,23 +237,32 @@ export async function jevCallsToday(conn: DbConnection, brandId: string): Promis
 	return rows[0]?.calls ?? 0;
 }
 
+const rowsOf = <T>(result: unknown): T[] => (Array.isArray(result) ? result : (result as { rows: T[] }).rows) as T[];
+
 export async function getFactReadout(
 	conn: DbConnection,
 	brandId: string,
 	filters: ReadoutFilters,
 ): Promise<FactReadout> {
-	const [result, callsToday] = await Promise.all([
-		conn.execute<Row>(judged(brandId, filters)),
+	// Counted in the database: at the daily ceiling a brand has a verdict per answer and fact, hundreds of
+	// thousands over the lookback, and shipping each one to count it took seconds.
+	const [counts, contradictions, callsToday] = await Promise.all([
+		conn.execute<CoverageRow>(sql`
+			SELECT fact_id, statement, valid_from, valid_to, source_url, verdict,
+				count(*)::int AS answers, count(*) FILTER (WHERE cited)::int AS cited,
+				count(*) FILTER (WHERE cited_source)::int AS cited_source, count(*) FILTER (WHERE cited_site)::int AS cited_site
+			FROM (${judged(brandId, filters)}) judged
+			GROUP BY fact_id, statement, valid_from, valid_to, source_url, verdict`),
+		conn.execute<Row & { total: number | string }>(sql`
+			SELECT * FROM (${judged(brandId, filters, "contradicts")}) judged
+			ORDER BY created_at DESC, id`),
 		jevCallsToday(conn, brandId),
 	]);
-	const rows = (Array.isArray(result) ? result : (result as { rows: Row[] }).rows) as Row[];
-	const contradictions = rows
-		.filter((row) => row.verdict === "contradicts")
-		.sort((a, b) => iso(b.created_at).localeCompare(iso(a.created_at)));
+	const alerts = rowsOf<Row & { total: number | string }>(contradictions);
 	return {
-		facts: coverage(rows),
-		alertCount: contradictions.length,
+		facts: coverage(rowsOf<CoverageRow>(counts)),
+		alertCount: alerts.length > 0 ? Number(alerts[0].total) : 0,
 		ceilingReached: callsToday >= DAILY_JEV_CALL_CEILING,
-		alerts: contradictions.slice(0, MAX_ALERTS).map(alert),
+		alerts: alerts.map(alert),
 	};
 }
