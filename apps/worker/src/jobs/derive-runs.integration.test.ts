@@ -11,7 +11,9 @@ import {
 	runExtractions,
 	runMentions,
 } from "@workspace/lib/db/schema";
+import { mentionJudgeCalls } from "@workspace/lib/db/schema-perception";
 import { mentionConfigFrom } from "@workspace/lib/mentions";
+import { DAILY_MENTION_JUDGE_CEILING } from "@workspace/lib/perception/limits";
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { cuedAnalyzer } from "../mention-judge/__fixtures__/cued-judge";
@@ -159,5 +161,82 @@ describe("the unjudged-run sweep", () => {
 		expect(asked).toContain(stuck);
 		expect(asked).not.toContain(fresh);
 		expect(asked).not.toContain(judged);
+	});
+});
+
+describe("the mention judge's daily allowance", () => {
+	afterEach(async () => {
+		await db.delete(mentionJudgeCalls).where(eq(mentionJudgeCalls.organizationId, brandId));
+	});
+
+	const counting = () => {
+		const state = { calls: 0 };
+		const analyzer: MentionAnalyzer = {
+			...cuedAnalyzer,
+			analyze: async (text, config, previous, question) => {
+				state.calls++;
+				return cuedAnalyzer.analyze(text, config, previous, question);
+			},
+		};
+		return { state, analyzer };
+	};
+	const used = (calls: number) =>
+		db.insert(mentionJudgeCalls).values({ organizationId: brandId, day: new Date().toISOString().slice(0, 10), calls });
+
+	it("leaves every answer for tomorrow, as one job, once the organization's allowance is used", async () => {
+		const [first, second] = [await recordedRun("Acme is easy."), await recordedRun("Acme again.")];
+		await used(DAILY_MENTION_JUDGE_CEILING);
+		const { state, analyzer } = counting();
+		const queue = deriveQueue(db, analyzer);
+
+		await deriveRuns({ brandId, runIds: [first, second] }, db, queue.boss, analyzer);
+
+		expect(state.calls).toBe(0);
+		expect(await mentionsOf(first)).toBeUndefined();
+		expect(await mentionsOf(second)).toBeUndefined();
+		expect(queue.jobs).toHaveLength(1);
+		expect(queue.jobs[0].data.runIds.sort()).toEqual([first, second].sort());
+		expect((queue.jobs[0] as unknown as { startAfter: number }).startAfter).toBeGreaterThan(0);
+	});
+
+	it("judges what the allowance covers, defers the rest, and doesn't fail the job", async () => {
+		const [first, second] = [await recordedRun("Acme is easy."), await recordedRun("Acme again.")];
+		await used(DAILY_MENTION_JUDGE_CEILING - 1);
+		const { state, analyzer } = counting();
+		const queue = deriveQueue(db, analyzer);
+
+		await expect(deriveRuns({ brandId, runIds: [first, second] }, db, queue.boss, analyzer)).resolves.toBeUndefined();
+
+		expect(state.calls).toBe(1);
+		expect((await mentionsOf(first)) ?? (await mentionsOf(second))).toBeDefined();
+		expect(queue.jobs).toHaveLength(1);
+		expect(queue.jobs[0].data.runIds).toHaveLength(1);
+	});
+
+	it("takes no slot for an answer already judged under the current config, so a restart judges nothing twice", async () => {
+		const runId = await recordedRun("Acme is easy.");
+		const { state, analyzer } = counting();
+		const queue = deriveQueue(db, analyzer);
+		await deriveRuns({ brandId, runIds: [runId] }, db, queue.boss, analyzer);
+		expect(state.calls).toBe(1);
+
+		for (let restart = 0; restart < 3; restart++)
+			await deriveRuns({ brandId, runIds: [runId] }, db, queue.boss, analyzer);
+
+		expect(state.calls).toBe(1);
+		const [row] = await db.select().from(mentionJudgeCalls).where(eq(mentionJudgeCalls.organizationId, brandId));
+		expect(row.calls).toBe(1);
+	});
+
+	it("never counts the stub, which calls no one", async () => {
+		const runId = await recordedRun("Acme is easy.");
+		await used(DAILY_MENTION_JUDGE_CEILING);
+		const stub: MentionAnalyzer = { ...cuedAnalyzer, judgeVersion: "stub+request-1" };
+		const queue = deriveQueue(db, stub);
+
+		await deriveRuns({ brandId, runIds: [runId] }, db, queue.boss, stub);
+
+		expect(await mentionsOf(runId)).toBeDefined();
+		expect(queue.jobs).toHaveLength(0);
 	});
 });

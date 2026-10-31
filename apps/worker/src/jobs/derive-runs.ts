@@ -29,6 +29,7 @@ import { and, eq, gte, inArray, isNull, lt, or, sql } from "drizzle-orm";
 import type { Job, PgBoss, QueueOptions } from "pg-boss";
 import { getBoss } from "../boss";
 import { type MentionAnalyzer, mentionAnalyzer, type RunMentions } from "../mention-judge/analyze";
+import { secondsUntilTomorrow, splitByAllowance } from "../perception/mention-budget";
 
 export const DERIVE_RUNS_QUEUE = "derive-runs";
 
@@ -76,7 +77,7 @@ export async function sendDeriveRuns(
 	brandId: string,
 	runIds: string[],
 	priority: number,
-	{ reextract = false, chunkSize = CHUNK_SIZE, singletonSeconds = 0 } = {},
+	{ reextract = false, chunkSize = CHUNK_SIZE, singletonSeconds = 0, startAfterSeconds = 0 } = {},
 ): Promise<void> {
 	const jobs = [];
 	for (let i = 0; i < runIds.length; i += chunkSize) {
@@ -84,7 +85,13 @@ export async function sendDeriveRuns(
 		const data: DeriveRunsData = { brandId, runIds: chunk, ...(reextract && { reextract }) };
 		// One job per run per window: a run that keeps failing is asked about only so often.
 		const singleton = singletonSeconds && chunk.length === 1 ? { singletonKey: chunk[0], singletonSeconds } : {};
-		jobs.push({ data, priority, ...CHUNK_LIFETIME, ...singleton });
+		jobs.push({
+			data,
+			priority,
+			...CHUNK_LIFETIME,
+			...singleton,
+			...(startAfterSeconds && { startAfter: startAfterSeconds }),
+		});
 	}
 	for (let i = 0; i < jobs.length; i += 1000) await boss.insert(DERIVE_RUNS_QUEUE, jobs.slice(i, i + 1000));
 }
@@ -287,6 +294,16 @@ function writeUpdates(
 	});
 }
 
+/** Answers refused for want of the day's mention judge allowance, sent back as one job for tomorrow. */
+async function deferToTomorrow(boss: Pick<PgBoss, "insert">, brandId: string, runIds: string[], reextract: boolean) {
+	if (runIds.length === 0) return;
+	console.warn(`[derive-runs] mention judge allowance used for today; ${runIds.length} runs wait until tomorrow (UTC)`);
+	await sendDeriveRuns(boss, brandId, runIds, DERIVE_PRIORITY.history, {
+		reextract,
+		startAfterSeconds: secondsUntilTomorrow(),
+	});
+}
+
 /**
  * Derives one chunk. A run the judge fails on doesn't hold up the others: it goes back to the
  * queue as its own job, which retries alone; a job of one run fails, so the queue retries it.
@@ -304,7 +321,8 @@ export async function deriveRuns(
 	const runs = await loadRuns(conn, data.runIds, context.target, reextract, days);
 	const updates: { run: StaleRun; update: RunUpdate }[] = [];
 	const failed: string[] = [];
-	for (const run of runs) {
+	const { allowed, refused } = await splitByAllowance(conn, data.brandId, runs, context.target, analyzer.judgeVersion);
+	for (const run of allowed) {
 		try {
 			const update = await deriveRunUpdate(run, context.target, context.config, analyzer, reextract);
 			if (update.extraction || update.mentions || update.citations) updates.push({ run, update });
@@ -329,6 +347,7 @@ export async function deriveRuns(
 	if (kept.length > 0)
 		console.warn(`[derive-runs] runs kept data their stored payload no longer yields: ${kept.join("; ")}`);
 	await sendDeriveRuns(boss, data.brandId, failed, DERIVE_PRIORITY.new, { reextract, chunkSize: 1 });
+	await deferToTomorrow(boss, data.brandId, refused, reextract);
 }
 
 /** Younger runs are left to the job sent when they were recorded. */
