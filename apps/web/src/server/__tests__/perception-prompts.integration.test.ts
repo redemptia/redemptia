@@ -201,4 +201,22 @@ describe("the cost estimate", () => {
 		expect(demo.inputs.targets).toEqual([{ model: "stub", costPerRunUsd: null }]);
 		resetDeploymentCache();
 	});
+
+	it("shows counts but no dollars in whitelabel, where the viewer isn't the one paying", async () => {
+		vi.stubEnv("SCRAPE_TARGETS", "stub:stub");
+		vi.stubEnv("DEPLOYMENT_MODE", "whitelabel");
+		vi.stubEnv("VITE_APP_NAME", "Acme AI Search");
+		vi.stubEnv("VITE_APP_ICON", "https://cdn.example.test/icon.png");
+		vi.stubEnv("VITE_OPTIMIZATION_URL_TEMPLATE", "https://app.example.test/{brandId}");
+		resetDeploymentCache();
+		await addFactPrompt(brand, "Is Acme self-hostable?");
+
+		const estimate = await getPerceptionCostEstimate(db, brand.id);
+
+		expect(estimate.showsDollars).toBe(false);
+		expect(estimate.providerUsdPerMonth).toBeNull();
+		expect(estimate.answersPerDay).toBeGreaterThan(0);
+		expect(estimate.factChecksPerDay).toBe(estimate.answersPerDay);
+		resetDeploymentCache();
+	});
 });
