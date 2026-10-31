@@ -19,6 +19,7 @@ import {
 } from "./jobs/reprocess";
 import { configureMentionAnalyzer, mentionAnalyzer } from "./mention-judge/analyze";
 import { registerPerceptionJobs } from "./perception/register";
+import { assertNoPlaceholders } from "./placeholders";
 import { initializePipeline } from "./rollups-startup";
 import { shutdownTelemetry } from "./telemetry";
 
@@ -33,6 +34,7 @@ if (process.env.SENTRY_DSN) {
 async function main() {
 	console.log("Starting pg-boss worker...");
 	assertRequiredEnv();
+	assertNoPlaceholders();
 	const boss = getBoss();
 
 	// Awaited so a stored credential counts toward the validation below.
