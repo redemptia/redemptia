@@ -493,7 +493,7 @@ TEST_DATABASE_URL=postgres://localhost:5432/redemptia_test pnpm perception:dryru
 
 It creates and drops its own `redemptia_dryrun_*_test` database on a local server, migrates it, seeds a
 brand with facts, fact prompts and a day of answers, runs the job, and checks the verdicts, stamps,
-call count (one per answer), budget counter, rollup markers, readout, re-judge count under a real key,
+call count (one per answer), budget counter, the daily rollup build and rebuild, the readout, re-judge count under a real key,
 the ceiling, and that the preflight changes nothing. Run it after any change to the job, the stamp or
 the migrations.
 
