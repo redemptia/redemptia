@@ -1,3 +1,4 @@
+import { wholeWordPattern } from "@workspace/lib/mentions";
 import type { JevChoiceQuestion } from "../mention-judge/jev";
 import { matcher, sentences } from "../mention-judge/passages";
 
@@ -13,13 +14,17 @@ export const factKey = (factId: string) => `fact__${factId}`;
  * a contradiction wins over support, a hedge doesn't soften a wrong value, and a disclaimer attached
  * to a claim makes it unclear.
  */
-export function factQuestion(subject: string, statement: string): JevChoiceQuestion {
+export function factQuestion(subject: string, statement: string, lookalikes: string[] = []): JevChoiceQuestion {
+	const distinct =
+		lookalikes.length > 0
+			? ` ${lookalikes.join(", ")} ${lookalikes.length === 1 ? "is a different company" : "are different companies"} from ${subject}.`
+			: "";
 	return {
 		type: "choice",
 		instructions:
 			`Does this answer support, contradict, or not mention the following statement about ${subject}? ` +
 			`Statement: "${statement}" Judge only what the answer says about ${subject}: ignore claims about other ` +
-			`companies, and sentences that name ${subject} only to contrast it with something else.`,
+			`companies, and sentences that name ${subject} only to contrast it with something else.${distinct}`,
 		criteria: {
 			supports:
 				`The answer states this about ${subject}, in these or equivalent words, and nothing it says on the ` +
@@ -52,6 +57,15 @@ export interface EvidenceSubject {
 	name: string;
 	aliases: string[];
 	domains: string[];
+	/** Tracked competitors whose names contain the subject's: "Acme Cloud" is not "Acme". */
+	lookalikes?: string[];
+}
+
+/** Link targets and bare URLs are where a name hides without being said; a sentence is about a company only by its words. */
+function prose(sentence: string, lookalikes: string[]): string {
+	let text = sentence.replace(/\]\(\s*[^)\s]*\s*\)/g, "]").replace(/https?:\/\/\S+/gi, " ");
+	for (const lookalike of lookalikes) text = text.replace(wholeWordPattern(lookalike), " ");
+	return text;
 }
 
 /**
@@ -61,9 +75,10 @@ export interface EvidenceSubject {
  */
 export function evidencePassages(text: string, subject: EvidenceSubject): string[] {
 	const names = matcher(subject);
+	const lookalikes = subject.lookalikes ?? [];
 	return sentences(text)
 		.map((sentence) => sentence.text)
-		.filter(names)
+		.filter((sentence) => names(prose(sentence, lookalikes)))
 		.slice(0, MAX_EVIDENCE_PASSAGES)
 		.map((passage) => {
 			// Cut by character, not UTF-16 unit, so an emoji at the cut isn't split into half a pair.

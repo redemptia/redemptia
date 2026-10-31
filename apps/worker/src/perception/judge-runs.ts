@@ -13,7 +13,7 @@
  * a run that can't produce a verdict is recorded so no later scan pays for it again.
  */
 import type { DbConnection } from "@workspace/lib/db/db-connection";
-import { brands, promptRuns, prompts } from "@workspace/lib/db/schema";
+import { brands, competitors, promptRuns, prompts } from "@workspace/lib/db/schema";
 import {
 	brandFacts,
 	type PerceptionRunOutcome,
@@ -189,14 +189,37 @@ async function pendingRuns(db: DbConnection, stamp: string, limit: number): Prom
 	return withRawOutput(db, [...byRun.values()]);
 }
 
-/** raw_output is read only for the runs being judged, not for every candidate row. */
+/** Tracked competitors whose names contain the subject's own name or an alias: "Acme Cloud" for "Acme". */
+function lookalikesOf(subject: EvidenceSubject, competitorNames: string[]): string[] {
+	const terms = [subject.name, ...subject.aliases].map((term) => term.trim().toLowerCase()).filter(Boolean);
+	return competitorNames.filter((name) => {
+		const lower = name.trim().toLowerCase();
+		return terms.some((term) => lower !== term && lower.includes(term));
+	});
+}
+
+/**
+ * raw_output is read only for the runs being judged, not for every candidate row. Each run also learns
+ * which of its brand's competitors have names containing the brand's, so a sentence about "Acme Cloud"
+ * is never taken for one about "Acme".
+ */
 async function withRawOutput(db: DbConnection, runs: PendingRun[]): Promise<PendingRun[]> {
+	const brandIds = [...new Set(runs.map((run) => run.brandId))];
+	const tracked =
+		brandIds.length === 0
+			? []
+			: await db
+					.select({ brandId: competitors.brandId, name: competitors.name, aliases: competitors.aliases })
+					.from(competitors)
+					.where(inArray(competitors.brandId, brandIds));
 	for (const run of runs) {
 		const [raw] = await db
 			.select({ rawOutput: promptRuns.rawOutput })
 			.from(promptRuns)
 			.where(eq(promptRuns.id, run.runId));
 		run.rawOutput = raw?.rawOutput ?? null;
+		const names = tracked.filter((c) => c.brandId === run.brandId).flatMap((c) => [c.name, ...(c.aliases ?? [])]);
+		run.names = { ...run.names, lookalikes: lookalikesOf(run.names, names) };
 	}
 	return runs;
 }
@@ -450,13 +473,32 @@ function questionsOf(run: PendingRun, passages: string[]): JevRequest["questions
 	}
 	return Object.fromEntries(
 		run.facts.flatMap((fact) => [
-			[factKey(fact.id), factQuestion(run.subject, fact.statement)],
+			[factKey(fact.id), factQuestion(run.subject, fact.statement, run.names.lookalikes)],
 			...(offers ? [[factEvidenceKey(fact.id), factEvidenceQuestion(run.subject, fact.statement, passages)]] : []),
 		]),
 	);
 }
 
 type RunResult = { calls: number; verdicts: number; stop?: "over_ceiling" | "rate_limited" };
+
+/**
+ * An answer is stored only if it is one of the choices the question offered, with a probability for
+ * each choice it gives. A verdict outside the set would be counted as an answer that is none of stated,
+ * unclear, absent or contradicted; better no verdict than a made-up one.
+ */
+function usableAnswer(question: JevRequest["questions"][string], answer: unknown): boolean {
+	if (typeof answer !== "object" || answer === null) return false;
+	const { choice, probabilities, confidence } = answer as {
+		choice?: unknown;
+		probabilities?: unknown;
+		confidence?: unknown;
+	};
+	if (typeof choice !== "string" || !Object.hasOwn(question.criteria, choice)) return false;
+	if (typeof probabilities !== "object" || probabilities === null) return false;
+	const values = Object.entries(probabilities);
+	if (!values.every(([key, value]) => Object.hasOwn(question.criteria, key) && Number.isFinite(value))) return false;
+	return confidence === undefined || confidence === null || Number.isFinite(confidence);
+}
 
 /** Judges one run's missing questions in one call, and records what came of it. */
 async function judgeRun(
@@ -496,9 +538,15 @@ async function judgeRun(
 		await failed(db, run, stamp, `Jev answered as ${response.model ?? "an unnamed model"}, not ${judge}`);
 		return { calls: asked.calls, verdicts: 0 };
 	}
-	const unanswered = Object.keys(questionsOf(run, asked.passages)).find((key) => !response.answers[key]);
+	const questions = questionsOf(run, asked.passages);
+	const unanswered = Object.keys(questions).find((key) => !response.answers?.[key]);
 	if (unanswered) {
 		await failed(db, run, stamp, `no answer for ${unanswered}`);
+		return { calls: asked.calls, verdicts: 0 };
+	}
+	const unusable = Object.entries(questions).find(([key, question]) => !usableAnswer(question, response.answers[key]));
+	if (unusable) {
+		await failed(db, run, stamp, `unusable answer for ${unusable[0]}`);
 		return { calls: asked.calls, verdicts: 0 };
 	}
 	const rows = verdictRows(run, stamp, response, asked.truncatedAt, asked.passages);
@@ -523,7 +571,11 @@ export async function judgePendingRuns(
 	const outOfCalls = new Set<string>();
 	for (const run of runs) {
 		if (outOfCalls.has(run.organizationId)) continue;
-		const result = await judgeRun(db, transport, run, stamp, judge);
+		// One run that can't be judged must not take the job, and every run behind it, down with it.
+		const result = await judgeRun(db, transport, run, stamp, judge).catch(async (error) => {
+			await failed(db, run, stamp, String(error));
+			return { calls: 0, verdicts: 0 } as RunResult;
+		});
 		outcome.calls += result.calls;
 		outcome.verdicts += result.verdicts;
 		if (result.verdicts > 0) outcome.runs++;

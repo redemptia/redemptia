@@ -33,11 +33,12 @@ function recordingJudge(answer = "supports", fail?: (request: JevRequest) => Err
 		if (error) throw error;
 		return {
 			...(model ? { model } : {}),
+			// A judge answers within the choices a question offers; the evidence questions offer passages.
 			answers: Object.fromEntries(
-				Object.keys(request.questions).map((key) => [
-					key,
-					{ choice: answer, probabilities: { [answer]: 0.9 }, confidence: 0.8 },
-				]),
+				Object.entries(request.questions).map(([key, question]) => {
+					const choice = Object.hasOwn(question.criteria, answer) ? answer : Object.keys(question.criteria)[0];
+					return [key, { choice, probabilities: { [choice]: 0.9 }, confidence: 0.8 }];
+				}),
 			),
 		};
 	};
