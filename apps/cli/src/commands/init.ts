@@ -388,6 +388,8 @@ export async function runInit(options: InitOptions, version: string): Promise<vo
 	// "base64") and requires exactly 32 bytes. Enables storing provider
 	// credentials encrypted in the database via the in-app Providers UI.
 	env.ELMO_ENCRYPTION_KEY = generateSecret(32, "base64");
+	env.RUNS_PER_PROMPT = "2";
+	env.DEFAULT_DELAY_HOURS = "24";
 	env.APP_NAME = DEFAULT_APP_NAME;
 	env.APP_ICON = DEFAULT_APP_ICON;
 	env.VITE_APP_NAME = DEFAULT_APP_NAME;
