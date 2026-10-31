@@ -5,7 +5,8 @@
  * "Acme" (acme.example); its tracked competitors are "Globex" and "Acme Cloud".
  *
  * `outcome` is what the perception job must do with the run before the judge is asked anything:
- * set it aside as having no text, or judge it. For a judged run, `offered` says whether an evidence
+ * set it aside as having no text, write "not mentioned" without a call because the answer cannot name
+ * the brand, or judge it. For a judged run, `offered` says whether an evidence
  * passage may be offered for Acme, and `seen` is a snippet the judge must (or must not) be shown.
  */
 export type Provider = "openai-api" | "searchapi";
@@ -14,7 +15,7 @@ export interface Fixture {
 	name: string;
 	provider: Provider;
 	rawOutput: unknown;
-	outcome: "no_text" | "judged";
+	outcome: "no_text" | "judged" | "skipped";
 	/** Passages naming Acme that may be offered as evidence; undefined when this fixture doesn't pin it. */
 	offered?: (passages: string[]) => boolean;
 	note?: string;
@@ -59,7 +60,7 @@ export const ADVERSARIAL: Fixture[] = [
 		name: "an outright refusal",
 		provider: "openai-api",
 		rawOutput: openai("I'm sorry, but I can't help with that request."),
-		outcome: "judged",
+		outcome: "skipped",
 		offered: none,
 	},
 	{
@@ -228,6 +229,54 @@ export const ADVERSARIAL: Fixture[] = [
 		provider: "searchapi",
 		rawOutput: { search_metadata: { status: "Success" }, organic_results: [] },
 		outcome: "no_text",
+	},
+	{
+		name: "an answer about competitors only",
+		provider: "openai-api",
+		rawOutput: openai("Globex starts at $30 per month. Initech is $40 per month, and Hooli has no free plan."),
+		outcome: "skipped",
+	},
+	{
+		name: "a generic non-answer",
+		provider: "openai-api",
+		rawOutput: openai(
+			"Pricing varies by region and changes often, so the best thing to do is check the official website.",
+		),
+		outcome: "skipped",
+	},
+	{
+		name: "the brand misspelled",
+		provider: "openai-api",
+		rawOutput: openai("Acmee offers a Pro plan at $25 per month for teams."),
+		outcome: "judged",
+	},
+	{
+		name: "the brand hyphenated and in a possessive",
+		provider: "openai-api",
+		rawOutput: openai("The Ac-me plan is clear, and Acme's Pro tier is $25 per month for teams."),
+		outcome: "judged",
+	},
+	{
+		name: "the brand in capitals",
+		provider: "openai-api",
+		rawOutput: openai("ACME PRO COSTS $25 PER MONTH ACCORDING TO THE VENDOR."),
+		outcome: "judged",
+	},
+	{
+		name: "the brand only implied",
+		provider: "openai-api",
+		rawOutput: openai("It starts at $25 per month on the Pro plan."),
+		outcome: "judged",
+	},
+	{
+		name: "the brand only in the citations",
+		provider: "openai-api",
+		rawOutput: openai(
+			"Pricing varies by region and changes often, so the best thing to do is check the official website.",
+			[{ url: "https://www.acme.example/pricing", title: "Pricing" }],
+		),
+		outcome: "judged",
+		note: "nothing in the text, but the answer cited the brand's own pricing page",
 	},
 ];
 

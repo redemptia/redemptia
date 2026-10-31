@@ -190,6 +190,11 @@ export const perceptionVerdicts = pgTable(
 		cited: boolean("cited").notNull().default(false),
 		citedSite: boolean("cited_site").notNull().default(false),
 		citedSource: boolean("cited_source").notNull().default(false),
+		/**
+		 * True for a "not mentioned" the job wrote itself, without asking the judge, because the answer
+		 * couldn't name the subject. Counted like any verdict; kept apart so a false negative can be audited.
+		 */
+		skipped: boolean("skipped").notNull().default(false),
 		createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 	},
 	(table) => [

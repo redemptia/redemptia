@@ -45,6 +45,7 @@ import {
 	driftQuestion,
 } from "./association-questions";
 import { reserveJevCall } from "./budget";
+import { couldNameSubject } from "./could-name";
 import {
 	type EvidenceSubject,
 	evidencePassages,
@@ -77,6 +78,8 @@ export interface JudgeOutcome {
 	runs: number;
 	calls: number;
 	verdicts: number;
+	/** Runs written as "not mentioned" without a call, because their answers couldn't name the subject. */
+	skipped: number;
 	/** The ceiling turned a call away part-way through a job; that organization is skipped for the rest of it. */
 	overCeiling: boolean;
 	/** Jev rate-limited a call; the job stops and the next one tries again. */
@@ -479,7 +482,7 @@ function verdictRows(
 	});
 }
 
-async function record(db: DbConnection, run: PendingRun, rows: ReturnType<typeof verdictRows>) {
+async function record(db: DbConnection, run: PendingRun, rows: (typeof perceptionVerdicts.$inferInsert)[]) {
 	return db.transaction(async (tx) => {
 		// A re-sent judgement of the same question at the same stamp is already stored.
 		const written = await tx
@@ -525,7 +528,7 @@ function questionsOf(run: PendingRun, passages: string[]): JevRequest["questions
 	);
 }
 
-type RunResult = { calls: number; verdicts: number; stop?: "over_ceiling" | "rate_limited" };
+type RunResult = { calls: number; verdicts: number; skipped?: boolean; stop?: "over_ceiling" | "rate_limited" };
 
 /**
  * An answer is stored only if it is one of the choices the question offered, with a probability for
@@ -546,6 +549,24 @@ function usableAnswer(question: JevRequest["questions"][string], answer: unknown
 	return confidence === undefined || confidence === null || Number.isFinite(confidence);
 }
 
+/**
+ * "Not mentioned" for every fact of an answer that can't name the subject, written without a call.
+ * Marked `skipped`, so what was never asked of the judge can be told from what it said.
+ */
+function skippedRows(run: PendingRun, stamp: string, citations: { url: string; domain: string }[]) {
+	return run.facts.map((fact) => ({
+		runId: run.runId,
+		subject: run.subject,
+		stamp,
+		kind: "fact" as const,
+		factId: fact.id,
+		...grounding(citations, run.names.domains, fact.sourceUrl),
+		verdict: "not_mentioned",
+		probabilities: { not_mentioned: 1 },
+		skipped: true,
+	}));
+}
+
 /** Judges one run's missing questions in one call, and records what came of it. */
 async function judgeRun(
 	db: DbConnection,
@@ -561,6 +582,11 @@ async function judgeRun(
 	if (!text) {
 		await setAside(db, run.runId, stamp, "no_text", run.attempts);
 		return { calls: 0, verdicts: 0 };
+	}
+	// An answer that could not name the brand costs a call to learn what is already known. Only a run of
+	// facts skips, and only when `couldNameSubject` is sure; any doubt asks the judge.
+	if (run.attributes.length === 0 && !couldNameSubject(text, run.names, citations)) {
+		return { calls: 0, verdicts: await record(db, run, skippedRows(run, stamp, citations)), skipped: true };
 	}
 	const questionsFor = (judged: string): Questions => {
 		const passages = evidencePassages(judged, run.names);
@@ -611,7 +637,7 @@ export async function judgePendingRuns(
 	options: { association: boolean } = { association: ASSOCIATION_ENABLED },
 ): Promise<JudgeOutcome> {
 	const stamp = perceptionStamp(judge);
-	const outcome: JudgeOutcome = { runs: 0, calls: 0, verdicts: 0, overCeiling: false, rateLimited: false };
+	const outcome: JudgeOutcome = { runs: 0, calls: 0, verdicts: 0, skipped: 0, overCeiling: false, rateLimited: false };
 	const factRuns = await pendingRuns(db, stamp, limit);
 	const associationRuns = options.association ? await pendingAssociationRuns(db, stamp, limit - factRuns.length) : [];
 	const runs = [...factRuns, ...associationRuns];
@@ -628,6 +654,7 @@ export async function judgePendingRuns(
 		outcome.calls += result.calls;
 		outcome.verdicts += result.verdicts;
 		if (result.verdicts > 0) outcome.runs++;
+		if (result.skipped) outcome.skipped++;
 		if (result.stop === "over_ceiling") {
 			outcome.overCeiling = true;
 			outOfCalls.add(run.organizationId);

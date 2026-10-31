@@ -112,8 +112,15 @@ describe("real-shaped answers", () => {
 			expect(await verdictsOf(runId)).toHaveLength(0);
 			return;
 		}
+		if (fixture.outcome === "skipped") {
+			expect(spy.requests).toHaveLength(0);
+			expect(await verdictsOf(runId)).toMatchObject([
+				{ verdict: "not_mentioned", skipped: true, probabilities: { not_mentioned: 1 } },
+			]);
+			return;
+		}
 		expect(spy.requests).toHaveLength(1);
-		expect(await verdictsOf(runId)).toHaveLength(1);
+		expect(await verdictsOf(runId)).toMatchObject([{ skipped: false }]);
 		if (fixture.offered) expect(passagesOf(spy.requests[0])).toSatisfy(fixture.offered);
 	});
 });
@@ -189,5 +196,18 @@ describe("a judge that answers badly", () => {
 
 		expect(await verdictsOf(bad)).toEqual([]);
 		expect(await verdictsOf(good)).toHaveLength(1);
+	});
+});
+
+describe("how much of the corpus skips the call", () => {
+	it("skips only the answers that cannot name the brand, and spends on every other judged answer", () => {
+		const reachJudge = ADVERSARIAL.filter((fixture) => fixture.outcome !== "no_text");
+		const skipped = reachJudge.filter((fixture) => fixture.outcome === "skipped");
+		console.log(`corpus: ${skipped.length} of ${reachJudge.length} answers that have text skip the call`);
+		expect(skipped.map((fixture) => fixture.name).sort()).toEqual([
+			"a generic non-answer",
+			"an answer about competitors only",
+			"an outright refusal",
+		]);
 	});
 });

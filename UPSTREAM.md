@@ -235,7 +235,8 @@ its generated SQL was kept instead of elmo's original. 0040's SQL is elmo's orig
 0041 is ours again: `0041_perception_prominence_rollup` (`rollup_prominence_daily`), dated after 0040's re-dated `when`.
 0042 is ours too: `0042_perception_verdict_citations` (three columns on `perception_verdicts`, backfilled from `citations` in the migration).
 0043 is ours too: `0043_perception_prominence_markers` (`perception_prominence_dirty`, a `marked_at` column on `perception_rollup_dirty`, and a hand-written trigger on **elmo's** `run_mentions`, see the table above).
-Our next is 0044; elmo's next migration is renumbered after it by the same procedure.
+0044 is ours too: `0044_perception_verdict_skipped` (a `skipped` flag on `perception_verdicts`).
+Our next is 0045; elmo's next migration is renumbered after it by the same procedure.
 
 Every deployed database that has run 0038 records that `when` as its newest. That has two consequences for every
 catch-up from now on:
