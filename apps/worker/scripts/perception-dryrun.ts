@@ -262,13 +262,6 @@ async function rehearseJob(db: Db) {
 		{ calls: DAILY_JEV_CALL_CEILING, reached: true },
 	);
 	ok("at the ceiling the job stops after one more call, and the readout says checks have paused");
-
-	// A new UTC day for the first brand: its budget clears and its leftover answers are judged, because
-	// an organization at its ceiling stops the job for every organization until then.
-	await db.update(perceptionJevCalls).set({ calls: 0 }).where(eq(perceptionJevCalls.organizationId, orgId));
-	for (;;) if ((await judgePendingRuns(db, stubTransport, "stub")).runs === 0) break;
-
-	await db.update(perceptionBrandSettings).set({ enabled: false }).where(eq(perceptionBrandSettings.brandId, orgId));
 }
 
 const DAYS = 14;
