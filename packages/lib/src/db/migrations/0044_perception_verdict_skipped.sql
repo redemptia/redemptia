@@ -1,0 +1,1 @@
+ALTER TABLE "perception_verdicts" ADD COLUMN "skipped" boolean DEFAULT false NOT NULL;
