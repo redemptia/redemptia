@@ -22,6 +22,7 @@ import type { PgBoss } from "pg-boss";
 import { JEV_MODEL, type JevTransport, stubTransport, typesafeTransport } from "../mention-judge/jev";
 import { judgePendingRuns } from "./judge-runs";
 import { buildPerceptionRollups } from "./rollup";
+import { buildProminenceRollups } from "./rollup-prominence";
 
 export const PERCEPTION_JUDGE_QUEUE = "perception-judge";
 
@@ -52,6 +53,7 @@ export async function registerPerceptionJobs(boss: PgBoss): Promise<void> {
 			// A failed rebuild keeps its markers, so the next job tries again; it must not fail the judging.
 			try {
 				await buildPerceptionRollups(db);
+				await buildProminenceRollups(db);
 			} catch (error) {
 				Sentry.captureException(error);
 				console.error("[perception] Rollup rebuild failed:", error);

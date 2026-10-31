@@ -88,6 +88,7 @@ import { Route as AuthedAppOrgOrgBrandBrandSplatRouteImport } from './routes/_au
 import { Route as AuthedAppOrgOrgBrandBrandCitationsRouteImport } from './routes/_authed/app/org/$org/brand/$brand/citations'
 import { Route as AuthedAppOrgOrgBrandBrandOpportunitiesRouteImport } from './routes/_authed/app/org/$org/brand/$brand/opportunities'
 import { Route as AuthedAppOrgOrgBrandBrandPerceptionRouteImport } from './routes/_authed/app/org/$org/brand/$brand/perception'
+import { Route as AuthedAppOrgOrgBrandBrandPerceptionHistoryRouteImport } from './routes/_authed/app/org/$org/brand/$brand/perception-history'
 import { Route as AuthedAppOrgOrgBrandBrandQueryFanOutRouteImport } from './routes/_authed/app/org/$org/brand/$brand/query-fan-out'
 import { Route as AuthedAppOrgOrgBrandBrandResponsesRouteImport } from './routes/_authed/app/org/$org/brand/$brand/responses'
 import { Route as AuthedAppOrgOrgBrandBrandSentimentRouteImport } from './routes/_authed/app/org/$org/brand/$brand/sentiment'
@@ -532,6 +533,12 @@ const AuthedAppOrgOrgBrandBrandPerceptionRoute =
     path: '/perception',
     getParentRoute: () => AuthedAppOrgOrgBrandBrandRoute,
   } as any)
+const AuthedAppOrgOrgBrandBrandPerceptionHistoryRoute =
+  AuthedAppOrgOrgBrandBrandPerceptionHistoryRouteImport.update({
+    id: '/perception-history',
+    path: '/perception-history',
+    getParentRoute: () => AuthedAppOrgOrgBrandBrandRoute,
+  } as any)
 const AuthedAppOrgOrgBrandBrandQueryFanOutRoute =
   AuthedAppOrgOrgBrandBrandQueryFanOutRouteImport.update({
     id: '/query-fan-out',
@@ -695,6 +702,7 @@ export interface FileRoutesByFullPath {
   '/app/org/$org/brand/$brand/citations': typeof AuthedAppOrgOrgBrandBrandCitationsRoute
   '/app/org/$org/brand/$brand/opportunities': typeof AuthedAppOrgOrgBrandBrandOpportunitiesRoute
   '/app/org/$org/brand/$brand/perception': typeof AuthedAppOrgOrgBrandBrandPerceptionRoute
+  '/app/org/$org/brand/$brand/perception-history': typeof AuthedAppOrgOrgBrandBrandPerceptionHistoryRoute
   '/app/org/$org/brand/$brand/query-fan-out': typeof AuthedAppOrgOrgBrandBrandQueryFanOutRoute
   '/app/org/$org/brand/$brand/responses': typeof AuthedAppOrgOrgBrandBrandResponsesRoute
   '/app/org/$org/brand/$brand/sentiment': typeof AuthedAppOrgOrgBrandBrandSentimentRoute
@@ -783,6 +791,7 @@ export interface FileRoutesByTo {
   '/app/org/$org/brand/$brand/citations': typeof AuthedAppOrgOrgBrandBrandCitationsRoute
   '/app/org/$org/brand/$brand/opportunities': typeof AuthedAppOrgOrgBrandBrandOpportunitiesRoute
   '/app/org/$org/brand/$brand/perception': typeof AuthedAppOrgOrgBrandBrandPerceptionRoute
+  '/app/org/$org/brand/$brand/perception-history': typeof AuthedAppOrgOrgBrandBrandPerceptionHistoryRoute
   '/app/org/$org/brand/$brand/query-fan-out': typeof AuthedAppOrgOrgBrandBrandQueryFanOutRoute
   '/app/org/$org/brand/$brand/responses': typeof AuthedAppOrgOrgBrandBrandResponsesRoute
   '/app/org/$org/brand/$brand/sentiment': typeof AuthedAppOrgOrgBrandBrandSentimentRoute
@@ -879,6 +888,7 @@ export interface FileRoutesById {
   '/_authed/app/org/$org/brand/$brand/citations': typeof AuthedAppOrgOrgBrandBrandCitationsRoute
   '/_authed/app/org/$org/brand/$brand/opportunities': typeof AuthedAppOrgOrgBrandBrandOpportunitiesRoute
   '/_authed/app/org/$org/brand/$brand/perception': typeof AuthedAppOrgOrgBrandBrandPerceptionRoute
+  '/_authed/app/org/$org/brand/$brand/perception-history': typeof AuthedAppOrgOrgBrandBrandPerceptionHistoryRoute
   '/_authed/app/org/$org/brand/$brand/query-fan-out': typeof AuthedAppOrgOrgBrandBrandQueryFanOutRoute
   '/_authed/app/org/$org/brand/$brand/responses': typeof AuthedAppOrgOrgBrandBrandResponsesRoute
   '/_authed/app/org/$org/brand/$brand/sentiment': typeof AuthedAppOrgOrgBrandBrandSentimentRoute
@@ -975,6 +985,7 @@ export interface FileRouteTypes {
     | '/app/org/$org/brand/$brand/citations'
     | '/app/org/$org/brand/$brand/opportunities'
     | '/app/org/$org/brand/$brand/perception'
+    | '/app/org/$org/brand/$brand/perception-history'
     | '/app/org/$org/brand/$brand/query-fan-out'
     | '/app/org/$org/brand/$brand/responses'
     | '/app/org/$org/brand/$brand/sentiment'
@@ -1063,6 +1074,7 @@ export interface FileRouteTypes {
     | '/app/org/$org/brand/$brand/citations'
     | '/app/org/$org/brand/$brand/opportunities'
     | '/app/org/$org/brand/$brand/perception'
+    | '/app/org/$org/brand/$brand/perception-history'
     | '/app/org/$org/brand/$brand/query-fan-out'
     | '/app/org/$org/brand/$brand/responses'
     | '/app/org/$org/brand/$brand/sentiment'
@@ -1158,6 +1170,7 @@ export interface FileRouteTypes {
     | '/_authed/app/org/$org/brand/$brand/citations'
     | '/_authed/app/org/$org/brand/$brand/opportunities'
     | '/_authed/app/org/$org/brand/$brand/perception'
+    | '/_authed/app/org/$org/brand/$brand/perception-history'
     | '/_authed/app/org/$org/brand/$brand/query-fan-out'
     | '/_authed/app/org/$org/brand/$brand/responses'
     | '/_authed/app/org/$org/brand/$brand/sentiment'
@@ -1770,6 +1783,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedAppOrgOrgBrandBrandPerceptionRouteImport
       parentRoute: typeof AuthedAppOrgOrgBrandBrandRoute
     }
+    '/_authed/app/org/$org/brand/$brand/perception-history': {
+      id: '/_authed/app/org/$org/brand/$brand/perception-history'
+      path: '/perception-history'
+      fullPath: '/app/org/$org/brand/$brand/perception-history'
+      preLoaderRoute: typeof AuthedAppOrgOrgBrandBrandPerceptionHistoryRouteImport
+      parentRoute: typeof AuthedAppOrgOrgBrandBrandRoute
+    }
     '/_authed/app/org/$org/brand/$brand/query-fan-out': {
       id: '/_authed/app/org/$org/brand/$brand/query-fan-out'
       path: '/query-fan-out'
@@ -1920,6 +1940,7 @@ interface AuthedAppOrgOrgBrandBrandRouteChildren {
   AuthedAppOrgOrgBrandBrandCitationsRoute: typeof AuthedAppOrgOrgBrandBrandCitationsRoute
   AuthedAppOrgOrgBrandBrandOpportunitiesRoute: typeof AuthedAppOrgOrgBrandBrandOpportunitiesRoute
   AuthedAppOrgOrgBrandBrandPerceptionRoute: typeof AuthedAppOrgOrgBrandBrandPerceptionRoute
+  AuthedAppOrgOrgBrandBrandPerceptionHistoryRoute: typeof AuthedAppOrgOrgBrandBrandPerceptionHistoryRoute
   AuthedAppOrgOrgBrandBrandQueryFanOutRoute: typeof AuthedAppOrgOrgBrandBrandQueryFanOutRoute
   AuthedAppOrgOrgBrandBrandResponsesRoute: typeof AuthedAppOrgOrgBrandBrandResponsesRoute
   AuthedAppOrgOrgBrandBrandSentimentRoute: typeof AuthedAppOrgOrgBrandBrandSentimentRoute
@@ -1946,6 +1967,8 @@ const AuthedAppOrgOrgBrandBrandRouteChildren: AuthedAppOrgOrgBrandBrandRouteChil
       AuthedAppOrgOrgBrandBrandOpportunitiesRoute,
     AuthedAppOrgOrgBrandBrandPerceptionRoute:
       AuthedAppOrgOrgBrandBrandPerceptionRoute,
+    AuthedAppOrgOrgBrandBrandPerceptionHistoryRoute:
+      AuthedAppOrgOrgBrandBrandPerceptionHistoryRoute,
     AuthedAppOrgOrgBrandBrandQueryFanOutRoute:
       AuthedAppOrgOrgBrandBrandQueryFanOutRoute,
     AuthedAppOrgOrgBrandBrandResponsesRoute:

@@ -1,6 +1,6 @@
-import { IconDownload } from "@tabler/icons-react";
+import { IconDownload, IconHistory } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@workspace/ui/components/button";
 import { Card, CardContent } from "@workspace/ui/components/card";
 import { Skeleton } from "@workspace/ui/components/skeleton";
@@ -99,6 +99,14 @@ function PerceptionPage() {
 					showSearch={false}
 					showModelSelector
 				/>
+				<Button
+					variant="outline"
+					size="sm"
+					render={<Link to="/app/org/$org/brand/$brand/perception-history" params={{ org, brand: brandParam }} />}
+				>
+					<IconHistory className="mr-1.5 size-4" />
+					History
+				</Button>
 				<Button variant="outline" size="sm" disabled={downloading} onClick={downloadAudit}>
 					<IconDownload className="mr-1.5 size-4" />
 					{downloading ? "Downloading…" : "Download Audit"}
