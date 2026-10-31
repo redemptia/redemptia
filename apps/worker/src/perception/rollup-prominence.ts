@@ -32,14 +32,14 @@ export interface ProminenceRollupOutcome {
  * the marker it was read under, so rebuilding it gives the same rows and a mention written mid-rebuild
  * keeps its marker.
  *
- * A pass over the whole `PROMINENCE_WINDOW_DAYS` window runs about once a week, as a safety net for what
+ * `brandId` limits a pass to one brand. A pass over the whole `PROMINENCE_WINDOW_DAYS` window runs about once a week, as a safety net for what
  * a trigger can't see: market answers deleted, a prompt relabelled, an attribute renamed, a brand renamed
  * (its rows are keyed by name), or markers lost in a restore.
  */
 export async function buildProminenceRollups(
 	db: DbConnection,
 	now = new Date(),
-	options: { fullPass?: boolean } = {},
+	options: { fullPass?: boolean; brandId?: string } = {},
 ): Promise<ProminenceRollupOutcome> {
 	const week = Math.floor(now.getTime() / WEEK_MS);
 	const full = options.fullPass ?? lastFullPass !== week;
@@ -51,6 +51,7 @@ export async function buildProminenceRollups(
 			markedAt: sql<string>`${perceptionProminenceDirty.markedAt}::text`,
 		})
 		.from(perceptionProminenceDirty)
+		.where(options.brandId ? eq(perceptionProminenceDirty.brandId, options.brandId) : undefined)
 		.orderBy(asc(perceptionProminenceDirty.day), asc(perceptionProminenceDirty.brandId))
 		.limit(PROMINENCE_DAYS_PER_JOB);
 	const days = new Map<string, { brandId: string; day: string; markedAt: string | null }>();
@@ -65,7 +66,13 @@ export async function buildProminenceRollups(
 				and(eq(perceptionPrompts.promptId, promptRuns.promptId), eq(perceptionPrompts.class, "market")),
 			)
 			.innerJoin(runMentions, eq(runMentions.runId, promptRuns.id))
-			.where(and(isNotNull(runMentions.assessments), sql`${day} >= ${daysBefore(now, PROMINENCE_WINDOW_DAYS)}::date`));
+			.where(
+				and(
+					isNotNull(runMentions.assessments),
+					sql`${day} >= ${daysBefore(now, PROMINENCE_WINDOW_DAYS)}::date`,
+					options.brandId ? eq(promptRuns.brandId, options.brandId) : undefined,
+				),
+			);
 		for (const row of everything) {
 			const key = `${row.brandId} ${row.day}`;
 			if (!days.has(key)) days.set(key, { ...row, markedAt: null });

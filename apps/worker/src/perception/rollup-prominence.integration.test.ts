@@ -89,7 +89,7 @@ describe("building a day of market answers", () => {
 		await answer("2026-10-30T11:00:00Z", { brand: 2, competitors: { Globex: 1 } });
 		await answer("2026-10-30T12:00:00Z", { competitors: { Initech: 1 } });
 
-		const outcome = await buildProminenceRollups(db, NOW, { fullPass: true });
+		const outcome = await buildProminenceRollups(db, NOW, { fullPass: true, brandId });
 
 		expect(outcome).toEqual({ days: 1, rows: 3 });
 		const byName = Object.fromEntries((await rows()).map((r) => [r.subjectName, r]));
@@ -109,7 +109,7 @@ describe("building a day of market answers", () => {
 		await answer("2026-10-30T10:00:00Z", { brand: 1 }, { set: ["Globex"] });
 		await answer("2026-10-30T11:00:00Z", { brand: 3 }, { set: ["Globex", "Initech"] });
 
-		await buildProminenceRollups(db, NOW, { fullPass: true });
+		await buildProminenceRollups(db, NOW, { fullPass: true, brandId });
 
 		const acme = (await rows()).filter((r) => r.subjectName === "Acme");
 		expect(acme.map((r) => [r.competitorSetFingerprint, r.answers, r.positionSum]).sort()).toEqual(
@@ -123,10 +123,10 @@ describe("building a day of market answers", () => {
 	it("gives the same rows when the same days are rebuilt", async () => {
 		await answer("2026-10-29T10:00:00Z", { brand: 1, competitors: { Globex: 2 } });
 		await answer("2026-10-30T10:00:00Z", { brand: 2 }, { model: "claude" });
-		await buildProminenceRollups(db, NOW, { fullPass: true });
+		await buildProminenceRollups(db, NOW, { fullPass: true, brandId });
 		const first = await rows();
 
-		await buildProminenceRollups(db, NOW, { fullPass: true });
+		await buildProminenceRollups(db, NOW, { fullPass: true, brandId });
 
 		expect(await rows()).toEqual(first);
 		expect(first.length).toBeGreaterThan(0);
@@ -142,7 +142,7 @@ describe("which days a job rebuilds", () => {
 		await answer("2026-10-21T10:00:00Z", { brand: 2 });
 		expect((await markers()).map((m) => m.day).sort()).toEqual(["2026-10-20", "2026-10-21"]);
 
-		const outcome = await buildProminenceRollups(db, NOW, { fullPass: false });
+		const outcome = await buildProminenceRollups(db, NOW, { fullPass: false, brandId });
 
 		expect(outcome.days).toBe(2);
 		expect(await markers()).toEqual([]);
@@ -154,8 +154,8 @@ describe("which days a job rebuilds", () => {
 
 	it("builds nothing when nothing is marked, and picks up a day again when its mentions are rewritten", async () => {
 		await answer("2026-10-20T10:00:00Z", { brand: 1 });
-		await buildProminenceRollups(db, NOW, { fullPass: false });
-		expect(await buildProminenceRollups(db, NOW, { fullPass: false })).toEqual({ days: 0, rows: 0 });
+		await buildProminenceRollups(db, NOW, { fullPass: false, brandId });
+		expect(await buildProminenceRollups(db, NOW, { fullPass: false, brandId })).toEqual({ days: 0, rows: 0 });
 
 		await db
 			.update(runMentions)
@@ -163,7 +163,7 @@ describe("which days a job rebuilds", () => {
 			.where(sql`run_id IN (SELECT id FROM prompt_runs WHERE brand_id = ${brandId})`);
 
 		expect((await markers()).map((m) => m.day)).toEqual(["2026-10-20"]);
-		expect((await buildProminenceRollups(db, NOW, { fullPass: false })).days).toBe(1);
+		expect((await buildProminenceRollups(db, NOW, { fullPass: false, brandId })).days).toBe(1);
 	});
 
 	it("doesn't mark a day for the mentions of an answer to a prompt that isn't a market prompt", async () => {
@@ -198,13 +198,13 @@ describe("which days a job rebuilds", () => {
 			sql`CREATE TRIGGER remark_during_rebuild AFTER INSERT ON rollup_prominence_daily FOR EACH ROW EXECUTE FUNCTION remark_during_rebuild()`,
 		);
 		try {
-			await buildProminenceRollups(db, NOW, { fullPass: false });
+			await buildProminenceRollups(db, NOW, { fullPass: false, brandId });
 		} finally {
 			await db.execute(sql`DROP TRIGGER remark_during_rebuild ON rollup_prominence_daily`);
 		}
 
 		expect(await markers()).toHaveLength(1);
-		expect((await buildProminenceRollups(db, NOW, { fullPass: false })).days).toBe(1);
+		expect((await buildProminenceRollups(db, NOW, { fullPass: false, brandId })).days).toBe(1);
 		expect(await markers()).toEqual([]);
 	});
 
@@ -213,8 +213,8 @@ describe("which days a job rebuilds", () => {
 		await answer("2026-05-01T10:00:00Z", { brand: 1 });
 		await db.delete(perceptionProminenceDirty).where(eq(perceptionProminenceDirty.brandId, brandId));
 
-		expect(await buildProminenceRollups(db, NOW, { fullPass: false })).toEqual({ days: 0, rows: 0 });
-		const full = await buildProminenceRollups(db, NOW, { fullPass: true });
+		expect(await buildProminenceRollups(db, NOW, { fullPass: false, brandId })).toEqual({ days: 0, rows: 0 });
+		const full = await buildProminenceRollups(db, NOW, { fullPass: true, brandId });
 
 		expect(full.days).toBe(1);
 		expect((await rows()).map((r) => r.day)).toContain("2026-09-10");
