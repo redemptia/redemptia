@@ -205,6 +205,7 @@ describe("the cost estimate", () => {
 	it("shows counts but no dollars in whitelabel, where the viewer isn't the one paying", async () => {
 		vi.stubEnv("SCRAPE_TARGETS", "stub:stub");
 		vi.stubEnv("DEPLOYMENT_MODE", "whitelabel");
+		vi.stubEnv("VITE_APP_URL", "http://localhost:3000");
 		vi.stubEnv("VITE_APP_NAME", "Acme AI Search");
 		vi.stubEnv("VITE_APP_ICON", "https://cdn.example.test/icon.png");
 		vi.stubEnv("VITE_OPTIMIZATION_URL_TEMPLATE", "https://app.example.test/{brandId}");
