@@ -28,4 +28,5 @@ export {
 	type TargetPlan,
 	targetKey,
 	targetOverdueStatus,
+	unmeteredDailyCeiling,
 } from "./policy";

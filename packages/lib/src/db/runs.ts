@@ -1,9 +1,9 @@
 import { randomUUID } from "node:crypto";
-import { eq, getTableColumns, inArray, sql } from "drizzle-orm";
+import { and, eq, getTableColumns, gt, inArray, sql } from "drizzle-orm";
 import { LEGACY_EXTRACTION_STAMP } from "../analysis-versions";
 import type { RunMentionAssessments } from "../mentions";
 import type { DbConnection } from "./db-connection";
-import { type NewPromptRun, promptRuns, runExtractions, runMentions } from "./schema";
+import { brands, type NewPromptRun, promptRuns, prompts, runExtractions, runMentions, usageEvents } from "./schema";
 
 /**
  * Runs with what has been derived from them: the append-only `prompt_runs` row
@@ -126,4 +126,27 @@ export async function updateMentions(conn: DbConnection, updates: MentionsUpdate
 			brand_mentioned = excluded.brand_mentioned, competitors_mentioned = excluded.competitors_mentioned,
 			assessments = excluded.assessments, stamp = excluded.stamp
 	`);
+}
+
+/**
+ * Provider calls the organization has recorded in the last 24 hours, successes and failures alike: a retry
+ * storm writes no prompt_runs but burns spend. The (organization_id, created_at) index keeps this cheap.
+ */
+export async function providerCallsLast24h(conn: DbConnection, organizationId: string): Promise<number> {
+	const [row] = await conn
+		.select({ value: sql<number>`COUNT(*)` })
+		.from(usageEvents)
+		.where(
+			and(eq(usageEvents.organizationId, organizationId), gt(usageEvents.createdAt, sql`now() - interval '24 hours'`)),
+		);
+	return Number(row?.value ?? 0);
+}
+
+export async function enabledPromptCount(conn: DbConnection, organizationId: string): Promise<number> {
+	const [row] = await conn
+		.select({ value: sql<number>`COUNT(*)` })
+		.from(prompts)
+		.innerJoin(brands, eq(prompts.brandId, brands.id))
+		.where(and(eq(brands.organizationId, organizationId), eq(prompts.enabled, true)));
+	return Number(row?.value ?? 0);
 }

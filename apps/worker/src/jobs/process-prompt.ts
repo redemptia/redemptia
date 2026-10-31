@@ -3,6 +3,7 @@ import type { Entitlements } from "@workspace/config/entitlements";
 import { parseScrapeTargets } from "@workspace/config/scrape-targets";
 import { getDefaultDelayHours, PROMPT_JOB_OPTIONS } from "@workspace/lib/constants";
 import { db } from "@workspace/lib/db/db";
+import { enabledPromptCount, providerCallsLast24h } from "@workspace/lib/db/runs";
 import { type Brand, brands, promptRuns, prompts, usageEvents } from "@workspace/lib/db/schema";
 import { getOrgEntitlements } from "@workspace/lib/entitlements";
 import { getProvider, type ModelConfig, type Provider } from "@workspace/lib/providers";
@@ -15,6 +16,7 @@ import {
 	resolveBrandPromptRunPlans,
 	selectDueTargets,
 	slowestIntervalHours,
+	unmeteredDailyCeiling,
 } from "@workspace/lib/run-policy";
 import { estimateRunCostUsd } from "@workspace/lib/usage";
 import { and, eq, gt, sql } from "drizzle-orm";
@@ -137,25 +139,6 @@ async function getLastRunsByTargetKey(promptId: string, maxIntervalHours: number
 		.groupBy(promptRuns.model, promptRuns.provider, promptRuns.webSearchEnabled);
 
 	return lastRunsByTargetKey(rows);
-}
-
-/**
- * Runaway protection: how many provider attempts the org has recorded in the
- * last 24h, compared against its plan-derived ceiling before spending more.
- *
- * Counts usage_events rather than prompt_runs because a retry storm writes no prompt_runs
- * rows but burns spend — counting attempts is the stronger meaning for a
- * safety ceiling. usage_events also has the org_id denormalized and an
- * index on (organization_id, created_at), so this scan is cheap.
- */
-async function isOrgOverDailyCeiling(organizationId: string, ceiling: number): Promise<boolean> {
-	const [row] = await db
-		.select({ value: sql<number>`COUNT(*)` })
-		.from(usageEvents)
-		.where(
-			and(eq(usageEvents.organizationId, organizationId), gt(usageEvents.createdAt, sql`now() - interval '24 hours'`)),
-		);
-	return Number(row?.value ?? 0) >= ceiling;
 }
 
 /**
@@ -316,8 +299,10 @@ async function processPrompt(
 		return;
 	}
 
-	const ceiling = dailyRunCeiling(entitlements);
-	if (ceiling !== null && (await isOrgOverDailyCeiling(brand.organizationId, ceiling))) {
+	const ceiling =
+		dailyRunCeiling(entitlements) ??
+		unmeteredDailyCeiling(await enabledPromptCount(db, brand.organizationId), plan.targets);
+	if ((await providerCallsLast24h(db, brand.organizationId)) >= ceiling) {
 		console.warn(`Org ${brand.organizationId} is over its daily run ceiling (${ceiling}); skipping this cycle`);
 		Sentry.withScope((scope) => {
 			scope.setLevel("warning");

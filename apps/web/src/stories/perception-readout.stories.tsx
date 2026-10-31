@@ -40,6 +40,7 @@ const readout: FactReadout = {
 	],
 	alertCount: 2,
 	ceilingReached: false,
+	trackingPaused: false,
 	alerts: [
 		{
 			verdictId: "v1",
@@ -126,5 +127,14 @@ export const CeilingReached: StoryObj = {
 		const canvas = within(canvasElement);
 		await expect(canvas.getByText("Today's checks have paused")).toBeInTheDocument();
 		await expect(canvas.getByText(/They resume tomorrow \(UTC\)/)).toBeInTheDocument();
+	},
+};
+
+export const TrackingPaused: StoryObj = {
+	render: () => view({ ...readout, trackingPaused: true }),
+	play: async ({ canvasElement }) => {
+		const canvas = within(canvasElement);
+		await expect(canvas.getByText("New answers have paused")).toBeInTheDocument();
+		await expect(canvas.getByText(/daily limit on provider calls/)).toBeInTheDocument();
 	},
 };

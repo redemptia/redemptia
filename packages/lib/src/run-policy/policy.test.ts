@@ -17,6 +17,7 @@ import {
 	selectDueTargets,
 	targetKey,
 	targetOverdueStatus,
+	unmeteredDailyCeiling,
 } from "./policy";
 
 const NOW = new Date("2026-08-05T12:00:00Z");
@@ -561,5 +562,26 @@ describe("dailyRunCeiling", () => {
 	it("counts a custom premium cadence", () => {
 		const custom = cloudEntitlements("pro", { overrides: { premiumRunsPerDay: 2 } });
 		expect(dailyRunCeiling(custom)).toBe(Math.ceil(1.5 * (150 * 4 * 4 + 20 * 2)));
+	});
+});
+
+describe("unmeteredDailyCeiling", () => {
+	const daily = { intervalHours: 24, replication: 5 };
+
+	it("is 1.5x what the enabled prompts make in a day", () => {
+		// 100 prompts × (2 targets × 5 samples) a day
+		expect(unmeteredDailyCeiling(100, [daily, daily], null)).toBe(1500);
+	});
+
+	it("counts a faster cadence", () => {
+		expect(unmeteredDailyCeiling(10, [{ intervalHours: 6, replication: 1 }], null)).toBe(60);
+	});
+
+	it("never rounds down to a ceiling of zero", () => {
+		expect(unmeteredDailyCeiling(0, [], null)).toBe(1);
+	});
+
+	it("takes the operator's override over the derived figure", () => {
+		expect(unmeteredDailyCeiling(100, [daily, daily], 250)).toBe(250);
 	});
 });

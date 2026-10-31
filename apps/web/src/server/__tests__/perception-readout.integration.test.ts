@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { db } from "@workspace/lib/db/db";
-import { brands, citations, promptRuns, prompts } from "@workspace/lib/db/schema";
+import { brands, citations, promptRuns, prompts, usageEvents } from "@workspace/lib/db/schema";
 import {
 	brandFacts,
 	perceptionJevCalls,
@@ -9,7 +9,7 @@ import {
 } from "@workspace/lib/db/schema-perception";
 import { DAILY_JEV_CALL_CEILING } from "@workspace/lib/perception/limits";
 import { eq } from "drizzle-orm";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getFactReadout, jevCallsToday, MAX_ALERTS } from "@/server/perception-readout-core";
 import { createBrand, deleteBrand } from "@/test/integration/stats-fixtures";
 
@@ -128,11 +128,14 @@ const today = () => new Date().toISOString().slice(0, 10);
 const yesterday = () => new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
 
 beforeEach(async () => {
+	vi.stubEnv("DEPLOYMENT_MODE", "local");
+	vi.stubEnv("SCRAPE_TARGETS", "stub:stub");
 	brandId = await createBrand({ name: "Acme", website: "https://acme.example" });
 	promptId = await factPrompt(brandId);
 });
 
 afterEach(async () => {
+	vi.unstubAllEnvs();
 	await db.delete(perceptionJevCalls).where(eq(perceptionJevCalls.organizationId, await organizationOf(brandId)));
 	await db.delete(perceptionVerdicts).where(
 		// Verdicts block deleting their facts, so they go first.
@@ -181,6 +184,7 @@ describe("coverage", () => {
 			alerts: [],
 			alertCount: 0,
 			ceilingReached: false,
+			trackingPaused: false,
 		});
 		await db.delete(perceptionVerdicts).where((await import("drizzle-orm")).sql`fact_id = ${theirs}`);
 		await deleteBrand(other);
@@ -291,5 +295,41 @@ describe("many contradictions", () => {
 		expect(alerts.map((a) => a.answeredAt)).toEqual([...alerts.map((a) => a.answeredAt)].sort().reverse());
 		expect(alerts[0].answeredAt).toBe(new Date(Date.UTC(2026, 9, 1, 0, total - 1)).toISOString());
 		expect(facts[0]).toMatchObject({ answers: total + 1, contradicted: total, stated: 1 });
+	});
+});
+
+describe("provider call ceiling", () => {
+	async function events(organizationId: string, count: number, at = new Date()) {
+		await db.insert(usageEvents).values(
+			Array.from({ length: count }, () => ({
+				organizationId,
+				brandId,
+				eventType: "prompt_run",
+				createdAt: at,
+			})),
+		);
+	}
+	const paused = async () => (await getFactReadout(db, brandId, all)).trackingPaused;
+
+	beforeEach(() => {
+		vi.stubEnv("DAILY_PROVIDER_CALL_CEILING", "3");
+	});
+	afterEach(async () => {
+		await db.delete(usageEvents).where(eq(usageEvents.organizationId, await organizationOf(brandId)));
+		await db.delete(usageEvents).where(eq(usageEvents.organizationId, "another-organization"));
+	});
+
+	it("reports it once the organization has made its calls in the last 24 hours", async () => {
+		const org = await organizationOf(brandId);
+		await events(org, 2);
+		expect(await paused()).toBe(false);
+		await events(org, 1);
+		expect(await paused()).toBe(true);
+	});
+
+	it("does not count calls older than 24 hours or another organization's", async () => {
+		await events(await organizationOf(brandId), 3, new Date(Date.now() - 25 * 3_600_000));
+		await events("another-organization", 3);
+		expect(await paused()).toBe(false);
 	});
 });
