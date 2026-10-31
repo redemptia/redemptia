@@ -238,6 +238,7 @@ async function rehearseJob(db: Db) {
 	assert.match(preflight, new RegExp(`fact runs it would pick up: ${seeded} `));
 	assert.deepEqual(await sizes(), before);
 	ok("the preflight passes on this database and changed no rows");
+	await reader.end();
 
 	await db.insert(promptRuns).values(
 		Array.from({ length: 3 }, () => ({
@@ -534,6 +535,8 @@ async function main() {
 
 		const db = createDb(scratch.toString());
 		client = db.$client as unknown as { end(): Promise<void> };
+		// Dropping the database with FORCE terminates any connection still open, which a pool reports as an error.
+		(db.$client as unknown as pg.Pool).on("error", () => {});
 
 		await rehearseJob(db);
 		await rehearseHistory(db);
