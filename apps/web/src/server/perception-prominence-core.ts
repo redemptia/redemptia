@@ -12,12 +12,14 @@
  *
  * Every function takes the brand id the caller has already authorized, and scopes every read to it.
  */
-import { createHash } from "node:crypto";
 import type { DbConnection } from "@workspace/lib/db/db-connection";
 import { brands, citations, promptRuns, runMentions } from "@workspace/lib/db/schema";
 import { perceptionAttributes, perceptionPrompts } from "@workspace/lib/db/schema-perception";
 import type { RunMentionAssessments } from "@workspace/lib/mentions";
+import { competitorSetFingerprint } from "@workspace/lib/perception/competitor-set";
 import { and, countDistinct, desc, eq, gte, lt, sql } from "drizzle-orm";
+
+export { competitorSetFingerprint };
 
 export interface ProminenceCell {
 	/** Judged answers to this attribute's market prompts in the period, under this competitor set. */
@@ -48,14 +50,6 @@ export interface MarketProminence {
 	otherSetAnswers: number;
 	brand: string;
 	rows: ProminenceRow[];
-}
-
-/** A stable short id for a set of competitor names. */
-export function competitorSetFingerprint(names: string[]): string {
-	return createHash("sha256")
-		.update(JSON.stringify([...names].sort()))
-		.digest("hex")
-		.slice(0, 12);
 }
 
 const emptyCell = (): ProminenceCell => ({
