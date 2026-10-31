@@ -240,7 +240,7 @@ describe("what a day of answers costs in calls", () => {
 });
 
 describe("the daily call ceiling", () => {
-	it("makes no call once the organization has used today's calls, and says so", async () => {
+	it("makes no call once the organization has used today's calls", async () => {
 		const runId = await run(await prompt(), "Acme has a free plan.");
 		await fact("Acme has a free plan.");
 		await db
@@ -251,7 +251,7 @@ describe("the daily call ceiling", () => {
 		const outcome = await judgePendingRuns(db, judge.transport, "stub");
 
 		expect(judge.requests).toHaveLength(0);
-		expect(outcome.overCeiling).toBe(true);
+		expect(outcome.calls).toBe(0);
 		expect(await verdictsOf(runId)).toHaveLength(0);
 		expect(await callsToday()).toBe(DAILY_JEV_CALL_CEILING);
 	});
@@ -272,6 +272,97 @@ describe("the daily call ceiling", () => {
 		expect(judge.requests).toHaveLength(2);
 		expect(outcome).toMatchObject({ runs: 2, overCeiling: true });
 		expect(await callsToday()).toBe(DAILY_JEV_CALL_CEILING);
+	});
+});
+
+describe("one organization at its ceiling", () => {
+	let otherId: string;
+
+	/** A second organization with a brand, a fact prompt, a fact and `runs` answers, all older than `before`. */
+	async function otherOrganization(runs: number, before = Date.now() - 60_000) {
+		otherId = `brand-${randomUUID()}`;
+		await db.insert(organization).values({ id: otherId, name: otherId, slug: otherId, createdAt: new Date() });
+		await db.insert(brands).values({
+			id: otherId,
+			organizationId: otherId,
+			name: "Globex",
+			website: "https://globex.example",
+			onboarded: true,
+		});
+		await db.insert(perceptionBrandSettings).values({ brandId: otherId, enabled: true });
+		const [{ id: promptId }] = await db
+			.insert(prompts)
+			.values({ brandId: otherId, value: "How much does Globex cost?" })
+			.returning({ id: prompts.id });
+		await db.insert(perceptionPrompts).values({ promptId, class: "fact" });
+		await db
+			.insert(brandFacts)
+			.values({ brandId: otherId, statement: "Globex has a free plan.", validFrom: "2026-01-01" });
+		const ids: string[] = [];
+		for (let i = 0; i < runs; i++) {
+			const id = randomUUID();
+			await db.insert(promptRuns).values({
+				id,
+				promptId,
+				brandId: otherId,
+				model: "chatgpt",
+				provider: "openrouter",
+				version: "test",
+				webSearchEnabled: true,
+				rawOutput: { choices: [{ message: { content: "Globex has a free plan." } }] },
+				webQueries: [],
+				createdAt: new Date(before - i * 1000),
+			});
+			ids.push(id);
+		}
+		return ids;
+	}
+
+	afterEach(async () => {
+		if (!otherId) return;
+		await db.delete(perceptionRollupDirty).where(eq(perceptionRollupDirty.brandId, otherId));
+		await db.delete(perceptionVerdicts).where(sql`run_id IN (SELECT id FROM prompt_runs WHERE brand_id = ${otherId})`);
+		await db.delete(perceptionJevCalls).where(eq(perceptionJevCalls.organizationId, otherId));
+		await db.delete(promptRuns).where(eq(promptRuns.brandId, otherId));
+		await db.delete(prompts).where(eq(prompts.brandId, otherId));
+		await db.delete(brandFacts).where(eq(brandFacts.brandId, otherId));
+		await db.delete(brands).where(eq(brands.id, otherId));
+		await db.delete(organization).where(eq(organization.id, otherId));
+	});
+
+	const atCeiling = (organizationId: string, calls = DAILY_JEV_CALL_CEILING) =>
+		db.insert(perceptionJevCalls).values({ organizationId, day: sql`(now() AT TIME ZONE 'UTC')::date`, calls });
+
+	it("doesn't stop another organization's runs, even when its own fill the batch", async () => {
+		const promptId = await prompt();
+		await fact("Acme has a free plan.");
+		for (let i = 0; i < 3; i++) await run(promptId, "Acme has a free plan.", new Date(Date.now() - i * 1000));
+		const [otherRun] = await otherOrganization(1);
+		await atCeiling(brandId);
+		const judge = recordingJudge();
+
+		const outcome = await judgePendingRuns(db, judge.transport, "stub", 2);
+
+		expect(outcome).toMatchObject({ runs: 1, calls: 1 });
+		expect(await verdictsOf(otherRun)).toHaveLength(1);
+		expect(await callsToday()).toBe(DAILY_JEV_CALL_CEILING);
+	});
+
+	it("skips an organization that runs out part-way through a job and carries on with the rest", async () => {
+		const promptId = await prompt();
+		await fact("Acme has a free plan.");
+		const first = await run(promptId, "Acme has a free plan.", new Date(Date.now() - 1000));
+		const second = await run(promptId, "Acme has a free plan.", new Date(Date.now() - 2000));
+		const [otherRun] = await otherOrganization(1);
+		await atCeiling(brandId, DAILY_JEV_CALL_CEILING - 1);
+		const judge = recordingJudge();
+
+		const outcome = await judgePendingRuns(db, judge.transport, "stub");
+
+		expect(outcome).toMatchObject({ runs: 2, calls: 2, overCeiling: true });
+		expect(await verdictsOf(first)).toHaveLength(1);
+		expect(await verdictsOf(second)).toHaveLength(0);
+		expect(await verdictsOf(otherRun)).toHaveLength(1);
 	});
 });
 
