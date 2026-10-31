@@ -104,6 +104,18 @@ jobs:
           # and JS only reads wrong on a host that isn't in UTC.
           TZ: America/Los_Angeles
 
+      # The only run of the whole perception path (judge, rollups, history, caps)
+      # on a migrated database. An upstream catch-up can break it without
+      # failing any single test: a renumbered migration, a changed column, a
+      # moved function. It creates and drops its own database and calls no one.
+      - name: Perception dry run
+        run: pnpm perception:dryrun
+        env:
+          TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/redemptia_test
+          TYPESAFE_API_KEY: stub
+          SCRAPE_TARGETS: stub:stub
+          ONBOARDING_LLM_TARGET: stub:stub
+
       # Not `drizzle-kit check`: it only checks the snapshots in the migrations
       # folder against each other. Not `drizzle-kit push`: against a freshly
       # migrated database it reports drift that isn't there (indexes created in

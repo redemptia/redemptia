@@ -19,9 +19,11 @@ import { createDb } from "@workspace/lib/db/db";
 import { brands, organization, promptRuns, prompts, runMentions } from "@workspace/lib/db/schema";
 import {
 	brandFacts,
+	mentionJudgeCalls,
 	perceptionAttributes,
 	perceptionBrandSettings,
 	perceptionJevCalls,
+	perceptionProminenceDirty,
 	perceptionPrompts,
 	perceptionRollupDirty,
 	perceptionRunStatus,
@@ -29,13 +31,14 @@ import {
 	rollupPerceptionDaily,
 	rollupProminenceDaily,
 } from "@workspace/lib/db/schema-perception";
-import { DAILY_JEV_CALL_CEILING } from "@workspace/lib/perception/limits";
-import { eq } from "drizzle-orm";
+import { DAILY_JEV_CALL_CEILING, DAILY_MENTION_JUDGE_CEILING } from "@workspace/lib/perception/limits";
+import { and, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import pg from "pg";
 import { JEV_MODEL, stubTransport } from "../src/mention-judge/jev";
 import { judgePendingRuns, perceptionStamp } from "../src/perception/judge-runs";
+import { reserveMentionCall, splitByAllowance } from "../src/perception/mention-budget";
 import { buildPerceptionRollups } from "../src/perception/rollup";
 import { buildProminenceRollups } from "../src/perception/rollup-prominence";
 import { firstJobCount } from "./first-job-count";
@@ -235,6 +238,7 @@ async function rehearseJob(db: Db) {
 	assert.match(preflight, new RegExp(`fact runs it would pick up: ${seeded} `));
 	assert.deepEqual(await sizes(), before);
 	ok("the preflight passes on this database and changed no rows");
+	await reader.end();
 
 	await db.insert(promptRuns).values(
 		Array.from({ length: 3 }, () => ({
@@ -262,6 +266,102 @@ async function rehearseJob(db: Db) {
 		{ calls: DAILY_JEV_CALL_CEILING, reached: true },
 	);
 	ok("at the ceiling the job stops after one more call, and the readout says checks have paused");
+}
+
+/** The trigger on elmo's run_mentions marks market days only, and the incremental rollup consumes the markers. */
+async function rehearseMarkers(db: Db, histId: string, histPrompt: string) {
+	const marked = () =>
+		db
+			.select({ day: perceptionProminenceDirty.day })
+			.from(perceptionProminenceDirty)
+			.where(eq(perceptionProminenceDirty.brandId, histId));
+	const marketDays = Array.from({ length: DAYS }, (_, i) => i + 1).filter((d) => perDay(d) > 0).length;
+	assert.equal((await marked()).length, marketDays);
+
+	const factRun = randomUUID();
+	await db.insert(promptRuns).values({
+		id: factRun,
+		promptId: histPrompt,
+		brandId: histId,
+		model: "claude",
+		provider: "openrouter",
+		version: "dryrun",
+		webSearchEnabled: true,
+		webQueries: [],
+		createdAt: at(DAYS + 6, 0),
+		rawOutput: {},
+	});
+	await db.insert(runMentions).values({ runId: factRun, brandMentioned: true, competitorsMentioned: [] });
+	await db.update(runMentions).set({ brandMentioned: false }).where(eq(runMentions.runId, factRun));
+	assert.equal((await marked()).length, marketDays);
+	await db.delete(promptRuns).where(eq(promptRuns.id, factRun));
+	ok(
+		`a mention row writes a marker for each of the ${marketDays} market-answer days, and none for a fact answer's day`,
+	);
+
+	const built = await buildProminenceRollups(db, new Date(), { fullPass: false, brandId: histId });
+	assert.equal(built.days, marketDays);
+	assert.equal((await marked()).length, 0);
+	ok("the incremental rollup job builds exactly the marked days and clears the markers");
+}
+
+/** The skip rule and the mention judge's daily allowance, the two caps that stand between a catch-up and spend. */
+async function rehearseGuards(db: Db) {
+	const id = `dryrun-guards-${randomUUID()}`;
+	await db.insert(organization).values({ id, name: id, slug: id, createdAt: new Date() });
+	await db
+		.insert(brands)
+		.values({ id, organizationId: id, name: "Skip Co", website: "https://skip.example", onboarded: true });
+	await db.insert(perceptionBrandSettings).values({ brandId: id, enabled: true });
+	await db.insert(brandFacts).values({ brandId: id, statement: "Skip Co is open source.", validFrom: "2026-01-01" });
+	const [{ id: promptId }] = await db
+		.insert(prompts)
+		.values({ brandId: id, value: "Is Skip Co open source?" })
+		.returning({ id: prompts.id });
+	await db.insert(perceptionPrompts).values({ promptId, class: "fact" });
+	for (const text of ["The price of the tools is not the same in all of the shops.", "Skip Co is open source."])
+		await db.insert(promptRuns).values({
+			id: randomUUID(),
+			promptId,
+			brandId: id,
+			model: "claude",
+			provider: "openrouter",
+			version: "dryrun",
+			webSearchEnabled: true,
+			rawOutput: { choices: [{ message: { content: text } }] },
+			webQueries: [],
+			createdAt: new Date(),
+		});
+	const outcome = await judgePendingRuns(db, stubTransport, "stub");
+	assert.deepEqual(
+		{ runs: outcome.runs, calls: outcome.calls, skipped: outcome.skipped },
+		{ runs: 2, calls: 1, skipped: 1 },
+	);
+	const flagged = await db
+		.select({ id: perceptionVerdicts.id })
+		.from(perceptionVerdicts)
+		.innerJoin(promptRuns, eq(promptRuns.id, perceptionVerdicts.runId))
+		.where(and(eq(promptRuns.brandId, id), eq(perceptionVerdicts.skipped, true)));
+	assert.equal(flagged.length, 1);
+	ok("an answer that cannot name the brand is recorded as skipped without a call; the one that names it is judged");
+
+	const allowance = [1, 2, 3].map(() => reserveMentionCall(db, id, 2));
+	assert.deepEqual((await Promise.all(allowance)).sort(), [false, true, true]);
+	await db
+		.update(mentionJudgeCalls)
+		.set({ calls: DAILY_MENTION_JUDGE_CEILING })
+		.where(eq(mentionJudgeCalls.organizationId, id));
+	const split = await splitByAllowance(
+		db,
+		id,
+		[{ id: "a", stamps: {} }],
+		{ mentions: "current" } as never,
+		"jev-1.13.0",
+	);
+	assert.deepEqual(split.refused, ["a"]);
+	const free = await splitByAllowance(db, id, [{ id: "a", stamps: {} }], { mentions: "current" } as never, "stub+x");
+	assert.deepEqual(free.refused, []);
+	ok("elmo's mention judge allowance hands out its last slots once, refuses past them, and charges the stub nothing");
 }
 
 const DAYS = 14;
@@ -312,7 +412,7 @@ async function seedAnswer(db: Db, { histId, histPrompt, marketPrompt }: HistoryI
 }
 
 /** The second brand: a fact, a fact prompt, an attribute and its market prompt, and every answer. */
-async function seedHistory(db: Db): Promise<{ histId: string; histTotal: number }> {
+async function seedHistory(db: Db): Promise<{ histId: string; histPrompt: string; histTotal: number }> {
 	const histId = `dryrun-history-${randomUUID()}`;
 	await db.insert(organization).values({ id: histId, name: histId, slug: histId, createdAt: new Date() });
 	await db.insert(brands).values({
@@ -350,12 +450,13 @@ async function seedHistory(db: Db): Promise<{ histId: string; histTotal: number 
 			await seedAnswer(db, { histId, histPrompt, marketPrompt }, daysAgo, i);
 			histTotal++;
 		}
-	return { histId, histTotal };
+	return { histId, histPrompt, histTotal };
 }
 
 /** Two weeks of answers on a second brand, judged twice, and the history series read back. */
 async function rehearseHistory(db: Db) {
-	const { histId, histTotal } = await seedHistory(db);
+	const { histId, histPrompt, histTotal } = await seedHistory(db);
+	await rehearseMarkers(db, histId, histPrompt);
 	for (;;) if ((await judgePendingRuns(db, stubTransport, "stub")).runs === 0) break;
 	// What a real key does: the same questions answered under the pinned model, stamped as its own version.
 	const pinned: typeof stubTransport = async (request) => ({ ...(await stubTransport(request)), model: JEV_MODEL });
@@ -434,9 +535,12 @@ async function main() {
 
 		const db = createDb(scratch.toString());
 		client = db.$client as unknown as { end(): Promise<void> };
+		// Dropping the database with FORCE terminates any connection still open, which a pool reports as an error.
+		(db.$client as unknown as pg.Pool).on("error", () => {});
 
 		await rehearseJob(db);
 		await rehearseHistory(db);
+		await rehearseGuards(db);
 	} finally {
 		await client?.end().catch(() => {});
 		if (keep) console.log(`Kept ${name}`);
@@ -450,6 +554,8 @@ async function main() {
 }
 
 main().catch((error) => {
-	console.error(`\nFAIL  ${error instanceof Error ? error.message : error}`);
+	console.error(
+		`\nFAIL  ${error instanceof Error ? (process.argv.includes("--stack") ? error.stack : error.message) : error}`,
+	);
 	process.exit(1);
 });

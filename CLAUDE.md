@@ -61,6 +61,7 @@ This map is derived from the pull-request workflows in `.github/workflows/`. `sc
 | | Type check | `pnpm turbo check-types` |
 | | Unit tests | `pnpm turbo test` |
 | | Integration tests | `pnpm -C apps/web test:integration`, then `apps/worker`, then `packages/lib`, one at a time because the lib suite truncates tables the others write to, with `TZ=America/Los_Angeles` as CI sets it |
+| | Perception dry run | `pnpm perception:dryrun` against the `_test` server; it prints `Dry run passed: 23 checks`. A catch-up merge must show that count or more |
 | | Schema matches the migrations | `DATABASE_URL=postgres://unused pnpm -C packages/lib exec drizzle-kit generate` writes nothing |
 | | Migrations apply on upgrade from the base commit | `node packages/lib/scripts/check-migrations.mjs <base commit's migrations dir> packages/lib/src/db/migrations` against a scratch `_test` database |
 | | Release script tests | `pnpm test:scripts` |
