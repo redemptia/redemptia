@@ -10,7 +10,7 @@ import {
 import { DAILY_JEV_CALL_CEILING } from "@workspace/lib/perception/limits";
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { getFactReadout, jevCallsToday } from "@/server/perception-readout-core";
+import { getFactReadout, jevCallsToday, MAX_ALERTS } from "@/server/perception-readout-core";
 import { createBrand, deleteBrand } from "@/test/integration/stats-fixtures";
 
 let brandId: string;
@@ -242,5 +242,26 @@ describe("today's call count", () => {
 			{ organizationId: org, day: today(), calls: 120 },
 		]);
 		expect(await jevCallsToday(db, brandId)).toBe(120);
+	});
+});
+
+describe("many contradictions", () => {
+	it("lists the newest alerts up to the limit and counts them all, leaving out an answer later judged fine", async () => {
+		const factId = await fact(brandId, "Acme has a free plan.");
+		const total = MAX_ALERTS + 2;
+		for (let i = 0; i < total; i++) {
+			const at = new Date(Date.UTC(2026, 9, 1, 0, i)).toISOString();
+			await answer(factId, "contradicts", { at });
+		}
+		const rejudged = await answer(factId, "contradicts", { at: "2026-10-02T00:00:00Z" });
+		await verdictOn(rejudged, factId, "supports", "s2");
+
+		const { alerts, alertCount, facts } = await getFactReadout(db, brandId, all);
+
+		expect(alertCount).toBe(total);
+		expect(alerts).toHaveLength(MAX_ALERTS);
+		expect(alerts.map((a) => a.answeredAt)).toEqual([...alerts.map((a) => a.answeredAt)].sort().reverse());
+		expect(alerts[0].answeredAt).toBe(new Date(Date.UTC(2026, 9, 1, 0, total - 1)).toISOString());
+		expect(facts[0]).toMatchObject({ answers: total + 1, contradicted: total, stated: 1 });
 	});
 });

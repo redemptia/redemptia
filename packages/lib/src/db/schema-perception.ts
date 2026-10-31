@@ -303,6 +303,50 @@ export const perceptionRunStatus = pgTable(
 	() => [check("perception_run_status_outcome", sql`outcome IS NULL OR outcome IN ('no_text', 'too_large', 'failed')`)],
 ).enableRLS();
 
+/**
+ * Market answers per UTC day, for the history surface: how often each subject is named and how early,
+ * under the competitor set the answer was judged against. The heatmap for "now" reads `run_mentions`
+ * per answer; this is the store for change over time. Counts, not scores: mention share is
+ * `mentionedAnswers / answers`, average position is `positionSum / positionedAnswers`, and prominence
+ * is `100 × inversePositionSum / answers`, each correct when buckets are combined. The fingerprint is
+ * in the key because a position only means something within one competitor set.
+ */
+export const rollupProminenceDaily = pgTable(
+	"rollup_prominence_daily",
+	{
+		brandId: text("brand_id").notNull(),
+		day: date("day").notNull(),
+		promptId: uuid("prompt_id")
+			.notNull()
+			.references(() => prompts.id, { onDelete: "cascade" }),
+		attributeKey: text("attribute_key").notNull(),
+		model: text("model").notNull(),
+		provider: text("provider").notNull().default(""),
+		subjectName: text("subject_name").notNull(),
+		competitorSetFingerprint: text("competitor_set_fingerprint").notNull(),
+		answers: integer("answers").notNull(),
+		mentionedAnswers: integer("mentioned_answers").notNull(),
+		positionedAnswers: integer("positioned_answers").notNull(),
+		positionSum: integer("position_sum").notNull(),
+		inversePositionSum: real("inverse_position_sum").notNull(),
+	},
+	(table) => [
+		primaryKey({
+			name: "rollup_prominence_daily_pk",
+			columns: [
+				table.brandId,
+				table.day,
+				table.promptId,
+				table.model,
+				table.provider,
+				table.subjectName,
+				table.competitorSetFingerprint,
+			],
+		}),
+		index("rollup_prominence_daily_brand_id_day_idx").on(table.brandId, table.day),
+	],
+).enableRLS();
+
 /** Days whose `rollupPerceptionDaily` rows are out of date with the verdicts. */
 export const perceptionRollupDirty = pgTable(
 	"perception_rollup_dirty",
