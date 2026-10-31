@@ -45,6 +45,13 @@ export interface PerceptionCostEstimate {
 	showsDollars: boolean;
 }
 
+/** "2 models (chatgpt, claude)", or "1 model (chatgpt) through 2 sources" when targets share a model. */
+export function describeTargets(targets: { model: string }[]): string {
+	const models = [...new Set(targets.map((target) => target.model))];
+	const noun = `${models.length} model${models.length === 1 ? "" : "s"} (${models.join(", ") || "none enabled"})`;
+	return targets.length > models.length ? `${noun} through ${targets.length} sources` : noun;
+}
+
 export function estimatePerceptionCost(
 	inputs: CostInputs,
 	showsDollars: boolean,
