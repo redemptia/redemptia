@@ -147,6 +147,16 @@ async function replay(data: ReprocessData, days: number | null = null) {
 
 const BOTH_LAYERS: ReprocessData["layers"] = ["extraction", "interpretation"];
 
+/** As if the last pass began `hours` ago, so the cooldown between passes has run out. */
+async function backdatePass(brandId: string, hours: number) {
+	await db
+		.update(brands)
+		.set({
+			analysisVersions: sql`coalesce(${brands.analysisVersions}, '{}'::jsonb) || jsonb_build_object('passAt', ${new Date(Date.now() - hours * 3_600_000).toISOString()}::text)`,
+		})
+		.where(eq(brands.id, brandId));
+}
+
 describe("runReprocess", () => {
 	it("extracts a stored run's text and citations, derives its mentions, and stamps the brand", async () => {
 		await insertLegacyRuns([legacyRun("Acme is the best CRM.", new Date("2026-02-01T10:00:00Z"))]);
@@ -302,6 +312,7 @@ describe("reprocessing over time", () => {
 			return stubTransport(request);
 		});
 		for (let tick = 0; tick < 5; tick++) {
+			await backdatePass(brandId, 7);
 			const asked = fakeBoss();
 			await requestStaleReprocesses(db, asked.boss, analyzer);
 			const passes = sentFor(asked.send, brandId);
@@ -483,9 +494,28 @@ describe("requestStaleReprocesses", () => {
 		expect(sentFor(second.send, brandId)).toEqual([]);
 
 		await db.insert(competitors).values({ brandId, name: "Globex", domains: ["globex.example"] });
+		await backdatePass(brandId, 7);
 		const afterEdit = fakeBoss();
 		await requestStaleReprocesses(db, afterEdit.boss, cuedAnalyzer);
 		expect(sentFor(afterEdit.send, brandId).map((data) => data.layers)).toEqual([["interpretation"]]);
+	});
+
+	it("waits out the cooldown after a pass before another edit starts one, then sends a single pass for them all", async () => {
+		const first = fakeBoss();
+		await requestStaleReprocesses(db, first.boss, cuedAnalyzer);
+		await replay(sentFor(first.send, brandId)[0]);
+
+		for (const name of ["Globex", "Initech", "Hooli"]) {
+			await db.insert(competitors).values({ brandId, name, domains: [`${name.toLowerCase()}.example`] });
+			const during = fakeBoss();
+			await requestStaleReprocesses(db, during.boss, cuedAnalyzer);
+			expect(sentFor(during.send, brandId)).toEqual([]);
+		}
+
+		await backdatePass(brandId, 7);
+		const after = fakeBoss();
+		await requestStaleReprocesses(db, after.boss, cuedAnalyzer);
+		expect(sentFor(after.send, brandId).map((data) => data.layers)).toEqual([["interpretation"]]);
 	});
 
 	it("keeps the extracted history of a brand that predates stamping, and re-judges its mentions", async () => {

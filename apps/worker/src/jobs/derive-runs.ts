@@ -29,6 +29,7 @@ import { and, eq, gte, inArray, isNull, lt, or, sql } from "drizzle-orm";
 import type { Job, PgBoss, QueueOptions } from "pg-boss";
 import { getBoss } from "../boss";
 import { type MentionAnalyzer, mentionAnalyzer, type RunMentions } from "../mention-judge/analyze";
+import { mentionAllowanceUsed, secondsUntilTomorrow } from "../perception/mention-budget";
 
 export const DERIVE_RUNS_QUEUE = "derive-runs";
 
@@ -76,7 +77,7 @@ export async function sendDeriveRuns(
 	brandId: string,
 	runIds: string[],
 	priority: number,
-	{ reextract = false, chunkSize = CHUNK_SIZE, singletonSeconds = 0 } = {},
+	{ reextract = false, chunkSize = CHUNK_SIZE, singletonSeconds = 0, startAfterSeconds = 0 } = {},
 ): Promise<void> {
 	const jobs = [];
 	for (let i = 0; i < runIds.length; i += chunkSize) {
@@ -84,7 +85,13 @@ export async function sendDeriveRuns(
 		const data: DeriveRunsData = { brandId, runIds: chunk, ...(reextract && { reextract }) };
 		// One job per run per window: a run that keeps failing is asked about only so often.
 		const singleton = singletonSeconds && chunk.length === 1 ? { singletonKey: chunk[0], singletonSeconds } : {};
-		jobs.push({ data, priority, ...CHUNK_LIFETIME, ...singleton });
+		jobs.push({
+			data,
+			priority,
+			...CHUNK_LIFETIME,
+			...singleton,
+			...(startAfterSeconds && { startAfter: startAfterSeconds }),
+		});
 	}
 	for (let i = 0; i < jobs.length; i += 1000) await boss.insert(DERIVE_RUNS_QUEUE, jobs.slice(i, i + 1000));
 }
@@ -304,7 +311,12 @@ export async function deriveRuns(
 	const runs = await loadRuns(conn, data.runIds, context.target, reextract, days);
 	const updates: { run: StaleRun; update: RunUpdate }[] = [];
 	const failed: string[] = [];
+	const refused: string[] = [];
 	for (const run of runs) {
+		if (await mentionAllowanceUsed(conn, data.brandId, run, context.target, analyzer.judgeVersion)) {
+			refused.push(run.id);
+			continue;
+		}
 		try {
 			const update = await deriveRunUpdate(run, context.target, context.config, analyzer, reextract);
 			if (update.extraction || update.mentions || update.citations) updates.push({ run, update });
@@ -329,6 +341,15 @@ export async function deriveRuns(
 	if (kept.length > 0)
 		console.warn(`[derive-runs] runs kept data their stored payload no longer yields: ${kept.join("; ")}`);
 	await sendDeriveRuns(boss, data.brandId, failed, DERIVE_PRIORITY.new, { reextract, chunkSize: 1 });
+	if (refused.length > 0) {
+		console.warn(
+			`[derive-runs] mention judge allowance used for today; ${refused.length} runs wait until tomorrow (UTC)`,
+		);
+		await sendDeriveRuns(boss, data.brandId, refused, DERIVE_PRIORITY.history, {
+			reextract,
+			startAfterSeconds: secondsUntilTomorrow(),
+		});
+	}
 }
 
 /** Younger runs are left to the job sent when they were recorded. */

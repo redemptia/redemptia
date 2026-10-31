@@ -280,6 +280,21 @@ export const PERCEPTION_RUN_OUTCOMES = ["no_text", "too_large", "failed"] as con
 export type PerceptionRunOutcome = (typeof PERCEPTION_RUN_OUTCOMES)[number];
 
 /**
+ * Jev calls elmo's own mention judge has been allowed per organization per UTC day, counted before each
+ * answer is judged. Separate from `perception_jev_calls`: the two judges have different volumes and
+ * neither should be able to use up the other's allowance. Reserved the same way, in one statement.
+ */
+export const mentionJudgeCalls = pgTable(
+	"mention_judge_calls",
+	{
+		organizationId: text("organization_id").notNull(),
+		day: date("day").notNull(),
+		calls: integer("calls").notNull(),
+	},
+	(table) => [primaryKey({ name: "mention_judge_calls_pk", columns: [table.organizationId, table.day] })],
+).enableRLS();
+
+/**
  * Jev calls the perception job has made per organization per UTC day, counted
  * before each call is sent. A call is made only if one statement raises the count
  * while it is below the ceiling, so concurrent workers can't overshoot it.

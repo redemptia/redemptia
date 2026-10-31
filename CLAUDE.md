@@ -28,12 +28,15 @@ The worker refuses to start without it. `TYPESAFE_API_KEY=stub` judges from cue
 words and calls no one; use it for every local run, test and CI job. Stub
 judgements are stamped as the stub's, so switching a database from `stub` to a
 real key re-judges what the stub judged. A real key
-spends on every answer that names a tracked company (no spend ceiling exists in
-code), and the worker spends on its own: each start re-requests judging for the
-last 30 days of unjudged runs, and history is reprocessed back `REPROCESS_DAYS`
-(default 90) whenever the judge, the extractor or a brand's names or
-competitors change. Setting a real key anywhere is a separate, explicit
-decision, and nothing caps the spend yet ([#85](https://github.com/redemptia/redemptia/issues/85)). Until runs are judged, the Sentiment page is empty.
+spends on every answer that names a tracked company, and the worker spends on its
+own: each start re-requests judging for the last 30 days of unjudged runs, and
+history is reprocessed back `REPROCESS_DAYS` (default 90) whenever the judge, the
+extractor or a brand's names or competitors change. An answer is judged once per
+stamp, so a restart judges nothing twice; a daily allowance of 10,000 answers per
+organization (`DAILY_MENTION_JUDGE_CEILING`) bounds a crash loop or a bulk
+reprocess, and a brand's config changes start a re-judge at most every 6 hours.
+Perception's own judge has a separate allowance of 2,000 calls. Setting a real key
+anywhere is a separate, explicit decision. Until runs are judged, the Sentiment page is empty.
 
 ## Shared context
 
@@ -100,7 +103,7 @@ This map is derived from the pull-request workflows in `.github/workflows/`. `sc
   - Brand-scoped analytics cores take a brand id the edge has already gated.
   - Dashboard server functions gate with `requireBrandSession`, and that gate has no test (#21).
 - **Migrations (drizzle 0.45.2).** The only gate is the journal `when` against the newest applied migration; filenames and `idx` don't matter, and skipped migrations are silent.
-  - 0000–0030 are elmo's; 0031 (`0031_prompt_runs_brand_created_at_idx`), 0032 (`0032_perception_prompts`) 0033 (`0033_perception_core_tables`) 0034 (`0034_perception_job_tables`), 0035 (`0035_perception_brand_settings`), 0036 (`0036_perception_fact_sources`), 0037 (`0037_perception_passage_confidence`) and 0038 (`0038_perception_attribute_rules`) are ours. 0039 and 0040 are elmo's, renumbered by the Oct 30 catch-up. 0041 (`0041_perception_prominence_rollup`), 0042 (`0042_perception_verdict_citations`) and 0043 (`0043_perception_prominence_markers`) and 0044 (`0044_perception_verdict_skipped`) are ours. Our next is 0045, and elmo's next is 0031: the numbers clash loudly, but an elmo migration dated before our 0038 (`when` 1792814861106) is skipped silently on every upgraded database. Every catch-up renumbers and re-dates elmo's migrations after ours, by the procedure in UPSTREAM.md.
+  - 0000–0030 are elmo's; 0031 (`0031_prompt_runs_brand_created_at_idx`), 0032 (`0032_perception_prompts`) 0033 (`0033_perception_core_tables`) 0034 (`0034_perception_job_tables`), 0035 (`0035_perception_brand_settings`), 0036 (`0036_perception_fact_sources`), 0037 (`0037_perception_passage_confidence`) and 0038 (`0038_perception_attribute_rules`) are ours. 0039 and 0040 are elmo's, renumbered by the Oct 30 catch-up. 0041 (`0041_perception_prominence_rollup`), 0042 (`0042_perception_verdict_citations`) and 0043 (`0043_perception_prominence_markers`) and 0044 (`0044_perception_verdict_skipped`) and 0045 (`0045_mention_judge_budget`) are ours. Our next is 0046, and elmo's next is 0031: the numbers clash loudly, but an elmo migration dated before our 0038 (`when` 1792814861106) is skipped silently on every upgraded database. Every catch-up renumbers and re-dates elmo's migrations after ours, by the procedure in UPSTREAM.md.
   - Everything runs in one transaction, so no `CREATE INDEX CONCURRENTLY`.
   - Never run `drizzle-kit push`.
 - **Indexes drizzle can't declare live in `RAW_INDEXES`** (`packages/lib/scripts/index-census.mjs`): `idx_prompt_runs_admin`, because drizzle 0.45 can't express `INCLUDE`, and two on better-auth tables, because the generated `schema-auth.ts` carries no indexes. Don't duplicate them. The migration check fails when a migrated database's indexes differ from the latest snapshot plus that list, or when an upgrade loses an index its own SQL doesn't drop, so a new raw index joins the list in the PR that creates it. Dropping a column drops every index that uses it, `INCLUDE` columns too, without a `DROP INDEX` in the SQL: that is how 0024 lost two (#86), which 0031's `(brand_id, created_at)` replaced on measured evidence.
@@ -129,7 +132,6 @@ The "Phase 2 Onward Handoff" and "Prompt Pack — Phases 2-8" documents in the c
 - #26: share of voice's `getPerPromptDailyCompetitors` takes ~692 ms at ~566k rollup rows. The 15-minute buckets barely compress (about one row per run per competitor), the query reduces them to ~251k groups, sorts on a text key, spills ~12 MB at the default `work_mem`, and returns all 251k rows. This is not #88: #88 is join cost on the Responses page, #26 is a group-and-sort in share of voice.
 - #91: nothing ages out run data; `prompt_runs`, `raw_output`, extractions, mentions, citations and rollups grow forever.
 - #88: Responses deep pages and sentiment counts are join-bound, about 90 ms at 4.4M runs, with or without an index.
-- #85: Jev judging has no spend cap; fix it before any real `TYPESAFE_API_KEY` is set.
 - #78: competitor names aren't unique per brand, and a dashboard save re-creates the list.
 - #80: the cookie banner asks for an Advertising category nothing reads; `packages/ui/src/lib/idle.ts` is unused.
 - #21: `requireBrandSession` has no test.

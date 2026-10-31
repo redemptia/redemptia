@@ -44,6 +44,12 @@ const RECENT_FIRST_MS = 30 * DAY_MS;
  * several competitors), and the pass reads the config when it starts, so one wait covers them all.
  */
 const SETTLE_SECONDS = 60;
+/**
+ * After a pass starts, a brand whose config changes again waits this long for the next one. A pass is
+ * a re-judge of up to 90 days, so edits an hour apart would otherwise each start their own.
+ */
+const COOLDOWN_MS = 6 * 60 * 60 * 1000;
+const PASS_AT_KEY = "passAt";
 
 export const REQUEST_REPROCESSES_QUEUE = "request-reprocesses";
 
@@ -200,6 +206,7 @@ export async function runReprocess(
 	const target = {
 		...pickLayers(context.current, data.layers),
 		[PROMPTS_KEY]: promptsStamp(brandPrompts.map(({ id }) => id)),
+		[PASS_AT_KEY]: new Date().toISOString(),
 	};
 	await conn
 		.update(brands)
@@ -249,6 +256,8 @@ export async function requestStaleReprocesses(
 			analyzer.judgeVersion,
 		);
 		const stale = staleLayers(brand.analysisVersions, current);
+		const passedAt = Date.parse(brand.analysisVersions[PASS_AT_KEY] ?? "");
+		if (stale.length > 0 && Date.now() - passedAt < COOLDOWN_MS) continue;
 		// A prompt enabled since the last pass has runs that pass skipped, to judge now.
 		const promptsMoved =
 			brand.analysisVersions[PROMPTS_KEY] !== promptsStamp((promptsByBrand.get(brand.id) ?? []).map(({ id }) => id));
