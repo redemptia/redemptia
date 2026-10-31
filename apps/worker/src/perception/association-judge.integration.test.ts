@@ -76,26 +76,25 @@ async function run(promptId: string, text: string, createdAt = new Date()) {
 	return id;
 }
 
+/** What the fake judge says to each kind of question. */
+function choiceFor(key: string, answers: { attribute?: string; drift?: string; passage?: string }): string {
+	if (key === DRIFT_KEY) return answers.drift ?? "no";
+	if (key === DRIFT_EVIDENCE_KEY) return answers.passage ?? "p1";
+	if (key.endsWith("__evidence")) return "none";
+	if (key.startsWith("attribute__")) return answers.attribute ?? "positive";
+	return "supports";
+}
+
 /** A judge that answers attributes, drift and the drift passage as told, and remembers each request. */
 function judge(answers: { attribute?: string; drift?: string; passage?: string } = {}) {
 	const requests: JevRequest[] = [];
 	const transport = async (request: JevRequest): Promise<JevResponse> => {
 		requests.push(request);
-		const choice = (key: string) =>
-			key === DRIFT_KEY
-				? (answers.drift ?? "no")
-				: key === DRIFT_EVIDENCE_KEY
-					? (answers.passage ?? "p1")
-					: key.endsWith("__evidence")
-						? "none"
-						: key.startsWith("attribute__")
-							? (answers.attribute ?? "positive")
-							: "supports";
 		return {
 			answers: Object.fromEntries(
 				Object.keys(request.questions).map((key) => [
 					key,
-					{ choice: choice(key), probabilities: { [choice(key)]: 0.9 }, confidence: 0.7 },
+					{ choice: choiceFor(key, answers), probabilities: { [choiceFor(key, answers)]: 0.9 }, confidence: 0.7 },
 				]),
 			),
 		};
