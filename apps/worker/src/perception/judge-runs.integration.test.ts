@@ -549,3 +549,62 @@ describe("a cut answer", () => {
 		for (const request of judge.requests) expect(/\p{Cs}/u.test(String(request.state.answer))).toBe(false);
 	});
 });
+
+describe("what the answer cited, recorded with the verdict", () => {
+	it("keeps whether an answer cited anything, the brand's site and the fact's source page", async () => {
+		const promptId = await prompt();
+		await db.insert(brandFacts).values({
+			brandId,
+			statement: "Acme has a free plan.",
+			validFrom: "2026-01-01",
+			sourceUrl: "https://www.acme.example/pricing/",
+			sourceReadAt: new Date(),
+		});
+		const responses = (urls: string[]) => ({
+			output: [
+				{
+					type: "message",
+					content: [
+						{
+							type: "output_text",
+							text: "Acme has a free plan.",
+							annotations: urls.map((url) => ({ type: "url_citation", url, title: url })),
+						},
+					],
+				},
+			],
+		});
+		const runs: Record<string, string> = {};
+		for (const [name, urls] of Object.entries({
+			none: [],
+			elsewhere: ["https://review.example/acme"],
+			site: ["https://docs.acme.example/limits"],
+			source: ["https://acme.example/pricing?ref=ai"],
+		})) {
+			runs[name] = randomUUID();
+			await db.insert(promptRuns).values({
+				id: runs[name],
+				promptId,
+				brandId,
+				model: "chatgpt",
+				provider: "openai-api",
+				version: "test",
+				webSearchEnabled: true,
+				rawOutput: responses(urls),
+				webQueries: [],
+				createdAt: new Date(),
+			});
+		}
+
+		await judgePendingRuns(db, recordingJudge().transport, "stub");
+
+		const flags = async (name: string) => {
+			const [row] = await verdictsOf(runs[name]);
+			return [row.cited, row.citedSite, row.citedSource];
+		};
+		expect(await flags("none")).toEqual([false, false, false]);
+		expect(await flags("elsewhere")).toEqual([true, false, false]);
+		expect(await flags("site")).toEqual([true, true, false]);
+		expect(await flags("source")).toEqual([true, true, true]);
+	});
+});
