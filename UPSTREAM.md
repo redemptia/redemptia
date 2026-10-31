@@ -215,7 +215,7 @@ weeks pass without a catch-up.
    fixtures that use Elmo as a sample brand name in answer text, substrings of other words in
    `packages/lib/src/citations/editorial-domains.ts`, `apps/www`'s Elmo directory entry and the README's origin
    credit. Search for escaped forms too (`` \`elmo ``): one hid in a template literal last time.
-10. **Prove the perception path.** After the build, from the merge commit, with a `_test` Postgres server:
+10. **Prove the perception path** ([PROCEDURE.md](PROCEDURE.md), section 6). After the build, from the merge commit, with a `_test` Postgres server:
     `TYPESAFE_API_KEY=stub SCRAPE_TARGETS=stub:stub ONBOARDING_LLM_TARGET=stub:stub TEST_DATABASE_URL=<server>/redemptia_test pnpm perception:dryrun`
     must end with `Dry run passed: 24 checks, no call made, nothing spent.` (24 at the time of writing; the count only
     grows, so fewer than the number on `main` is a failure, and a changed number is a reason to read the output).
