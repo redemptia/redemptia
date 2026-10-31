@@ -93,8 +93,12 @@ apps/web/storybook-static/
 # Machine-local agent instructions
 CLAUDE.local.md
 
-# Planning notes, kept locally only
-/docs/
+# Planning notes, kept locally only, except the spec of record
+/docs/*
+!/docs/SPEC.md
+!/docs/EXECUTION-PLAN.md
+!/docs/CONSIDERATIONS.md
+!/docs/BRANCHING.md
 
 # The model the worker loaded before it judged with Jev; old checkouts may still have it.
 apps/worker/mention-judge
