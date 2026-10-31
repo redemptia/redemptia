@@ -98,3 +98,6 @@ CLAUDE.local.md
 
 # The model the worker loaded before it judged with Jev; old checkouts may still have it.
 apps/worker/mention-judge
+
+# Reports from the staged first run (they hold real answers)
+first-contact-*.json

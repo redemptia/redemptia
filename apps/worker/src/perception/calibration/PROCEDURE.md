@@ -483,38 +483,71 @@ That is decided after reading them, not before.
 
 ## 10. Turning perception on for a real brand
 
-Two commands, run from the repo root. Neither loads `.env`; each is told its database explicitly.
+The sequence: **rehearse, preflight, first contact, read the output, then open the tap.** Three commands, run
+from the repo root. None loads `.env`; each is told its database explicitly.
 
-**Rehearse (throwaway database, stub judge, spends nothing):**
+**1. Rehearse (throwaway database, stub judge, spends nothing).** Run it after any change to the job, the
+stamp or the migrations.
 
 ```
 TEST_DATABASE_URL=postgres://localhost:5432/redemptia_test pnpm perception:dryrun
 ```
 
-It creates and drops its own `redemptia_dryrun_*_test` database on a local server, migrates it, seeds a
-brand with facts, fact prompts and a day of answers, runs the job, and checks the verdicts, stamps,
-call count (one per answer), budget counter, the daily rollup build and rebuild, the readout, re-judge count under a real key,
-the ceiling, and that the preflight changes nothing. Run it after any change to the job, the stamp or
-the migrations.
+It creates and drops its own `redemptia_dryrun_*_test` database on a local server, migrates it, seeds brands
+with facts, fact prompts and answers, runs the job, and checks the verdicts, stamps, one call per answer,
+the budget counter, the rollups, the history series, the readout, the re-judge count under a real key, the
+ceiling and that the preflight changes nothing.
 
-**Preflight (read-only, safe against a live database):**
+**2. Preflight (read-only, safe against a live database).**
 
 ```
 DATABASE_URL=<target> DEPLOYMENT_MODE=<mode> TYPESAFE_API_KEY=<key> pnpm perception:preflight
 ```
 
-It checks the mode (`local` or `whitelabel`), that a real key is not set under `demo` or `cloud`, that
-the key is set and not `stub`, that `ASSOCIATION_ENABLED` is false, and that every migration in the
-journal is applied. It then prints what the first real job would pick up (`first-job-count.sql`) and
-the projected cost, and stops. Every query runs in a read-only transaction. Exit 1 means do not proceed.
+It checks the mode (`local` or `whitelabel`), that a real key is not set under `demo` or `cloud`, that the
+key is set and not `stub`, that `ASSOCIATION_ENABLED` is false, and that every migration in the journal is
+applied. It then prints what the first real job would pick up (`first-job-count.sql`) and the projected
+cost, and stops. Exit 1 means do not proceed. Before it: run the migrations on the target yourself (never
+`drizzle-kit push`).
 
-What still needs a person, in order, after the preflight is clean:
+**3. First contact (bounded, against the real judge).** Nothing here has seen a real judge reply, and three
+things only resolve on first contact: how the judge answers refusals, hedges and counterfactuals; how often
+the skip rule fires on real answers; and whether Jev bills per call, per question or per token. Flipping
+straight to volume would throw all three away at once. It needs the preflight's own inputs plus a brand:
 
-1. Decide the printed cost is acceptable. The Jev figure assumes per-token pricing (CONSIDERATIONS §9);
-   Elmo's judge also re-requests the last 30 days at every worker start, uncapped (#85).
-2. Run the migrations on the target. Never `drizzle-kit push`.
-3. Set `TYPESAFE_API_KEY` where the worker reads it, and restart the worker.
-4. Switch the one brand on (`perception_brand_settings.enabled`), and read the readout and the settings
+- `DATABASE_URL`, `DEPLOYMENT_MODE` and `TYPESAFE_API_KEY` (real), as for the preflight;
+- `--brand <id>`: one brand that has at least one fact and real answers to its fact prompts (let the worker
+  scrape them first, with the real providers; that is provider spend, not Jev);
+- afterwards, what TypeSafe charged for the run's window, from its usage page.
+
+```
+pnpm perception:first-contact --brand <id>                    # the plan: no calls, no writes
+pnpm perception:first-contact --brand <id> --spend            # the run
+pnpm perception:first-contact --report <file> --billed-usd <amount>   # price it
+```
+
+The plan names the answers it would judge and how the skip rule reads the brand's recent answers (free).
+`--spend` judges the newest answers of the brand's first five fact prompts (two each, `--prompts` and
+`--per-prompt` to change), at most 30 calls (`--max-calls`, never more than 100), without switching the
+brand on, then stops by itself: the verdicts it writes are at the real stamp, so a second run finds nothing
+pending and the worker will not judge them again. It refuses a target the preflight would refuse.
+
+The report (`first-contact-<brand>-<time>.json`, ignored by git) holds, per answer: the prompt, model, a
+rough shape (refusal, hedge, contrast or counterfactual, table, plain), what the skip rule says, every
+request and the judge's reply verbatim, and what the job stored (verdicts, probabilities, confidence,
+passage, `skipped`) or why it set the answer aside. Its totals give calls, questions, characters and the
+tokens Jev reports. Reading it answers the three questions: the replies to refusals, hedges and
+counterfactuals are in the file under their shapes; the skip rate is printed with samples of what would be
+skipped; and `--report ... --billed-usd` prices the run per call, per question and per million tokens.
+
+**4. Read the output, then open the tap.** Read the replies by shape; check the skipped samples are answers
+that could not name the brand; check the three unit prices against TypeSafe's per-request charges (the same
+charge for a short and a long answer is per call or per question; one that follows the input tokens is per
+token); and read the projected cost of a ceiling day. Only then:
+
+1. Set `TYPESAFE_API_KEY` where the worker reads it, and restart the worker. Elmo's own judge now has a daily
+   allowance of 10,000 answers per organization, and a config edit starts a re-judge at most every 6 hours.
+2. Switch the one brand on (`perception_brand_settings.enabled`), and read the readout and the settings
    page's daily check budget line.
 
 To stop: switch the brand off (the job judges nothing for it), or set the key back to `stub`.

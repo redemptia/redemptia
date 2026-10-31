@@ -117,7 +117,7 @@ const hasCallsLeft = sql`NOT EXISTS (
  * Fact-prompt runs of brands with perception on, from the last `LOOKBACK_DAYS`, with at least one fact, valid on the run's UTC day,
  * that has no verdict at `stamp`, newest first, skipping runs already set aside at this stamp.
  */
-async function pendingRuns(db: DbConnection, stamp: string, limit: number): Promise<PendingRun[]> {
+async function pendingRuns(db: DbConnection, stamp: string, limit: number, only?: string[]): Promise<PendingRun[]> {
 	const runDay = sql<string>`(${promptRuns.createdAt} AT TIME ZONE 'UTC')::date`;
 	const rows = await db
 		.select({
@@ -144,11 +144,7 @@ async function pendingRuns(db: DbConnection, stamp: string, limit: number): Prom
 		)
 		.innerJoin(prompts, eq(prompts.id, promptRuns.promptId))
 		.innerJoin(brands, eq(brands.id, promptRuns.brandId))
-		// A brand with perception off is never judged, so turning it off stops the spend.
-		.innerJoin(
-			perceptionBrandSettings,
-			and(eq(perceptionBrandSettings.brandId, promptRuns.brandId), eq(perceptionBrandSettings.enabled, true)),
-		)
+		.leftJoin(perceptionBrandSettings, eq(perceptionBrandSettings.brandId, promptRuns.brandId))
 		.innerJoin(
 			brandFacts,
 			and(
@@ -166,6 +162,9 @@ async function pendingRuns(db: DbConnection, stamp: string, limit: number): Prom
 				gte(promptRuns.createdAt, sql`now() - make_interval(days => ${LOOKBACK_DAYS})`),
 				isNull(perceptionRunStatus.outcome),
 				hasCallsLeft,
+				// A brand with perception off is never judged, so turning it off stops the spend; a named run is the
+				// staged first run, which judges its few answers without turning the brand on.
+				only ? inArray(promptRuns.id, only) : eq(perceptionBrandSettings.enabled, true),
 				sql`NOT EXISTS (SELECT 1 FROM ${perceptionVerdicts} WHERE ${perceptionVerdicts.runId} = ${promptRuns.id}
 					AND ${perceptionVerdicts.factId} = ${brandFacts.id} AND ${perceptionVerdicts.stamp} = ${stamp})`,
 			),
@@ -634,11 +633,11 @@ export async function judgePendingRuns(
 	transport: JevTransport,
 	judge: string,
 	limit = RUNS_PER_JOB,
-	options: { association: boolean } = { association: ASSOCIATION_ENABLED },
+	options: { association: boolean; only?: string[] } = { association: ASSOCIATION_ENABLED },
 ): Promise<JudgeOutcome> {
 	const stamp = perceptionStamp(judge);
 	const outcome: JudgeOutcome = { runs: 0, calls: 0, verdicts: 0, skipped: 0, overCeiling: false, rateLimited: false };
-	const factRuns = await pendingRuns(db, stamp, limit);
+	const factRuns = await pendingRuns(db, stamp, limit, options.only);
 	const associationRuns = options.association ? await pendingAssociationRuns(db, stamp, limit - factRuns.length) : [];
 	const runs = [...factRuns, ...associationRuns];
 	// An organization that runs out of calls part-way through is skipped for the rest of the job; the

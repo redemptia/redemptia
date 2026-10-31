@@ -9,15 +9,13 @@
  *
  * Exits 1 if any check fails; the counts are printed either way when the database answers.
  */
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
 import { ASSOCIATION_ENABLED } from "@workspace/lib/perception/association";
-import { readMigrationFiles } from "drizzle-orm/migrator";
 import pg from "pg";
 import { JEV_MODEL } from "../src/mention-judge/jev";
-import { type Check, checkEnvironment, checkMigrations, projectFirstJob } from "../src/perception/flip-checks";
+import { type Check, checkEnvironment, projectFirstJob } from "../src/perception/flip-checks";
 import { perceptionStamp } from "../src/perception/judge-runs";
 import { firstJobCount } from "./first-job-count";
+import { migrationCheck } from "./migration-state";
 
 const url = process.env.DATABASE_URL;
 if (!url) {
@@ -25,7 +23,6 @@ if (!url) {
 	process.exit(2);
 }
 
-const MIGRATIONS = resolve(__dirname, "../../../packages/lib/src/db/migrations");
 const usd = (value: number) => `$${value < 1 ? value.toFixed(4) : value.toFixed(2)}`;
 const print = (check: Check) => console.log(`${check.ok ? "PASS" : "FAIL"}  ${check.name}: ${check.detail}`);
 
@@ -46,19 +43,7 @@ async function main(url: string) {
 	try {
 		await client.connect();
 		await client.query("BEGIN READ ONLY");
-		const journal = JSON.parse(readFileSync(`${MIGRATIONS}/meta/_journal.json`, "utf8"));
-		const files = readMigrationFiles({ migrationsFolder: MIGRATIONS }).map((migration, i) => ({
-			tag: journal.entries[i].tag as string,
-			hash: migration.hash,
-		}));
-		const table = await client.query("select to_regclass('drizzle.__drizzle_migrations') as t");
-		const applied = new Set<string>(
-			table.rows[0].t
-				? (await client.query("select hash from drizzle.__drizzle_migrations")).rows.map((row) => row.hash)
-				: [],
-		);
-		const migrations = checkMigrations(files, applied);
-		checks.push(migrations);
+		checks.push(await migrationCheck(client));
 		for (const check of checks) print(check);
 
 		try {
@@ -72,7 +57,9 @@ async function main(url: string) {
 			console.log(
 				`  projected Jev cost: ${usd(projection.perceptionUsd)} (per-token pricing assumed; per-question is unconfirmed)`,
 			);
-			console.log("Elmo's judge, last 90 days (re-requested at worker start, no spend cap, #85):");
+			console.log(
+				"Elmo's judge, last 90 days (re-requested at worker start; at most 10,000 answers per organization per day):",
+			);
 			console.log(
 				`  stub-judged runs to re-judge: ${count.stubJudgedRuns}; runs with no mention judgement: ${count.unjudgedRuns}`,
 			);

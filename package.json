@@ -32,6 +32,7 @@
     "validate:spec": "pnpm --filter e2e validate:spec",
     "test:scripts": "node --test 'scripts/*.test.mjs' 'packages/lib/scripts/*.test.mjs'",
     "perception:preflight": "pnpm -C apps/worker exec tsx scripts/perception-preflight.ts",
+    "perception:first-contact": "pnpm -C apps/worker exec tsx scripts/perception-first-contact.ts",
     "perception:dryrun": "pnpm -C apps/worker exec tsx scripts/perception-dryrun.ts",
     "license-check": "node scripts/check-licenses.mjs"
   },
