@@ -45,6 +45,17 @@ export async function writeConfigFiles(
 	await fs.writeFile(composePath, initConfig.composeYaml, "utf8");
 }
 
+const ENV_COMMENTS: Record<string, string[]> = {
+	RUNS_PER_PROMPT: [
+		"# Samples per prompt per platform per run; each is a provider call you pay for. 5 is the product default.",
+		"# 2 is enough to damp model non-determinism at 2.5x less spend, and the 30-day window supplies the rest.",
+	],
+	DEFAULT_DELAY_HOURS: [
+		"# Hours between runs of each prompt: 24 is one run a day. Halving it doubles provider spend.",
+		"# Applies to prompts scheduled after a change; re-enable existing prompts to pick it up.",
+	],
+};
+
 export function buildEnvFile(env: EnvMap, version: string): string {
 	const lines = [renderedByHeader(version), "# WARNING: contains secrets. Do not commit.", ""];
 
@@ -52,7 +63,7 @@ export function buildEnvFile(env: EnvMap, version: string): string {
 		if (rawValue === undefined) {
 			continue;
 		}
-		lines.push(`${key}=${formatEnvValue(rawValue)}`);
+		lines.push(...(ENV_COMMENTS[key] ?? []), `${key}=${formatEnvValue(rawValue)}`);
 	}
 
 	return `${lines.join("\n")}\n`;
