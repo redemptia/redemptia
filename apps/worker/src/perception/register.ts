@@ -21,6 +21,7 @@ import { and, eq, isNull } from "drizzle-orm";
 import type { PgBoss } from "pg-boss";
 import { JEV_MODEL, type JevTransport, stubTransport, typesafeTransport } from "../mention-judge/jev";
 import { judgePendingRuns } from "./judge-runs";
+import { buildPerceptionRollups } from "./rollup";
 
 export const PERCEPTION_JUDGE_QUEUE = "perception-judge";
 
@@ -47,6 +48,13 @@ export async function registerPerceptionJobs(boss: PgBoss): Promise<void> {
 			const outcome = await judgePendingRuns(db, transport, judge);
 			if (outcome.overCeiling) {
 				console.warn("[perception] Daily Jev call ceiling reached; judging resumes tomorrow (UTC).");
+			}
+			// A failed rebuild keeps its markers, so the next job tries again; it must not fail the judging.
+			try {
+				await buildPerceptionRollups(db);
+			} catch (error) {
+				Sentry.captureException(error);
+				console.error("[perception] Rollup rebuild failed:", error);
 			}
 			return outcome;
 		});

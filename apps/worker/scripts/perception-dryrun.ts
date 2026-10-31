@@ -25,6 +25,7 @@ import {
 	perceptionRollupDirty,
 	perceptionRunStatus,
 	perceptionVerdicts,
+	rollupPerceptionDaily,
 } from "@workspace/lib/db/schema-perception";
 import { DAILY_JEV_CALL_CEILING } from "@workspace/lib/perception/limits";
 import { eq } from "drizzle-orm";
@@ -33,6 +34,7 @@ import { migrate } from "drizzle-orm/node-postgres/migrator";
 import pg from "pg";
 import { JEV_MODEL, stubTransport } from "../src/mention-judge/jev";
 import { judgePendingRuns, perceptionStamp } from "../src/perception/judge-runs";
+import { buildPerceptionRollups } from "../src/perception/rollup";
 import { firstJobCount } from "./first-job-count";
 
 const keep = process.argv.includes("--keep");
@@ -157,14 +159,40 @@ async function main() {
 
 		const dirty = await db.select().from(perceptionRollupDirty).where(eq(perceptionRollupDirty.brandId, orgId));
 		assert.equal(dirty.length, 2);
-		ok("both answer days are marked for rollup (the markers are the only rollup state; nothing consumes them yet)");
+		ok("the judge marked both answer days dirty");
+
+		const built = await buildPerceptionRollups(db);
+		assert.equal(built.days, 2);
+		assert.equal(
+			(await db.select().from(perceptionRollupDirty).where(eq(perceptionRollupDirty.brandId, orgId))).length,
+			0,
+		);
+		const rollupRows = () => db.select().from(rollupPerceptionDaily).where(eq(rollupPerceptionDaily.brandId, orgId));
+		const rolled = await rollupRows();
+		for (const factId of factIds)
+			assert.equal(
+				rolled.filter((row) => row.refKey === factId).reduce((sum, row) => sum + row.answers, 0),
+				seeded,
+			);
+		ok(
+			`the rollup job built ${built.rows} rows over ${built.days} days, cleared both markers, and counts ${seeded} answers per fact`,
+		);
+
+		for (const day of new Set(rolled.map((row) => row.day)))
+			await db.insert(perceptionRollupDirty).values({ brandId: orgId, day });
+		await buildPerceptionRollups(db);
+		const sorted = (rows: typeof rolled) => JSON.stringify(rows.map((row) => JSON.stringify(row)).sort());
+		assert.equal(sorted(await rollupRows()), sorted(rolled));
+		ok("rebuilding the same days gives the same rollup, not a doubled one");
 
 		assert.equal((await db.select().from(perceptionRunStatus)).length, 0);
 		const readout = readoutOf(orgId, scratch.toString());
 		assert.equal(readout.facts.length, factIds.length);
 		for (const fact of readout.facts) assert.equal(fact.answers, seeded);
 		assert.equal(readout.ceilingReached, false);
-		ok(`the readout reports ${readout.facts.length} facts over ${seeded} answers each, ceiling not reached`);
+		ok(
+			`the readout (still read from verdicts) reports ${readout.facts.length} facts over ${seeded} answers each, the same totals as the rollup`,
+		);
 
 		const again = await judgePendingRuns(db, stubTransport, "stub");
 		assert.deepEqual({ runs: again.runs, calls: again.calls }, { runs: 0, calls: 0 });
