@@ -70,25 +70,16 @@ export interface FactReadout {
 	ceilingReached: boolean;
 }
 
-/** Compares URLs as pages: no scheme, "www.", query, fragment or trailing slash, any case. */
-const pageKey = (column: unknown) =>
-	sql`lower(regexp_replace(regexp_replace(regexp_replace(${column}, '^https?://(www\\.)?', ''), '[?#].*$', ''), '/+$', ''))`;
-
 /**
- * Verdicts in scope, the latest per answer and fact, each with what its answer cited. What an answer
- * cited is worked out once per answer, not once per verdict.
+ * Verdicts in scope, the latest per answer and fact. What each answer cited was worked out when it was
+ * judged and is read off the verdict; with `only`, just those verdicts, newest first up to the limit.
  */
 function judged(brandId: string, filters: ReadoutFilters, only?: "contradicts") {
 	const day = sql`(r.created_at AT TIME ZONE 'UTC')::date`;
 	return sql`
-		WITH site AS (
-			SELECT lower(regexp_replace(regexp_replace(d, '^https?://(www\\.)?', ''), '/.*$', '')) AS host
-			FROM brands b, unnest(array_prepend(b.website, b.additional_domains)) AS d
-			WHERE b.id = ${brandId}
-		),
-		latest AS (
+		WITH latest AS (
 			SELECT DISTINCT ON (v.run_id, v.fact_id)
-				v.id, v.run_id, v.fact_id, v.verdict, v.passage, v.confidence,
+				v.id, v.run_id, v.fact_id, v.verdict, v.passage, v.confidence, v.cited, v.cited_site, v.cited_source,
 				r.model, r.created_at, r.prompt_id, p.value AS prompt
 			FROM perception_verdicts v
 			JOIN prompt_runs r ON r.id = v.run_id
@@ -111,27 +102,12 @@ function judged(brandId: string, filters: ReadoutFilters, only?: "contradicts") 
 		scoped AS (
 			SELECT *${only ? sql`, count(*) OVER () AS total` : sql``} FROM latest
 			${only ? sql`WHERE verdict = ${only} ORDER BY created_at DESC, id LIMIT ${MAX_ALERTS}` : sql``}
-		),
-		cites AS (
-			SELECT c.prompt_run_id,
-				array_agg(DISTINCT ${pageKey(sql`c.url`)}) AS pages,
-				bool_or(EXISTS (
-					SELECT 1 FROM site s
-					WHERE lower(regexp_replace(c.domain, '^www\\.', '')) = s.host OR lower(c.domain) LIKE '%.' || s.host
-				)) AS on_site
-			FROM citations c
-			WHERE c.prompt_run_id IN (SELECT run_id FROM scoped)
-			GROUP BY c.prompt_run_id
 		)
 		SELECT
 			l.*, f.statement, f.valid_from::text AS valid_from, f.valid_to::text AS valid_to,
-			f.source_url, f.source_read_at,
-			(ci.prompt_run_id IS NOT NULL) AS cited,
-			(f.source_url IS NOT NULL AND coalesce(${pageKey(sql`f.source_url`)} = ANY(ci.pages), false)) AS cited_source,
-			coalesce(ci.on_site, false) AS cited_site
+			f.source_url, f.source_read_at
 		FROM scoped l
 		JOIN brand_facts f ON f.id = l.fact_id AND f.brand_id = ${brandId}
-		LEFT JOIN cites ci ON ci.prompt_run_id = l.run_id
 	`;
 }
 

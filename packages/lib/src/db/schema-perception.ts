@@ -182,6 +182,14 @@ export const perceptionVerdicts = pgTable(
 		stamp: text("stamp").notNull(),
 		/** The answer length the judge saw, when the answer was cut to fit; null when it saw the whole answer. */
 		truncatedAt: integer("truncated_at"),
+		/**
+		 * What the answer cited, worked out when it was judged, so a readout counts them instead of
+		 * reading every citation: any source, the brand's own site, and (for a fact) the fact's source page.
+		 * Facts only; false for other kinds.
+		 */
+		cited: boolean("cited").notNull().default(false),
+		citedSite: boolean("cited_site").notNull().default(false),
+		citedSource: boolean("cited_source").notNull().default(false),
 		createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 	},
 	(table) => [

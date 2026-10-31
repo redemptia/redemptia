@@ -232,7 +232,8 @@ drops the indexes our 0031 renamed (`prompt_runs_web_search_model_created_at_idx
 its generated SQL was kept instead of elmo's original. 0040's SQL is elmo's original, including the backfill INSERTs.
 
 0041 is ours again: `0041_perception_prominence_rollup` (`rollup_prominence_daily`), dated after 0040's re-dated `when`.
-Our next is 0042; elmo's next migration is renumbered after it by the same procedure.
+0042 is ours too: `0042_perception_verdict_citations` (three columns on `perception_verdicts`, backfilled from `citations` in the migration).
+Our next is 0043; elmo's next migration is renumbered after it by the same procedure.
 
 Every deployed database that has run 0038 records that `when` as its newest. That has two consequences for every
 catch-up from now on:

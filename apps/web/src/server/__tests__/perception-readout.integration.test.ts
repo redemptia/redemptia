@@ -72,17 +72,45 @@ async function answer(
 			createdAt: at,
 		});
 	}
-	await verdictOn(runId, factId, verdict, opts.stamp);
+	await verdictOn(runId, factId, verdict, opts.stamp, await groundingOf(factId, opts.cites ?? []));
 	return runId;
 }
 
-async function verdictOn(runId: string, factId: string, verdict: string, stamp = "s1") {
+/** What the job records on a verdict for the answer's citations: any, the brand's site, the fact's source page. */
+async function groundingOf(factId: string, cites: string[]) {
+	const [{ sourceUrl }] = await db
+		.select({ sourceUrl: brandFacts.sourceUrl })
+		.from(brandFacts)
+		.where(eq(brandFacts.id, factId));
+	const page = (url: string) => {
+		const u = new URL(url);
+		return `${u.hostname.replace(/^www\./, "")}${u.pathname.replace(/\/+$/, "")}`.toLowerCase();
+	};
+	return {
+		cited: cites.length > 0,
+		citedSite: cites.some((url) => new URL(url).hostname.endsWith("acme.example")),
+		citedSource: sourceUrl !== null && cites.some((url) => page(url) === page(sourceUrl)),
+	};
+}
+
+async function verdictOn(
+	runId: string,
+	factId: string,
+	verdict: string,
+	stamp = "s1",
+	flags: { cited: boolean; citedSite: boolean; citedSource: boolean } = {
+		cited: false,
+		citedSite: false,
+		citedSource: false,
+	},
+) {
 	await db.insert(perceptionVerdicts).values({
 		runId,
 		subject: "Acme",
 		kind: "fact",
 		factId,
 		verdict,
+		...flags,
 		probabilities: { [verdict]: 1 },
 		passage: verdict === "contradicts" ? "Acme Pro costs $40 a month." : null,
 		stamp,

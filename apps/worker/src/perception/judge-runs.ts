@@ -97,7 +97,7 @@ interface PendingRun {
 	day: string;
 	attempts: number;
 	/** A fact prompt's run asks the facts; an association prompt's run asks the attributes and drift. */
-	facts: { id: string; statement: string }[];
+	facts: { id: string; statement: string; sourceUrl: string | null }[];
 	attributes: { id: string; questionText: string; questionVersion: number }[];
 }
 
@@ -132,6 +132,7 @@ async function pendingRuns(db: DbConnection, stamp: string, limit: number): Prom
 			attempts: sql<number>`coalesce(${perceptionRunStatus.attempts}, 0)`,
 			factId: brandFacts.id,
 			statement: brandFacts.statement,
+			sourceUrl: brandFacts.sourceUrl,
 		})
 		.from(promptRuns)
 		.innerJoin(
@@ -184,7 +185,7 @@ async function pendingRuns(db: DbConnection, stamp: string, limit: number): Prom
 			};
 			byRun.set(row.runId, run);
 		}
-		run.facts.push({ id: row.factId, statement: row.statement });
+		run.facts.push({ id: row.factId, statement: row.statement, sourceUrl: row.sourceUrl });
 	}
 	return withRawOutput(db, [...byRun.values()]);
 }
@@ -380,6 +381,43 @@ type JudgedResponse = JevResponse & {
 	answers: Record<string, { choice: string; probabilities: Record<string, number>; confidence?: number }>;
 };
 
+/** A page as a URL names it: no scheme, "www.", query, fragment or trailing slash, any case. */
+const pageKey = (url: string) =>
+	url
+		.replace(/^https?:\/\/(www\.)?/, "")
+		.replace(/[?#].*$/, "")
+		.replace(/\/+$/, "")
+		.toLowerCase();
+
+const siteHost = (domain: string) =>
+	domain
+		.replace(/^https?:\/\/(www\.)?/, "")
+		.replace(/\/.*$/, "")
+		.toLowerCase();
+
+/**
+ * What an answer cited, kept on each fact verdict: any source, the brand's own site, and the fact's
+ * source page. Worked out from the stored answer when it is judged, so a readout counts them instead
+ * of reading every citation.
+ */
+export function grounding(
+	citations: { url: string; domain: string }[],
+	siteDomains: string[],
+	sourceUrl: string | null,
+) {
+	const hosts = siteDomains.map(siteHost).filter(Boolean);
+	const onSite = (domain: string) => {
+		const lower = domain.toLowerCase();
+		return hosts.some((host) => lower.replace(/^www\./, "") === host || lower.endsWith(`.${host}`));
+	};
+	const source = sourceUrl ? pageKey(sourceUrl) : null;
+	return {
+		cited: citations.length > 0,
+		citedSite: citations.some((citation) => onSite(citation.domain)),
+		citedSource: source !== null && citations.some((citation) => pageKey(citation.url) === source),
+	};
+}
+
 /** The verdict rows an answer's judgement makes, for whichever class of prompt the run is. */
 function verdictRows(
 	run: PendingRun,
@@ -387,6 +425,7 @@ function verdictRows(
 	response: JudgedResponse,
 	truncatedAt: number | null,
 	passages: string[],
+	citations: { url: string; domain: string }[],
 ) {
 	const base = { runId: run.runId, subject: run.subject, stamp, truncatedAt };
 	const confidence = (answer?: { confidence?: number }) =>
@@ -430,6 +469,7 @@ function verdictRows(
 			...base,
 			kind: "fact" as const,
 			factId: fact.id,
+			...grounding(citations, run.names.domains, fact.sourceUrl),
 			verdict: answer.choice,
 			probabilities: answer.probabilities,
 			confidence: confidence(answer),
@@ -508,7 +548,10 @@ async function judgeRun(
 	stamp: string,
 	judge: string,
 ): Promise<RunResult> {
-	const text = extractRun(run.rawOutput, extractorFor({ provider: run.provider, model: run.model })).textContent;
+	const { textContent: text, citations } = extractRun(
+		run.rawOutput,
+		extractorFor({ provider: run.provider, model: run.model }),
+	);
 	if (!text) {
 		await setAside(db, run.runId, stamp, "no_text", run.attempts);
 		return { calls: 0, verdicts: 0 };
@@ -549,7 +592,7 @@ async function judgeRun(
 		await failed(db, run, stamp, `unusable answer for ${unusable[0]}`);
 		return { calls: asked.calls, verdicts: 0 };
 	}
-	const rows = verdictRows(run, stamp, response, asked.truncatedAt, asked.passages);
+	const rows = verdictRows(run, stamp, response, asked.truncatedAt, asked.passages, citations);
 	return { calls: asked.calls, verdicts: await record(db, run, rows) };
 }
 
