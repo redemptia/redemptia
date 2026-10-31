@@ -362,8 +362,28 @@ export const perceptionRollupDirty = pgTable(
 		brandId: text("brand_id").notNull(),
 		day: date("day").notNull(),
 		firstMarkedAt: timestamp("first_marked_at", { withTimezone: true }).defaultNow().notNull(),
+		/**
+		 * Moved forward every time the day is marked again. The rebuild clears a marker only if this is
+		 * what it read, so a verdict written while the day was being rebuilt keeps the marker.
+		 */
+		markedAt: timestamp("marked_at", { withTimezone: true }).defaultNow().notNull(),
 	},
 	(table) => [primaryKey({ name: "perception_rollup_dirty_pk", columns: [table.brandId, table.day] })],
+).enableRLS();
+
+/**
+ * Days whose `rollupProminenceDaily` rows are out of date with `run_mentions`. A trigger on `run_mentions`
+ * (migration 0043) marks the day of every market answer whose mentions are written or rewritten, wherever
+ * that happens, so nothing has to remember to.
+ */
+export const perceptionProminenceDirty = pgTable(
+	"perception_prominence_dirty",
+	{
+		brandId: text("brand_id").notNull(),
+		day: date("day").notNull(),
+		markedAt: timestamp("marked_at", { withTimezone: true }).defaultNow().notNull(),
+	},
+	(table) => [primaryKey({ name: "perception_prominence_dirty_pk", columns: [table.brandId, table.day] })],
 ).enableRLS();
 
 /**

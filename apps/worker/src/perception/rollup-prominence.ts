@@ -1,17 +1,24 @@
 import type { DbConnection } from "@workspace/lib/db/db-connection";
 import { brands, promptRuns, runMentions } from "@workspace/lib/db/schema";
-import { perceptionPrompts, rollupProminenceDaily } from "@workspace/lib/db/schema-perception";
+import {
+	perceptionProminenceDirty,
+	perceptionPrompts,
+	rollupProminenceDaily,
+} from "@workspace/lib/db/schema-perception";
 import type { MentionAssessment, RunMentionAssessments } from "@workspace/lib/mentions";
 import { competitorSetFingerprint } from "@workspace/lib/perception/competitor-set";
-import { and, eq, isNotNull, sql } from "drizzle-orm";
+import { and, asc, eq, isNotNull, sql } from "drizzle-orm";
 
 /** How far back elmo's reprocess can rewrite a judged answer's mentions, and so its positions. */
 export const PROMINENCE_WINDOW_DAYS = 90;
+/** Days rebuilt per job: a backlog clears over several runs rather than in one long one. */
+export const PROMINENCE_DAYS_PER_JOB = 200;
+const WEEK_MS = 7 * 86_400_000;
 
 const dayOf = (date: Date) => date.toISOString().slice(0, 10);
 const daysBefore = (date: Date, days: number) => dayOf(new Date(date.getTime() - days * 86_400_000));
 
-let lastFullPass: string | null = null;
+let lastFullPass: number | null = null;
 
 export interface ProminenceRollupOutcome {
 	days: number;
@@ -19,46 +26,57 @@ export interface ProminenceRollupOutcome {
 }
 
 /**
- * Rebuilds `rollup_prominence_daily` from `run_mentions`, a (brand, UTC day) at a time. Market answers
- * get no dirty marker (elmo's judge writes their mentions, and nothing of ours runs then), so the days
- * to rebuild are found another way: today and yesterday on every job, any day in the window with
- * market answers and no rollup yet, and the whole window once a UTC day, since a reprocess after a
- * competitor change rewrites positions up to `PROMINENCE_WINDOW_DAYS` back. Market volume is a few
- * dozen answers a day per brand, so that is cheap. A day is replaced whole in one transaction, so
- * rebuilding it gives the same rows.
+ * Rebuilds `rollup_prominence_daily` from `run_mentions`, a (brand, UTC day) at a time, for the days a
+ * trigger on `run_mentions` marked: a market answer whose mentions are written or rewritten, by the
+ * judge, a replay or a backfill, marks its day. A day is replaced whole in one transaction with clearing
+ * the marker it was read under, so rebuilding it gives the same rows and a mention written mid-rebuild
+ * keeps its marker.
+ *
+ * A pass over the whole `PROMINENCE_WINDOW_DAYS` window runs about once a week, as a safety net for what
+ * a trigger can't see: market answers deleted, a prompt relabelled, an attribute renamed, a brand renamed
+ * (its rows are keyed by name), or markers lost in a restore.
  */
 export async function buildProminenceRollups(
 	db: DbConnection,
 	now = new Date(),
 	options: { fullPass?: boolean } = {},
 ): Promise<ProminenceRollupOutcome> {
-	const today = dayOf(now);
-	const full = options.fullPass ?? lastFullPass !== today;
-	const day = sql<string>`(${promptRuns.createdAt} AT TIME ZONE 'UTC')::date`;
-	const candidates = await db
-		.selectDistinct({ brandId: promptRuns.brandId, day })
-		.from(promptRuns)
-		.innerJoin(
-			perceptionPrompts,
-			and(eq(perceptionPrompts.promptId, promptRuns.promptId), eq(perceptionPrompts.class, "market")),
-		)
-		.innerJoin(runMentions, eq(runMentions.runId, promptRuns.id))
-		.where(
-			and(
-				isNotNull(runMentions.assessments),
-				sql`${day} >= ${daysBefore(now, PROMINENCE_WINDOW_DAYS)}::date`,
-				full
-					? sql`true`
-					: sql`(${day} >= ${daysBefore(now, 1)}::date OR NOT EXISTS (
-						SELECT 1 FROM rollup_prominence_daily p WHERE p.brand_id = ${promptRuns.brandId} AND p.day = ${day}))`,
-			),
-		);
+	const week = Math.floor(now.getTime() / WEEK_MS);
+	const full = options.fullPass ?? lastFullPass !== week;
+	const marked = await db
+		.select({
+			brandId: perceptionProminenceDirty.brandId,
+			day: sql<string>`${perceptionProminenceDirty.day}::text`,
+			// As text, to keep the microseconds a Date would drop.
+			markedAt: sql<string>`${perceptionProminenceDirty.markedAt}::text`,
+		})
+		.from(perceptionProminenceDirty)
+		.orderBy(asc(perceptionProminenceDirty.day), asc(perceptionProminenceDirty.brandId))
+		.limit(PROMINENCE_DAYS_PER_JOB);
+	const days = new Map<string, { brandId: string; day: string; markedAt: string | null }>();
+	for (const row of marked) days.set(`${row.brandId} ${row.day}`, row);
+	if (full) {
+		const day = sql<string>`(${promptRuns.createdAt} AT TIME ZONE 'UTC')::date`;
+		const everything = await db
+			.selectDistinct({ brandId: promptRuns.brandId, day: sql<string>`${day}::text` })
+			.from(promptRuns)
+			.innerJoin(
+				perceptionPrompts,
+				and(eq(perceptionPrompts.promptId, promptRuns.promptId), eq(perceptionPrompts.class, "market")),
+			)
+			.innerJoin(runMentions, eq(runMentions.runId, promptRuns.id))
+			.where(and(isNotNull(runMentions.assessments), sql`${day} >= ${daysBefore(now, PROMINENCE_WINDOW_DAYS)}::date`));
+		for (const row of everything) {
+			const key = `${row.brandId} ${row.day}`;
+			if (!days.has(key)) days.set(key, { ...row, markedAt: null });
+		}
+	}
 	const outcome: ProminenceRollupOutcome = { days: 0, rows: 0 };
-	for (const candidate of candidates) {
-		outcome.rows += await rebuildDay(db, candidate.brandId, candidate.day);
+	for (const { brandId, day, markedAt } of days.values()) {
+		outcome.rows += await rebuildDay(db, brandId, day, markedAt);
 		outcome.days++;
 	}
-	if (options.fullPass === undefined && full) lastFullPass = today;
+	if (options.fullPass === undefined && full) lastFullPass = week;
 	return outcome;
 }
 
@@ -132,7 +150,7 @@ function addRun(groups: Map<string, Group>, run: MarketRun, brandId: string, bra
 	}
 }
 
-async function rebuildDay(db: DbConnection, brandId: string, day: string): Promise<number> {
+async function rebuildDay(db: DbConnection, brandId: string, day: string, markedAt: string | null): Promise<number> {
 	return db.transaction(async (tx) => {
 		const [brand] = await tx.select({ name: brands.name }).from(brands).where(eq(brands.id, brandId));
 		const runs = await tx
@@ -171,6 +189,16 @@ async function rebuildDay(db: DbConnection, brandId: string, day: string): Promi
 			inversePositionSum: group.inverseSum,
 		}));
 		if (rows.length > 0) await tx.insert(rollupProminenceDaily).values(rows);
+		if (markedAt !== null)
+			await tx
+				.delete(perceptionProminenceDirty)
+				.where(
+					and(
+						eq(perceptionProminenceDirty.brandId, brandId),
+						sql`${perceptionProminenceDirty.day} = ${day}::date`,
+						sql`${perceptionProminenceDirty.markedAt} = ${markedAt}::timestamptz`,
+					),
+				);
 		return rows.length;
 	});
 }

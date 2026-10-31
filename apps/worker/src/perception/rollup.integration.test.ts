@@ -187,3 +187,24 @@ describe("a failed rebuild", () => {
 		expect(await markers()).toEqual([]);
 	});
 });
+
+describe("a verdict written while a day is rebuilt", () => {
+	it("leaves its marker, so the next job rebuilds the day with it", async () => {
+		await judged("2026-10-10T12:00:00Z", "supports");
+		await db.execute(sql`
+			CREATE OR REPLACE FUNCTION remark_fact_day() RETURNS trigger AS $$
+			BEGIN UPDATE perception_rollup_dirty SET marked_at = clock_timestamp() WHERE brand_id = NEW.brand_id; RETURN NULL; END $$ LANGUAGE plpgsql`);
+		await db.execute(
+			sql`CREATE TRIGGER remark_fact_day AFTER INSERT ON rollup_perception_daily FOR EACH ROW EXECUTE FUNCTION remark_fact_day()`,
+		);
+		try {
+			await buildPerceptionRollups(db);
+		} finally {
+			await db.execute(sql`DROP TRIGGER remark_fact_day ON rollup_perception_daily`);
+		}
+
+		expect(await markers()).toHaveLength(1);
+		await buildPerceptionRollups(db);
+		expect(await markers()).toEqual([]);
+	});
+});

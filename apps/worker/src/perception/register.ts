@@ -25,6 +25,7 @@ import { buildPerceptionRollups } from "./rollup";
 import { buildProminenceRollups } from "./rollup-prominence";
 
 export const PERCEPTION_JUDGE_QUEUE = "perception-judge";
+export const PERCEPTION_ROLLUP_QUEUE = "perception-rollup";
 
 function perceptionJudge(apiKey = process.env.TYPESAFE_API_KEY?.trim()): { transport: JevTransport; judge: string } {
 	if (!apiKey) throw new Error("TYPESAFE_API_KEY is required");
@@ -50,14 +51,6 @@ export async function registerPerceptionJobs(boss: PgBoss): Promise<void> {
 			if (outcome.overCeiling) {
 				console.warn("[perception] Daily Jev call ceiling reached; judging resumes tomorrow (UTC).");
 			}
-			// A failed rebuild keeps its markers, so the next job tries again; it must not fail the judging.
-			try {
-				await buildPerceptionRollups(db);
-				await buildProminenceRollups(db);
-			} catch (error) {
-				Sentry.captureException(error);
-				console.error("[perception] Rollup rebuild failed:", error);
-			}
 			return outcome;
 		});
 		console.log(`Registered the perception judge (${judge})`);
@@ -65,8 +58,40 @@ export async function registerPerceptionJobs(boss: PgBoss): Promise<void> {
 		Sentry.captureException(error);
 		console.error("[perception] Not registered:", error);
 	}
+	await registerRollups(boss);
 	await registerFactProposer(boss);
 	await registerAttributeProposer(boss);
+}
+
+/**
+ * Rebuilds the daily rollups from the days marked dirty, in a job of its own: a slow rebuild never delays
+ * judging, and a failed one never touches it. The two rebuilds are independent of each other too, and a
+ * failed one keeps its markers for the next run. Needs no judge key.
+ */
+async function registerRollups(boss: PgBoss): Promise<void> {
+	try {
+		if (!perceptionAvailableIn(getDeployment().mode)) return;
+		await boss.createQueue(PERCEPTION_ROLLUP_QUEUE, { policy: "singleton", retryLimit: 0, expireInSeconds: 60 * 30 });
+		await boss.schedule(PERCEPTION_ROLLUP_QUEUE, "* * * * *", {}, { tz: "UTC", singletonKey: PERCEPTION_ROLLUP_QUEUE });
+		await boss.work(PERCEPTION_ROLLUP_QUEUE, { localConcurrency: 1 }, async () => {
+			const outcome: Record<string, unknown> = {};
+			for (const [name, build] of [
+				["facts", () => buildPerceptionRollups(db)],
+				["prominence", () => buildProminenceRollups(db)],
+			] as const) {
+				try {
+					outcome[name] = await build();
+				} catch (error) {
+					Sentry.captureException(error);
+					console.error(`[perception] Rollup rebuild (${name}) failed:`, error);
+				}
+			}
+			return outcome;
+		});
+	} catch (error) {
+		Sentry.captureException(error);
+		console.error("[perception] Rollups not registered:", error);
+	}
 }
 
 /** Separate from the judge, so a missing judge key doesn't take fact suggestions down with it. */
