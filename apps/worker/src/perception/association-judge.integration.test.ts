@@ -86,9 +86,11 @@ function judge(answers: { attribute?: string; drift?: string; passage?: string }
 				? (answers.drift ?? "no")
 				: key === DRIFT_EVIDENCE_KEY
 					? (answers.passage ?? "p1")
-					: key.startsWith("attribute__")
-						? (answers.attribute ?? "positive")
-						: "supports";
+					: key.endsWith("__evidence")
+						? "none"
+						: key.startsWith("attribute__")
+							? (answers.attribute ?? "positive")
+							: "supports";
 		return {
 			answers: Object.fromEntries(
 				Object.keys(request.questions).map((key) => [
