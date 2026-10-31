@@ -21,6 +21,7 @@ import {
 import { estimateRunCostUsd } from "@workspace/lib/usage";
 import { and, eq, gt, sql } from "drizzle-orm";
 import type { Job } from "pg-boss";
+import { alertCeilingReached } from "../alert-once";
 import { getBoss } from "../boss";
 import { trackWorkerEvent } from "../telemetry";
 import { DERIVE_PRIORITY, sendDeriveRuns } from "./derive-runs";
@@ -304,12 +305,7 @@ async function processPrompt(
 		unmeteredDailyCeiling(await enabledPromptCount(db, brand.organizationId), plan.targets);
 	if ((await providerCallsLast24h(db, brand.organizationId)) >= ceiling) {
 		console.warn(`Org ${brand.organizationId} is over its daily run ceiling (${ceiling}); skipping this cycle`);
-		Sentry.withScope((scope) => {
-			scope.setLevel("warning");
-			scope.setTag("scheduler", "org-daily-ceiling");
-			scope.setFingerprint(["org-daily-ceiling", brand.organizationId]);
-			Sentry.captureMessage(`Org ${brand.organizationId} hit its daily run ceiling (${ceiling})`, "warning");
-		});
+		alertCeilingReached("provider-calls", brand.organizationId, String(ceiling));
 		await scheduleNextRun(promptId, plan.rescheduleHours, 0);
 		return;
 	}
