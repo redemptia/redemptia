@@ -25,6 +25,7 @@ import {
 	perceptionVerdicts,
 } from "@workspace/lib/db/schema-perception";
 import { ASSOCIATION_ENABLED } from "@workspace/lib/perception/association";
+import { DAILY_JEV_CALL_CEILING } from "@workspace/lib/perception/limits";
 import { EXTRACTOR_VERSION, extractorFor, extractRun } from "@workspace/lib/text-extraction";
 import { and, asc, desc, eq, gte, inArray, isNull, lte, or, sql } from "drizzle-orm";
 import {
@@ -76,7 +77,7 @@ export interface JudgeOutcome {
 	runs: number;
 	calls: number;
 	verdicts: number;
-	/** The ceiling turned a call away; the job stops for the day and says so. */
+	/** The ceiling turned a call away part-way through a job; that organization is skipped for the rest of it. */
 	overCeiling: boolean;
 	/** Jev rate-limited a call; the job stops and the next one tries again. */
 	rateLimited: boolean;
@@ -99,6 +100,15 @@ interface PendingRun {
 	facts: { id: string; statement: string }[];
 	attributes: { id: string; questionText: string; questionVersion: number }[];
 }
+
+/**
+ * An organization that has used today's calls has no slot left, so its runs stay out of the batch:
+ * otherwise they would fill it every minute and hold back every organization still under its ceiling.
+ */
+const hasCallsLeft = sql`NOT EXISTS (
+	SELECT 1 FROM perception_jev_calls c
+	WHERE c.organization_id = ${brands.organizationId} AND c.day = (now() AT TIME ZONE 'UTC')::date
+		AND c.calls >= ${DAILY_JEV_CALL_CEILING})`;
 
 /**
  * Fact-prompt runs of brands with perception on, from the last `LOOKBACK_DAYS`, with at least one fact, valid on the run's UTC day,
@@ -151,6 +161,7 @@ async function pendingRuns(db: DbConnection, stamp: string, limit: number): Prom
 			and(
 				gte(promptRuns.createdAt, sql`now() - make_interval(days => ${LOOKBACK_DAYS})`),
 				isNull(perceptionRunStatus.outcome),
+				hasCallsLeft,
 				sql`NOT EXISTS (SELECT 1 FROM ${perceptionVerdicts} WHERE ${perceptionVerdicts.runId} = ${promptRuns.id}
 					AND ${perceptionVerdicts.factId} = ${brandFacts.id} AND ${perceptionVerdicts.stamp} = ${stamp})`,
 			),
@@ -231,6 +242,7 @@ async function pendingAssociationRuns(db: DbConnection, stamp: string, limit: nu
 			and(
 				gte(promptRuns.createdAt, sql`now() - make_interval(days => ${LOOKBACK_DAYS})`),
 				isNull(perceptionRunStatus.outcome),
+				hasCallsLeft,
 				sql`EXISTS (SELECT 1 FROM ${perceptionAttributes} WHERE ${perceptionAttributes.brandId} = ${promptRuns.brandId}
 					AND ${perceptionAttributes.retiredAt} IS NULL)`,
 				sql`NOT EXISTS (SELECT 1 FROM ${perceptionVerdicts} WHERE ${perceptionVerdicts.runId} = ${promptRuns.id}
@@ -506,14 +518,23 @@ export async function judgePendingRuns(
 	const factRuns = await pendingRuns(db, stamp, limit);
 	const associationRuns = options.association ? await pendingAssociationRuns(db, stamp, limit - factRuns.length) : [];
 	const runs = [...factRuns, ...associationRuns];
+	// An organization that runs out of calls part-way through is skipped for the rest of the job; the
+	// others carry on. A rate limit is Jev's, not an organization's, so it ends the job.
+	const outOfCalls = new Set<string>();
 	for (const run of runs) {
+		if (outOfCalls.has(run.organizationId)) continue;
 		const result = await judgeRun(db, transport, run, stamp, judge);
 		outcome.calls += result.calls;
 		outcome.verdicts += result.verdicts;
 		if (result.verdicts > 0) outcome.runs++;
-		if (result.stop === "over_ceiling") outcome.overCeiling = true;
-		if (result.stop === "rate_limited") outcome.rateLimited = true;
-		if (result.stop) break;
+		if (result.stop === "over_ceiling") {
+			outcome.overCeiling = true;
+			outOfCalls.add(run.organizationId);
+		}
+		if (result.stop === "rate_limited") {
+			outcome.rateLimited = true;
+			break;
+		}
 	}
 	return outcome;
 }
