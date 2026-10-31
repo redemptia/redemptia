@@ -5,9 +5,16 @@
  *
  * Takes a brand id the caller has already authorized, and scopes every read to it.
  */
+import { parseScrapeTargets } from "@workspace/config/scrape-targets";
+import { getDefaultDelayHours, getRunsPerPrompt } from "@workspace/lib/constants";
 import type { DbConnection } from "@workspace/lib/db/db-connection";
+import { enabledPromptCount, providerCallsLast24h } from "@workspace/lib/db/runs";
+import { brands } from "@workspace/lib/db/schema";
+import { getOrgEntitlements } from "@workspace/lib/entitlements";
 import { DAILY_JEV_CALL_CEILING } from "@workspace/lib/perception/limits";
-import { sql } from "drizzle-orm";
+import { selectTargetsForBrand } from "@workspace/lib/providers";
+import { dailyRunCeiling, unmeteredDailyCeiling } from "@workspace/lib/run-policy";
+import { eq, sql } from "drizzle-orm";
 
 /** Alerts listed at most; the count says how many there are in all. */
 export const MAX_ALERTS = 50;
@@ -68,6 +75,8 @@ export interface FactReadout {
 	alertCount: number;
 	/** The brand's organization has used today's Jev calls; unjudged answers wait for the next UTC day. */
 	ceilingReached: boolean;
+	/** The organization has used its provider calls for the last 24 hours; no new answers are collected until they age out. */
+	trackingPaused: boolean;
 }
 
 /**
@@ -213,6 +222,30 @@ export async function jevCallsToday(conn: DbConnection, brandId: string): Promis
 	return rows[0]?.calls ?? 0;
 }
 
+/** Whether process-prompt is skipping this brand's cycles: the same ceiling and count it applies. */
+export async function trackingPaused(conn: DbConnection, brandId: string): Promise<boolean> {
+	const [brand] = await conn
+		.select({
+			organizationId: brands.organizationId,
+			enabledModels: brands.enabledModels,
+			delay: brands.delayOverrideHours,
+		})
+		.from(brands)
+		.where(eq(brands.id, brandId));
+	if (!brand) return false;
+	const entitlements = await getOrgEntitlements(brand.organizationId);
+	const targets = selectTargetsForBrand(parseScrapeTargets(process.env.SCRAPE_TARGETS), brand.enabledModels).map(
+		() => ({
+			intervalHours: brand.delay ?? getDefaultDelayHours(),
+			replication: getRunsPerPrompt(),
+		}),
+	);
+	const ceiling =
+		dailyRunCeiling(entitlements) ??
+		unmeteredDailyCeiling(await enabledPromptCount(conn, brand.organizationId), targets);
+	return (await providerCallsLast24h(conn, brand.organizationId)) >= ceiling;
+}
+
 const rowsOf = <T>(result: unknown): T[] => (Array.isArray(result) ? result : (result as { rows: T[] }).rows) as T[];
 
 export async function getFactReadout(
@@ -222,7 +255,7 @@ export async function getFactReadout(
 ): Promise<FactReadout> {
 	// Counted in the database: at the daily ceiling a brand has a verdict per answer and fact, hundreds of
 	// thousands over the lookback, and shipping each one to count it took seconds.
-	const [counts, contradictions, callsToday] = await Promise.all([
+	const [counts, contradictions, callsToday, paused] = await Promise.all([
 		conn.execute<CoverageRow>(sql`
 			SELECT fact_id, statement, valid_from, valid_to, source_url, verdict,
 				count(*)::int AS answers, count(*) FILTER (WHERE cited)::int AS cited,
@@ -233,12 +266,14 @@ export async function getFactReadout(
 			SELECT * FROM (${judged(brandId, filters, "contradicts")}) judged
 			ORDER BY created_at DESC, id`),
 		jevCallsToday(conn, brandId),
+		trackingPaused(conn, brandId),
 	]);
 	const alerts = rowsOf<Row & { total: number | string }>(contradictions);
 	return {
 		facts: coverage(rowsOf<CoverageRow>(counts)),
 		alertCount: alerts.length > 0 ? Number(alerts[0].total) : 0,
 		ceilingReached: callsToday >= DAILY_JEV_CALL_CEILING,
+		trackingPaused: paused,
 		alerts: alerts.map(alert),
 	};
 }

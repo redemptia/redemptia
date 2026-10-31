@@ -16,7 +16,7 @@ import { execFileSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { resolve } from "node:path";
 import { createDb } from "@workspace/lib/db/db";
-import { brands, organization, promptRuns, prompts, runMentions } from "@workspace/lib/db/schema";
+import { brands, organization, promptRuns, prompts, runMentions, usageEvents } from "@workspace/lib/db/schema";
 import {
 	brandFacts,
 	mentionJudgeCalls,
@@ -82,7 +82,7 @@ interface HistoryProbe {
 function historyOf(brandId: string, url: string): HistoryProbe {
 	const out = execFileSync("pnpm", ["exec", "tsx", "scripts/perception-readout-probe.ts", brandId, "history"], {
 		cwd: WEB,
-		env: { ...process.env, DATABASE_URL: url },
+		env: { ...process.env, DATABASE_URL: url, DEPLOYMENT_MODE: "local" },
 		encoding: "utf8",
 	});
 	return JSON.parse(out.trim().split("\n").pop() ?? "");
@@ -92,10 +92,11 @@ function historyOf(brandId: string, url: string): HistoryProbe {
 function readoutOf(
 	brandId: string,
 	url: string,
-): { facts: { answers: number }[]; ceilingReached: boolean; callsToday: number } {
+	env: Record<string, string> = {},
+): { facts: { answers: number }[]; ceilingReached: boolean; trackingPaused: boolean; callsToday: number } {
 	const out = execFileSync("pnpm", ["exec", "tsx", "scripts/perception-readout-probe.ts", brandId], {
 		cwd: WEB,
-		env: { ...process.env, DATABASE_URL: url },
+		env: { ...process.env, DATABASE_URL: url, DEPLOYMENT_MODE: "local", ...env },
 		encoding: "utf8",
 	});
 	return JSON.parse(out.trim().split("\n").pop() ?? "");
@@ -344,6 +345,18 @@ async function rehearseGuards(db: Db) {
 		.where(and(eq(promptRuns.brandId, id), eq(perceptionVerdicts.skipped, true)));
 	assert.equal(flagged.length, 1);
 	ok("an answer that cannot name the brand is recorded as skipped without a call; the one that names it is judged");
+
+	const paused = (env: Record<string, string>) => readoutOf(id, scratch.toString(), env).trackingPaused;
+	const callEvents = (count: number) =>
+		db
+			.insert(usageEvents)
+			.values(Array.from({ length: count }, () => ({ organizationId: id, brandId: id, eventType: "prompt_run" })));
+	await callEvents(2);
+	assert.equal(await paused({ DAILY_PROVIDER_CALL_CEILING: "3" }), false);
+	await callEvents(1);
+	assert.equal(await paused({ DAILY_PROVIDER_CALL_CEILING: "3" }), true);
+	assert.equal(await paused({}), false);
+	ok("at the provider call ceiling the readout says new answers have paused, and not before it");
 
 	const allowance = [1, 2, 3].map(() => reserveMentionCall(db, id, 2));
 	assert.deepEqual((await Promise.all(allowance)).sort(), [false, true, true]);

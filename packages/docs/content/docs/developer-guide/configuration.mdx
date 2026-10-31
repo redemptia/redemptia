@@ -29,6 +29,7 @@ When you run `redemptia init`, the CLI generates a `.env` file in your config di
 | `ELMO_ENCRYPTION_KEY_OLD` | Previous encryption keys, comma-separated, kept readable during a rotation | — |
 | `DISABLE_TELEMETRY` | Set to `1` to disable all telemetry. See [Telemetry](/docs/developer-guide/telemetry). | — |
 | `DEFAULT_DELAY_HOURS` | How often each enabled prompt is re-run against the AI models, in hours. | `24` |
+| `DAILY_PROVIDER_CALL_CEILING` | The most provider calls an organization may make in 24 hours before new runs pause until the oldest age out. Unset, it is 1.5 times what the enabled prompts make in a day at the current `RUNS_PER_PROMPT` and `DEFAULT_DELAY_HOURS`, which stops a runaway without limiting normal use; set it to hold spend to a fixed budget. | derived |
 | `RUNS_PER_PROMPT` | How many times each run samples every tracked platform. Answers vary between identical calls, so several samples make a mention rate a measurement rather than an anecdote — but each one is a provider call you pay for. | `5` |
 
 <Callout type="warn">

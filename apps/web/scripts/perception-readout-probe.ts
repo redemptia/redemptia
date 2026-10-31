@@ -29,6 +29,7 @@ async function main(brandId: string | undefined, url: string | undefined, mode?:
 		JSON.stringify({
 			facts: readout.facts.map((fact) => ({ answers: fact.answers })),
 			ceilingReached: readout.ceilingReached,
+			trackingPaused: readout.trackingPaused,
 			callsToday,
 		}),
 	);

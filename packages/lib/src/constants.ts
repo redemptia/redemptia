@@ -41,6 +41,17 @@ export function getDefaultDelayHours(): number {
 	return parsed;
 }
 
+/**
+ * DAILY_PROVIDER_CALL_CEILING: provider calls an unmetered organization may make in 24 hours, replacing the
+ * ceiling derived from its prompts and targets. Unset, zero or unparseable means the derived one.
+ * Server-only, like getRunsPerPrompt.
+ */
+export function getDailyProviderCallCeiling(): number | null {
+	const raw = typeof process !== "undefined" ? process.env.DAILY_PROVIDER_CALL_CEILING : undefined;
+	const parsed = Number(raw);
+	return raw && Number.isInteger(parsed) && parsed >= 1 ? parsed : null;
+}
+
 // Maximum limits for brand resources
 export const MAX_COMPETITORS = 500;
 export const MAX_PROMPTS = 100;

@@ -117,6 +117,15 @@ function Alert({ alert, org, brand }: { alert: ContradictionAlert; org: string; 
 export function PerceptionReadout({ readout, org, brand }: { readout: FactReadout; org: string; brand: string }) {
 	return (
 		<div className="flex flex-col gap-6">
+			{readout.trackingPaused && (
+				<div role="status" className="rounded-lg border border-amber-500/40 bg-amber-500/5 p-3 text-sm">
+					<p className="font-medium">New answers have paused</p>
+					<p className="text-muted-foreground">
+						Your daily limit on provider calls has been reached, so no new answers are being collected. Collection
+						resumes by itself as the last 24 hours roll off. The figures below are from the answers already collected.
+					</p>
+				</div>
+			)}
 			{readout.ceilingReached && (
 				<div role="status" className="rounded-lg border border-amber-500/40 bg-amber-500/5 p-3 text-sm">
 					<p className="font-medium">Today's checks have paused</p>

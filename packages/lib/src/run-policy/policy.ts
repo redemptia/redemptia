@@ -20,7 +20,7 @@
 import type { Entitlements } from "@workspace/config/entitlements";
 import type { ModelConfig } from "@workspace/config/scrape-targets";
 import type { DeploymentMode } from "@workspace/config/types";
-import { getRunsPerPrompt } from "../constants";
+import { getDailyProviderCallCeiling, getRunsPerPrompt } from "../constants";
 import { isGroundedApiTarget } from "../providers";
 import { selectTargetsForBrand } from "../providers/runner";
 
@@ -289,4 +289,21 @@ export function dailyRunCeiling(entitlements: Entitlements): number | null {
 		(entitlements.replication ?? 1);
 	const premium = entitlements.premiumPool * entitlements.premiumRunsPerDay;
 	return Math.ceil(1.5 * (standard + premium));
+}
+
+/**
+ * The same runaway ceiling for an unmetered organization, which has no plan to derive it from: 1.5x what its
+ * enabled prompts would make in a day on `targets`, or the operator's DAILY_PROVIDER_CALL_CEILING. Derived from
+ * the configuration, so a crash loop or a stuck scheduler hits it while ordinary growth moves it.
+ * shortcut: every prompt is assumed to run on `targets`, though a brand may pick fewer platforms; the
+ * ceiling errs high, which only loosens it. Set the override for a hard budget.
+ */
+export function unmeteredDailyCeiling(
+	enabledPrompts: number,
+	targets: readonly Pick<TargetPlan, "intervalHours" | "replication">[],
+	override: number | null = getDailyProviderCallCeiling(),
+): number {
+	if (override !== null) return override;
+	const perPrompt = targets.reduce((sum, target) => sum + (target.replication * 24) / target.intervalHours, 0);
+	return Math.max(1, Math.ceil(1.5 * enabledPrompts * perPrompt));
 }
