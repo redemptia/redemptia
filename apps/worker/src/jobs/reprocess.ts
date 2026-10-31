@@ -225,6 +225,11 @@ function byBrand<T extends { brandId: string }>(rows: T[]): Map<string, T[]> {
 	return grouped;
 }
 
+/** A config change within the cooldown of the last pass's start waits for it to end. */
+function coolingDown(stored: AnalysisVersions, stale: ReprocessLayer[]): boolean {
+	return stale.length > 0 && Date.now() - Date.parse(stored[PASS_AT_KEY] ?? "") < COOLDOWN_MS;
+}
+
 /**
  * Requests a pass for every brand whose history no longer matches its config or
  * today's code. Runs every minute, which is how a config edit reaches a pass, and
@@ -256,8 +261,7 @@ export async function requestStaleReprocesses(
 			analyzer.judgeVersion,
 		);
 		const stale = staleLayers(brand.analysisVersions, current);
-		const passedAt = Date.parse(brand.analysisVersions[PASS_AT_KEY] ?? "");
-		if (stale.length > 0 && Date.now() - passedAt < COOLDOWN_MS) continue;
+		if (coolingDown(brand.analysisVersions, stale)) continue;
 		// A prompt enabled since the last pass has runs that pass skipped, to judge now.
 		const promptsMoved =
 			brand.analysisVersions[PROMPTS_KEY] !== promptsStamp((promptsByBrand.get(brand.id) ?? []).map(({ id }) => id));

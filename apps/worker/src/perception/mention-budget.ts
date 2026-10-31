@@ -33,16 +33,23 @@ export function secondsUntilTomorrow(now = new Date()): number {
 export const isPaidJudge = (judgeVersion: string) => !judgeVersion.startsWith("stub+");
 
 /**
- * Whether elmo's mention judge must leave this run for tomorrow: it would call the paid judge, and the
- * organization's allowance for today is used. A run already at the current stamp, and the stub, take no slot.
+ * Splits runs into those elmo's mention judge may judge now and the ids it must leave for tomorrow: a run that
+ * would call the paid judge takes a slot, and when the organization's allowance for today is used it is
+ * refused. A run already at the current stamp, and the stub, take no slot.
  */
-export async function mentionAllowanceUsed(
+export async function splitByAllowance<T extends { id: string; stamps: AnalysisVersions }>(
 	db: DbConnection,
 	brandId: string,
-	run: { stamps: AnalysisVersions },
+	runs: T[],
 	target: AnalysisVersions,
 	judgeVersion: string,
-): Promise<boolean> {
-	if (!isPaidJudge(judgeVersion) || run.stamps[MENTIONS_KEY] === target[MENTIONS_KEY]) return false;
-	return !(await reserveMentionCall(db, brandId));
+): Promise<{ allowed: T[]; refused: string[] }> {
+	const allowed: T[] = [];
+	const refused: string[] = [];
+	for (const run of runs) {
+		const free = !isPaidJudge(judgeVersion) || run.stamps[MENTIONS_KEY] === target[MENTIONS_KEY];
+		if (free || (await reserveMentionCall(db, brandId))) allowed.push(run);
+		else refused.push(run.id);
+	}
+	return { allowed, refused };
 }

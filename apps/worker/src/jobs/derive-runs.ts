@@ -29,7 +29,7 @@ import { and, eq, gte, inArray, isNull, lt, or, sql } from "drizzle-orm";
 import type { Job, PgBoss, QueueOptions } from "pg-boss";
 import { getBoss } from "../boss";
 import { type MentionAnalyzer, mentionAnalyzer, type RunMentions } from "../mention-judge/analyze";
-import { mentionAllowanceUsed, secondsUntilTomorrow } from "../perception/mention-budget";
+import { secondsUntilTomorrow, splitByAllowance } from "../perception/mention-budget";
 
 export const DERIVE_RUNS_QUEUE = "derive-runs";
 
@@ -294,6 +294,16 @@ function writeUpdates(
 	});
 }
 
+/** Answers refused for want of the day's mention judge allowance, sent back as one job for tomorrow. */
+async function deferToTomorrow(boss: Pick<PgBoss, "insert">, brandId: string, runIds: string[], reextract: boolean) {
+	if (runIds.length === 0) return;
+	console.warn(`[derive-runs] mention judge allowance used for today; ${runIds.length} runs wait until tomorrow (UTC)`);
+	await sendDeriveRuns(boss, brandId, runIds, DERIVE_PRIORITY.history, {
+		reextract,
+		startAfterSeconds: secondsUntilTomorrow(),
+	});
+}
+
 /**
  * Derives one chunk. A run the judge fails on doesn't hold up the others: it goes back to the
  * queue as its own job, which retries alone; a job of one run fails, so the queue retries it.
@@ -311,12 +321,8 @@ export async function deriveRuns(
 	const runs = await loadRuns(conn, data.runIds, context.target, reextract, days);
 	const updates: { run: StaleRun; update: RunUpdate }[] = [];
 	const failed: string[] = [];
-	const refused: string[] = [];
-	for (const run of runs) {
-		if (await mentionAllowanceUsed(conn, data.brandId, run, context.target, analyzer.judgeVersion)) {
-			refused.push(run.id);
-			continue;
-		}
+	const { allowed, refused } = await splitByAllowance(conn, data.brandId, runs, context.target, analyzer.judgeVersion);
+	for (const run of allowed) {
 		try {
 			const update = await deriveRunUpdate(run, context.target, context.config, analyzer, reextract);
 			if (update.extraction || update.mentions || update.citations) updates.push({ run, update });
@@ -341,15 +347,7 @@ export async function deriveRuns(
 	if (kept.length > 0)
 		console.warn(`[derive-runs] runs kept data their stored payload no longer yields: ${kept.join("; ")}`);
 	await sendDeriveRuns(boss, data.brandId, failed, DERIVE_PRIORITY.new, { reextract, chunkSize: 1 });
-	if (refused.length > 0) {
-		console.warn(
-			`[derive-runs] mention judge allowance used for today; ${refused.length} runs wait until tomorrow (UTC)`,
-		);
-		await sendDeriveRuns(boss, data.brandId, refused, DERIVE_PRIORITY.history, {
-			reextract,
-			startAfterSeconds: secondsUntilTomorrow(),
-		});
-	}
+	await deferToTomorrow(boss, data.brandId, refused, reextract);
 }
 
 /** Younger runs are left to the job sent when they were recorded. */
