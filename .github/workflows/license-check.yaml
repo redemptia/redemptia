@@ -1,7 +1,6 @@
 # License Compliance Check
 #
 # Validates that all dependencies use licenses compatible with MIT.
-# Runs on every push/PR to main and can be triggered manually.
 # Lightweight – only needs Node + pnpm, no Docker or databases.
 
 name: License Check
@@ -9,8 +8,15 @@ name: License Check
 on:
   push:
     branches: [main]
+    paths: &deps
+      - "**/package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "scripts/check-licenses.mjs"
+      - ".github/workflows/license-check.yaml"
   pull_request:
     branches: [main]
+    paths: *deps
   workflow_dispatch:
 
 permissions:

@@ -41,10 +41,6 @@ const OUTPUT_ZIP = resolve(__dirname, "../redemptia-brand-kit.zip");
 /** The letter the square icons draw; the logos spell out the name. */
 const GLYPH = "r";
 
-// ---------------------------------------------------------------------------
-// Fonts
-// ---------------------------------------------------------------------------
-
 function loadFont(path: string): Buffer {
 	return readFileSync(require.resolve(path));
 }
@@ -79,10 +75,6 @@ const fonts = [
 async function render(element: React.ReactElement, width: number, height: number): Promise<Buffer> {
 	return renderOgPng(element, { width, height, fonts });
 }
-
-// ---------------------------------------------------------------------------
-// Icon — "r" glyph scaled to fill the canvas
-// ---------------------------------------------------------------------------
 
 function Icon({ fill, bg, size }: { fill: string; bg?: string; size: number }) {
 	return (
@@ -121,10 +113,6 @@ function MaskableIcon({ size }: { size: number }) {
 	);
 }
 
-// ---------------------------------------------------------------------------
-// Logo — "redemptia" wordmark with equal padding on all sides
-// ---------------------------------------------------------------------------
-
 function Logo({ bg, fontSize }: { bg?: string; fontSize: number }) {
 	return (
 		<div tw="flex items-center justify-center w-full h-full" style={{ backgroundColor: bg || "transparent" }}>
@@ -141,10 +129,6 @@ function Logo({ bg, fontSize }: { bg?: string; fontSize: number }) {
 		</div>
 	);
 }
-
-// ---------------------------------------------------------------------------
-// PatternBanner — repeating "redemptia" wordmark at an angle, wrapping-paper style.
-// ---------------------------------------------------------------------------
 
 function PatternBanner({
 	width,
@@ -286,7 +270,6 @@ for (const bg of logoBgs) {
 	}
 }
 
-// OG
 console.log("\nOG Images:");
 const ogData = await render(renderOgImage({ appName: DEFAULT_APP_NAME, url: SITE_URL }), OG_WIDTH, OG_HEIGHT);
 files.push({ name: "og/og-default.png", data: ogData });
@@ -311,7 +294,6 @@ await addFile(
 	render(<PatternBanner width={3384} height={573} {...sharedBannerStyle} fontScale={0.18} />, 3384, 573),
 );
 
-// Write zip
 console.log("\nPacking zip…");
 
 const output = createWriteStream(OUTPUT_ZIP);

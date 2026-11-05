@@ -27,6 +27,8 @@ export type ReferralSource =
 	| "self-hosted-signup"
 	| "cloud-signin"
 	| "cloud-signup"
+	| "demo-header"
+	| "demo-read-only"
 	| "marketing-cta"
 	| "marketing-nav"
 	| "marketing-hero"

@@ -24,6 +24,8 @@ env:
 jobs:
   install:
     name: Install
+    # Private copies of this repo inherit the schedule; it only needs to run here.
+    if: github.repository == 'redemptia/redemptia'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
 

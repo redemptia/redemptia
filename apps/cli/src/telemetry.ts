@@ -54,16 +54,12 @@ export async function trackCliEvent(
 		});
 		await client.shutdown();
 	} catch {
-		// Telemetry should never block the CLI
+		// Telemetry never blocks the CLI.
 	}
 }
 
-// Newsletter signup is an explicit user action with clear intent, so it
-// fires even when anonymous telemetry is disabled. When telemetry is on the
-// event is keyed off the deployment UUID and the email is attached as a
-// person property — same identity as the rest of the CLI events. When
-// telemetry is off the event is keyed off the email itself, so it is never
-// linked back to the anonymous deployment UUID.
+// An explicit opt-in, so it is sent even with telemetry off. Then it is keyed
+// off the email, so it is never linked to the anonymous deployment id.
 export async function submitNewsletterSignup(configDir: string, email: string): Promise<void> {
 	const key = telemetryKey();
 	if (!key) return;
@@ -82,6 +78,6 @@ export async function submitNewsletterSignup(configDir: string, email: string): 
 		});
 		await client.shutdown();
 	} catch {
-		// Newsletter signup should never block the CLI
+		// A failed signup never blocks the CLI.
 	}
 }

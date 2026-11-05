@@ -1,4 +1,4 @@
-import { PROMPT_JOB_OPTIONS } from "@workspace/lib/constants";
+import { PROMPT_JOB_OPTIONS } from "@workspace/lib/queues/prompt-jobs";
 import { PgBoss } from "pg-boss";
 import { afterAll, describe, expect, it } from "vitest";
 import { getBoss } from "@/lib/boss-client";
