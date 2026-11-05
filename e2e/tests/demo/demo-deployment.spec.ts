@@ -198,7 +198,7 @@ test.describe("Demo features", () => {
     await expect(refusal).toBeVisible({ timeout: 30_000 });
     await expect(refusal.getByRole("link", { name: "Redemptia Cloud" })).toHaveAttribute(
       "href",
-      /app\.redemptiahq\.com\/auth\/register\?ref=demo-read-only/,
+      /app\.redemptia\.in\/auth\/register\?ref=demo-read-only/,
     );
   });
 
