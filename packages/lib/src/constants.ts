@@ -1,18 +1,9 @@
-// Runs per target per firing when the RUNS_PER_PROMPT env var is unset or invalid.
 export const RUNS_PER_PROMPT_FALLBACK = 5;
 
 /**
- * How many times a firing runs each of a prompt's targets. Answers vary between
- * identical calls, so sampling several and aggregating is what makes a mention
- * rate a measurement rather than an anecdote — and it multiplies provider spend
- * one-for-one, which is why an operator paying those bills can turn it down.
- *
- * Outside cloud only. Cloud resolves replication from the plan
- * (`Entitlements.replication`), so this is the lever for local, demo and
- * whitelabel deployments, where the operator pays for every call.
- *
- * Server-only, like getDefaultDelayHours: `process` is not defined in browser
- * bundles.
+ * Answers vary between identical calls, so sampling several makes a mention rate
+ * a measurement, at that multiple of provider spend. Outside cloud only; cloud
+ * takes it from the plan. Server-only.
  */
 export function getRunsPerPrompt(): number {
 	const raw = typeof process !== "undefined" ? process.env.RUNS_PER_PROMPT : undefined;
@@ -22,17 +13,9 @@ export function getRunsPerPrompt(): number {
 	return parsed;
 }
 
-// Fallback cadence (hours) when the DEFAULT_DELAY_HOURS env var is unset or invalid.
 export const DEFAULT_DELAY_HOURS_FALLBACK = 24;
 
-/**
- * Resolves the default prompt cadence (hours) for brands without a
- * delayOverrideHours. Reads DEFAULT_DELAY_HOURS from the environment; falls
- * back to DEFAULT_DELAY_HOURS_FALLBACK when unset, non-numeric, or <= 0.
- *
- * Server-only. Client code should read clientConfig.defaultDelayHours instead
- * of calling this directly — `process` is not defined in browser bundles.
- */
+/** Server-only; client code reads clientConfig.defaultDelayHours. */
 export function getDefaultDelayHours(): number {
 	const raw = typeof process !== "undefined" ? process.env.DEFAULT_DELAY_HOURS : undefined;
 	if (!raw) return DEFAULT_DELAY_HOURS_FALLBACK;
@@ -58,34 +41,5 @@ export const MAX_PROMPTS = 100;
 
 export const PROMPT_SUGGESTION_RUNS_PER_DAY = 5;
 
-/**
- * Sentinel providers store in `prompt_runs.web_queries` when a web search
- * happened (citations prove it) but the provider doesn't expose the actual
- * query strings (OpenRouter always; BrightData/Olostep on extraction failure).
- * Written by the provider implementations and filtered out by every fan-out
- * read path — keep both sides on this constant.
- */
+/** For a search that happened but whose query strings the provider withholds. Fan-out reads filter it out. */
 export const WEB_QUERIES_UNAVAILABLE = "unavailable";
-
-/**
- * Queue options for a process-prompt job, wherever it's scheduled from, and the
- * process-prompt queue's own policy. Web and worker both send with these, so a
- * job's expiry doesn't depend on which process enqueued it.
- *
- * The expiry has to outlast the whole fan-out. A cycle submits every one of its
- * runs at once and each is bounded by the provider's own task ceiling, so the
- * job runs for about as long as its slowest run — which, behind a provider
- * queue deep enough to matter, is that ceiling. If pg-boss expires the job it
- * cannot cancel the running promises, and a retry would pay for the fan-out a
- * second time.
- *
- * `retryLimit: 0` for the same reason from the other side. By the time this job
- * can fail it has already submitted paid requests, and a queue-level retry
- * re-submits the whole fan-out including the runs that succeeded. Recovery goes
- * through the handler's own backoff reschedule instead, or through
- * schedule-maintenance for a job that died before reaching it.
- */
-export const PROMPT_JOB_OPTIONS = {
-	retryLimit: 0,
-	expireInSeconds: 90 * 60,
-} as const;

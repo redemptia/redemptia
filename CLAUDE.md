@@ -72,6 +72,7 @@ This map is derived from the pull-request workflows in `.github/workflows/`. `sc
 | **Dependency License Audit** | | `pnpm license-check` |
 | **E2E Integration Tests** | | CI only: needs Docker (`redemptia init --dev` through `e2e/cli-driver.ts`, then every deployment mode, Playwright and Bruno) |
 | **Scheduling Policy Verification** | | CI only in practice: a throwaway Postgres and a running worker, scripted in `e2e.yaml` |
+| **Detect Code Changes** | | CI only: decides whether the two e2e jobs above run, so a docs-only PR skips them; no local command |
 | **smoke** | | `pnpm -C apps/web exec tsx scripts/smoke-deployment-mode.ts`, then migrate, seed, re-migrate and `pnpm -C packages/lib exec tsx scripts/verify-membership-dedupe.ts`, as `mode-compat.yaml` does |
 | **Install** (only when `skills/` or its workflow changes) | | `scripts/check-skill-install.sh "$PWD" checkout` |
 | **Vercel**, **Vercel Preview Comments** | | External; no local command |

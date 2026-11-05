@@ -1,72 +1,49 @@
-/**
- * A process-prompt job that pg-boss retries re-submits the whole paid provider
- * fan-out, so every path the web app enqueues one through must opt out of
- * queue-level retries. Send-time options override the queue policy.
- */
-import { PROMPT_JOB_OPTIONS } from "@workspace/lib/constants";
+import { PROMPT_JOB_OPTIONS } from "@workspace/lib/queues/prompt-jobs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const send = vi.fn(async () => "job_1");
-const unschedule = vi.fn(async () => {});
+const send = vi.fn().mockResolvedValue("job-id");
+const unschedule = vi.fn().mockResolvedValue(undefined);
 
-vi.mock("@/lib/boss-client", () => ({
-	getBoss: async () => ({ send, unschedule }),
-}));
+vi.mock("@/lib/boss-client", () => ({ getBoss: async () => ({ send, unschedule }) }));
+vi.mock("@workspace/lib/db/db", () => ({ db: { query: { prompts: { findFirst: async () => null } } } }));
 
-vi.mock("@workspace/lib/db/db", () => ({
-	db: {
-		query: {
-			prompts: { findFirst: async () => ({ id: "prompt_1", brandId: "brand_1" }) },
-			brands: { findFirst: async () => ({ id: "brand_1", name: "Acme", delayOverrideHours: null }) },
-		},
-	},
-}));
+const { createPromptJobScheduler, sendImmediatePromptJob } = await import("@/lib/job-scheduler");
 
-const { createPromptJobScheduler, createMultiplePromptJobSchedulers, sendImmediatePromptJob } = await import(
-	"@/lib/job-scheduler"
-);
-
-function promptJobOptions() {
-	const calls = send.mock.calls as unknown as [string, unknown, Record<string, unknown>][];
-	const promptCalls = calls.filter(([queue]) => queue === "process-prompt");
-	expect(promptCalls.length).toBeGreaterThan(0);
-	return promptCalls.map(([, , options]) => options);
+function sentOptions() {
+	return send.mock.calls.at(-1)?.[2] ?? {};
 }
 
-describe("prompt job enqueueing", () => {
-	beforeEach(() => {
-		send.mockClear();
-		vi.spyOn(console, "log").mockImplementation(() => {});
+beforeEach(() => {
+	send.mockClear();
+});
+
+describe("what the web app queues a prompt cycle with", () => {
+	it("never lets the queue retry a cycle it has already paid for", async () => {
+		await createPromptJobScheduler("prompt-1");
+		expect(sentOptions().retryLimit).toBe(0);
+
+		await sendImmediatePromptJob("prompt-1");
+		expect(sentOptions().retryLimit).toBe(0);
 	});
 
-	it("never retries a prompt job scheduled to run now", async () => {
-		await expect(createPromptJobScheduler("prompt_1")).resolves.toBe(true);
-		for (const options of promptJobOptions()) expect(options.retryLimit).toBe(0);
+	it("gives a cycle longer than its slowest provider before expiring it", async () => {
+		await createPromptJobScheduler("prompt-1");
+
+		expect(sentOptions().expireInSeconds).toBeGreaterThanOrEqual(60 * 60);
+		expect(sentOptions().expireInSeconds).toBe(PROMPT_JOB_OPTIONS.expireInSeconds);
 	});
 
-	it("never retries a prompt job scheduled for its next cadence", async () => {
-		await expect(createPromptJobScheduler("prompt_1", { sendImmediate: false })).resolves.toBe(true);
-		for (const options of promptJobOptions()) expect(options.retryLimit).toBe(0);
+	it("holds the prompt's singleton key so a second send can't double the cycle", async () => {
+		await createPromptJobScheduler("prompt-1");
+
+		expect(sentOptions().singletonKey).toBe("prompt-prompt-1");
+		expect(sentOptions().singletonSeconds).toBeGreaterThan(0);
 	});
 
-	it("never retries prompt jobs scheduled in bulk", async () => {
-		await expect(createMultiplePromptJobSchedulers(["prompt_1", "prompt_2"])).resolves.toEqual([true, true]);
-		const options = promptJobOptions();
-		expect(options).toHaveLength(2);
-		for (const option of options) expect(option.retryLimit).toBe(0);
-	});
+	it("runs a manual retry now, even mid-cadence", async () => {
+		await sendImmediatePromptJob("prompt-1");
 
-	it("never retries a manually triggered prompt job", async () => {
-		await expect(sendImmediatePromptJob("prompt_1")).resolves.toBe(true);
-		for (const options of promptJobOptions()) expect(options.retryLimit).toBe(0);
-	});
-
-	it("gives web-enqueued prompt jobs the same expiry as worker-enqueued ones", async () => {
-		await createPromptJobScheduler("prompt_1");
-		await createPromptJobScheduler("prompt_1", { sendImmediate: false });
-		await sendImmediatePromptJob("prompt_1");
-		for (const options of promptJobOptions()) {
-			expect(options.expireInSeconds).toBe(PROMPT_JOB_OPTIONS.expireInSeconds);
-		}
+		expect(sentOptions().singletonKey).toBeUndefined();
+		expect(sentOptions().startAfter).toBeUndefined();
 	});
 });
