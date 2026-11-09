@@ -37,7 +37,7 @@
     "license-check": "node scripts/check-licenses.mjs"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.6.4",
+    "@biomejs/biome": "2.6.5",
     "@changesets/cli": "^3.0.3",
     "knip": "^6.44.1",
     "tsx": "catalog:",
